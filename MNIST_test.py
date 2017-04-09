@@ -111,9 +111,11 @@ class TwoLayerNet2:
     def __init__(self, input_size, hidden_size, output_size, weight_init_std = 0.01):
         # 가중치 초기화
         self.params = {}
-        self.params['W1'] = weight_init_std * np.random.randn(input_size, hidden_size)
+        self.params['W1'] = np.sqrt(2/input_size) * np.random.randn(input_size, hidden_size)
+        #self.params['W1'] = weight_init_std * np.random.randn(input_size, hidden_size)
         self.params['b1'] = np.zeros(hidden_size)
-        self.params['W2'] = weight_init_std * np.random.randn(hidden_size, output_size) 
+        self.params['W2'] = np.sqrt( 1/hidden_size ) * np.random.randn(hidden_size, output_size)
+        #self.params['W2'] = weight_init_std * np.random.randn(hidden_size, output_size)
         self.params['b2'] = np.zeros(output_size)
 
         # 계층 생성
@@ -470,7 +472,7 @@ def Get_Modified_Image(in_filename,out_filename, ref=False, clean = False):
 def MNIST_Image_Test():
     (x_train,t_train), (x_test,t_test) = load_mnist(normalize=False, flatten=True, one_hot_label=False)
     
-    image_num = 215
+    image_num = 0
     img = x_train[image_num]
     label = t_train[image_num]
 
