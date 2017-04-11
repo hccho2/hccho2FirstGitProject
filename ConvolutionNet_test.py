@@ -45,7 +45,7 @@ class Convolution:
         self.dW = self.dW.transpose(1, 0).reshape(FN, C, FH, FW)
 
         dcol = np.dot(dout, self.col_W.T)
-        dx = col2im(dcol, self.x.shape, FH, FW, self.stride, self.pad)
+        dx = col2im_back(dcol, self.x.shape, FH, FW, self.stride, self.pad)
 
         return dx
 
