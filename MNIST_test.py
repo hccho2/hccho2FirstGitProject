@@ -27,7 +27,7 @@ img_dim = (1, 28, 28)
 img_size = 784
 
 
-class TwoLayerNet:
+class TwoLayerNet:  #sub_Layer를 없이 직접 구성
 
     def __init__(self, input_size, hidden_size, output_size, weight_init_std=0.01):
         # 가중치 초기화
@@ -106,7 +106,7 @@ class TwoLayerNet:
 
 
 
-class TwoLayerNet2:
+class TwoLayerNet2:   #sub_Layer를 활용하여 구성
 
     def __init__(self, input_size, hidden_size, output_size, weight_init_std = 0.01):
         # 가중치 초기화
