@@ -1,6 +1,197 @@
 # coding: utf-8
 import numpy as np
+import os.path
+import pickle
+from PIL import Image
+from PIL import ImageOps
 import matplotlib.pyplot as plt
+import time
+import datetime
+from collections import OrderedDict
+
+url_base = 'http://yann.lecun.com/exdb/mnist/'
+key_file = {
+    'train_img':'train-images-idx3-ubyte.gz',
+    'train_label':'train-labels-idx1-ubyte.gz',
+    'test_img':'t10k-images-idx3-ubyte.gz',
+    'test_label':'t10k-labels-idx1-ubyte.gz'
+}
+
+dataset_dir = os.path.dirname(os.path.abspath(__file__))
+save_file = dataset_dir + "/mnist.pkl"
+
+class SimpleConvNet:
+    """단순한 합성곱 신경망
+    
+    conv - relu - pool - affine - relu - affine - softmax
+    
+    Parameters
+    ----------
+    input_size : 입력 크기（MNIST의 경우엔 784）
+    hidden_size_list : 각 은닉층의 뉴런 수를 담은 리스트（e.g. [100, 100, 100]）
+    output_size : 출력 크기（MNIST의 경우엔 10）
+    activation : 활성화 함수 - 'relu' 혹은 'sigmoid'
+    weight_init_std : 가중치의 표준편차 지정（e.g. 0.01）
+        'relu'나 'he'로 지정하면 'He 초깃값'으로 설정
+        'sigmoid'나 'xavier'로 지정하면 'Xavier 초깃값'으로 설정
+    """
+    def __init__(self, input_dim=(1, 28, 28), conv_param={'filter_num':30, 'filter_size':5, 'pad':0, 'stride':1},
+                 hidden_size=100, output_size=10, weight_init_std=0.01):
+        filter_num = conv_param['filter_num']
+        filter_size = conv_param['filter_size']
+        filter_pad = conv_param['pad']
+        filter_stride = conv_param['stride']
+        input_size = input_dim[1]
+        conv_output_size = (input_size - filter_size + 2*filter_pad) / filter_stride + 1
+        pool_output_size = int(filter_num * (conv_output_size/2) * (conv_output_size/2))
+
+        # 가중치 초기화
+        self.params = {}
+        # 계층 생성
+        self.layers = OrderedDict()
+
+
+
+        # For Conv1
+        self.params['W1'] = weight_init_std * np.random.randn(filter_num, input_dim[0], filter_size, filter_size)  #FN,C,FH,FW
+        self.params['b1'] = np.zeros(filter_num)  # Filter W가 2차원array로 변환 되면, (FH x FW x C) x FN 이므로 b의 shape는 1 x FN
+        self.layers['Conv1'] = Convolution(self.params['W1'], self.params['b1'],conv_param['stride'], conv_param['pad'])
+        # Conv1을 지나고 나면, Output은 4차원 (N,FN,OH,OW)가 된다.
+        
+        self.layers['Relu1'] = Relu()
+        # Relu를 지나면서 Output shape는 변하지 않는다.
+        
+        self.layers['Pool1'] = Pooling(pool_h=2, pool_w=2, stride=2)
+        
+        self.params['W2'] = weight_init_std * np.random.randn(pool_output_size, hidden_size)
+        self.params['b2'] = np.zeros(hidden_size)
+        
+        
+        
+        self.params['W3'] = weight_init_std * np.random.randn(hidden_size, output_size)
+        self.params['b3'] = np.zeros(output_size)
+
+
+        
+        
+        
+        self.layers['Affine1'] = Affine(self.params['W2'], self.params['b2'])
+        self.layers['Relu2'] = Relu()
+        self.layers['Affine2'] = Affine(self.params['W3'], self.params['b3'])
+
+        self.last_layer = SoftmaxWithLoss()
+
+    def predict(self, x):
+        for layer in self.layers.values():
+            x = layer.forward(x)
+
+        return x
+        
+    def predict_from_learning(self, x):
+        for layer in self.layers.values():
+            x = layer.forward(x)
+        
+        return softmax(x)
+        
+    def loss(self, x, t):
+        """손실 함수를 구한다.
+
+        Parameters
+        ----------
+        x : 입력 데이터
+        t : 정답 레이블
+        """
+        y = self.predict(x)
+        return self.last_layer.forward(y, t)
+
+    def accuracy(self, x, t, batch_size=100):
+        if t.ndim != 1 : t = np.argmax(t, axis=1)
+        
+        acc = 0.0
+        
+        for i in range(int(x.shape[0] / batch_size)):
+            tx = x[i*batch_size:(i+1)*batch_size]
+            tt = t[i*batch_size:(i+1)*batch_size]
+            y = self.predict(tx)
+            y = np.argmax(y, axis=1)
+            acc += np.sum(y == tt) 
+        
+        return acc / x.shape[0]
+
+    def numerical_gradient(self, x, t):
+        """기울기를 구한다（수치미분）.
+
+        Parameters
+        ----------
+        x : 입력 데이터
+        t : 정답 레이블
+
+        Returns
+        -------
+        각 층의 기울기를 담은 사전(dictionary) 변수
+            grads['W1']、grads['W2']、... 각 층의 가중치
+            grads['b1']、grads['b2']、... 각 층의 편향
+        """
+        loss_w = lambda w: self.loss(x, t)
+
+        grads = {}
+        for idx in (1, 2, 3):
+            grads['W' + str(idx)] = numerical_gradient(loss_w, self.params['W' + str(idx)])
+            grads['b' + str(idx)] = numerical_gradient(loss_w, self.params['b' + str(idx)])
+
+        return grads
+
+    def gradient(self, x, t):
+        """기울기를 구한다(오차역전파법).
+
+        Parameters
+        ----------
+        x : 입력 데이터
+        t : 정답 레이블
+
+        Returns
+        -------
+        각 층의 기울기를 담은 사전(dictionary) 변수
+            grads['W1']、grads['W2']、... 각 층의 가중치
+            grads['b1']、grads['b2']、... 각 층의 편향
+        """
+        # forward
+        self.loss(x, t)
+
+        # backward
+        dout = 1
+        dout = self.last_layer.backward(dout)
+
+        layers = list(self.layers.values())
+        layers.reverse()
+        for layer in layers:
+            dout = layer.backward(dout)
+
+        # 결과 저장
+        grads = {}
+        grads['W1'], grads['b1'] = self.layers['Conv1'].dW, self.layers['Conv1'].db
+        grads['W2'], grads['b2'] = self.layers['Affine1'].dW, self.layers['Affine1'].db
+        grads['W3'], grads['b3'] = self.layers['Affine2'].dW, self.layers['Affine2'].db
+
+        return grads
+        
+    def save_params(self, file_name="params.pkl"):
+        params = {}
+        for key, val in self.params.items():
+            params[key] = val
+        with open(file_name, 'wb') as f:
+            pickle.dump(params, f)
+
+    def load_params(self, file_name="params.pkl"):
+        with open(file_name, 'rb') as f:
+            params = pickle.load(f)
+        for key, val in params.items():
+            self.params[key] = val
+
+        for i, key in enumerate(['Conv1', 'Affine1', 'Affine2']):
+            self.layers[key].W = self.params['W' + str(i+1)]
+            self.layers[key].b = self.params['b' + str(i+1)]
+
 
 class Convolution:
     def __init__(self, W, b, stride=1, pad=0):
@@ -87,7 +278,74 @@ class Pooling:
         dx = col2im(dcol, self.x.shape, self.pool_h, self.pool_w, self.stride, self.pad)
         
         return dx
+class SoftmaxWithLoss:
+    def __init__(self):
+        self.loss = None # 손실함수
+        self.y = None    # softmax의 출력
+        self.t = None    # 정답 레이블(원-핫 인코딩 형태)
+        
+    def forward(self, x, t):
+        self.t = t
+        self.y = softmax(x)
+        self.loss = cross_entropy_error(self.y, self.t)
+        
+        return self.loss
 
+    def backward(self, dout=1):
+        batch_size = self.t.shape[0]
+        if self.t.size == self.y.size: # 정답 레이블이 원-핫 인코딩 형태일 때
+            dx = (self.y - self.t) / batch_size
+        else:
+            dx = self.y.copy()
+            dx[np.arange(batch_size), self.t] -= 1
+            dx = dx / batch_size
+        
+        return dx
+    
+class Affine:
+    def __init__(self, W, b):
+        self.W = W
+        self.b = b
+        
+        self.x = None
+        self.original_x_shape = None
+        # 가중치와 편향 매개변수의 미분
+        self.dW = None
+        self.db = None
+
+    def forward(self, x):
+        # 텐서 대응
+        self.original_x_shape = x.shape
+        x = x.reshape(x.shape[0], -1)
+        self.x = x
+
+        out = np.dot(self.x, self.W) + self.b
+
+        return out
+
+    def backward(self, dout):
+        dx = np.dot(dout, self.W.T)
+        self.dW = np.dot(self.x.T, dout)
+        self.db = np.sum(dout, axis=0)
+        
+        dx = dx.reshape(*self.original_x_shape)  # 입력 데이터 모양 변경(텐서 대응)
+        return dx    
+class Relu:
+    def __init__(self):
+        self.mask = None
+
+    def forward(self, x):
+        self.mask = (x <= 0)
+        out = x.copy()
+        out[self.mask] = 0
+
+        return out
+
+    def backward(self, dout):
+        dout[self.mask] = 0
+        dx = dout
+
+        return dx
 
 def im2col(input_data, filter_h, filter_w, stride=1, pad=0):
     """다수의 이미지를 입력받아 2차원 배열로 변환한다(평탄화).
@@ -178,39 +436,387 @@ def col2im(col, input_shape, filter_h, filter_w, stride=1, pad=0):
             img[:, :, y:y_max:stride, x:x_max:stride] = col[:, :, y, x, :, :]
 
     return img[:, :, pad:H + pad, pad:W + pad]     
-#x1 = np.random.rand(1,3,7,7)
-#x1 = np.random.randint(10,size=(1,3,7,7))
-x1 = np.array([[[[9, 9, 0, 7, 8, 4, 6],
-         [8, 1, 5, 0, 2, 3, 5],
-         [8, 9, 1, 7, 3, 9, 2],
-         [2, 2, 9, 1, 3, 0, 5],
-         [1, 4, 2, 7, 5, 0, 4],
-         [0, 2, 6, 9, 3, 2, 6],
-         [8, 1, 1, 6, 9, 1, 5]],
 
-        [[7, 7, 2, 1, 5, 5, 4],
-         [5, 9, 4, 6, 4, 4, 4],
-         [2, 9, 4, 2, 4, 2, 5],
-         [2, 0, 5, 6, 0, 8, 5],
-         [3, 9, 4, 9, 7, 5, 4],
-         [8, 7, 2, 0, 2, 5, 3],
-         [8, 3, 5, 7, 5, 4, 7]],
+class SGD:
 
-        [[7, 5, 4, 4, 6, 9, 0],
-         [4, 9, 0, 3, 9, 1, 0],
-         [6, 5, 5, 3, 6, 3, 7],
-         [7, 1, 9, 8, 2, 7, 4],
-         [5, 1, 3, 8, 2, 7, 7],
-         [4, 6, 2, 8, 3, 3, 8],
-         [1, 5, 6, 5, 5, 7, 6]]]])
-W = np.random.randn(2,3,5,5)
-b = np.zeros(2)
+    """확률적 경사 하강법（Stochastic Gradient Descent）"""
+
+    def __init__(self, lr=0.01):
+        self.lr = lr
+        
+    def update(self, params, grads):
+        for key in params.keys():
+            params[key] -= self.lr * grads[key] 
+class Momentum:
+
+    """모멘텀 SGD"""
+
+    def __init__(self, lr=0.01, momentum=0.9):
+        self.lr = lr
+        self.momentum = momentum
+        self.v = None
+        
+    def update(self, params, grads):
+        if self.v is None:
+            self.v = {}
+            for key, val in params.items():                                
+                self.v[key] = np.zeros_like(val)
+                
+        for key in params.keys():
+            self.v[key] = self.momentum*self.v[key] - self.lr*grads[key] 
+            params[key] += self.v[key]
 
 
-convnet = Convolution(W,b,stride=2, pad=0)
+class Nesterov:
 
-x2 = convnet.forward(x1)
-poolnet = Pooling(2,2,stride=2,pad=0)
-x3 = poolnet.forward(x2)
+    """Nesterov's Accelerated Gradient (http://arxiv.org/abs/1212.0901)"""
+    # NAG는 모멘텀에서 한 단계 발전한 방법이다. (http://newsight.tistory.com/224)
+    
+    def __init__(self, lr=0.01, momentum=0.9):
+        self.lr = lr
+        self.momentum = momentum
+        self.v = None
+        
+    def update(self, params, grads):
+        if self.v is None:
+            self.v = {}
+            for key, val in params.items():
+                self.v[key] = np.zeros_like(val)
+            
+        for key in params.keys():
+            self.v[key] *= self.momentum
+            self.v[key] -= self.lr * grads[key]
+            params[key] += self.momentum * self.momentum * self.v[key]
+            params[key] -= (1 + self.momentum) * self.lr * grads[key]
 
-y = poolnet.backward(x3)
+class AdaGrad:
+
+    """AdaGrad"""
+
+    def __init__(self, lr=0.01):
+        self.lr = lr
+        self.h = None
+        
+    def update(self, params, grads):
+        if self.h is None:
+            self.h = {}
+            for key, val in params.items():
+                self.h[key] = np.zeros_like(val)
+            
+        for key in params.keys():
+            self.h[key] += grads[key] * grads[key]
+            params[key] -= self.lr * grads[key] / (np.sqrt(self.h[key]) + 1e-7)
+class RMSprop:
+
+    """RMSprop"""
+
+    def __init__(self, lr=0.01, decay_rate = 0.99):
+        self.lr = lr
+        self.decay_rate = decay_rate
+        self.h = None
+        
+    def update(self, params, grads):
+        if self.h is None:
+            self.h = {}
+            for key, val in params.items():
+                self.h[key] = np.zeros_like(val)
+            
+        for key in params.keys():
+            self.h[key] *= self.decay_rate
+            self.h[key] += (1 - self.decay_rate) * grads[key] * grads[key]
+            params[key] -= self.lr * grads[key] / (np.sqrt(self.h[key]) + 1e-7)
+
+
+class Adam:
+
+    """Adam (http://arxiv.org/abs/1412.6980v8)"""
+
+    def __init__(self, lr=0.001, beta1=0.9, beta2=0.999):
+        self.lr = lr
+        self.beta1 = beta1
+        self.beta2 = beta2
+        self.iter = 0
+        self.m = None
+        self.v = None
+        
+    def update(self, params, grads):
+        if self.m is None:
+            self.m, self.v = {}, {}
+            for key, val in params.items():
+                self.m[key] = np.zeros_like(val)
+                self.v[key] = np.zeros_like(val)
+        
+        self.iter += 1
+        lr_t  = self.lr * np.sqrt(1.0 - self.beta2**self.iter) / (1.0 - self.beta1**self.iter)         
+        
+        for key in params.keys():
+            #self.m[key] = self.beta1*self.m[key] + (1-self.beta1)*grads[key]
+            #self.v[key] = self.beta2*self.v[key] + (1-self.beta2)*(grads[key]**2)
+            self.m[key] += (1 - self.beta1) * (grads[key] - self.m[key])
+            self.v[key] += (1 - self.beta2) * (grads[key]**2 - self.v[key])
+            
+            params[key] -= lr_t * self.m[key] / (np.sqrt(self.v[key]) + 1e-7)
+            
+            #unbias_m += (1 - self.beta1) * (grads[key] - self.m[key]) # correct bias
+            #unbisa_b += (1 - self.beta2) * (grads[key]*grads[key] - self.v[key]) # correct bias
+            #params[key] += self.lr * unbias_m / (np.sqrt(unbisa_b) + 1e-7)
+
+class Trainer:
+    """신경망 훈련을 대신 해주는 클래스
+    """
+    def __init__(self, network, x_train, t_train, x_test, t_test,
+                 epochs=20, mini_batch_size=100,
+                 optimizer='SGD', optimizer_param={'lr':0.01}, 
+                 evaluate_sample_num_per_epoch=None, verbose=True):
+        self.network = network
+        self.verbose = verbose
+        self.x_train = x_train
+        self.t_train = t_train
+        self.x_test = x_test
+        self.t_test = t_test
+        self.epochs = epochs
+        self.batch_size = mini_batch_size
+        self.evaluate_sample_num_per_epoch = evaluate_sample_num_per_epoch
+
+        # optimzer
+        optimizer_class_dict = {'sgd':SGD, 'momentum':Momentum, 'nesterov':Nesterov,
+                                'adagrad':AdaGrad, 'rmsprpo':RMSprop, 'adam':Adam}
+        self.optimizer = optimizer_class_dict[optimizer.lower()](**optimizer_param)
+        
+        self.train_size = x_train.shape[0]
+        self.iter_per_epoch = max(self.train_size / mini_batch_size, 1)
+        self.max_iter = int(epochs * self.iter_per_epoch)
+        self.current_iter = 0
+        self.current_epoch = 0
+        
+        self.train_loss_list = []
+        self.train_acc_list = []
+        self.test_acc_list = []
+
+    def train_step(self):
+        batch_mask = np.random.choice(self.train_size, self.batch_size)
+        x_batch = self.x_train[batch_mask]
+        t_batch = self.t_train[batch_mask]
+        
+        grads = self.network.gradient(x_batch, t_batch)
+        self.optimizer.update(self.network.params, grads)
+        
+        loss = self.network.loss(x_batch, t_batch)
+        self.train_loss_list.append(loss)
+        if self.verbose: print("train loss:" + str(loss))
+        
+        if self.current_iter % self.iter_per_epoch == 0:
+            self.current_epoch += 1
+            
+            x_train_sample, t_train_sample = self.x_train, self.t_train
+            x_test_sample, t_test_sample = self.x_test, self.t_test
+            if not self.evaluate_sample_num_per_epoch is None:
+                t = self.evaluate_sample_num_per_epoch
+                x_train_sample, t_train_sample = self.x_train[:t], self.t_train[:t]
+                x_test_sample, t_test_sample = self.x_test[:t], self.t_test[:t]
+                
+            train_acc = self.network.accuracy(x_train_sample, t_train_sample)
+            test_acc = self.network.accuracy(x_test_sample, t_test_sample)
+            self.train_acc_list.append(train_acc)
+            self.test_acc_list.append(test_acc)
+
+            if self.verbose: print("=== epoch:" + str(self.current_epoch) + ", train acc:" + str(train_acc) + ", test acc:" + str(test_acc) + " ===")
+        self.current_iter += 1
+
+    def train(self):
+        for i in range(self.max_iter):
+            self.train_step()
+
+        test_acc = self.network.accuracy(self.x_test, self.t_test)
+
+        if self.verbose:
+            print("=============== Final Test Accuracy ===============")
+            print("test acc:" + str(test_acc))
+def load_mnist(normalize=True, flatten=True, one_hot_label=False):
+    """MNIST 데이터셋 읽기
+
+    Parameters
+    ----------
+    normalize : 이미지의 픽셀 값을 0.0~1.0 사이의 값으로 정규화할지 정한다.
+    one_hot_label : 
+        one_hot_label이 True면、레이블을 원-핫(one-hot) 배열로 돌려준다.
+        one-hot 배열은 예를 들어 [0,0,1,0,0,0,0,0,0,0]처럼 한 원소만 1인 배열이다.
+    flatten : 입력 이미지를 1차원 배열로 만들지를 정한다. 
+
+    Returns
+    -------
+    (훈련 이미지, 훈련 레이블), (시험 이미지, 시험 레이블)
+    """
+    if not os.path.exists(save_file):
+        init_mnist()
+
+    with open(save_file, 'rb') as f:
+        dataset = pickle.load(f)
+
+    if normalize:
+        for key in ('train_img', 'test_img'):
+            dataset[key] = dataset[key].astype(np.float32)
+            dataset[key] /= 255.0
+
+    if one_hot_label:
+        dataset['train_label'] = _change_ont_hot_label(dataset['train_label'])
+        dataset['test_label'] = _change_ont_hot_label(dataset['test_label'])
+
+    if not flatten:
+        for key in ('train_img', 'test_img'):
+            dataset[key] = dataset[key].reshape(-1, 1, 28, 28)
+
+    return (dataset['train_img'], dataset['train_label']), (dataset['test_img'], dataset['test_label'])
+    
+def softmax(x):
+    if x.ndim == 2:
+        x = x.T
+        x = x - np.max(x, axis=0)
+        y = np.exp(x) / np.sum(np.exp(x), axis=0)
+        return y.T 
+
+    x = x - np.max(x) # 오버플로 대책
+    return np.exp(x) / np.sum(np.exp(x))
+
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))  
+
+def sigmoid_grad(x):
+    return (1.0 - sigmoid(x)) * sigmoid(x)
+
+def cross_entropy_error(y, t):
+    if y.ndim == 1:
+        t = t.reshape(1, t.size)
+        y = y.reshape(1, y.size)
+         
+    # 훈련 데이터가 원-핫 벡터라면 정답 레이블의 인덱스로 반환
+    if t.size == y.size:
+        t = t.argmax(axis=1)
+              
+    batch_size = y.shape[0]
+    return -np.sum(np.log(y[np.arange(batch_size), t])) / batch_size 
+def load_imagefile2(filename, ref=False,flatten = True):
+    img = Image.open(filename)
+    
+    if img.format != 'PNG':
+        img.save('tmp.png')
+        img = Image.open('tmp.png')    
+    
+    img = img.resize((28,28), Image.ANTIALIAS)  #    Image.ANTIALIAS, BICUBIC
+    img = img.convert("L")   #RGB, CMYK, L(256단계 흑백 이미지), 1(단색)
+    
+    if ref==True:
+        img = ImageOps.invert(img)
+    
+        
+            
+    img_data = np.array([img.getdata()],np.float32)  
+    if not flatten:
+        img_data = img_data.reshape(-1, 1, 28, 28)
+    return img_data/255.0    
+def Test1():
+    #x1 = np.random.rand(1,3,7,7)
+    #x1 = np.random.randint(10,size=(1,3,7,7))
+    x1 = np.array([[[[9, 9, 0, 7, 8, 4, 6],
+             [8, 1, 5, 0, 2, 3, 5],
+             [8, 9, 1, 7, 3, 9, 2],
+             [2, 2, 9, 1, 3, 0, 5],
+             [1, 4, 2, 7, 5, 0, 4],
+             [0, 2, 6, 9, 3, 2, 6],
+             [8, 1, 1, 6, 9, 1, 5]],
+    
+            [[7, 7, 2, 1, 5, 5, 4],
+             [5, 9, 4, 6, 4, 4, 4],
+             [2, 9, 4, 2, 4, 2, 5],
+             [2, 0, 5, 6, 0, 8, 5],
+             [3, 9, 4, 9, 7, 5, 4],
+             [8, 7, 2, 0, 2, 5, 3],
+             [8, 3, 5, 7, 5, 4, 7]],
+    
+            [[7, 5, 4, 4, 6, 9, 0],
+             [4, 9, 0, 3, 9, 1, 0],
+             [6, 5, 5, 3, 6, 3, 7],
+             [7, 1, 9, 8, 2, 7, 4],
+             [5, 1, 3, 8, 2, 7, 7],
+             [4, 6, 2, 8, 3, 3, 8],
+             [1, 5, 6, 5, 5, 7, 6]]]])
+    W = np.random.randn(2,3,5,5)
+    b = np.zeros(2)
+    
+    
+    convnet = Convolution(W,b,stride=2, pad=0)
+    
+    x2 = convnet.forward(x1)
+    
+    relunet = Relu()
+    x3 = relunet.forward(x2)
+    poolnet = Pooling(2,2,stride=2,pad=0)
+    x4 = poolnet.forward(x3)
+    
+    affinenet = Affine()
+    
+    #
+    #y = poolnet.backward(x3)
+
+
+
+
+def Test2():
+    (x_train, t_train), (x_test, t_test) = load_mnist(flatten=False)
+    
+    # 시간이 오래 걸릴 경우 데이터를 줄인다.
+    #x_train, t_train = x_train[:5000], t_train[:5000]
+    #x_test, t_test = x_test[:1000], t_test[:1000]
+    
+    max_epochs = 20
+    
+    network = SimpleConvNet(input_dim=(1,28,28), 
+                            conv_param = {'filter_num': 30, 'filter_size': 5, 'pad': 0, 'stride': 1},
+                            hidden_size=100, output_size=10, weight_init_std=0.01)
+                            
+    trainer = Trainer(network, x_train, t_train, x_test, t_test,
+                      epochs=max_epochs, mini_batch_size=100,
+                      optimizer='Adam', optimizer_param={'lr': 0.001},
+                      evaluate_sample_num_per_epoch=1000)
+    trainer.train()
+    
+    # 매개변수 보존
+    network.save_params("params.pkl")
+    print("Saved Network Parameters!")
+    
+    # 그래프 그리기
+    markers = {'train': 'o', 'test': 's'}
+    x = np.arange(max_epochs)
+    plt.plot(x, trainer.train_acc_list, marker='o', label='train', markevery=2)
+    plt.plot(x, trainer.test_acc_list, marker='s', label='test', markevery=2)
+    plt.xlabel("epochs")
+    plt.ylabel("accuracy")
+    plt.ylim(0, 1.0)
+    plt.legend(loc='lower right')
+    plt.show()
+def Test3():
+    network = SimpleConvNet(input_dim=(1,28,28), 
+                            conv_param = {'filter_num': 30, 'filter_size': 5, 'pad': 0, 'stride': 1},
+                            hidden_size=100, output_size=10, weight_init_std=0.01)    
+    
+    network.load_params("params.pkl")
+    
+    REF = False
+    Test_Files = ["40.png","41.png","50.png","51.png","60.png","61.png","70.png","71.png","800.png", "90.png","91.png"]  
+  
+    for i in range(len(Test_Files)):
+        my_test_data = load_imagefile2(Test_Files[i],ref=REF,flatten = False)
+        my_result = network.predict_from_learning(my_test_data)
+        print(Test_Files[i], np.argmax(my_result), my_result)        
+        img = Image.open(Test_Files[i])
+        plt.figure()
+        plt.title('Predicted: ' + str(np.argmax(my_result)))
+        plt.imshow(img)  
+        plt.show()
+        plt.close()    
+    
+    
+    
+if __name__ == '__main__':
+    #Test2()
+    Test3()
