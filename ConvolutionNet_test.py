@@ -42,8 +42,8 @@ class SimpleConvNet:
         filter_pad = conv_param['pad']
         filter_stride = conv_param['stride']
         input_size = input_dim[1]
-        conv_output_size = (input_size - filter_size + 2*filter_pad) / filter_stride + 1
-        pool_output_size = int(filter_num * (conv_output_size/2) * (conv_output_size/2))
+        conv_output_size = (input_size - filter_size + 2*filter_pad) // filter_stride + 1 # OH=OW
+        pool_output_size = int(filter_num * (conv_output_size//2) * (conv_output_size//2))
 
         # 가중치 초기화
         self.params = {}
@@ -62,23 +62,23 @@ class SimpleConvNet:
         # Relu를 지나면서 Output shape는 변하지 않는다.
         
         self.layers['Pool1'] = Pooling(pool_h=2, pool_w=2, stride=2)
+        # Pooling 결과 (N,FN,POH,POW)  ==> Affine으로 넘기면 N by (FN x POH x POW)의 2차원 array로 Affine내부에서 바뀜
+        # 여기서 pool_output_size = FN x POH x POW
+        # 그래서 W2의 크기를 (pool_output_size x hidden_size)로 함.
+        
         
         self.params['W2'] = weight_init_std * np.random.randn(pool_output_size, hidden_size)
         self.params['b2'] = np.zeros(hidden_size)
+        self.layers['Affine1'] = Affine(self.params['W2'], self.params['b2'])
         
         
+        self.layers['Relu2'] = Relu()
         
         self.params['W3'] = weight_init_std * np.random.randn(hidden_size, output_size)
         self.params['b3'] = np.zeros(output_size)
-
-
-        
-        
-        
-        self.layers['Affine1'] = Affine(self.params['W2'], self.params['b2'])
-        self.layers['Relu2'] = Relu()
         self.layers['Affine2'] = Affine(self.params['W3'], self.params['b3'])
 
+    
         self.last_layer = SoftmaxWithLoss()
 
     def predict(self, x):
