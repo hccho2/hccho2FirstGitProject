@@ -5,6 +5,7 @@ import pickle
 from PIL import Image
 from PIL import ImageOps
 import matplotlib.pyplot as plt
+from matplotlib.image import imread
 import time
 import datetime
 from collections import OrderedDict
@@ -192,6 +193,143 @@ class SimpleConvNet:
             self.layers[key].W = self.params['W' + str(i+1)]
             self.layers[key].b = self.params['b' + str(i+1)]
 
+class DeepConvNet:
+    """정확도 99% 이상의 고정밀 합성곱 신경망
+
+    네트워크 구성은 아래와 같음
+        conv - relu - conv- relu - pool -
+        conv - relu - conv- relu - pool -
+        conv - relu - conv- relu - pool -
+        affine - relu - dropout - affine - dropout - softmax
+    """
+    def __init__(self, input_dim=(1, 28, 28),
+                 conv_param_1 = {'filter_num':16, 'filter_size':3, 'pad':1, 'stride':1},
+                 conv_param_2 = {'filter_num':16, 'filter_size':3, 'pad':1, 'stride':1},
+                 conv_param_3 = {'filter_num':32, 'filter_size':3, 'pad':1, 'stride':1},
+                 conv_param_4 = {'filter_num':32, 'filter_size':3, 'pad':2, 'stride':1},
+                 conv_param_5 = {'filter_num':64, 'filter_size':3, 'pad':1, 'stride':1},
+                 conv_param_6 = {'filter_num':64, 'filter_size':3, 'pad':1, 'stride':1},
+                 hidden_size=50, output_size=10):
+        # 가중치 초기화===========
+        # 각 층의 뉴런 하나당 앞 층의 몇 개 뉴런과 연결되는가（TODO: 자동 계산되게 바꿀 것）
+        pre_node_nums = np.array([1*3*3, 16*3*3, 16*3*3, 32*3*3, 32*3*3, 64*3*3, 64*4*4, hidden_size])
+        wight_init_scales = np.sqrt(2.0 / pre_node_nums)  # ReLU를 사용할 때의 권장 초깃값
+        
+        self.params = {}
+        pre_channel_num = input_dim[0]
+        for idx, conv_param in enumerate([conv_param_1, conv_param_2, conv_param_3, conv_param_4, conv_param_5, conv_param_6]):
+            self.params['W' + str(idx+1)] = wight_init_scales[idx] * np.random.randn(conv_param['filter_num'], pre_channel_num, conv_param['filter_size'], conv_param['filter_size'])
+            self.params['b' + str(idx+1)] = np.zeros(conv_param['filter_num'])
+            pre_channel_num = conv_param['filter_num']
+        self.params['W7'] = wight_init_scales[6] * np.random.randn(64*4*4, hidden_size)
+        self.params['b7'] = np.zeros(hidden_size)
+        self.params['W8'] = wight_init_scales[7] * np.random.randn(hidden_size, output_size)
+        self.params['b8'] = np.zeros(output_size)
+
+        # 계층 생성===========
+        self.layers = []
+        self.layers.append(Convolution(self.params['W1'], self.params['b1'], 
+                           conv_param_1['stride'], conv_param_1['pad']))
+        self.layers.append(Relu())
+        self.layers.append(Convolution(self.params['W2'], self.params['b2'], 
+                           conv_param_2['stride'], conv_param_2['pad']))
+        self.layers.append(Relu())
+        self.layers.append(Pooling(pool_h=2, pool_w=2, stride=2))
+        self.layers.append(Convolution(self.params['W3'], self.params['b3'], 
+                           conv_param_3['stride'], conv_param_3['pad']))
+        self.layers.append(Relu())
+        self.layers.append(Convolution(self.params['W4'], self.params['b4'],
+                           conv_param_4['stride'], conv_param_4['pad']))
+        self.layers.append(Relu())
+        self.layers.append(Pooling(pool_h=2, pool_w=2, stride=2))
+        self.layers.append(Convolution(self.params['W5'], self.params['b5'],
+                           conv_param_5['stride'], conv_param_5['pad']))
+        self.layers.append(Relu())
+        self.layers.append(Convolution(self.params['W6'], self.params['b6'],
+                           conv_param_6['stride'], conv_param_6['pad']))
+        self.layers.append(Relu())
+        self.layers.append(Pooling(pool_h=2, pool_w=2, stride=2))
+        self.layers.append(Affine(self.params['W7'], self.params['b7']))
+        self.layers.append(Relu())
+        self.layers.append(Dropout(0.5))
+        self.layers.append(Affine(self.params['W8'], self.params['b8']))
+        self.layers.append(Dropout(0.5))
+        
+        self.last_layer = SoftmaxWithLoss()
+
+    def predict(self, x, train_flg=False):
+        for layer in self.layers:
+            if isinstance(layer, Dropout):
+                x = layer.forward(x, train_flg)
+            else:
+                x = layer.forward(x)
+        return x
+        
+    def predict_from_learning(self, x, train_flg=False):
+        for layer in self.layers:
+            if isinstance(layer, Dropout):
+                x = layer.forward(x, train_flg)
+            else:
+                x = layer.forward(x)
+        return softmax(x)
+        
+    def loss(self, x, t):
+        y = self.predict(x, train_flg=True)
+        return self.last_layer.forward(y, t)
+
+    def accuracy(self, x, t, batch_size=100):
+        if t.ndim != 1 : t = np.argmax(t, axis=1)
+
+        acc = 0.0
+
+        for i in range(int(x.shape[0] / batch_size)):
+            tx = x[i*batch_size:(i+1)*batch_size]
+            tt = t[i*batch_size:(i+1)*batch_size]
+            y = self.predict(tx, train_flg=False)
+            y = np.argmax(y, axis=1)
+            acc += np.sum(y == tt)
+
+        return acc / x.shape[0]
+
+    def gradient(self, x, t):
+        # forward
+        self.loss(x, t)
+
+        # backward
+        dout = 1
+        dout = self.last_layer.backward(dout)
+
+        tmp_layers = self.layers.copy()
+        tmp_layers.reverse()
+        for layer in tmp_layers:
+            dout = layer.backward(dout)
+
+        # 결과 저장
+        grads = {}
+        for i, layer_idx in enumerate((0, 2, 5, 7, 10, 12, 15, 18)):
+            grads['W' + str(i+1)] = self.layers[layer_idx].dW
+            grads['b' + str(i+1)] = self.layers[layer_idx].db
+
+        return grads
+
+    def save_params(self, file_name="params.pkl"):
+        params = {}
+        for key, val in self.params.items():
+            params[key] = val
+        with open(file_name, 'wb') as f:
+            pickle.dump(params, f)
+
+    def load_params(self, file_name="params.pkl"):
+        with open(file_name, 'rb') as f:
+            params = pickle.load(f)
+        for key, val in params.items():
+            self.params[key] = val
+
+        for i, layer_idx in enumerate((0, 2, 5, 7, 10, 12, 15, 18)):
+            self.layers[layer_idx].W = self.params['W' + str(i+1)]
+            self.layers[layer_idx].b = self.params['b' + str(i+1)]
+
+
 
 class Convolution:
     def __init__(self, W, b, stride=1, pad=0):
@@ -347,6 +485,109 @@ class Relu:
 
         return dx
 
+class Dropout:
+    """
+    http://arxiv.org/abs/1207.0580
+    """
+    def __init__(self, dropout_ratio=0.5):
+        self.dropout_ratio = dropout_ratio
+        self.mask = None
+
+    def forward(self, x, train_flg=True):
+        if train_flg:
+            self.mask = np.random.rand(*x.shape) > self.dropout_ratio
+            return x * self.mask
+        else:
+            return x * (1.0 - self.dropout_ratio)
+
+    def backward(self, dout):
+        return dout * self.mask
+
+
+class BatchNormalization:
+    """
+    http://arxiv.org/abs/1502.03167
+    """
+    def __init__(self, gamma, beta, momentum=0.9, running_mean=None, running_var=None):
+        self.gamma = gamma
+        self.beta = beta
+        self.momentum = momentum
+        self.input_shape = None # 합성곱 계층은 4차원, 완전연결 계층은 2차원  
+
+        # 시험할 때 사용할 평균과 분산
+        self.running_mean = running_mean
+        self.running_var = running_var  
+        
+        # backward 시에 사용할 중간 데이터
+        self.batch_size = None
+        self.xc = None
+        self.std = None
+        self.dgamma = None
+        self.dbeta = None
+
+    def forward(self, x, train_flg=True):
+        self.input_shape = x.shape
+        if x.ndim != 2:
+            N, C, H, W = x.shape
+            x = x.reshape(N, -1)
+
+        out = self.__forward(x, train_flg)
+        
+        return out.reshape(*self.input_shape)
+            
+    def __forward(self, x, train_flg):
+        if self.running_mean is None:
+            N, D = x.shape
+            self.running_mean = np.zeros(D)
+            self.running_var = np.zeros(D)
+                        
+        if train_flg:
+            mu = x.mean(axis=0)
+            xc = x - mu
+            var = np.mean(xc**2, axis=0)
+            std = np.sqrt(var + 10e-7)
+            xn = xc / std
+            
+            self.batch_size = x.shape[0]
+            self.xc = xc
+            self.xn = xn
+            self.std = std
+            self.running_mean = self.momentum * self.running_mean + (1-self.momentum) * mu
+            self.running_var = self.momentum * self.running_var + (1-self.momentum) * var            
+        else:
+            xc = x - self.running_mean
+            xn = xc / ((np.sqrt(self.running_var + 10e-7)))
+            
+        out = self.gamma * xn + self.beta 
+        return out
+
+    def backward(self, dout):
+        if dout.ndim != 2:
+            N, C, H, W = dout.shape
+            dout = dout.reshape(N, -1)
+
+        dx = self.__backward(dout)
+
+        dx = dx.reshape(*self.input_shape)
+        return dx
+
+    def __backward(self, dout):
+        dbeta = dout.sum(axis=0)
+        dgamma = np.sum(self.xn * dout, axis=0)
+        dxn = self.gamma * dout
+        dxc = dxn / self.std
+        dstd = -np.sum((dxn * self.xc) / (self.std * self.std), axis=0)
+        dvar = 0.5 * dstd / self.std
+        dxc += (2.0 / self.batch_size) * self.xc * dvar
+        dmu = np.sum(dxc, axis=0)
+        dx = dxc - dmu / self.batch_size
+        
+        self.dgamma = dgamma
+        self.dbeta = dbeta
+        
+        return dx        
+        
+        
 def im2col(input_data, filter_h, filter_w, stride=1, pad=0):
     """다수의 이미지를 입력받아 2차원 배열로 변환한다(평탄화).
     
@@ -581,8 +822,7 @@ class Trainer:
         # optimzer
         optimizer_class_dict = {'sgd':SGD, 'momentum':Momentum, 'nesterov':Nesterov,
                                 'adagrad':AdaGrad, 'rmsprpo':RMSprop, 'adam':Adam}
-        self.optimizer = optimizer_class_dict[optimizer.lower()](**optimizer_param)
-        
+        self.optimizer = optimizer_class_dict[optimizer.lower()](**optimizer_param) #optimizer class init       
         self.train_size = x_train.shape[0]
         self.iter_per_epoch = max(self.train_size / mini_batch_size, 1)
         self.max_iter = int(epochs * self.iter_per_epoch)
@@ -714,6 +954,24 @@ def load_imagefile2(filename, ref=False,flatten = True):
     if not flatten:
         img_data = img_data.reshape(-1, 1, 28, 28)
     return img_data/255.0    
+def filter_show(filters, nx=8, margin=3, scale=10):
+    """
+    c.f. https://gist.github.com/aidiary/07d530d5e08011832b12#file-draw_weight-py
+    # nx = 한줄에 몇개의 사진을 보여불 것인지 지정
+    """
+    FN, C, FH, FW = filters.shape
+    ny = int(np.ceil(FN / nx))
+
+    fig = plt.figure()
+    fig.subplots_adjust(left=0, right=1, bottom=0, top=1, hspace=0.05, wspace=0.05)
+
+    for i in range(FN):
+        ax = fig.add_subplot(ny, nx, i+1, xticks=[], yticks=[])
+        ax.imshow(filters[i, 0], cmap=plt.cm.gray_r, interpolation='nearest')
+    plt.show()    
+    
+    
+    
 def Test1():
     #x1 = np.random.rand(1,3,7,7)
     #x1 = np.random.randint(10,size=(1,3,7,7))
@@ -762,6 +1020,8 @@ def Test1():
 
 
 def Test2():
+    start = time.time()
+    print ((datetime.datetime.now()), " Start") 
     (x_train, t_train), (x_test, t_test) = load_mnist(flatten=False)
     
     # 시간이 오래 걸릴 경우 데이터를 줄인다.
@@ -780,6 +1040,9 @@ def Test2():
                       evaluate_sample_num_per_epoch=1000)
     trainer.train()
     
+    finish = time.time()
+    print (int((finish - start)/60.0), "Min", (finish - start)%60, "Sec elapsed")         
+    
     # 매개변수 보존
     network.save_params("params.pkl")
     print("Saved Network Parameters!")
@@ -794,12 +1057,16 @@ def Test2():
     plt.ylim(0, 1.0)
     plt.legend(loc='lower right')
     plt.show()
+    
+    
 def Test3():
+    # Test2의 결과를 받아서...
     network = SimpleConvNet(input_dim=(1,28,28), 
                             conv_param = {'filter_num': 30, 'filter_size': 5, 'pad': 0, 'stride': 1},
                             hidden_size=100, output_size=10, weight_init_std=0.01)    
     
     network.load_params("params.pkl")
+
     
     REF = False
     Test_Files = ["40.png","41.png","50.png","51.png","60.png","61.png","70.png","71.png","800.png", "90.png","91.png"]  
@@ -814,9 +1081,72 @@ def Test3():
         plt.imshow(img)  
         plt.show()
         plt.close()    
+
+def Test4():
+    # DeepConvNet 결과를 받아서...
+    network = DeepConvNet() 
     
+    network.load_params("deep_convnet_params.pkl")
+
+    
+    REF = False
+    Test_Files = ["40.png","41.png","50.png","51.png","60.png","61.png","70.png","71.png","800.png", "90.png","91.png"]  
+  
+    for i in range(len(Test_Files)):
+        my_test_data = load_imagefile2(Test_Files[i],ref=REF,flatten = False)
+        my_result = network.predict_from_learning(my_test_data)
+        print(Test_Files[i], np.argmax(my_result), my_result)        
+        img = Image.open(Test_Files[i])
+        plt.figure()
+        plt.title('Predicted: ' + str(np.argmax(my_result)))
+        plt.imshow(img)  
+        plt.show()
+        plt.close()           
+    
+def visualize_filter():
+    network = SimpleConvNet()
+    # 무작위(랜덤) 초기화 후의 가중치
+    filter_show(network.params['W1'])
+    
+    # 학습된 가중치
+    network.load_params("params.pkl")
+    filter_show(network.params['W1'])    
+    
+def apply_filter():
+    #MNIST로 구한 weight를 lena image에 적용하여 보여줌
+    network = SimpleConvNet()
+    
+    # 학습된 가중치
+    network.load_params("params.pkl")
+    
+    filter_show(network.params['W1'], 8)  
+    
+    img = imread('lena_gray.png')
+    img = img.reshape(1, 1, *img.shape)
+    
+    fig = plt.figure()
+    
+    w_idx = 1
+    
+    for i in range(16):  # filter 30개 중에 16개만
+        w = network.params['W1'][i] # i번째 filter
+        b = network.params['b1'][i]
+    
+        w = w.reshape(1, *w.shape)
+        b = b.reshape(1, *b.shape)
+        conv_layer = Convolution(w, b) 
+        out = conv_layer.forward(img)
+        out = out.reshape(out.shape[2], out.shape[3])
+        
+        ax = fig.add_subplot(4, 4, i+1, xticks=[], yticks=[])
+        ax.imshow(out, cmap=plt.cm.gray_r, interpolation='nearest')
+    
+    plt.show()    
     
     
 if __name__ == '__main__':
     #Test2()
-    Test3()
+    #Test3()
+    Test4()
+    #visualize_filter()
+    #apply_filter()
