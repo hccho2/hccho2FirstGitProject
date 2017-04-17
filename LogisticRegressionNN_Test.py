@@ -3,7 +3,7 @@
 import numpy as np
 import sklearn.datasets
 import matplotlib.pyplot as plt
-from ConvolutionNet_test import *
+from MNIST_test import *
 
 
 

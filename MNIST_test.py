@@ -479,12 +479,12 @@ def _load_img(file_name):
     return data
 
 
-def _change_ont_hot_label(X):
-    T = np.zeros((X.size, 10))
+def change_ont_hot_label(X,n_dim=10):
+    T = np.zeros((X.size, n_dim))
     for idx, row in enumerate(T):
         row[X[idx]] = 1
 
-    return T
+    return T 
 
 def img_show(img):
     pil_img = Image.fromarray(np.uint8(img))
@@ -520,8 +520,8 @@ def load_mnist(normalize=True, flatten=True, one_hot_label=False):
             dataset[key] /= 255.0
 
     if one_hot_label:
-        dataset['train_label'] = _change_ont_hot_label(dataset['train_label'])
-        dataset['test_label'] = _change_ont_hot_label(dataset['test_label'])
+        dataset['train_label'] = change_ont_hot_label(dataset['train_label'])
+        dataset['test_label'] = change_ont_hot_label(dataset['test_label'])
 
     if not flatten:
         for key in ('train_img', 'test_img'):
