@@ -770,11 +770,17 @@ def MultiLayerNet_Test():
     # 1에폭당 반복 수
     iter_per_epoch = max(train_size / batch_size, 1)    
     
-    
+    n_hidden_layer = 1
     #net = TwoLayerNet(input_size=n_input, hidden_size=n_hidden, output_size=n_output)
     #net = TwoLayerNet2(input_size=n_input, hidden_size=n_hidden, output_size=n_output)
+    n_hidden_layer = 4
     net = MultiLayerNet(input_size=n_input,hidden_size_list =[30,100,100,30], output_size=n_output, activation='relu',weight_init_std='relu',weight_decay_lambda=0)
-    
+
+    weight_list =[]
+    for i in range(1,n_hidden_layer+2):
+        weight_list.append('W'+str(i))
+        weight_list.append('b' + str(i))
+
     for i in range(iters_num):
         batch_mask = np.random.choice(train_size,batch_size)
         x_batch = x_train[batch_mask]
@@ -783,7 +789,7 @@ def MultiLayerNet_Test():
         #grad = net.numerical_gradient(x_batch, t_batch)
         grad = net.gradient(x_batch, t_batch)
         
-        for key in ('W1', 'b1', 'W2', 'b2'):
+        for key in weight_list:
             net.params[key] -= learning_rate * grad[key]
     
         # 학습 경과 기록
