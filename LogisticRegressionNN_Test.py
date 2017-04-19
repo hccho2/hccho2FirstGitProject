@@ -23,7 +23,7 @@ def plot_decision_boundary(X,y,pred_func):
 
 np.random.seed(0)
 N_Data_Feature = 2
-N_Train_Data = 200
+N_Train_Data = 500
 N_Test_Data = 50
 
 N_Output_Dim = 2
@@ -39,14 +39,14 @@ y_test = Y[N_Train_Data:]
 
 
 iters_num = 10000  # 반복 횟수를 적절히 설정한다.
-learning_rate = 0.1
+learning_rate = 0.01
 
 train_loss_list = []
 train_acc_list = []
 test_acc_list = []
 
 
-hidden_layer_depth=[10,3,3]
+hidden_layer_depth=[10,5,5]
 n_hidden_layer = len(hidden_layer_depth)
 net = MultiLayerNet(input_size=N_Data_Feature, hidden_size_list=hidden_layer_depth, output_size=N_Output_Dim, activation='relu',
                     weight_init_std='relu', weight_decay_lambda=0)

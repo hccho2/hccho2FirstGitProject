@@ -10,13 +10,6 @@ import matplotlib.pyplot as plt
 import time
 import datetime
 from collections import OrderedDict
-url_base = 'http://yann.lecun.com/exdb/mnist/'
-key_file = {
-    'train_img':'train-images-idx3-ubyte.gz',
-    'train_label':'train-labels-idx1-ubyte.gz',
-    'test_img':'t10k-images-idx3-ubyte.gz',
-    'test_label':'t10k-labels-idx1-ubyte.gz'
-}
 
 dataset_dir = os.path.dirname(os.path.abspath(__file__))
 save_file = dataset_dir + "/mnist.pkl"
@@ -884,6 +877,42 @@ class Trainer:
         if self.verbose:
             print("=============== Final Test Accuracy ===============")
             print("test acc:" + str(test_acc))            
+
+def download_mnist2():
+    # MNIST data를 다운받아, 파일 이름 mnist-original.mat 로 저장한다.
+    from sklearn.datasets import fetch_mldata
+    import requests
+    requests.packages.urllib3.disable_warnings()
+    
+    """
+    Adapted from the Github repo:
+    https://github.com/ageron/handson-ml
+    for the 03_classification notebook.
+    This implementation uses the 'requests' package instead of URLLIB
+    """
+    
+    try:
+        mnist = fetch_mldata('MNIST original')
+    except urllib.error.HTTPError as ex:
+        print("Could not download MNIST data from mldata.org, trying alternative...")
+    
+        # Alternative method to load MNIST, if mldata.org is down
+        from scipy.io import loadmat
+        mnist_alternative_url = "https://github.com/amplab/datascience-sp14/raw/master/lab7/mldata/mnist-original.mat"
+        mnist_path = "./mnist-original.mat"
+        response = requests.get(mnist_alternative_url)
+        with open(mnist_path, "wb") as f:
+            content = response.content
+            f.write(content)
+        mnist_raw = loadmat(mnist_path)
+        mnist = {
+            "data": mnist_raw["data"].T,
+            "target": mnist_raw["label"][0],
+            "COL_NAMES": ["label", "data"],
+            "DESCR": "mldata.org dataset: mnist-original",
+        }
+        print("Success!")  
+
             
             
 def init_mnist():
@@ -895,11 +924,20 @@ def init_mnist():
     print("Done!")
 
 def download_mnist():
+    key_file = {
+        'train_img':'train-images-idx3-ubyte.gz',
+        'train_label':'train-labels-idx1-ubyte.gz',
+        'test_img':'t10k-images-idx3-ubyte.gz',
+        'test_label':'t10k-labels-idx1-ubyte.gz'
+    }
+    
+    
     for v in key_file.values():
        _download(v)
 
 
 def _download(file_name):
+    url_base = 'http://yann.lecun.com/exdb/mnist/'
     file_path = dataset_dir + "/" + file_name
 
     if os.path.exists(file_path):
@@ -1391,6 +1429,7 @@ def MultiLayerNet_Test2():
 
 def MultiLayerNet_Test3():
     #trainer 활용
+    np.set_printoptions(precision=5,suppress=True)
     start = time.time()
     print ((datetime.datetime.now()), " Start") 
     
