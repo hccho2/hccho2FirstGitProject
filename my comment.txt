@@ -4,3 +4,5 @@ http://rosinality.ncity.net/doku.php?id=python:installing_theano
 Fundamental of Reinforcement Learning
 https://www.gitbook.com/book/dnddnjs/rl/details
 
+  모두의 연구소
+  http://whydsp.org/237
