@@ -1,3 +1,32 @@
+%  comment
 ; <--화면 출력 여부
 
 octave  array index는 1부터
+
+파일 읽기:
+data = load('ex1data1.txt');
+
+
+%%%%%%%%  octave fuction  %%%%%%%%
+function [theta, J_history] = gradientDescent(X, y, theta, alpha, num_iters)
+  m = length(y); % number of training examples
+  J_history = zeros(num_iters, 1);
+
+  for iter = 1:num_iters
+    z1 = 0;
+    z2 = 0;
+    B = X*theta - y;
+    for i =  1:m
+      z1 = z1 + B(i)*X(i,1);
+      z2 = z2 + B(i)*X(i,2);
+    end
+
+    theta(1) = theta(1) -  alpha*z1/m;
+    theta(2) = theta(2) -  alpha*z2/m;
+
+    J_history(iter) = computeCost(X, y, theta);
+
+  end
+
+end
+
