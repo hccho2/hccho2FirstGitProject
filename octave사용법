@@ -12,6 +12,12 @@ octave  array index는 1부터
 data = load('ex1data1.txt');
 
 
+my_octave.m 이라는 스크립트를 실행한다고 하면
+1) 인터프리터에서 실행
+>> cd target_directory
+>> my_octave # 별도의 명령 없이 파일 이름을 입력하면 된다
+>> run my_octave.m # 위와 동일 
+
 %%%%%%%%  octave fuction  %%%%%%%%
 function [theta, J_history] = gradientDescent(X, y, theta, alpha, num_iters)
   m = length(y); % number of training examples
