@@ -1,6 +1,11 @@
 %  comment
 ; <--화면 출력 여부
 
+pwd <==현재  디렉토리
+cd d:
+cd d:\hccho\myOctave
+
+
 octave  array index는 1부터
 
 파일 읽기:
