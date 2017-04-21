@@ -41,3 +41,19 @@ function [theta, J_history] = gradientDescent(X, y, theta, alpha, num_iters)
 
 end
 
+#############################################
+surf: surface  그리기
+contour: 등고선 그리기
+
+
+figure <--- 새로운 그림
+hold on <--- 앞에 그린 plot위에 그리기 전에 
+
+
+행렬입력:
+A=[1 2 3; 4 5 6; 7 8 9]
+
+inv(A): 역행렬
+A' <---transpose
+
+
