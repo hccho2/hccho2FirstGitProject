@@ -897,7 +897,7 @@ def download_mnist2():
         print("Could not download MNIST data from mldata.org, trying alternative...")
     
         # Alternative method to load MNIST, if mldata.org is down
-        from scipy.io import loadmat
+        from scipy.io import loadmat  #Load MATLAB file
         mnist_alternative_url = "https://github.com/amplab/datascience-sp14/raw/master/lab7/mldata/mnist-original.mat"
         mnist_path = "./mnist-original.mat"
         response = requests.get(mnist_alternative_url)
