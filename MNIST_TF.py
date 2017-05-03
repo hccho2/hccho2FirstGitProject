@@ -1,11 +1,11 @@
 # coding: utf-8
-import tensorflow as tf
-from tensorflow.examples.tutorials.mnist import input_data
-import matplotlib.pyplot as plt
-import random
+
 
 def MNIST_LogisticRegression():
-
+    import tensorflow as tf
+    from tensorflow.examples.tutorials.mnist import input_data
+    import matplotlib.pyplot as plt
+    import random
     mnist = input_data.read_data_sets("../MachineLearning", one_hot=True)
 
     nb_classses = 10
@@ -131,7 +131,7 @@ def MNIST_NN():
 
     plt.imshow(mnist.test.images[r:r + 1].reshape(28, 28), cmap='Greys', interpolation='nearest')
     plt.show()
-    
+
 
 if __name__ == "__main__":
     #MNIST_LogisticRegression()
