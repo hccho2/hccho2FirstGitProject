@@ -1,2 +1,13 @@
 np.set_printoptions(threshold=np.nan)  <--- 모든 data 다 표시
 np.set_printoptions(precision=4)  <--- 유효숫자 표시
+====================================================================
+import ctypes  # An included library with Python install.
+def Mbox(title, text, style):
+    ctypes.windll.user32.MessageBoxW(0, text, title, style)
+====================================================================
+np.shape ==> (n1-axis =0,n2-axis=1,n3-axis=2,...)
+np.sum(x, axix=n) ==>  axis n 이 없으짐
+
+
+
+
