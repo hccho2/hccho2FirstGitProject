@@ -52,8 +52,8 @@ def MNIST_LogisticRegression():
         print("Accuracy: ", accuracy.eval(session=sess, feed_dict={X: mnist.test.images, Y: mnist.test.labels}))
 
         r = random.randint(0,mnist.test.num_examples-1)
-        print("Label: ", sess.run(tf.arg_max(mnist.test.labels[r:r+1],1)))
-        print("Prediction: ", sess.run(tf.argmax(hypothesis,1),feed_dict={X:mnist.test.images[r:r+1]}))
+        print("Label: ", sess.run(tf.arg_max(mnist.test.labels[r:r+1],1))) # not (10,) but (1,10)
+        print("Prediction: ", sess.run(tf.argmax(hypothesis,1),feed_dict={X:mnist.test.images[r:r+1]})) # not (784,) but (1,784)
         plt.imshow(mnist.test.images[r:r+1].reshape(28,28), cmap = 'Greys', interpolation='nearest')
         plt.show()
 
@@ -127,8 +127,8 @@ def MNIST_NN():
 
     # Get one and predict
     r = random.randint(0, mnist.test.num_examples - 1)
-    print("Label: ", sess.run(tf.argmax(mnist.test.labels[r:r + 1], 1)))
-    result = sess.run(hypothesis, feed_dict={X: mnist.test.images[r:r + 1]})
+    print("Label: ", sess.run(tf.argmax(mnist.test.labels[r:r + 1], 1))) # not (10,) but (1,10)
+    result = sess.run(hypothesis, feed_dict={X: mnist.test.images[r:r + 1]}) # not (784,) but (1,784)
     print("Prediction: ", sess.run(tf.arg_max(result,1)) )
 
     np.set_printoptions(precision=4)
