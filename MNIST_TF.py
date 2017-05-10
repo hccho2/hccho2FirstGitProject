@@ -21,7 +21,7 @@ def MNIST_LogisticRegression():
     hypothesis = tf.nn.softmax(logits)
 
 
-    #cost = tf.reduce_mean(tf.reduce_sum(-tf.reduce_sum(Y*tf.log(hypothesis),axis=1)))
+    #cost = tf.reduce_mean(-tf.reduce_sum(Y*tf.log(hypothesis),axis=1))
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits,labels=Y))
     optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.1).minimize(cost)
 
