@@ -7,7 +7,9 @@ def Mbox(title, text, style):
 ====================================================================
 np.shape ==> (n1-axis=0,n2-axis=1,n3-axis=2,...)
 np.sum(x, axis=n) ==>  axis n 이 없으짐
-
+===================================================================
+np.squeeze(x) <== Remove single-dimensional entries from the shape of an array
+np.expand_dims <== Insert a new axis, corresponding to a given position in the array shape
 
 
 
