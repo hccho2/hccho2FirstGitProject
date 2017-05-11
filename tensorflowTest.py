@@ -21,6 +21,20 @@ def test2():
     print(node1 , "\n",  node2,"\n", node3)
     print( sess.run(node3) )
 
+def test22():
+    import tensorflow as tf
+    
+    nodes={}
+    
+    nodes['1'] = tf.constant(3.0, tf.float32)
+    nodes['2'] = tf.constant(4.0)
+    nodes['3'] = tf.add(nodes['1'],nodes['2'])
+    
+    sess = tf.Session()
+    print(nodes['1'] , "\n",  nodes['2'],"\n", nodes['3'])
+    print( sess.run(nodes['3']) )
+
+    sess.close()    
 
 
 def test3():
