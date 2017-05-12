@@ -67,7 +67,7 @@ def MNIST_NN(Xavier=True):
     import numpy as np
 
     from tensorflow.examples.tutorials.mnist import input_data
-
+    tf.reset_default_graph()
     tf.set_random_seed(777)  # reproducibility
 
     mnist = input_data.read_data_sets("../MachineLearning", one_hot=True)
@@ -153,7 +153,7 @@ def MNIST_NN2(layer_size_list,Xavier=True):
     import numpy as np
 
     from tensorflow.examples.tutorials.mnist import input_data
-
+    tf.reset_default_graph()
     tf.set_random_seed(777)  # reproducibility
 
     mnist = input_data.read_data_sets("../MachineLearning", one_hot=True)
