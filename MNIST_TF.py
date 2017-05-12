@@ -52,8 +52,8 @@ def MNIST_LogisticRegression():
         print("Accuracy: ", accuracy.eval(session=sess, feed_dict={X: mnist.test.images, Y: mnist.test.labels}))
 
         r = random.randint(0,mnist.test.num_examples-1)
-        print("Label: ", sess.run(tf.arg_max(mnist.test.labels[r:r+1],1)))
-        print("Prediction: ", sess.run(tf.argmax(hypothesis,1),feed_dict={X:mnist.test.images[r:r+1]}))
+        print("Label: ", sess.run(tf.arg_max(mnist.test.labels[r:r+1],1)))  #shape = (1,10)
+        print("Prediction: ", sess.run(tf.argmax(hypothesis,1),feed_dict={X:mnist.test.images[r:r+1]}))  #shape=(1,784)
         plt.imshow(mnist.test.images[r:r+1].reshape(28,28), cmap = 'Greys', interpolation='nearest')
         plt.show()
 
@@ -146,7 +146,7 @@ def MNIST_NN(Xavier=True):
     plt.imshow(mnist.test.images[r:r + 1].reshape(28, 28), cmap='Greys', interpolation='nearest')
     plt.show()
     sess.close()
-def MNIST_NN2(layer_size_list,Xavier=True):
+def MNIST_NN2(layer_size_list,Xavier=True,Dropout=False,KeepProb=0.7):
     import tensorflow as tf
     import random
     import matplotlib.pyplot as plt
@@ -169,7 +169,7 @@ def MNIST_NN2(layer_size_list,Xavier=True):
     
     X = tf.placeholder(tf.float32, [None, layer_size_list[0]])
     Y = tf.placeholder(tf.float32, [None, layer_size_list[-1]])
-
+    keep_prob = tf.placeholder(tf.float32)
     last_layer_index = len(layer_size_list)-1
     W={}
     b={}
@@ -185,7 +185,9 @@ def MNIST_NN2(layer_size_list,Xavier=True):
         if i == last_layer_index:
             L[i] =tf.matmul(L[i-1], W[i]) + b[i]
         else:
-            L[i] = tf.nn.relu(tf.matmul(L[i-1], W[i]) + b[i])    
+            L[i] = tf.nn.relu(tf.matmul(L[i-1], W[i]) + b[i])
+            if Dropout==True:
+                L[i] = tf.nn.dropout(L[i],keep_prob=keep_prob)
     
 
     hypothesis = L[last_layer_index]
@@ -204,7 +206,7 @@ def MNIST_NN2(layer_size_list,Xavier=True):
 
         for i in range(total_batch):
             batch_xs, batch_ys = mnist.train.next_batch(batch_size)
-            feed_dict = {X: batch_xs, Y: batch_ys}
+            feed_dict = {X: batch_xs, Y: batch_ys, keep_prob: KeepProb}
             c, _ = sess.run([cost, optimizer], feed_dict=feed_dict)
             avg_cost += c / total_batch
 
@@ -215,15 +217,16 @@ def MNIST_NN2(layer_size_list,Xavier=True):
     # Test model and check accuracy
     correct_prediction = tf.equal(tf.argmax(hypothesis, 1), tf.argmax(Y, 1))
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-    print('Accuracy:', sess.run(accuracy, feed_dict={X: mnist.test.images, Y: mnist.test.labels}))
+    print('Accuracy:', sess.run(accuracy, feed_dict={X: mnist.test.images, Y: mnist.test.labels,keep_prob:1.0}))
 
     # Get one and predict
     r = random.randint(0, mnist.test.num_examples - 1)
     print("Label: ", sess.run(tf.argmax(mnist.test.labels[r:r + 1], 1)))
-    result = sess.run(hypothesis, feed_dict={X: mnist.test.images[r:r + 1]})
+    result = sess.run(hypothesis, feed_dict={X: mnist.test.images[r:r + 1], keep_prob: 1.0})
     print("Prediction: ", sess.run(tf.arg_max(result,1)) )
 
     np.set_printoptions(precision=4)
+    np.set_printoptions(suppress=True)
     result = sess.run(tf.nn.softmax(result))
     print (result)
     plt.imshow(mnist.test.images[r:r + 1].reshape(28, 28), cmap='Greys', interpolation='nearest')
@@ -232,6 +235,7 @@ def MNIST_NN2(layer_size_list,Xavier=True):
     sess.close()
 
 if __name__ == "__main__":
-    #MNIST_LogisticRegression()
+    MNIST_LogisticRegression()
     #MNIST_NN(Xavier=True)
-    MNIST_NN2(layer_size_list=[784,256,256,10])
+    #MNIST_NN2(layer_size_list=[784,256,256,10],Xavier=True)
+    #MNIST_NN2(layer_size_list=[784,512,512,512,512,10],Xavier=True,Dropout=True,KeepProb=0.7)
