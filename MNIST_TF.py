@@ -170,21 +170,25 @@ def MNIST_NN2(layer_size_list,Xavier=True):
     X = tf.placeholder(tf.float32, [None, layer_size_list[0]])
     Y = tf.placeholder(tf.float32, [None, layer_size_list[-1]])
 
+    last_layer_index = len(layer_size_list)-1
     W={}
     b={}
     L={}
-    L['0'] = X
+    L[0] = X
 
     for i in range(1,len(layer_size_list)):
         if Xavier == True:
-            W[str(i)] = tf.get_variable("W"+str(i),shape=[layer_size_list[i-1],layer_size_list[i]],initializer=tf.contrib.layers.xavier_initializer())
+            W[i] = tf.get_variable("W"+str(i),shape=[layer_size_list[i-1],layer_size_list[i]],initializer=tf.contrib.layers.xavier_initializer())
         else:
-            W[str(i)] = tf.Variable(tf.random_normal([layer_size_list[i-1],layer_size_list[i]]))        
-        b[str(i)] = tf.Variable(tf.random_normal([layer_size_list[i]]))
-        L[str(i)] = tf.nn.relu(tf.matmul(L[str(i-1)], W[str(i)]) + b[str(i)])    
+            W[i] = tf.Variable(tf.random_normal([layer_size_list[i-1],layer_size_list[i]]))        
+        b[i] = tf.Variable(tf.random_normal([layer_size_list[i]]))
+        if i == last_layer_index:
+            L[i] =tf.matmul(L[i-1], W[i]) + b[i]
+        else:
+            L[i] = tf.nn.relu(tf.matmul(L[i-1], W[i]) + b[i])    
     
 
-    hypothesis = L[str(len(layer_size_list)-1)]
+    hypothesis = L[last_layer_index]
     # define cost/loss & optimizer
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=hypothesis, labels=Y))
     optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
