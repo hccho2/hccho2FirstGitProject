@@ -11,6 +11,8 @@ np.sum(x, axis=n) ==>  axis n 이 없으짐
 ===================================================================
 np.squeeze(x) <== Remove single-dimensional entries from the shape of an array
 np.expand_dims <== Insert a new axis, corresponding to a given position in the array shape
-
+===================================================================
+a=[1,1,2,2]
+a= list(map((lambda x: x*x),a))
 
 
