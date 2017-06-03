@@ -10,6 +10,20 @@ y1 = np.sin(x ** 2)
 y2= np.cos(x ** 2)
 
 
+
+# scatter
+x_train = [1,2,3]
+y_train = [1,2,3]
+
+plt.scatter(x_train,y_train)
+plt.title('Scatter plot pythonspot.com')
+plt.xlabel('x')
+plt.ylabel('y')
+x1,x2,y1,y2 = plt.axis()
+plt.axis((0,5,0,5))
+
+
+
 # 하나씩 그리기
 plt.plot(x, y1, label='sin')
 plt.show()
