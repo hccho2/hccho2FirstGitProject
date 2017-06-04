@@ -7,6 +7,10 @@ A = np.array([[73., 80., 75.],
           [89., 91., 90.],
           [96., 98., 100.],
           [73., 66., 70.]])
+
+# Feature Scaling을 하면, learning rate을   1.0e-5 ==> 1.0e-2로 조정해야 함
+#A = (A-np.mean(A,0))/np.std(A,0)
+
 B = np.array([[152.],[185.],[180.],[196.],[142.]])
 
 def MultivariateRegression():
