@@ -6,3 +6,6 @@ https://www.gitbook.com/book/dnddnjs/rl/details
 
   모두의 연구소
   http://whydsp.org/237
+  
+김성훈교수 강의자료 pdf등  
+http://hunkim.github.io/ml/
