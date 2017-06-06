@@ -1,22 +1,3 @@
-Skip to content
-This repository
-Search
-Pull requests
-Issues
-Marketplace
-Gist
- @hccho2
- Sign out
- Watch 0
-  Star 0
-  Fork 0 hccho2/hccho2FirstGitProject
- Code  Issues 0  Pull requests 0  Projects 2  Wiki  Settings Insights 
-Branch: master Find file Copy pathhccho2FirstGitProject/MultivariateRegression.py
-070afe5  10 hours ago
-@hccho2 hccho2 Update MultivariateRegression.py
-1 contributor
-RawBlameHistory     
-76 lines (56 sloc)  2.29 KB
 import tensorflow as tf
 import numpy as np
 tf.set_random_seed(777)  # for reproducibility
@@ -92,5 +73,3 @@ if __name__ == "__main__":
     #MultivariateRegression()
     MultivariateRegressionTF()
     #NormalEquation()
-Contact GitHub API Training Shop Blog About
-© 2017 GitHub, Inc. Terms Privacy Security Status Help
