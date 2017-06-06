@@ -21,7 +21,7 @@ def MultivariateRegression():
     b = np.random.standard_normal(size=1)
     
     for step in range(2001):
-        temp = (np.dot(A,W)+b -B)/N_Data
+        temp = 2*(np.dot(A,W)+b -B)/N_Data
         W -= learning_rate * np.dot(A.T, temp)
         b -= learning_rate * np.sum(temp,axis=0)
         
