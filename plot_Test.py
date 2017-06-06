@@ -22,7 +22,12 @@ plt.ylabel('y')
 x1,x2,y1,y2 = plt.axis()
 plt.axis((0,5,0,5))
 
+#scatter
+AA = np.genfromtxt('mydata.txt',delimiter=',')
+A = AA[:,0:2]
+B = AA[:,-1].reshape(-1,1)  # AA[:,2:3]
 
+plt.scatter(A[:, 0], A[:, 1], c=B,marker=">")
 
 # 하나씩 그리기
 plt.plot(x, y1, label='sin')
