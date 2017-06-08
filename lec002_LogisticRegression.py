@@ -16,6 +16,13 @@ plt.scatter(A[:, 0], A[:, 1], c=B,marker=">")
 #A = (A-np.mean(A,0))/np.std(A,0)
 AA=np.insert(A,0,np.ones(A.shape[0]),axis=1)
 
+def AddFeatures(A,n):
+    N=A.shape[0]
+    B = np.ones([N,1])
+    for i in range(1,n+1):
+        for j in range(i+1):
+            B=np.append(B,(A[:,0]**(i-j) * A[:,1]**(j)).reshape(N,-1),axis=1)
+    return B
 
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))  
