@@ -58,8 +58,8 @@ def testOneHot():
     import tensorflow as tf
     import numpy as np
     Y1=np.array([[2],[4]])
-    Y2=tf.one_hot(Y1,5)
-    Y3=tf.reshape(Y2,[-1,5])
+    Y2=tf.one_hot(Y1,5)  # shape=(2,1,5)
+    Y3=tf.reshape(Y2,[-1,5]) # shape=(2,5)
     
     sess = tf.Session()
     
