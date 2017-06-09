@@ -54,7 +54,16 @@ def test3():
     with tf.Session() as session:
         session.run(model)
         print(session.run(y))
-
+def testOneHot():
+    import tensorflow as tf
+    import numpy as np
+    Y1=np.array([[2],[4]])
+    Y2=tf.one_hot(Y1,5)
+    Y3=tf.reshape(Y2,[-1,5])
+    
+    sess = tf.Session()
+    
+    print(sess.run(Y2), sess.run(Y3))
 
 def testPlaceholde():
     import tensorflow as tf
