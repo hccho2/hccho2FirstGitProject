@@ -43,7 +43,16 @@ UU, ss, VV = np.linalg.svd(a, full_matrices=False) # "numerical recipes" 는 Fal
 w,z = np.linalg.eig(a)
 
 =====================================================================================
+def f(x):
+    return x+10
 
+# make another list from a list
+A = [1,2,3,4]
+#B = [x*10 for x in A]
+#B = [f(x) for x in A]
+
+#B = list(map(lambda x: x*10,A))
+B = list(map(f,A))
 =====================================================================================
 
 =====================================================================================
