@@ -16,7 +16,11 @@ a=[1,1,2,2]
 a= list(map((lambda x: x*x),a))
 ===================================================================
 a=np.array([1,2,3,4,5,4,3,2,10]
-b = a[a<5]
+b = a[a<5]  # numpy array이기 때문에 가능
+
+# list comprehension
+a=[1,2,3,4,5,4,3,2,10]
+b = [ x for x in a if x< 5]
 
 ===================================================================
 # Symmetric Matrix는 singular value = eigenvalue
