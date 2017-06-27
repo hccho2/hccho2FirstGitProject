@@ -77,6 +77,8 @@ df2=pd.DataFrame(data=A,index=A2,columns=A1)
 =====================================================================================
 # loadtxt, genfromtxt는 같은 기능이지만, 
 # genfromtxt는 missing data를 다룰 수 있는 다양한 옵션이 있다.
+# numpy.loadtxt: equivalent function when no data is missing.
+
 
 mydata = np.genfromtxt('mydata2.txt',delimiter=',',dtype=np.float32)
 mydata = np.loadtxt('mydata2.txt', delimiter=',', dtype=np.float32)
