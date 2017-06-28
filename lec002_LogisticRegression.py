@@ -1,5 +1,5 @@
 import numpy as np
-import tensorflow as tf
+#import tensorflow as tf
 import matplotlib.pyplot as plt
 import time
 import datetime
@@ -8,7 +8,7 @@ np.set_printoptions(threshold=np.nan)
 
 
 
-mydata = np.genfromtxt('mydata.txt',delimiter=',',dtype=np.float32)
+mydata = np.genfromtxt('mydata2.txt',delimiter=',',dtype=np.float32)
 A = mydata[:,0:2]
 B = mydata[:,-1].reshape(-1,1)  # mydata[:,2:3]
 plt.subplot(131)
@@ -27,7 +27,9 @@ def AddFeatures(A,n):
             B=np.append(B,(A[:,0]**(i-j) * A[:,1]**(j)).reshape(N,-1),axis=1)
     return B
 
-
+def softmax(x):
+    x = x - np.max(x)
+    return np.exp(x)/np.sum(np.exp(x))
 
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))  
@@ -56,11 +58,12 @@ def LogisticRegressionFallacy():
 
 def LogisticRegression():
     learning_rate=1e-3
-    N_Data = A.shape[0]
     
+    #AA = AddFeatures(A,3)
+    N_Data = AA.shape[0]
+    N_Feature = AA.shape[1]
     
-    W = np.random.standard_normal(size=(3,1))
-    W = np.array([[ 0.8330605 ],[-0.35352278],[-0.44010514]])
+    W = np.random.standard_normal(size=(N_Feature,1))
     #W = np.zeros([3,1])
     
     total_cost = []
@@ -85,7 +88,7 @@ def LogisticRegression():
     plt.subplot(133)
     plt.plot(total_cost)
 
-
+    plt.show()
 def LogisticRegressionTF():    
     X = tf.placeholder(tf.float32, shape=[None, 3])
     Y = tf.placeholder(tf.float32, shape=[None, 1])    
@@ -205,10 +208,10 @@ if __name__ == "__main__":
     start = time.time()
     print ((datetime.datetime.now()), " Start")
     #LogisticRegressionFallacy()
-    #LogisticRegression()
+    LogisticRegression()
     #LogisticRegressionTF()
     #LogisticRegressionTF2()
-    LogisticRegressionTF3()
+    #LogisticRegressionTF3()
     
     print ((datetime.datetime.now()), " Finish")    
     finish = time.time()
