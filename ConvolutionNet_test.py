@@ -410,7 +410,7 @@ class Pooling:
         dmax = dmax.reshape(dout.shape + (pool_size,)) 
         
         dcol = dmax.reshape(dmax.shape[0] * dmax.shape[1] * dmax.shape[2], -1)
-        dx = col2im(dcol, self.x.shape, self.pool_h, self.pool_w, self.stride, self.pad)
+        dx = col2im_back(dcol, self.x.shape, self.pool_h, self.pool_w, self.stride, self.pad)
         
         return dx
 class SoftmaxWithLoss:
@@ -617,7 +617,16 @@ def im2col(input_data, filter_h, filter_w, stride=1, pad=0):
     return col
 
 def col2im_back(col, input_shape, filter_h, filter_w, stride=1, pad=0):
-    """(im2col과 반대) 2차원 배열을 입력받아 다수의 이미지 묶음으로 변환한다.
+    """
+    밑바닥 교재의 col2im의 이름을 col2im_back으로 바꿈
+    아래의 col2im 함수는 수정된 버전으로 있음.
+    img[:, :, y:y_max:stride, x:x_max:stride] += col[:, :, y, x, :, :]  <---원교재
+
+    img[:, :, y:y_max:stride, x:x_max:stride] = col[:, :, y, x, :, :]  <--- hccho수정    
+    
+    
+    
+    (im2col과 반대) 2차원 배열을 입력받아 다수의 이미지 묶음으로 변환한다.
     
     Parameters
     ----------
@@ -646,7 +655,15 @@ def col2im_back(col, input_shape, filter_h, filter_w, stride=1, pad=0):
 
     return img[:, :, pad:H + pad, pad:W + pad]    
 def col2im(col, input_shape, filter_h, filter_w, stride=1, pad=0):
-    """(im2col과 반대) 2차원 배열을 입력받아 다수의 이미지 묶음으로 변환한다.
+    """
+    밑바닥 교재의 col2im의 이름을 col2im_back으로 바뀜. 
+    이함수 col2im은 수정된 버전.
+    img[:, :, y:y_max:stride, x:x_max:stride] += col[:, :, y, x, :, :]  <---원교재
+
+    img[:, :, y:y_max:stride, x:x_max:stride] = col[:, :, y, x, :, :]  <--- hccho수정    
+    
+    
+    (im2col과 반대) 2차원 배열을 입력받아 다수의 이미지 묶음으로 변환한다.
     
     Parameters
     ----------
