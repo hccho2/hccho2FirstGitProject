@@ -83,7 +83,29 @@ df2=pd.DataFrame(data=A,index=A2,columns=A1)
 mydata = np.genfromtxt('mydata2.txt',delimiter=',',dtype=np.float32)
 mydata = np.loadtxt('mydata2.txt', delimiter=',', dtype=np.float32)
 =====================================================================================
+import pickle
+var1 = xxx
+var2 = xxx
+var3 = xx
 
+with open('test.txt','wb') as f:
+	pickle.dump(var1,f)
+	pickle.dump(var2,f)
+	pickle.dump(var3,f)
+
+
+
+덤프(dump)한 순서대로 로드(load)된다.
+ 
+with open('test.txt','rb') as f:
+	data1=pickle.load(f)
+	data2=pickle.load(f)
+	data3=pickle.load(f)
+
+
+
+dict형으로 변수들을 묶어서 한번에 쓰고, 한번에 읽어올수 있다.
+파일을 열때 'b'(binary)로 해야함.
 =====================================================================================
 
 =====================================================================================
