@@ -1087,6 +1087,8 @@ def Test3():
     
     network.load_params("params.pkl")
 
+    (x_train, t_train), (x_test, t_test) = load_mnist(flatten=False)
+    print("ACC(test data): ", network.accuracy(x_test,t_test))
     
     REF = False
     Test_Files = ["40.png","41.png","50.png","51.png","60.png","61.png","70.png","71.png","800.png", "90.png","91.png"]  
@@ -1107,7 +1109,9 @@ def Test4():
     network = DeepConvNet() 
     
     network.load_params("deep_convnet_params.pkl")
-
+    
+    (x_train, t_train), (x_test, t_test) = load_mnist(flatten=False)
+    print("ACC(test data): ", network.accuracy(x_test,t_test))
     
     REF = False
     Test_Files = ["40.png","41.png","50.png","51.png","60.png","61.png","70.png","71.png","800.png", "90.png","91.png"]  
