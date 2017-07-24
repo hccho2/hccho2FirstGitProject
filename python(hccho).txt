@@ -27,6 +27,8 @@ b = [ x*10 for x in a if x< 5]
 a = [['1.2','2.33'],['1.2','2.33']]
 b = np.array(a,dtype=np.float32)
 
+# numpy array ==> list
+c = b.tolist()
 
 ===================================================================
 # Symmetric Matrix는 singular value = eigenvalue
