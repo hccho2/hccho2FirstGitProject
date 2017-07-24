@@ -94,8 +94,12 @@ W = np.array([[[[-1.71,  1.37, -0.35, -0.08,  1.54],
          [-0.18,  0.66,  0.59, -0.02,  0.55],
          [-0.84, -0.85, -0.33, -0.12,  0.04]]]])
 
+# N = 1, C = 3, H=7, W=7, FN=2, FH=5,FW=5, stride = 1, pad=0    
 X1 = im2col(X,5,5,1,0)
 W1 = W.reshape(2,-1).T
 
 out = np.dot(X1,W1)
 print(X.shape,W.shape,X1.shape,W1.shape)
+out_h = int((7-2*0-5)/1) +1
+out_w = int((7-2*0-5)/1) +1
+out1 = out.reshape(1,out_h,out_w,-1).transpose(0,3,1,2)
