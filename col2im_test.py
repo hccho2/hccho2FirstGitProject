@@ -31,7 +31,79 @@ def im2col(input_data, filter_h, filter_w, stride=1, pad=0):
 
     col = col.transpose(0, 4, 5, 1, 2, 3).reshape(N*out_h*out_w, -1)
     return col
+def col2im_back(col, input_shape, filter_h, filter_w, stride=1, pad=0):
+    """
+    밑바닥 교재의 col2im의 이름을 col2im_back으로 바꿈
+    아래의 col2im 함수는 수정된 버전으로 있음.
+    img[:, :, y:y_max:stride, x:x_max:stride] += col[:, :, y, x, :, :]  <---원교재
+    img[:, :, y:y_max:stride, x:x_max:stride] = col[:, :, y, x, :, :]  <--- hccho수정    
+    
+    
+    
+    (im2col과 반대) 2차원 배열을 입력받아 다수의 이미지 묶음으로 변환한다.
+    
+    Parameters
+    ----------
+    col : 2차원 배열(입력 데이터)
+    input_shape : 원래 이미지 데이터의 형상（예：(10, 1, 28, 28)）
+    filter_h : 필터의 높이
+    filter_w : 필터의 너비
+    stride : 스트라이드
+    pad : 패딩
+    
+    Returns
+    -------
+    img : 변환된 이미지들
+    """
+    N, C, H, W = input_shape
+    out_h = (H + 2*pad - filter_h)//stride + 1
+    out_w = (W + 2*pad - filter_w)//stride + 1
+    col = col.reshape(N, out_h, out_w, C, filter_h, filter_w).transpose(0, 3, 4, 5, 1, 2)
 
+    img = np.zeros((N, C, H + 2*pad + stride - 1, W + 2*pad + stride - 1))
+    for y in range(filter_h):
+        y_max = y + stride*out_h
+        for x in range(filter_w):
+            x_max = x + stride*out_w
+            img[:, :, y:y_max:stride, x:x_max:stride] += col[:, :, y, x, :, :]
+
+    return img[:, :, pad:H + pad, pad:W + pad]    
+def col2im(col, input_shape, filter_h, filter_w, stride=1, pad=0):
+    """
+    밑바닥 교재의 col2im의 이름을 col2im_back으로 바뀜. 
+    이함수 col2im은 수정된 버전.
+    img[:, :, y:y_max:stride, x:x_max:stride] += col[:, :, y, x, :, :]  <---원교재
+    img[:, :, y:y_max:stride, x:x_max:stride] = col[:, :, y, x, :, :]  <--- hccho수정    
+    
+    
+    (im2col과 반대) 2차원 배열을 입력받아 다수의 이미지 묶음으로 변환한다.
+    
+    Parameters
+    ----------
+    col : 2차원 배열(입력 데이터)
+    input_shape : 원래 이미지 데이터의 형상（예：(10, 1, 28, 28)）
+    filter_h : 필터의 높이
+    filter_w : 필터의 너비
+    stride : 스트라이드
+    pad : 패딩
+    
+    Returns
+    -------
+    img : 변환된 이미지들
+    """
+    N, C, H, W = input_shape
+    out_h = (H + 2*pad - filter_h)//stride + 1
+    out_w = (W + 2*pad - filter_w)//stride + 1
+    col = col.reshape(N, out_h, out_w, C, filter_h, filter_w).transpose(0, 3, 4, 5, 1, 2)
+
+    img = np.zeros((N, C, H + 2*pad + stride - 1, W + 2*pad + stride - 1))
+    for y in range(filter_h):
+        y_max = y + stride*out_h
+        for x in range(filter_w):
+            x_max = x + stride*out_w
+            img[:, :, y:y_max:stride, x:x_max:stride] = col[:, :, y, x, :, :]
+
+    return img[:, :, pad:H + pad, pad:W + pad]     
 X = np.array([[[[9, 9, 0, 7, 8, 4, 6],
          [8, 1, 5, 0, 2, 3, 5],
          [8, 9, 1, 7, 3, 9, 2],
@@ -103,3 +175,5 @@ print(X.shape,W.shape,X1.shape,W1.shape)
 out_h = int((7-2*0-5)/1) +1
 out_w = int((7-2*0-5)/1) +1
 out1 = out.reshape(1,out_h,out_w,-1).transpose(0,3,1,2)
+
+X2 = col2im(X1,X.shape,5,5,1,0)
