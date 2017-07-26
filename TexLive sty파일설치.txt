@@ -1,0 +1,3 @@
+sty파일 다운 후,
+
+texhash
