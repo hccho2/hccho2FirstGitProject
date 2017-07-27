@@ -1,4 +1,4 @@
-sty파일 다운 후,
+sty파일 다운 후(Update your index Finally, run your TeX indexer program to update the package database)
 
 texhash
 
