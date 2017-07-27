@@ -9,3 +9,6 @@ https://www.gitbook.com/book/dnddnjs/rl/details
   
 김성훈교수 강의자료 pdf등  
 http://hunkim.github.io/ml/
+
+
+LSTM: http://colah.github.io/posts/2015-08-Understanding-LSTMs/
