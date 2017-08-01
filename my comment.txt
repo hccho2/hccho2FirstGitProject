@@ -12,3 +12,4 @@ http://hunkim.github.io/ml/
 
 
 LSTM: http://colah.github.io/posts/2015-08-Understanding-LSTMs/
+LSTM: https://deeplearning4j.org/kr/lstm#code
