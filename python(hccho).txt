@@ -124,6 +124,19 @@ np.savetxt("foo.txt", X1, delimiter=",")
 np.random.standard_normal(size=(2,3))
 d = np.array(100 * np.random.standard_normal(size=(2,3)),dtype=np.int16)/100
 =====================================================================================
+a = "123456789"
+print("a[:]: ", a[:])  #123456789
+print("a[::]: ", a[::])  #123456789
+print("a[::3]: ", a[::3]) #147
+print("a[::-1]: ", a[::-1]) #987654321
+
+
+mat = [[1, 2, 3], [4, 5, 6]]
+print(list(zip(*mat)))   # [(1, 4), (2, 5), (3, 6)]
+
+
+a = ["Code", "mentor", "Python", "Developer"]
+print (" ".join(a))  #  Code mentor Python Developer
 
 =====================================================================================
 
