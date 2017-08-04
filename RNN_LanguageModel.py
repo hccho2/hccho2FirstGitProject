@@ -8,6 +8,10 @@ from datetime import datetime
 import sys
 import pickle
 
+vocabulary_size = 8000
+unknown_token = "UNKNOWN_TOKEN"
+sentence_start_token = "SENTENCE_START"
+sentence_end_token = "SENTENCE_END"
 
 def softmax(x):
     x = x - np.max(x)
@@ -170,7 +174,20 @@ def train_with_sgd(model, X_train, y_train, learning_rate=0.005, nepoch=100, eva
 
     return losses
 
-
+def generate_sentence(model):
+    # We start the sentence with the start token
+    new_sentence = [word_to_index[sentence_start_token]]
+    # Repeat until we get an end token
+    while not new_sentence[-1] == word_to_index[sentence_end_token]:
+        next_word_probs = model.predict(new_sentence)
+        sampled_word = word_to_index[unknown_token]
+        # We don't want to sample unknown words
+        while sampled_word == word_to_index[unknown_token]:
+            samples = np.random.multinomial(1, next_word_probs[-1])
+            sampled_word = np.argmax(samples)
+        new_sentence.append(sampled_word)
+    sentence_str = [index_to_word[x] for x in new_sentence[1:-1]]
+    return sentence_str
 
 
 
@@ -180,10 +197,7 @@ np.set_printoptions(threshold=np.nan)
 np.random.seed(10)
 
 
-vocabulary_size = 8000
-unknown_token = "UNKNOWN_TOKEN"
-sentence_start_token = "SENTENCE_START"
-sentence_end_token = "SENTENCE_END"
+
 
 # Read the data and append SENTENCE_START and SENTENCE_END tokens
 print( "Reading CSV file...")
@@ -254,12 +268,36 @@ model = RNNNumpy(grad_check_vocab_size, 10, bptt_truncate=1000)
 model.gradient_check([0,1,2,3], [1,2,3,4])
 """
 
-model = RNNNumpy(vocabulary_size)
-#with open('RNN_Language.pickle','rb') as f:
-#    model = pickle.load(f)
+#model = RNNNumpy(vocabulary_size)
+with open('RNN_Language.pickle','rb') as f:
+    model = pickle.load(f)
 
 
-losses = train_with_sgd(model, X_train, y_train, nepoch=2, evaluate_loss_after=1)
+#losses = train_with_sgd(model, X_train, y_train, nepoch=2, evaluate_loss_after=1)
+#
+#with open('RNN_Language.pickle','wb') as f:
+#    pickle.dump(model,f)
 
-with open('RNN_Language.pickle','wb') as f:
-    pickle.dump(model,f)
+
+
+
+num_sentences = 10
+senten_min_length = 7
+
+for i in range(num_sentences):
+    sent = []
+    # We want long sentences, not sentences with one or two words
+    while len(sent) < senten_min_length:
+        sent = generate_sentence(model)
+    print (" ".join(sent))
+
+
+
+
+
+
+
+
+
+
+
