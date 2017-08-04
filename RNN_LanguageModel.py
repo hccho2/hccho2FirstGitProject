@@ -179,10 +179,11 @@ def generate_sentence(model):
     new_sentence = [word_to_index[sentence_start_token]]
     # Repeat until we get an end token
     while not new_sentence[-1] == word_to_index[sentence_end_token]:
-        next_word_probs = model.predict(new_sentence)
+        next_word_probs = model.forward_propagation(new_sentence)[0]
         sampled_word = word_to_index[unknown_token]
         # We don't want to sample unknown words
         while sampled_word == word_to_index[unknown_token]:
+            #다음에 나올 단어들의 확률이 가장 놓은 것을 택하는 것이 아니라, 그 확률분포를 이용하여 랜덤하게 생성.
             samples = np.random.multinomial(1, next_word_probs[-1])
             sampled_word = np.argmax(samples)
         new_sentence.append(sampled_word)
