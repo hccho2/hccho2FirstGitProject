@@ -85,6 +85,10 @@ A=[[2,3,4],[3,3,5],[5,63,4],[3,4,5]]
 A1=['a1','a2','a3']
 A2=['x1','x2','x3','x4']
 df2=pd.DataFrame(data=A,index=A2,columns=A1)
+
+
+pandas.set_option('display.max_columns', None,'display.max_rows', None)
+
 =====================================================================================
 # loadtxt, genfromtxt는 같은 기능이지만, 
 # genfromtxt는 missing data를 다룰 수 있는 다양한 옵션이 있다.
