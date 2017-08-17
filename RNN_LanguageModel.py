@@ -1,3 +1,4 @@
+# DENNY BRITZ, http://www.wildml.com/2015/09/recurrent-neural-networks-tutorial-part-1-introduction-to-rnns/
 #  coding: utf-8
 import numpy as np
 import nltk
