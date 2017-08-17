@@ -10,7 +10,17 @@ octave  array index는 1부터
 
 파일 읽기:
 data = load('ex1data1.txt');
+=====================================================================================================
 
+% mat파일은 변수명을 가지고 있다.
+
+global randomness_source
+load a4_randomness_source    < ----- a4_randomness_source.mat 파일 속에 있는 data값을 읽어들인다.
+
+global data_sets
+temp = load('data_set');
+data_sets = temp.data;
+=====================================================================================================
 
 my_octave.m 이라는 스크립트를 실행한다고 하면
 1) 인터프리터에서 실행
