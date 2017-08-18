@@ -70,6 +70,14 @@ A' <---transpose
 #histogram
 
 hist(data)
+#############################################
 
+if a>b && b < c || c==3
+
+elseif c >=7
+
+else
+
+endif
 
 
