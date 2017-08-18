@@ -50,6 +50,13 @@ function [theta, J_history] = gradientDescent(X, y, theta, alpha, num_iters)
   end
 
 end
+#############################################
+X=[0.06,0.07,0.08,0.09,0.11,0.12,0.15]
+
+for i =1:size(X,2)
+  fprintf("%f: \n",X(i))
+  a4_main(300, .02, X(i), 1000)
+end
 
 #############################################
 surf: surface  그리기
