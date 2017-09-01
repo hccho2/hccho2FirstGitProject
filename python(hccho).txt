@@ -86,8 +86,13 @@ A1=['a1','a2','a3']
 A2=['x1','x2','x3','x4']
 df2=pd.DataFrame(data=A,index=A2,columns=A1)
 
-
+모든 data출력
 pandas.set_option('display.max_columns', None,'display.max_rows', None)
+
+#Pivot
+mydatapd = pd.DataFrame(mydata,columns=['A','B','C'])
+mydatapd = mydatapd.pivot(index ='A',columns='B',values='C')
+
 
 =====================================================================================
 # loadtxt, genfromtxt는 같은 기능이지만, 
