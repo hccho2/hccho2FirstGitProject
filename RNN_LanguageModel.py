@@ -21,9 +21,9 @@ def softmax(x):
 class RNNNumpy:
     def __init__(self, word_dim, hidden_dim=100, bptt_truncate=4):
         # Assign instance variables
-        self.word_dim = word_dim
+        self.word_dim = word_dim # 총 단어 갯수
         self.hidden_dim = hidden_dim
-        self.bptt_truncate = bptt_truncate
+        self.bptt_truncate = bptt_truncate # t하고 뒤로 몇개. 즉 4이면 모두 5번 계산
         # Randomly initialize the network parameters
         self.U = np.random.uniform(-np.sqrt(1./word_dim), np.sqrt(1./word_dim), (hidden_dim, word_dim))
         self.V = np.random.uniform(-np.sqrt(1./hidden_dim), np.sqrt(1./hidden_dim), (word_dim, hidden_dim))
@@ -32,10 +32,11 @@ class RNNNumpy:
     def forward_propagation(self, x):
         # The total number of time steps
         T = len(x)
+        # (x[0], ..., x[T-1]), (o[0], ...,o[T-1]), (s[0],...s[T-1]), s[-1]=s[T] = 0
         # During forward propagation we save all hidden states in s because need them later.
         # We add one additional element for the initial hidden, which we set to 0
         s = np.zeros((T + 1, self.hidden_dim))
-        s[-1] = np.zeros(self.hidden_dim)
+        s[-1] = np.zeros(self.hidden_dim)  # 불필요함.
         # The outputs at each time step. Again, we save them for later.
         o = np.zeros((T, self.word_dim))
         # For each time step...
@@ -51,6 +52,7 @@ class RNNNumpy:
         return np.argmax(o, axis=1)
     
     def calculate_total_loss(self, x, y):
+        # x,y는 data 여러개
         L = 0
         # For each sentence...
         for i in np.arange(len(y)):
@@ -62,11 +64,13 @@ class RNNNumpy:
         return L
     
     def calculate_loss(self, x, y):
+        # x,y는 data 여러개
         # Divide the total loss by the number of training examples
         N = np.sum((len(y_i) for y_i in y))
         return self.calculate_total_loss(x,y)/N
 
     def bptt(self, x, y):
+        # x,y는 data 1개
         T = len(y)
         # Perform forward propagation
         o, s = self.forward_propagation(x)
@@ -86,9 +90,9 @@ class RNNNumpy:
             # y=tanhx ==> y' = 1-y*y
             delta_t = self.V.T.dot(delta_o[t]) * (1 - (s[t] ** 2))
             # Backpropagation through time (for at most self.bptt_truncate steps)
-            for bptt_step in np.arange(max(0, t-self.bptt_truncate), t+1)[::-1]:
+            for bptt_step in np.arange(max(0, t-self.bptt_truncate), t+1)[::-1]:  #t=8,bptt_truncate=4 이면, [8,7,6,5,4]
                 # print "Backpropagation step t=%d bptt step=%d " % (t, bptt_step)
-                dLdW += np.outer(delta_t, s[bptt_step-1])
+                dLdW += np.outer(delta_t, s[bptt_step-1]) # hidden_dim x hidden_dim
                 dLdU[:,x[bptt_step]] += delta_t
                 # Update delta for next step
                 delta_t = self.W.T.dot(delta_t) * (1 - s[bptt_step-1] ** 2)
@@ -136,6 +140,7 @@ class RNNNumpy:
 
     # Performs one step of SGD.
     def sgd_step(self, x, y, learning_rate):
+        # x,y는 data 1개
         # Calculate the gradients
         dLdU, dLdV, dLdW = self.bptt(x, y)
         # Change parameters according to gradients and learning rate
@@ -153,6 +158,7 @@ class RNNNumpy:
 # - evaluate_loss_after: Evaluate the loss after this many epochs
 def train_with_sgd(model, X_train, y_train, learning_rate=0.005, nepoch=100, evaluate_loss_after=5):
     # We keep track of the losses so we can plot them later
+    # X_train에 있는 모든 data를 1개씩 sgd를 적용한다.. 이 작업을 nepoch만큼 수행.
     losses = []
     num_examples_seen = 0
     for epoch in range(nepoch):
@@ -271,7 +277,7 @@ model.gradient_check([0,1,2,3], [1,2,3,4])
 """
 
 #model = RNNNumpy(vocabulary_size)
-with open('RNN_Language.pickle','rb') as f:
+with open('RNN_Language_epoch21.pickle','rb') as f:
     model = pickle.load(f)
 
 
