@@ -585,6 +585,9 @@ class Sigmoid:
 class Dropout:
     """
     http://arxiv.org/abs/1207.0580
+    Drop out을 적용할 경우, Cost 값이 줄어들기 때문에, Cost값을 보정해주기 위해서
+    방법1. dropout을 적용한 forward 결과에 (1-dropout_ratio)=keep_ratio를 나눈다.
+    방법2. drouout을 적용하지 않은 forward 결과에 (1-dropout_ratio)를 곱한다.
     """
     def __init__(self, dropout_ratio=0.5):
         self.dropout_ratio = dropout_ratio
