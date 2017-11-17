@@ -151,10 +151,14 @@ print("a[::]: ", a[::])  #123456789
 print("a[::3]: ", a[::3]) #147
 print("a[::-1]: ", a[::-1]) #987654321
 
-
+================================================
 mat = [[1, 2, 3], [4, 5, 6]]
-print(list(zip(*mat)))   # [(1, 4), (2, 5), (3, 6)]
-
+A = list(zip(*mat))   # [(1, 4), (2, 5), (3, 6)]
+B= list(np.array(A))
+print(B)   # [array([1, 4]), array([2, 5]), array([3, 6])]
+C = np.array(A).tolist()
+print(C)  # [[1, 4], [2, 5], [3, 6]]
+=========================================================
 
 a = ["Code", "mentor", "Python", "Developer"]
 print (" ".join(a))  #  Code mentor Python Developer
