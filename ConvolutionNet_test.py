@@ -21,7 +21,7 @@ key_file = {
 dataset_dir = os.path.dirname(os.path.abspath(__file__))
 save_file = dataset_dir + "/mnist.pkl"
 
-class SimpleConvNet:
+class SimpleConvNet:  # chapter 7
     """단순한 합성곱 신경망
     
     conv - relu - pool - affine - relu - affine - softmax
@@ -193,7 +193,7 @@ class SimpleConvNet:
             self.layers[key].W = self.params['W' + str(i+1)]
             self.layers[key].b = self.params['b' + str(i+1)]
 
-class DeepConvNet:
+class DeepConvNet:  # chapter 8
     """정확도 99% 이상의 고정밀 합성곱 신경망
     네트워크 구성은 아래와 같음
         conv - relu - conv- relu - pool -
