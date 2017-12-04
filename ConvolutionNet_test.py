@@ -21,7 +21,7 @@ key_file = {
 dataset_dir = os.path.dirname(os.path.abspath(__file__))
 save_file = dataset_dir + "/mnist.pkl"
 
-class SimpleConvNet:  # chapter 7
+class SimpleConvNet:  # chapter 7. page 250에 있는 그림과 같은 Conv->ReLU->Pooling->Affine->ReLU->Affine->Softmax
     """단순한 합성곱 신경망
     
     conv - relu - pool - affine - relu - affine - softmax
@@ -193,7 +193,7 @@ class SimpleConvNet:  # chapter 7
             self.layers[key].W = self.params['W' + str(i+1)]
             self.layers[key].b = self.params['b' + str(i+1)]
 
-class DeepConvNet:  # chapter 8
+class DeepConvNet:  # chapter 8. page 262에 있는 그림과 같은 Network 구성(VGG와 유사)
     """정확도 99% 이상의 고정밀 합성곱 신경망
     네트워크 구성은 아래와 같음
         conv - relu - conv- relu - pool -
