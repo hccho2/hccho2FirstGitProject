@@ -94,3 +94,73 @@ plt.close()
 #f, ax = plt.subplots()
 #ax.plot(x, y)
 #ax.set_title('Simple plot')
+
+
+
+
+##########################################################
+##########################################################
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+import numpy as np
+ 
+"""
+3  <-- dimX
+5  <-- dimY
+1 2 3  <--X axis
+1 3 5 7 9  <--Y axis
+1.2 3 4  <--- data  dimY x dimX
+5 6 33 
+1 2 3 
+4 2 3.4
+5.5 6 6
+
+"""
+
+def ReadFromFile(filename): 
+
+    file = open(filename)
+    line = file.readline()
+    dimX = int(line)
+
+    line = file.readline()
+    dimY = int(line)  
+
+    line = file.readline()
+    X = np.fromstring(line,sep=' ',dtype=np.float)
+
+    line = file.readline()
+    Y = np.fromstring(line,sep=' ',dtype=np.float)
+
+    X,Y = np.meshgrid(X,Y)
+
+    
+
+    lines = file.readlines()
+    lines = ' '.join(lines)
+    lines = lines.replace('\n','')
+    data  = np.fromstring(lines,sep=' ',dtype=np.float).reshape(dimY,dimX)
+
+    file.close()
+    return X,Y,data
+
+ 
+
+X1,Y1,data1 = ReadFromFile("mydata3.txt")
+X2,Y2,data2 = ReadFromFile("mydata3.txt")
+
+ 
+fig = plt.figure()
+
+#ax = fig.gca(projection='3d')   # 1개만 그릴 때
+
+ax1 = fig.add_subplot(131,projection='3d')
+ax2 = fig.add_subplot(132,projection='3d')
+ax3 = fig.add_subplot(133,projection='3d')
+surf = ax1.plot_surface(X1,Y1,data1)
+surf = ax2.plot_surface(X2,Y2,data2)
+surf = ax3.contour(X1,Y1,data1,20)
+surf = ax3.contour(X2,Y2,data2)
+
+plt.show()
+
