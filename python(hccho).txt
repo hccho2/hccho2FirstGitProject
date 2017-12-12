@@ -213,7 +213,30 @@ import numpy as np
 A = np.array([range(5)],dtype=np.uint8).T
 B = np.unpackbits(A,axis=1)
 =====================================================================================
+"""
+mydata3.txt
+3
+5
+1.2,3,4,5,6
+33,1,2,3,4
+2,3.4,5.5,6,6
 
+
+"""
+import numpy as np
+
+file = open("mydata3.txt")
+line  = file.readline()
+dimX = int(line)
+
+line  = file.readline()
+dimY = int(line)
+
+lines = file.readlines()
+lines = ','.join(lines)
+lines = lines.replace('\n','')
+data = np.fromstring(lines,sep=',',dtype=np.float).reshape(dimX,dimY)
+print(data)
 =====================================================================================
 
 =====================================================================================
