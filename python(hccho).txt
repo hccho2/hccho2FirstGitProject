@@ -245,7 +245,7 @@ A ={'a':[1,2,3],'b': [3,4,5,3,6,6,4]}  # dict
 np.save('test.npy',A)
 
 a = np.load('test.npy')  # numpy.ndarray
-b = a.item()  # 저장했던 dict
+b = a.item()  # 저장했던 dict. 이렇게 해야, b가 a와 같은 dict가 된다.
 =====================================================================================
 # 파일 한줄씩 읽어, list에 저장
 with open('wnids.txt', 'r') as f:
