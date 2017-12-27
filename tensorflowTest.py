@@ -135,6 +135,24 @@ def testLinearRegression2():
     # Test our model        
     print(sess.run(hypothesis, feed_dict={x_train: [6.0, 5.4]}))        
 
+def test_gpu():
+    import tensorflow as tf
+
+    c = []
+    for d in ['/gpu:2', '/gpu:3']:
+    with tf.device(d):
+        a = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[2, 3])
+        b = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[3, 2])
+        c.append(tf.matmul(a, b))
+    with tf.device('/cpu:0'):
+        sum = tf.add_n(c)
+
+    # Creates a session with log_device_placement set to True.
+    sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
+    print sess.run(sum) 
+    
+    
+    
 if __name__ == "__main__":   
     test1()
     
