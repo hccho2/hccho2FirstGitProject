@@ -13,3 +13,99 @@ http://hunkim.github.io/ml/
 
 LSTM: http://colah.github.io/posts/2015-08-Understanding-LSTMs/
 LSTM: https://deeplearning4j.org/kr/lstm#code
+
+
+
+
++++AI 전문가들의 제언+++
+ (민현석 님) https://facebook.com/255834461424286_479160352425028
+ (김남주 님) https://facebook.com/255834461424286_455382238136173
+ (Andrew Ng 님) https://www.quora.com/How-can-beginners-in-mac…/…/Andrew-Ng…
+
++++한글 유트브 강좌+++
+ (남세동 님) https://www.youtube.com/watch…
+(sung kim님) https://www.youtube.com/watch…
+
++++공부 커리큘럼+++
+ (영어 자료 기준) https://facebook.com/255834461424286_464930173848046
+ (한글 자료 기준) https://www.facebook.com/groups/TensorFlowKR/permalink/485458151795248/
+
++++논문 효과적으로 읽는 법+++
+https://facebook.com/255834461424286_463498977324499
+
++++Numpy로 짜 보는 딥러닝+++
+ (코드 링크) https://github.com/cthorey/CS231
+
++++PRML책정리+++
+ (페북 링크1) https://facebook.com/255834461424286_454547954886268
+ (자료 링크1) http://norman3.github.io/prml/
+ (페북 링크2) 책 2장 식(2.117)까지 ipython으로 정리
+https://facebook.com/255834461424286_556808447993551
+
++++E-book 정리+++
+ (e-book 링크 1) http://neuralnetworksanddeeplearning.com/
+ (페북 링크) https://facebook.com/255834461424286_451098461897884
+
+(e-book 링크 2) https://leonardoaraujosantos.gitbooks.io/artificial-inte…/…/
+ (pdf 링크) https://www.gitbook.com/…/le…/artificial-inteligence/details
+
+(e-book 링크 3) https://github.com/HFTrader/DeepLearningBook
+ (pdf 링크) https://github.com/…/DeepLe…/raw/master/DeepLearningBook.pdf
+
++++고등학생도 이해하는 딥러닝+++
+
+(페북 링크) https://www.facebook.com/groups/TensorFlowKR/permalink/443348236006240/
+원본자료링크가 깨졌다고 하니 아래링크로 받으세요.
+ (자료 링크) https://drive.google.com/…/fol…/0BwwNF6qNzpOLNXA2OGZ4TW9NNEE
+
++++케라스와 함께 익히는 딥러닝 개념들+++
+ (자료 링크)(국문) https://tykimos.github.io/Keras/lecture/
+
++++딥러닝 기본 개념들 쉽게 정리된 자료+++
+ (자료 링크)(국문) https://www.slideshare.net/yongho/ss-79607172
+ (자료 링크)(국문) https://www.slideshare.net/HeeWonPark11/ss-80653977…
+(페북 링크)(국문)https://facebook.com/555066658167730
+
++++딥러닝의 기초부터 큰 획을 그었던 논문들까지 익히기+++
+ (영상 링크)(국문) http://www.edwith.org/deeplearningchoi/
+ (자료 링크) https://github.com/sjchoi86/dl_tutorials_10weeks
+
++++CNN초보자가 만든 초보자 가이드+++
+ (페북 링크) https://facebook.com/255834461424286_425564241117973
+ (자료 링크) https://www.slideshare.net/leeseungeun/cnn-vgg-72164295
+ (랩탑에서 TF설치기) https://www.slideshare.net/leeseungeun/tensorflow-tensorflow
+ (랩탑에서 TF tutorial) https://www.slideshare.net/lee…/tensorflow-tutorial-72217416
+
++++딥러닝에 필요한 수학과목들+++
+ (영어 강좌) https://www.youtube.com/channel/UCYO_jab_esuFRV4b17AJtAw
+ (과목 리스트 추천) https://www.quora.com/How-do-I-learn-mathematics-for-machin… 
+(영어 강좌 임성빈 추천) https://www.youtube.com/user/mathematicalmonk?app=desktop 
+ (한글 강좌 JaeJun Yoo 추천) https://www.youtube.com/channel/UCfrr-1XiyqQTh-r3CI2VP2A
+ (확률통계 cookbook) https://github.com/…/relea…/download/0.2.4/stat-cookbook.pdf
+
++++딥러닝 자료 총 망라+++
+ (블로그 링크) https://handong1587.github.io/categories.html
+
++++딥러닝 기초부터 응용까지 TF로 배워보기+++
+ [최성준 님 자료] 
+ (페북 링크) https://facebook.com/255834461424286_465906737083723
+ (자료 링크) https://github.com/sjchoi86/dl_tutorials_10weeks
+ (코드 링크) https://github.com/sjchoi86/advanced-tensorflow
+
+[안남혁 님 자료] https://github.com/nmhkahn/deep_learning_tutorial
+ [김진중 님 자료] https://github.com/golbin/TensorFlow-Tutorials
+ [이도엽 님 자료] https://github.com/LeeDoYup/Deep-Learning-Tensorflow-Basic
+
++++한글판 딥러닝 논문 서베이+++
+2012년-2016년에 발간된 이미지 관련 논문들 약 60개 정리
+(페북 링크) https://facebook.com/255834461424286_472432669764463
+ (자료 링크) https://brunch.co.kr/@kakao-it/65
+ +++자주 언급되는 테크블로그 리스트+++
+1) (원문) http://colah.github.io/
+ (번역)) https://brunch.co.kr/@chris-song/
+ 2) http://www.inference.vc/
+ 3) http://wiseodd.github.io/techblog/
+ 4) http://jaejunyoo.blogspot.com/search/label/kr
+ 5) https://www.facebook.com/deeplearningtalk/
+ 6) http://bcho.tistory.com/category/빅데이타/머신러닝
+7) https://brunch.co.kr/magazine/kakaoaireport
