@@ -261,6 +261,22 @@ choice = np.random.choice(N,10, replace=False)
 B = A[choice]
 
 =============================================
+import numpy as np
+import random
+from collections import deque
+A = deque(maxlen=100)
+
+A.append([3.5,1])
+A.append([4.5,5])
+A.append([5.5,2])
+A.append([6.5,1])
+A.append([7.5,3])
+
+B = random.sample(A,2)
+C = np.random.choice(A,2)  # ==> error. must be 1-dimensional
+
+
+=============================================
 Shuffle
 s = np.arange(A.shape[0])
 np.random.shuffle(s)
