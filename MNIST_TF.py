@@ -6,7 +6,10 @@ def MNIST_LogisticRegression():
     from tensorflow.examples.tutorials.mnist import input_data
     import matplotlib.pyplot as plt
     import random
-    mnist = input_data.read_data_sets("../MachineLearning", one_hot=True)
+    
+    # 4개 파일. train-images-idx3-ubyte.gz,train-labels-idx1-ubyte.gz, t10k-images-idx3-ubyte.gz,t10k-labels-idx1-ubyte.gz
+    mnist = input_data.read_data_sets("../MachineLearning", one_hot=True) 
+    
 
     nb_classses = 10
     data_feature = 784
