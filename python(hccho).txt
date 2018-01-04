@@ -315,6 +315,10 @@ total_epoch = args.epochs
 batch_size = args.batch_size
 
 print(filelist_dir, output_dir, total_epoch,batch_size  )
+
+> python  zzz.py -h   ==> help 출력
+
+
 =====================================================================================
 
 =====================================================================================
