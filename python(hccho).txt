@@ -302,6 +302,10 @@ parser.add_argument('--epochs', type=int, default=10)
 parser.add_argument('--batch_size', type=int, default=32)
 parser.add_argument('--batch_size2', required=True, choices=["aa","bb"])   <----- required=True 항목이 빠지면, usgee를 출력하면서 끝난다.
 
+# 옵션에 따라 하나의 parameter 설정
+parser.add_argument("--flip", dest="flip", action="store_true", help="flip images horizontally")
+parser.add_argument("--no_flip", dest="flip", action="store_false", help="don't flip images horizontally")
+parser.set_defaults(flip=True)
 
 args = parser.parse_args()
 filelist_dir = args.filelist
