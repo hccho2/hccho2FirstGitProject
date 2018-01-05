@@ -105,15 +105,6 @@ pandas.set_option('display.max_columns', None,'display.max_rows', None)
 mydatapd = pd.DataFrame(mydata,columns=['A','B','C'])
 mydatapd = mydatapd.pivot(index ='A',columns='B',values='C')
 
-
-=====================================================================================
-# loadtxt, genfromtxt는 같은 기능이지만, 
-# genfromtxt는 missing data를 다룰 수 있는 다양한 옵션이 있다.
-# numpy.loadtxt: equivalent function when no data is missing.
-
-
-mydata = np.genfromtxt('mydata2.txt',delimiter=',',dtype=np.float32)
-mydata = np.loadtxt('mydata2.txt', delimiter=',', dtype=np.float32)
 =====================================================================================
 import pickle
 var1 = xxx
@@ -250,6 +241,16 @@ b = a.item()  # 저장했던 dict. 이렇게 해야, b가 a와 같은 dict가 �
 # 파일 한줄씩 읽어, list에 저장
 with open('wnids.txt', 'r') as f:
     A = [x.strip() for x in f]
+    
+=====================================================================================
+# loadtxt, genfromtxt는 같은 기능이지만, 
+# genfromtxt는 missing data를 다룰 수 있는 다양한 옵션이 있다.
+# numpy.loadtxt: equivalent function when no data is missing.
+
+
+mydata = np.genfromtxt('mydata2.txt',delimiter=',',dtype=np.float32)
+mydata = np.loadtxt('mydata2.txt', delimiter=',', dtype=np.float32)    
+    
 =====================================================================================
 random 선택
 
