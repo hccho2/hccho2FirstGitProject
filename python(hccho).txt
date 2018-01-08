@@ -318,7 +318,20 @@ batch_size = args.batch_size
 print(filelist_dir, output_dir, total_epoch,batch_size  )
 
 > python  zzz.py -h   ==> help 출력
+=====================================================================================
+flags = tf.app.flags
+이 함수는 argparse 모듈과 같은 역할을 합니다. argparse보다 나은 점은 저가 볼 때는 굳이 argparser를 import 할 필요 없이 아래와 같이 추가만 하면 됩니다.
 
+flags = tf.app.flags
+flags.DEFINE_integer("epoch", 25, "Epoch to train [25]")
+flags.DEFINE_string("sample_dir", "samples", "Directory name to save the image samples [samples]")
+flags.DEFINE_boolean("is_crop", False, "True for training, False for testing [False]")
+FLAGS = flags.FLAGS
+
+if not os.path.exists(FLAGS.checkpoint_dir):
+    os.makedirs(FLAGS.checkpoint_dir)
+
+flags에 tf.app.flags 를 통해 객체를 저장하고 DEFINE_integer나 DEFINE_string 을 통해 아래 argparse와 같은 역할을 할 수 있습니다
 
 =====================================================================================
 image 읽기
