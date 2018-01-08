@@ -297,11 +297,16 @@ import argparse
 parser = argparse.ArgumentParser(description='Easy Implementation of DCGAN')
 
 # parameters
+parser.add_argument('datasets', metavar='N', type=str, nargs='+', choices=['celebA', 'lsun', 'mnist'],
+           help='name of dataset to download [celebA, lsun, mnist]')
+# 위의 경우와 같이 -- 없이 'datasets'만 있는 경우, argument값만 넘겨야 한다.
+
+
 parser.add_argument('--filelist', type=str, default='filelist.txt')
 parser.add_argument('--out_dir', type=str, default='./output', help="where to put output files")
 parser.add_argument('--epochs', type=int, default=10)
 parser.add_argument('--batch_size', type=int, default=32)
-parser.add_argument('--batch_size2', required=True, choices=["aa","bb"])   <----- required=True 항목이 빠지면, usgee를 출력하면서 끝난다.
+parser.add_argument('--batch_size2', required=True, choices=["aa","bb"])   <----- required=True 항목이 빠지면, usage를 출력하면서 끝난다.
 
 # 옵션에 따라 하나의 parameter 설정
 parser.add_argument("--flip", dest="flip", action="store_true", help="flip images horizontally")
