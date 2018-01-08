@@ -339,7 +339,9 @@ image 읽기
 img = skimage.io.imread(path)  ==> 정수 data
 resized_img = skimage.transform.resize(crop_img, (img_size, img_size))  #정수 data image가 넘어와도 float로. preserve_range=True(정수형태지만, type은 float)
 
-
+skimage.io.imshow(img)
+plt.show()
+======
 im = scipy.misc.imread   ==> 정수 data
 im = scipy.misc.imresize(im, self.resize)
 
