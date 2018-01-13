@@ -356,7 +356,35 @@ import os, glob
 a = os.path.join("../tensorflow-style-transfer-master","images", "*.jpg") #string을  \로 이어  path를 만든다.
 b = glob.glob(a) # wild card를 풀어  filename list를 만든다.
 =====================================================================================
+import gzip,os
+import numpy as np
+import skimage.io
+import scipy.misc
+import matplotlib.pyplot as plt
 
+data_dir = 'D:\hccho\ML\PythonCode\CommonDataset\mnist'
+fd = os.path.join(data_dir,'train-images-idx3-ubyte.gz')
+with gzip.open(fd, 'rb') as f:
+    loaded = np.frombuffer(f.read(), np.uint8, offset=16)
+    trX = loaded.reshape((60000,28,28,1)).astype(np.float)  
+
+
+skimage.io.imshow(np.squeeze(trX[0]/255.0))
+plt.show()
+skimage.io.imshow(np.squeeze((trX[0]/255.0 +1)/2))
+plt.show()
+
+
+plt.imshow(np.squeeze(trX[0]/255.0))
+plt.show()
+plt.imshow(np.squeeze((trX[0]/255.0 +1)/2))
+
+
+#scipy.misc.imsave("a.jpg",np.squeeze(trX[0]/255.0))  # 0~1
+#scipy.misc.imsave("b.jpg",np.squeeze((trX[0]/255.0 +1)/2)) 0.5~1
+
+img1 = skimage.io.imread("a.jpg")
+img2 = skimage.io.imread("b.jpg")
 =====================================================================================
 
 =====================================================================================
