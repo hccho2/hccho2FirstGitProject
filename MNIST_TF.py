@@ -6,10 +6,7 @@ def MNIST_LogisticRegression():
     from tensorflow.examples.tutorials.mnist import input_data
     import matplotlib.pyplot as plt
     import random
-    
-    # 4개 파일. train-images-idx3-ubyte.gz,train-labels-idx1-ubyte.gz, t10k-images-idx3-ubyte.gz,t10k-labels-idx1-ubyte.gz
-    mnist = input_data.read_data_sets("../MachineLearning", one_hot=True) 
-    
+    mnist = input_data.read_data_sets("../CommonDataset/mnist", one_hot=True)
 
     nb_classses = 10
     data_feature = 784
@@ -35,7 +32,7 @@ def MNIST_LogisticRegression():
     batch_size = 100
 
 
-    is_correct = tf.equal(tf.argmax(hypothesis,1),tf.arg_max(Y,1))
+    is_correct = tf.equal(tf.argmax(hypothesis,1),tf.argmax(Y,1))
     accuracy = tf.reduce_mean(tf.cast(is_correct,tf.float32))
 
     with tf.Session() as sess:
@@ -55,7 +52,7 @@ def MNIST_LogisticRegression():
         print("Accuracy: ", accuracy.eval(session=sess, feed_dict={X: mnist.test.images, Y: mnist.test.labels}))
 
         r = random.randint(0,mnist.test.num_examples-1)
-        print("Label: ", sess.run(tf.arg_max(mnist.test.labels[r:r+1],1)))  #shape = (1,10)
+        print("Label: ", sess.run(tf.argmax(mnist.test.labels[r:r+1],1)))  #shape = (1,10)
         print("Prediction: ", sess.run(tf.argmax(hypothesis,1),feed_dict={X:mnist.test.images[r:r+1]}))  #shape=(1,784)
         plt.imshow(mnist.test.images[r:r+1].reshape(28,28), cmap = 'Greys', interpolation='nearest')
         plt.show()
@@ -73,7 +70,7 @@ def MNIST_NN(Xavier=True):
     tf.reset_default_graph()
     tf.set_random_seed(777)  # reproducibility
 
-    mnist = input_data.read_data_sets("../MachineLearning", one_hot=True)
+    mnist = input_data.read_data_sets("../CommonDataset/mnist", one_hot=True)
     # Check out https://www.tensorflow.org/get_started/mnist/beginners for
     # more information about the mnist dataset
 
@@ -141,7 +138,7 @@ def MNIST_NN(Xavier=True):
     r = random.randint(0, mnist.test.num_examples - 1)
     print("Label: ", sess.run(tf.argmax(mnist.test.labels[r:r + 1], 1)))
     result = sess.run(hypothesis, feed_dict={X: mnist.test.images[r:r + 1]})
-    print("Prediction: ", sess.run(tf.arg_max(result,1)) )
+    print("Prediction: ", sess.run(tf.argmax(result,1)) )
 
     np.set_printoptions(precision=4)
     result = sess.run(tf.nn.softmax(result))
@@ -226,7 +223,7 @@ def MNIST_NN2(layer_size_list,Xavier=True,Dropout=False,KeepProb=0.7):
     r = random.randint(0, mnist.test.num_examples - 1)
     print("Label: ", sess.run(tf.argmax(mnist.test.labels[r:r + 1], 1)))
     result = sess.run(hypothesis, feed_dict={X: mnist.test.images[r:r + 1], keep_prob: 1.0})
-    print("Prediction: ", sess.run(tf.arg_max(result,1)) )
+    print("Prediction: ", sess.run(tf.argmax(result,1)) )
 
     np.set_printoptions(precision=4)
     np.set_printoptions(suppress=True)
