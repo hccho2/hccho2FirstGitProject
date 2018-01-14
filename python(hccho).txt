@@ -386,7 +386,15 @@ plt.imshow(np.squeeze((trX[0]/255.0 +1)/2))
 img1 = skimage.io.imread("a.jpg")
 img2 = skimage.io.imread("b.jpg")
 =====================================================================================
+from PIL import Image
+import os, glob
 
+image_files = glob.glob("./*.png")
+images = [Image.open(f) for f in image_files]
+
+gif = images[0]
+gif.save(fp="./output.gif", format='gif', save_all=True, append_images=images[1:])
+print(Image.open("./output.gif").n_frames)
 =====================================================================================
 
 =====================================================================================
