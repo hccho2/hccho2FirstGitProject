@@ -32,8 +32,8 @@ def MNIST_LogisticRegression():
     batch_size = 100
 
 
-    is_correct = tf.equal(tf.argmax(hypothesis,1),tf.argmax(Y,1))
-    accuracy = tf.reduce_mean(tf.cast(is_correct,tf.float32))
+    correct_prediction = tf.equal(tf.argmax(hypothesis, 1), tf.argmax(Y, 1))
+    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
@@ -46,8 +46,83 @@ def MNIST_LogisticRegression():
                 batch_xs,batch_ys = mnist.train.next_batch(batch_size)
                 c,_ =sess.run([cost,optimizer],feed_dict={X:batch_xs, Y:batch_ys})
                 avg_cost += c / total_batch
+                
+            test_acc = sess.run(accuracy, feed_dict={X: mnist.test.images, Y: mnist.test.labels})
+            print("Epoch: ", "%4d" % (epoch+1), 'cost = ','{:.9f}'.format(avg_cost), 'test acc = {:.4f}'.format(test_acc))
 
-            print("Epoch: ", "%4d" % (epoch+1), 'cost = ','{:.9f}'.format(avg_cost))
+        print("Accuracy: ", accuracy.eval(session=sess, feed_dict={X: mnist.test.images, Y: mnist.test.labels}))
+
+        r = random.randint(0,mnist.test.num_examples-1)
+        print("Label: ", sess.run(tf.argmax(mnist.test.labels[r:r+1],1)))  #shape = (1,10)
+        print("Prediction: ", sess.run(tf.argmax(hypothesis,1),feed_dict={X:mnist.test.images[r:r+1]}))  #shape=(1,784)
+        plt.imshow(mnist.test.images[r:r+1].reshape(28,28), cmap = 'Greys', interpolation='nearest')
+        plt.show()
+
+    plt.close()
+
+def MNIST_LogisticRegression_Tensorboard():
+    # > tensorboard --logdir=./tensorbaord-logs
+    import tensorflow as tf
+    from tensorflow.examples.tutorials.mnist import input_data
+    import matplotlib.pyplot as plt
+    import random
+    mnist = input_data.read_data_sets("../CommonDataset/mnist", one_hot=True)
+
+    nb_classses = 10
+    data_feature = 784
+
+    X = tf.placeholder(tf.float32,[None,data_feature])
+    Y = tf.placeholder(tf.float32,[None,nb_classses])
+    logdir = "./tensorbaord-logs"  # 디렉토리는 없으면 만든다.
+    
+    with tf.variable_scope("FC1") as scope:
+        W = tf.Variable(tf.random_normal([data_feature,nb_classses]),name="weight")
+        b = tf.Variable(tf.random_normal([nb_classses]),name="bias")
+
+        logits = tf.matmul(X,W)+b
+        hypothesis = tf.nn.softmax(logits)
+
+
+        #cost = tf.reduce_mean(tf.reduce_sum(-tf.reduce_sum(Y*tf.log(hypothesis),axis=1)))
+        cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits,labels=Y))
+        optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.1).minimize(cost)
+
+
+        
+    
+        #################################
+    
+        training_epochs = 15
+        batch_size = 100
+    
+    
+        correct_prediction = tf.equal(tf.argmax(hypothesis, 1), tf.argmax(Y, 1))
+        accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+        
+        #tensorboard
+        cost_summary = tf.summary.scalar("cost",cost)        
+        acc_train_summary = tf.summary.scalar("acc_train",accuracy)
+        acc_test_summary = tf.summary.scalar("acc_test",accuracy)
+        #merged = tf.summary.merge_all()
+        merged = tf.summary.merge([cost_summary,acc_train_summary])
+
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        
+        writer = tf.summary.FileWriter(logdir, sess.graph)  # tensorboade Writer
+        for epoch in range(training_epochs):
+            avg_cost = 0
+            total_batch = int(mnist.train.num_examples/batch_size)
+
+            for i in range(total_batch):
+                batch_xs,batch_ys = mnist.train.next_batch(batch_size)
+                c,_,summary_str = sess.run([cost,optimizer,merged],feed_dict={X:batch_xs, Y:batch_ys})
+                avg_cost += c / total_batch
+                writer.add_summary(summary_str, total_batch*epoch+i)
+                
+            test_acc,summary_str = sess.run([accuracy,acc_test_summary], feed_dict={X: mnist.test.images, Y: mnist.test.labels})
+            writer.add_summary(summary_str, epoch)
+            print("Epoch: ", "%4d" % (epoch+1), 'cost = ','{:.9f}'.format(avg_cost), 'test acc = {:.4f}'.format(test_acc))
 
         print("Accuracy: ", accuracy.eval(session=sess, feed_dict={X: mnist.test.images, Y: mnist.test.labels}))
 
@@ -110,6 +185,10 @@ def MNIST_NN(Xavier=True):
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=hypothesis, labels=Y))
     optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
 
+    #accuracy check
+    correct_prediction = tf.equal(tf.argmax(hypothesis, 1), tf.argmax(Y, 1))
+    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+
     # initialize
     sess = tf.Session()
     sess.run(tf.global_variables_initializer())
@@ -125,14 +204,14 @@ def MNIST_NN(Xavier=True):
             c, _ = sess.run([cost, optimizer], feed_dict=feed_dict)
             avg_cost += c / total_batch
 
-        print('Epoch:', '%04d' % (epoch + 1), 'cost =', '{:.9f}'.format(avg_cost))
+        test_acc = sess.run(accuracy, feed_dict={X: mnist.test.images, Y: mnist.test.labels})
+        print('Epoch:', '%04d' % (epoch + 1), 'cost =', '{:.9f}'.format(avg_cost), 'test acc = {:.4f}'.format(test_acc))
 
     print('Learning Finished!')
 
     # Test model and check accuracy
-    correct_prediction = tf.equal(tf.argmax(hypothesis, 1), tf.argmax(Y, 1))
-    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-    print('Accuracy:', sess.run(accuracy, feed_dict={X: mnist.test.images, Y: mnist.test.labels}))
+
+    print('Accuracy for test data:', sess.run(accuracy, feed_dict={X: mnist.test.images, Y: mnist.test.labels}))
 
     # Get one and predict
     r = random.randint(0, mnist.test.num_examples - 1)
@@ -235,7 +314,8 @@ def MNIST_NN2(layer_size_list,Xavier=True,Dropout=False,KeepProb=0.7):
     sess.close()
 
 if __name__ == "__main__":
-    MNIST_LogisticRegression()
+    #MNIST_LogisticRegression()
+    MNIST_LogisticRegression_Tensorboard()
     #MNIST_NN(Xavier=True)
     #MNIST_NN2(layer_size_list=[784,256,256,10],Xavier=True)
     #MNIST_NN2(layer_size_list=[784,512,512,512,512,10],Xavier=True,Dropout=True,KeepProb=0.7)
