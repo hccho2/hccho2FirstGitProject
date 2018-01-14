@@ -389,7 +389,10 @@ img2 = skimage.io.imread("b.jpg")
 from PIL import Image
 import os, glob
 
-image_files = glob.glob("./*.png")
+#image_files = glob.glob("./*.png")
+image_files = glob.glob("../DCGAN-tensorflow-master/samples/test*.png")
+
+
 images = [Image.open(f) for f in image_files]
 
 gif = images[0]
