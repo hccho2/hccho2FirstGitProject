@@ -300,6 +300,7 @@ parser = argparse.ArgumentParser(description='Easy Implementation of DCGAN')
 parser.add_argument('datasets', metavar='N', type=str, nargs='+', choices=['celebA', 'lsun', 'mnist'],
            help='name of dataset to download [celebA, lsun, mnist]')
 # 위의 경우와 같이 -- 없이 'datasets'만 있는 경우, argument값만 넘겨야 한다.
+# nargs='+' ==> 여러개의 argument가 list로 들어간다.
 
 
 parser.add_argument('--filelist', type=str, default='filelist.txt')
