@@ -400,7 +400,12 @@ gif = images[0]
 gif.save(fp="./output.gif", format='gif', save_all=True, append_images=images[1:])
 print(Image.open("./output.gif").n_frames)
 =====================================================================================
+#list 원소 모두 곱하기
+from functools import reduce
 
+A = [2,3,5]
+result = reduce(lambda x, y: x * y, A)
+print(result)
 =====================================================================================
 
 =====================================================================================
