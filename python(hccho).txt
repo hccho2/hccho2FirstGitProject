@@ -400,6 +400,9 @@ gif = images[0]
 gif.save(fp="./output.gif", format='gif', save_all=True, append_images=images[1:])
 print(Image.open("./output.gif").n_frames)
 =====================================================================================
+print(os.listdir("../"))     <---모든 디렉토리
+
+=====================================================================================
 #list 원소 모두 곱하기
 from functools import reduce
 
