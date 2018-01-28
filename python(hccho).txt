@@ -413,7 +413,22 @@ print(result)
 #np.prod로 하면 더 간단함.
 np.prod(A)
 =====================================================================================
+#array 초기화 
+empty,empty_like, ones, ones_like, zeros, zeros_like, full, full_like
+x = np.arange(6)
+x = x.reshape((2, 3))
+x = np.zeros_like(x)
 
+
+
+# array random 초기화: rand, randn, ranint, random
+A = np.random.rand(2,3,4)  # 같은 기능  np.random.random((2,3,4))
+A = np.random.randn(2,3,4) # 표준정규분포, 비표준정규분포는 sigma * np.random.randn(...) + mu
+A = np.random.randint(10, size=(9, 6))
+
+
+random sample n개 뽑기
+B = np.random.normal(1,2,10)
 =====================================================================================
 
 =====================================================================================
