@@ -151,7 +151,20 @@ def test_gpu():
     sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
     print sess.run(sum) 
     
-    
+def optimization_test():
+    def myfun(x):
+        return tf.reduce_sum(x*x-2*x)
+    vector = tf.Variable(7., 'vector')
+    loss = myfun(vector)
+
+    #optimizer = tf.contrib.opt.ScipyOptimizerInterface(loss, options={'maxiter': 100, 'disp': True})
+    optimizer = tf.contrib.opt.ScipyOptimizerInterface(loss,method='L-BFGS-B', options={'maxiter': 100, 'disp': True})
+
+
+    with tf.Session() as session:
+        session.run(tf.global_variables_initializer())
+        optimizer.minimize(session)
+        print(session.run(vector))    
     
 if __name__ == "__main__":   
     test1()
