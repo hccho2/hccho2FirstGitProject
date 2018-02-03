@@ -325,6 +325,10 @@ print(filelist_dir, output_dir, total_epoch,batch_size  )
 
 > python  zzz.py -h   ==> help 출력
 =====================================================================================
+# lbfgs를 default로 true로하고, --adam 을 argument로 넣으면, lbfgs가 false
+parser.add_argument("--adam",dest='lbfgs',help="True=lbfgs, False=Adam", action="store_false")
+parser.set_defaults(lbfgs=True)
+=====================================================================================
 flags = tf.app.flags
 이 함수는 argparse 모듈과 같은 역할을 합니다. argparse보다 나은 점은 저가 볼 때는 굳이 argparser를 import 할 필요 없이 아래와 같이 추가만 하면 됩니다.
 
