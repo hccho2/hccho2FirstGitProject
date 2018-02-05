@@ -296,6 +296,11 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Easy Implementation of DCGAN')
 
+#다음과 같이 하면, -h(help)에서 default argument 값도 보여준다.
+parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
+
+
 # parameters
 parser.add_argument('datasets', metavar='N', type=str, nargs='+', choices=['celebA', 'lsun', 'mnist'],
            help='name of dataset to download [celebA, lsun, mnist]')
