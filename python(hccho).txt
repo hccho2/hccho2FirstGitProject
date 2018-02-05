@@ -466,7 +466,18 @@ print("float: {:0.8f}, int: {:10d}".format(2.34, 45))
 print("{:10}".format('test')) # left align
 print("{:>10}{:>10}".format('test',123)) # right align
 =====================================================================================
+import collections
 
+#with codecs.open(input_file, "r", encoding=self.encoding) as f:
+#    data = f.read() # data: <class 'str'>
+
+
+data = 'abcd aaa bb d fff'
+counter = collections.Counter(data) # Counter({' ': 4, 'a': 4, 'b': 3, 'c': 1, 'd': 2, 'f': 3})
+
+x = sorted(counter.items()) # [(' ', 4), ('a', 4), ('b', 3), ('c', 1), ('d', 2), ('f', 3)]
+y = sorted(counter.items(),key=lambda x: -x[1]) #[('a', 4), (' ', 4), ('b', 3), ('f', 3), ('d', 2), ('c', 1)]
+z = sorted(counter.items(),key=lambda x: x[1])  #[('c', 1), ('d', 2), ('b', 3), ('f', 3), ('a', 4), (' ', 4)]
 =====================================================================================
 
 =====================================================================================
