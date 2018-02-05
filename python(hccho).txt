@@ -478,6 +478,11 @@ counter = collections.Counter(data) # Counter({' ': 4, 'a': 4, 'b': 3, 'c': 1, '
 x = sorted(counter.items()) # [(' ', 4), ('a', 4), ('b', 3), ('c', 1), ('d', 2), ('f', 3)]
 y = sorted(counter.items(),key=lambda x: -x[1]) #[('a', 4), (' ', 4), ('b', 3), ('f', 3), ('d', 2), ('c', 1)]
 z = sorted(counter.items(),key=lambda x: x[1])  #[('c', 1), ('d', 2), ('b', 3), ('f', 3), ('a', 4), (' ', 4)]
+
+
+chars, _ = zip(*y) # alphabet 만 
+vocab = { ch:i for i,ch in enumerate(chars) } # alphabet에 숫자에 대응 부여
+tensor = np.array(list(map(vocab.get, data))) # data를 숫자로 변환
 =====================================================================================
 
 =====================================================================================
