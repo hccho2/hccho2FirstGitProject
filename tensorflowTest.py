@@ -165,7 +165,27 @@ def optimization_test():
         session.run(tf.global_variables_initializer())
         optimizer.minimize(session)
         print(session.run(vector))    
-    
+        
+def embedding():
+    h = [1, 0, 0, 0]
+    e = [0, 1, 0, 0]
+    l = [0, 0, 1, 0]
+    o = [0, 0, 0, 1]
+
+    tf.reset_default_graph()
+
+    x_data = np.array([[h, e, l, l, o]], dtype=np.float32)
+    x_data2 = np.array([[0, 3, 1, 2, 4],[1, 3, 1, 2, 3],[2, 4, 0, 2, 4],[2, 4, 0, 2, 4],[2, 3, 0, 2, 4],[2, 3, 0, 2, 4]], dtype=np.int32)
+    print(x_data2.shape)
+    sess = tf.InteractiveSession()
+
+    with tf.variable_scope('test',reuse=tf.AUTO_REUSE) as scope:
+        embedding = tf.get_variable("embedding", [8, 10])
+        inputs = tf.nn.embedding_lookup(embedding, x_data2)
+        print(embedding)
+        print(inputs)    
+        
+        
 if __name__ == "__main__":   
     test1()
     
