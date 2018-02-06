@@ -484,7 +484,17 @@ chars, _ = zip(*y) # alphabet 만
 vocab = { ch:i for i,ch in enumerate(chars) } # alphabet에 숫자에 대응 부여
 tensor = np.array(list(map(vocab.get, data))) # data를 숫자로 변환
 =====================================================================================
+def change_ont_hot_label(X,n_dim=10):
+    T = np.zeros((X.size, n_dim))
+    for idx, row in enumerate(T):
+        row[X[idx]] = 1
 
+    return T 
+
+print(change_ont_hot_label(np.array([2,3,2]),5))
+[[ 0.  0.  1.  0.  0.]
+ [ 0.  0.  0.  1.  0.]
+ [ 0.  0.  1.  0.  0.]]
 =====================================================================================
 
 =====================================================================================
