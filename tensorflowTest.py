@@ -167,23 +167,25 @@ def optimization_test():
         print(session.run(vector))    
         
 def embedding():
-    h = [1, 0, 0, 0]
-    e = [0, 1, 0, 0]
-    l = [0, 0, 1, 0]
-    o = [0, 0, 0, 1]
-
     tf.reset_default_graph()
 
-    x_data = np.array([[h, e, l, l, o]], dtype=np.float32)
-    x_data2 = np.array([[0, 3, 1, 2, 4],[1, 3, 1, 2, 3],[2, 4, 0, 2, 4],[2, 4, 0, 2, 4],[2, 3, 0, 2, 4],[2, 3, 0, 2, 4]], dtype=np.int32)
-    print(x_data2.shape)
+    x_data = np.array([[0, 3, 1, 2, 4],[1, 3, 1, 2, 3],[2, 4, 0, 2, 4]], dtype=np.int32) # (batch_size,seq_length)
+
+    input_dim = 5; embedding_dim = 6;
+    init = np.arange(input_dim*embedding_dim).reshape(input_dim,-1) # sample initialization
+
     sess = tf.InteractiveSession()
 
     with tf.variable_scope('test',reuse=tf.AUTO_REUSE) as scope:
-        embedding = tf.get_variable("embedding", [8, 10])
-        inputs = tf.nn.embedding_lookup(embedding, x_data2)
+        embedding = tf.get_variable("embedding", initializer=init) # shape=(input_dim, embedding_dim)
+        inputs = tf.nn.embedding_lookup(embedding, x_data) # shape=(batch_size, seq_length, embedding_dim)
+
+        sess.run(tf.global_variables_initializer())
         print(embedding)
-        print(inputs)    
+        print("inputs",inputs)
+
+        print(sess.run(embedding))
+        print(sess.run(inputs))
         
         
 if __name__ == "__main__":   
