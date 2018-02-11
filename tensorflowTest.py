@@ -226,7 +226,7 @@ def test_legacy_seq2seq():
         print("\n\noutputs: ",outputs)
         print(sess.run(outputs)) #seq_length, batch_size, hidden_dim
 
-        print("\n\nlast_state: ",last_state)
+        print("\n\nlast_state: ",last_state)  # last_state이 마지막 값은 output의 마지막과 같은 값
         print(sess.run(last_state)) # num_layers, batch_size, hidden_dim
 
 
