@@ -186,7 +186,50 @@ def embedding():
 
         print(sess.run(embedding))
         print(sess.run(inputs))
-        
+ 
+def test_legacy_seq2seq():
+    tf.reset_default_graph()
+
+    x_data = np.array([[0, 3, 1, 2, 4],[1, 3, 1, 2, 3],[2, 4, 0, 2, 4]], dtype=np.int32)
+    init = np.arange(30).reshape(5,-1)
+    print("data shape: ", x_data.shape)
+    sess = tf.InteractiveSession()
+    batch_size = len(x_data)
+    hidden_dim =6
+    num_layers = 2
+    seq_length = x_data.shape[1]
+    with tf.variable_scope('test',reuse=tf.AUTO_REUSE) as scope:
+        # Make rnn
+        cells = []
+        for _ in range(num_layers):
+            cell = tf.contrib.rnn.BasicRNNCell(num_units=hidden_dim)
+            cells.append(cell)
+        cell = tf.contrib.rnn.MultiRNNCell(cells)    
+
+
+        embedding = tf.get_variable("embedding", initializer=init.astype(np.float32),dtype = tf.float32)
+        inputs = tf.nn.embedding_lookup(embedding, x_data)
+
+
+
+        initial_state = cell.zero_state(batch_size, tf.float32) # num_layers tuple. batch x hidden_dim
+        inputs = tf.split(inputs,seq_length,1)
+        inputs = [tf.squeeze(input_,[1]) for input_ in inputs]
+
+        outputs, last_state =  tf.contrib.legacy_seq2seq.rnn_decoder(inputs,initial_state,cell)
+
+
+
+
+        sess.run(tf.global_variables_initializer())
+        print("initial_state: ", sess.run(initial_state))
+        print("\n\noutputs: ",outputs)
+        print(sess.run(outputs)) #seq_length, batch_size, hidden_dim
+
+        print("\n\nlast_state: ",last_state)
+        print(sess.run(last_state)) # num_layers, batch_size, hidden_dim
+
+
         
 if __name__ == "__main__":   
     test1()
