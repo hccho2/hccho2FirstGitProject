@@ -230,6 +230,7 @@ def test_legacy_seq2seq():
         print(sess.run(last_state)) # num_layers, batch_size, hidden_dim
 
 def test_seq2seq():
+    from tensorflow.python.layers.core import Dense
     tf.reset_default_graph()
 
     x_data = np.array([[0, 3, 1, 2, 4, 3],[1, 3, 1, 2, 3, 2],[2, 4, 0, 2, 4, 1]], dtype=np.int32)
