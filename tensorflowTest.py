@@ -277,7 +277,10 @@ def test_seq2seq():
         print(sess.run(last_state)) # batch_size, hidden_dim
 
         print("\n\nlast_sequence_lengths: ",last_sequence_lengths)
-        print(sess.run(last_sequence_lengths)) #  [seq_length]*batch_size       
+        print(sess.run(last_sequence_lengths)) #  [seq_length]*batch_size    
+        
+        print(sess.run(output_layer.trainable_weights[0]))  # kernel(weight)
+        print(sess.run(output_layer.trainable_weights[1]))  # bias
 
         
 if __name__ == "__main__":   
