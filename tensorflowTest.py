@@ -229,6 +229,54 @@ def test_legacy_seq2seq():
         print("\n\nlast_state: ",last_state)  # last_state이 마지막 값은 output의 마지막과 같은 값
         print(sess.run(last_state)) # num_layers, batch_size, hidden_dim
 
+def test_seq2seq():
+    tf.reset_default_graph()
+
+    x_data = np.array([[0, 3, 1, 2, 4, 3],[1, 3, 1, 2, 3, 2],[2, 4, 0, 2, 4, 1]], dtype=np.int32)
+
+    print("data shape: ", x_data.shape)
+    sess = tf.InteractiveSession()
+    input_dim = 5
+    output_dim = input_dim
+    batch_size = len(x_data)
+    hidden_dim =6
+    num_layers = 2
+    seq_length = x_data.shape[1]
+
+    init = np.arange(30).reshape(input_dim,-1)
+    with tf.variable_scope('test',reuse=tf.AUTO_REUSE) as scope:
+        # Make rnn
+    #    cells = []
+    #    for _ in range(num_layers):
+    #        cell = tf.contrib.rnn.BasicRNNCell(num_units=hidden_dim)
+    #        cells.append(cell)
+    #    cell = tf.contrib.rnn.MultiRNNCell(cells)    
+        cell = tf.contrib.rnn.BasicRNNCell(num_units=hidden_dim)
+
+        embedding = tf.get_variable("embedding", initializer=init.astype(np.float32),dtype = tf.float32)
+        inputs = tf.nn.embedding_lookup(embedding, x_data)
+
+
+
+        initial_state = cell.zero_state(batch_size, tf.float32) # num_layers tuple. batch x hidden_dim
+
+        helper = tf.contrib.seq2seq.TrainingHelper(inputs, np.array([seq_length]*batch_size))
+
+
+        output_layer = Dense(output_dim, name='output_projection')
+        decoder = tf.contrib.seq2seq.BasicDecoder(cell=cell,helper=helper,initial_state=initial_state,output_layer=output_layer)    
+        outputs, last_state, last_sequence_lengths = tf.contrib.seq2seq.dynamic_decode(decoder=decoder,output_time_major=False,impute_finished=True)
+
+        sess.run(tf.global_variables_initializer())
+        print("initial_state: ", sess.run(initial_state))
+        print("\n\noutputs: ",outputs)
+        print("\n",sess.run(outputs.rnn_output)) #batch_size, seq_length, outputs
+
+        print("\n\nlast_state: ",last_state)
+        print(sess.run(last_state)) # batch_size, hidden_dim
+
+        print("\n\nlast_sequence_lengths: ",last_sequence_lengths)
+        print(sess.run(last_sequence_lengths)) #  [seq_length]*batch_size       
 
         
 if __name__ == "__main__":   
