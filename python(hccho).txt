@@ -261,6 +261,18 @@ choice = np.random.choice(N,10, replace=False)
 
 B = A[choice]
 
+
+===
+a = np.random.rand(3) # 3개 중에 선택
+a = a/np.sum(a) # 합이 1이 되로록(확률)
+
+# method 1
+i = int(np.searchsorted(np.cumsum(a),np.random.rand(1)) # 1개 선택
+
+# method 2
+j = np.random.choice(len(a),1,a.tolist())  # 1개 선택
+
+
 =============================================
 import numpy as np
 import random
