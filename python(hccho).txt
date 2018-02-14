@@ -24,7 +24,9 @@ b = [ x*10 for x in a if x< 5]
 
 y = [-1 if a==0 else 1 for a in y]
 z = [-1 for a in y if a==1]
-
+================================================
+x = np.arange(-2, 3)
+x.ravel()[np.flatnonzero(x)]  # Use the indices of the non-zero elements as an index array to extract these elements:
 ===================================================================
 # sting ==> float변환
 a = [['1.2','2.33'],['1.2','2.33']]
