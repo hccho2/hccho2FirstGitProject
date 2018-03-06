@@ -10,8 +10,23 @@ python setup.py build_ext --inplace --compiler=msvc
   Gradient, Loss 2개의 함수를 만들 수도 있고(밑바닥딥러닝), Loss 1개만 만들어 gradient, loss모두를 계산(cs231n)할 수도 있다.
   Gradient, Loss 2개의 함수를 분리해서 만들면, Gradient 내부에서, forward계산 후, backward를 순서대로 계산해야 함.
 =======================
+import tensorflow as tf
 
+with tf.name_scope('some_scope1'):
+    a = tf.Variable(1, 'a')
+    b = tf.Variable(2, 'b')
+    c = tf.Variable(3, 'c')
 
+with tf.name_scope('some_scope2'):
+    d = tf.Variable(4, 'd')
+    e = tf.Variable(5, 'e')
+    f = tf.Variable(6, 'f')
+
+h = tf.Variable(8, 'h')
+
+for i in tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='some_scope'):
+    print i   # i.name if you want just a name
+========================================
 a few tips to install theano on Windows, 64 bits
 http://rosinality.ncity.net/doku.php?id=python:installing_theano
 
