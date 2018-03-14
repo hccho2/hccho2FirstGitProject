@@ -283,6 +283,19 @@ def test_seq2seq():
         print(sess.run(output_layer.trainable_weights[0]))  # kernel(weight)
         print(sess.run(output_layer.trainable_weights[1]))  # bias
 
+
+ def get_info_from_checkpoint():
+    tf.reset_default_graph()
+    from tensorflow.contrib.framework.python.framework import checkpoint_utils
+    checkpoint_dir = 'D:\\hccho\\ML\\cs231n\\assignment3\\save-double-layer'
+
+    var_list = checkpoint_utils.list_variables(checkpoint_dir)
+    sess = tf.Session()
+    for v in var_list: 
+        print(v) # tuple(variable name, [shape])
+        vv = checkpoint_utils.load_variable(checkpoint_dir, v[0])
+        print(vv) #values
+        
         
 if __name__ == "__main__":   
     test1()
