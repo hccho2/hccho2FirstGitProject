@@ -257,6 +257,32 @@ mydata = np.genfromtxt('mydata2.txt',delimiter=',',dtype=np.float32)
 mydata = np.loadtxt('mydata2.txt', delimiter=',', dtype=np.float32)    
     
 =====================================================================================
+import numpy as np
+import pandas as pd
+import datetime 
+
+"""
+2005-01-03    452500     453000     446000     451000     0.015     0.000     0.350      0.30     41750     41750     41200     41200     0.015     0.000     0.350 
+2005-01-04    450000     451000     446000     447000     0.015     0.000     0.350      0.30     41450     41650     41000     41450     0.015     0.000     0.350 
+2005-01-05    440000     443000     436500     443000     0.015     0.000     0.350      0.30     41200     41500     41150     41450     0.015     0.000     0.350 
+2005-01-06    439000     445500     435000     435000     0.015     0.000     0.350      0.30     41650     42800     41250     42200     0.015     0.000     0.350 
+2005-01-07    441000     441500     435500     440500     0.015     0.000     0.350      0.30     42200     42600     41550     41550     0.015     0.000     0.350 
+
+"""
+
+data = pd.read_csv("inputdata.dat", sep="\t",header = None ,index_col =None, names=['date','start1','high1','low1','close1','R1','Div1','Vol1','Rho','start2','high2','low2','close2','R2','Div2','Vol2'])
+
+data['date'] = pd.to_datetime(data['date']).apply(pd.Timestamp.date)
+data=data.set_index('date')
+
+
+dd = datetime.date(2005,1,5) + datetime.timedelta(days=6)
+b = data.loc[dd]['start1']
+a = data.ix[0]
+print(b,a)
+
+
+=====================================================================================
 random 선택
 
 N = 100
