@@ -1,3 +1,17 @@
+
+=====================================================================
+num_batch = int(max_train/batch_size) # 1epoch에 필요한 반복
+
+for i in range(num_epoch):
+    for j in range(num_batch):
+	.
+	.
+	.
+        if j % show_every== 0:
+            print('(Iteration %d / %d) loss: %f' % (i*num_batch+j, num_epoch*num_batch, loss_xxx)
+
+=====================================================================
+
 np.set_printoptions(threshold=np.nan)  <--- 모든 data 다 표시
 np.set_printoptions(precision=4)  <--- 유효숫자 표시
 np.set_printoptions(suppress=True) <----- e없이 표시
