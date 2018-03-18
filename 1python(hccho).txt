@@ -8,7 +8,7 @@ for i in range(num_epoch):
 	.
 	.
         if j % show_every== 0:
-            print('(Iteration %d / %d) loss: %f' % (i*num_batch+j, num_epoch*num_batch, loss_xxx)
+            print('(Iteration %d / %d, Epoch %d / %d) loss: %f' % (i*num_batch+j, num_epoch*num_batch, i, num_epoch, loss_xxx)
 
 =====================================================================
 
