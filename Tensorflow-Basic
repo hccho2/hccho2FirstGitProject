@@ -1,0 +1,38 @@
+
+#  coding: utf-8
+import tensorflow as tf
+import numpy as np
+
+"""
+
+X = np.array([[0,0,1],[0,1,1],[1,0,1],[1,1,1]])
+Y = np.array([[0,1,1,1]]).T
+x = tf.placeholder(tf.float32, [None,3])
+y = tf.placeholder(tf.float32, [None,1])
+
+L1 = tf.layers.dense(x,units=3, activation = tf.sigmoid,name='L1')
+L2 = tf.layers.dense(L1,units=1, activation = tf.sigmoid,name='L2')
+train = tf.train.AdamOptimizer(learning_rate=1).minimize( tf.reduce_mean( 0.5*tf.square(L2-y)))
+with tf.Session() as sess:
+    sess.run(tf.global_variables_initializer())
+    for j in range(60000):
+        sess.run(train, feed_dict={x: X, y: Y})
+"""
+
+x = tf.placeholder(tf.float32, [None,284])
+with tf.variable_scope("hccho"):
+    fc1 = tf.layers.dense(x,units=1024, activation = tf.nn.relu,name='fc1')
+    fc2 = tf.layers.dense(fc1,units=10, activation = None,name='fc2')    
+    out = tf.nn.softmax(fc2)    
+
+image = np.random.randn(5,284)
+
+with tf.Session() as sess:
+    sess.run(tf.global_variables_initializer())
+    out_ = sess.run(out,feed_dict={x: image})
+    
+
+var_list = tf.trainable_variables()   
+var_list2 = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
+print(var_list)
+print(var_list2)    
