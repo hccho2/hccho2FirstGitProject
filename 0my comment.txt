@@ -1,8 +1,5 @@
+im2col cython compile: cs231n assignment중
 python setup.py build_ext --inplace --compiler=msvc
-================ 2018.02.21
-    cost = tf.reduce_sum(correct_scores)
-    gradient = tf.reduce_max( tf.abs( tf.gradients(cost,model.image))[0],axis=3)  # cost에 대한 gradient == correct_scores에 대한 gradient
-    saliency=sess.run(gradient,feed_dict={model.image: X, model.labels: y})
 =======================
 import tensorflow as tf
 
@@ -26,6 +23,11 @@ http://rosinality.ncity.net/doku.php?id=python:installing_theano
 
 Fundamental of Reinforcement Learning
 https://www.gitbook.com/book/dnddnjs/rl/details
+================================================
+GAN ==> WGAN 설명
+https://lilianweng.github.io/lil-log/2017/08/20/from-GAN-to-WGAN.html
+==================================================
+
 
   모두의 연구소
   http://whydsp.org/237
