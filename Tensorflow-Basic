@@ -10,7 +10,7 @@ Y = np.array([[0,1,1,1]]).T
 x = tf.placeholder(tf.float32, [None,3])
 y = tf.placeholder(tf.float32, [None,1])
 
-L1 = tf.layers.dense(x,units=3, activation = tf.sigmoid,name='L1')
+L1 = tf.layers.dense(x,units=4, activation = tf.sigmoid,name='L1')
 L2 = tf.layers.dense(L1,units=1, activation = tf.sigmoid,name='L2')
 train = tf.train.AdamOptimizer(learning_rate=1).minimize( tf.reduce_mean( 0.5*tf.square(L2-y)))
 with tf.Session() as sess:
