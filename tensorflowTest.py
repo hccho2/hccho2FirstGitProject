@@ -237,30 +237,39 @@ def test_seq2seq():
 
     print("data shape: ", x_data.shape)
     sess = tf.InteractiveSession()
-    input_dim = 5 # word dim
+    input_dim = 5
     output_dim = input_dim
     batch_size = len(x_data)
     hidden_dim =6
     num_layers = 2
     seq_length = x_data.shape[1]
     embedding_dim = 8
-
+    state_tuple_mode = True
+    init_state_flag = 1
     init = np.arange(input_dim*embedding_dim).reshape(input_dim,-1)
     with tf.variable_scope('test',reuse=tf.AUTO_REUSE) as scope:
         # Make rnn
-    #    cells = []
-    #    for _ in range(num_layers):
-    #        cell = tf.contrib.rnn.BasicRNNCell(num_units=hidden_dim)
-    #        cells.append(cell)
-    #    cell = tf.contrib.rnn.MultiRNNCell(cells)    
-        cell = tf.contrib.rnn.BasicRNNCell(num_units=hidden_dim)
+        cells = []
+        for _ in range(num_layers):
+            #cell = tf.contrib.rnn.BasicRNNCell(num_units=hidden_dim)
+            cell = tf.contrib.rnn.BasicLSTMCell(num_units=hidden_dim,state_is_tuple=state_tuple_mode)
+            cells.append(cell)
+        cell = tf.contrib.rnn.MultiRNNCell(cells)    
+        #cell = tf.contrib.rnn.BasicRNNCell(num_units=hidden_dim)
 
         embedding = tf.get_variable("embedding", initializer=init.astype(np.float32),dtype = tf.float32)
         inputs = tf.nn.embedding_lookup(embedding, x_data)
 
-
-
-        initial_state = cell.zero_state(batch_size, tf.float32) # num_layers tuple. batch x hidden_dim
+        if init_state_flag==0:
+             initial_state = cell.zero_state(batch_size, tf.float32) #(batch_size x hidden_dim) x layer 개수 
+        else:
+            if state_tuple_mode:
+                h0 = tf.random_normal([batch_size,hidden_dim]) #h0 = tf.cast(np.random.randn(batch_size,hidden_dim),tf.float32)
+                initial_state=(tf.contrib.rnn.LSTMStateTuple(tf.zeros_like(h0), h0),) + (tf.contrib.rnn.LSTMStateTuple(tf.zeros_like(h0), tf.zeros_like(h0)),)*(num_layers-1)
+                
+            else:
+                h0 = tf.random_normal([batch_size,hidden_dim]) #h0 = tf.cast(np.random.randn(batch_size,hidden_dim),tf.float32)
+                initial_state = (tf.concat((tf.zeros_like(h0),h0), axis=1),) + (tf.concat((tf.zeros_like(h0),tf.zeros_like(h0)), axis=1),) * (num_layers-1)
 
         helper = tf.contrib.seq2seq.TrainingHelper(inputs, np.array([seq_length]*batch_size))
 
