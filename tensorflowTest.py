@@ -258,7 +258,7 @@ def test_seq2seq():
         #cell = tf.contrib.rnn.BasicRNNCell(num_units=hidden_dim)
 
         embedding = tf.get_variable("embedding", initializer=init.astype(np.float32),dtype = tf.float32)
-        inputs = tf.nn.embedding_lookup(embedding, x_data)
+        inputs = tf.nn.embedding_lookup(embedding, x_data)  # batch_size  x seq_length x embedding_dim
 
         if init_state_flag==0:
              initial_state = cell.zero_state(batch_size, tf.float32) #(batch_size x hidden_dim) x layer 개수 
