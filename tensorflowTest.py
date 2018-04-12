@@ -292,6 +292,32 @@ def test_seq2seq():
         print(sess.run(output_layer.trainable_weights[0]))  # kernel(weight)
         print(sess.run(output_layer.trainable_weights[1]))  # bias
 
+        
+
+        
+        
+def test_bidirectional(): 
+    import tensorflow as tf
+    import numpy as np
+    tf.reset_default_graph()
+    x_data = np.array([[0, 3, 1],[1, 0, 0]], dtype=np.int32)
+    x_data = np.expand_dims(x_data,2).astype(np.float32)
+    cell_f = tf.contrib.rnn.BasicRNNCell(num_units=2)
+    cell_b = tf.contrib.rnn.BasicRNNCell(num_units=2)
+
+    (encoder_fw_outputs, encoder_bw_outputs),(encoder_fw_final_state, encoder_bw_final_state) = tf.nn.bidirectional_dynamic_rnn(cell_fw=cell_f,cell_bw=cell_b,inputs=x_data,dtype=tf.float32)
+
+    sess = tf.InteractiveSession()
+
+    sess.run(tf.global_variables_initializer())
+    print("\nencoder_fw_outputs: ", sess.run(encoder_fw_outputs))
+    print("\nencoder_bw_outputs: ", sess.run(encoder_bw_outputs))
+
+
+    print("\nencoder_fw_final_state: ", sess.run(encoder_fw_final_state))
+    print("\nencoder_bw_final_state: ", sess.run(encoder_bw_final_state))    
+        
+
 
  def get_info_from_checkpoint():
     tf.reset_default_graph()
@@ -303,8 +329,7 @@ def test_seq2seq():
     for v in var_list: 
         print(v) # tuple(variable name, [shape])
         vv = checkpoint_utils.load_variable(checkpoint_dir, v[0])
-        print(vv) #values
-        
+        print(vv) #values        
         
 if __name__ == "__main__":   
     test1()
