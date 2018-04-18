@@ -316,8 +316,23 @@ def test_bidirectional():
 
     print("\nencoder_fw_final_state: ", sess.run(encoder_fw_final_state))
     print("\nencoder_bw_final_state: ", sess.run(encoder_bw_final_state))    
-        
 
+"""
+encoder_fw_outputs:  
+[[[ 0.          0.        ], [-0.37422162,0.9775176 ],[-0.6056877   0.57990843]]
+ [[-0.13036166  0.63284284], [-0.41194066 -0.16159871],[ 0.3657935   0.44170365]]]
+
+encoder_bw_outputs:  
+[[[ 0.3409077  -0.8065934 ], [-0.43896067 -0.98964894], [-0.22973818 -0.58141154]]
+ [[-0.22973818 -0.58141154], [ 0.          0.        ], [ 0.          0.        ]]]
+
+encoder_fw_final_state:  
+[[-0.6056877   0.57990843],[ 0.3657935   0.44170365]]
+
+encoder_bw_final_state:  
+[[ 0.3409077  -0.8065934 ],[-0.22973818 -0.58141154]]        
+"""        
+        
 
  def get_info_from_checkpoint():
     tf.reset_default_graph()
