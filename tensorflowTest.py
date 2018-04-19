@@ -302,8 +302,12 @@ def test_bidirectional():
     tf.reset_default_graph()
     x_data = np.array([[0, 3, 1],[1, 0, 0]], dtype=np.int32)
     x_data = np.expand_dims(x_data,2).astype(np.float32)
-    cell_f = tf.contrib.rnn.BasicRNNCell(num_units=2)
-    cell_b = tf.contrib.rnn.BasicRNNCell(num_units=2)
+    
+    #cell_f = tf.contrib.rnn.BasicRNNCell(num_units=2)
+    #cell_b = tf.contrib.rnn.BasicRNNCell(num_units=2)
+
+    cell_f = tf.contrib.rnn.BasicLSTMCell(num_units=2)
+    cell_b = tf.contrib.rnn.BasicLSTMCell(num_units=2)
 
     (encoder_fw_outputs, encoder_bw_outputs),(encoder_fw_final_state, encoder_bw_final_state) = tf.nn.bidirectional_dynamic_rnn(cell_fw=cell_f,cell_bw=cell_b,inputs=x_data,dtype=tf.float32)
 
@@ -318,6 +322,7 @@ def test_bidirectional():
     print("\nencoder_bw_final_state: ", sess.run(encoder_bw_final_state))    
 
 """
+BasicRNNCell:
 encoder_fw_outputs:  
 [[[ 0.          0.        ], [-0.37422162,0.9775176 ],[-0.6056877   0.57990843]]
  [[-0.13036166  0.63284284], [-0.41194066 -0.16159871],[ 0.3657935   0.44170365]]]
@@ -330,7 +335,25 @@ encoder_fw_final_state:
 [[-0.6056877   0.57990843],[ 0.3657935   0.44170365]]
 
 encoder_bw_final_state:  
-[[ 0.3409077  -0.8065934 ],[-0.22973818 -0.58141154]]        
+[[ 0.3409077  -0.8065934 ],[-0.22973818 -0.58141154]]   
+
+
+BasicLSTMCell:
+encoder_fw_outputs:  
+[[[ 0.          0.        ],[ 0.13082808 -0.10455302],[ 0.13346125 -0.10499903]]
+[[ 0.04281872 -0.03912188], [ 0.03448014 -0.02246729],[ 0.02988851 -0.009888  ]]]
+
+encoder_bw_outputs:  
+[[[-0.04539058 -0.2564498 ], [-0.00913273 -0.5504859 ],[-0.01013058 -0.18332982]]
+ [[-0.01013058 -0.18332982], [ 0.          0.        ],[ 0.          0.        ]]]
+
+encoder_fw_final_state:  
+LSTMStateTuple(c=array([[ 0.23159406, -0.27031744],[ 0.059204  , -0.02017506]], dtype=float32), 
+			   h=array([[ 0.13346125, -0.10499903],[ 0.02988851, -0.009888  ]], dtype=float32))
+
+encoder_bw_final_state:  
+LSTMStateTuple(c=array([[-0.08561244, -0.71315455],[-0.02546103, -0.3122089 ]], dtype=float32), 
+			   h=array([[-0.04539058, -0.2564498 ],[-0.01013058, -0.18332982]], dtype=float32))
 """        
         
 
