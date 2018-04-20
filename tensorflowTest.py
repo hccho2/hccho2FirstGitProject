@@ -358,16 +358,17 @@ LSTMStateTuple(c=array([[-0.08561244, -0.71315455],[-0.02546103, -0.3122089 ]], 
         
 
  def get_info_from_checkpoint():
+    import tensorflow as tf
     tf.reset_default_graph()
     from tensorflow.contrib.framework.python.framework import checkpoint_utils
-    checkpoint_dir = 'D:\\hccho\\ML\\cs231n\\assignment3\\save-double-layer'
-
+    checkpoint_dir = 'D:\\hccho\\cs231n-Assignment\\assignment3\\save-sigle-layer\\model.ckpt-1000000' # 구체적으로 명시
+    #checkpoint_dir = 'D:\\hccho\\cs231n-Assignment\\assignment3\\save-sigle-layer # 디렉토리만 지정 ==> 가장 최근
     var_list = checkpoint_utils.list_variables(checkpoint_dir)
-    sess = tf.Session()
+    #sess = tf.Session()
     for v in var_list: 
         print(v) # tuple(variable name, [shape])
         vv = checkpoint_utils.load_variable(checkpoint_dir, v[0])
-        print(vv) #values        
+        print(vv) #values   
         
 if __name__ == "__main__":   
     test1()
