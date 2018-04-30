@@ -36,3 +36,100 @@ var_list = tf.trainable_variables()
 var_list2 = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
 print(var_list)
 print(var_list2)    
+
+====================================================
+
+# -*- coding: utf-8 -*-
+import tensorflow as tf
+import numpy as np
+A = np.array([[73., 80., 75.],
+          [93., 88., 93.],
+          [89., 91., 90.],
+          [96., 98., 100.],
+          [73., 66., 70.]])
+
+# Feature Scaling을 하면, learning rate을   1.0e-5 ==> 1.0e-2로 조정해야 함
+#A = (A-np.mean(A,0))/np.std(A,0)
+
+B = np.array([[152.],[185.],[180.],[196.],[142.]])
+
+
+def MultivariateRegressionTF():
+    tf.reset_default_graph()
+
+    # placeholders for a tensor that will be always fed.
+    X = tf.placeholder(tf.float32, shape=[None, 3])
+    Y = tf.placeholder(tf.float32, shape=[None, 1])
+    
+    W1 = tf.Variable(tf.random_normal([3, 5]), name='W1')
+    b1 = tf.Variable(tf.random_normal([5]), name='b1')
+    W2 = tf.Variable(tf.random_normal([5, 1]), name='W2')
+    b2 = tf.Variable(tf.random_normal([1]), name='b2')    
+    # Hypothesis
+    L1 = tf.nn.relu( tf.matmul(X, W1) + b1)
+    logit = tf.matmul(L1, W2) + b2
+    
+    # Simplified cost/loss function
+    cost = tf.reduce_mean(tf.square(logit - Y))
+    
+    # Minimize
+    optimizer = tf.train.GradientDescentOptimizer(learning_rate=1e-5)
+    train = optimizer.minimize(cost)
+    
+    # Launch the graph in a session.
+    sess = tf.Session()
+    # Initializes global variables in the graph.
+    sess.run(tf.global_variables_initializer())
+    
+    for step in range(10001):
+        cost_val, hy_val, _ = sess.run(
+            [cost, logit, train], feed_dict={X: A, Y: B})
+        if step % 5000 == 0:
+            print(step, "Cost: ", cost_val, "\nPrediction:\n", hy_val)
+
+
+    print("W1, b1, W2, b2 ", sess.run([W1,b1,W2,b2]))
+
+def MultivariateRegressionTF2():
+    tf.reset_default_graph()
+
+    # placeholders for a tensor that will be always fed.
+    X = tf.placeholder(tf.float32, shape=[None, 3])
+    Y = tf.placeholder(tf.float32, shape=[None, 1])
+    
+    L1 = tf.layers.dense(X,units=5, activation = tf.nn.relu,name='L1')
+    logit = tf.layers.dense(L1,units=1, activation = None,name='L2')
+    
+    # Simplified cost/loss function
+    cost = tf.reduce_mean(tf.square(logit - Y))
+    
+    # Minimize
+    optimizer = tf.train.GradientDescentOptimizer(learning_rate=1e-5)
+    train = optimizer.minimize(cost)
+    
+    # Launch the graph in a session.
+    sess = tf.Session()
+    # Initializes global variables in the graph.
+    sess.run(tf.global_variables_initializer())
+    
+    for step in range(10001):
+        cost_val, hy_val, _ = sess.run(
+            [cost, logit, train], feed_dict={X: A, Y: B})
+        if step % 5000 == 0:
+            print(step, "Cost: ", cost_val, "\nPrediction:\n", hy_val)
+
+
+    var_list = tf.trainable_variables()
+    print(var_list)
+    print(sess.run(var_list))
+    graph = tf.get_default_graph()
+    print(sess.run(graph.get_tensor_by_name(name='L1/kernel:0')))
+
+if __name__ == "__main__":
+    MultivariateRegressionTF()
+    MultivariateRegressionTF2()
+
+
+
+
+
