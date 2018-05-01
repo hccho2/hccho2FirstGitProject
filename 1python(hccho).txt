@@ -391,6 +391,17 @@ print(filelist_dir, output_dir, total_epoch,batch_size  )
 parser.add_argument("--adam",dest='lbfgs',help="True=lbfgs, False=Adam", action="store_false")
 parser.set_defaults(lbfgs=True)
 =====================================================================================
+parser = argparse.ArgumentParser()
+parser.add_argument('--batch_size', default=100, type=int, help='batch size')
+parser.add_argument('--train_steps', default=1000, type=int,help='number of training steps')
+
+
+#args = parser.parse_args()
+
+args = parser.parse_args(sys.argv[1:])  # 새로운 argument추가는 불가. 이미 정의된 argument update가능
+
+
+=====================================================================================
 flags = tf.app.flags
 이 함수는 argparse 모듈과 같은 역할을 합니다. argparse보다 나은 점은 저가 볼 때는 굳이 argparser를 import 할 필요 없이 아래와 같이 추가만 하면 됩니다.
 
