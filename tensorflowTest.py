@@ -165,7 +165,50 @@ def optimization_test():
         session.run(tf.global_variables_initializer())
         optimizer.minimize(session)
         print(session.run(vector))    
-        
+
+def RNN_test()
+    import tensorflow as tf
+    import numpy as np
+    
+    tf.reset_default_graph()
+    
+    # One hot encoding for each char in 'hello'
+    h = [1, 0, 0, 0]; e = [0, 1, 0, 0]
+    l = [0, 0, 1, 0]; o = [0, 0, 0, 1]
+    
+    x_data = np.array([[h, e, l, l, o],[e, o, l, l, l],[l, l, e, e, l]], dtype=np.float32)
+    batch_size = len(x_data)
+    mode = 0
+    
+    hidden_dim = 2
+    
+    with tf.variable_scope('3_batches') as scope:
+    
+        if mode == 0:
+            cell = tf.contrib.rnn.BasicRNNCell(num_units=hidden_dim)
+        #cell = rnn.BasicLSTMCell(num_units=hidden_size, state_is_tuple=True)
+        else:
+            cells = []
+            for _ in range(3):
+                cell = tf.contrib.rnn.BasicRNNCell(num_units=hidden_dim)
+                #cell = tf.contrib.rnn.BasicLSTMCell(num_units=hidden_size,state_is_tuple=True)
+                cells.append(cell)
+            cell = tf.contrib.rnn.MultiRNNCell(cells)
+    initial_state = cell.zero_state(batch_size, tf.float32)
+    
+    cell = tf.contrib.rnn.OutputProjectionWrapper(cell, 4)  # output에 FC layer를 추가하여 원하는 size로 변환해 준다.
+    outputs, _states = tf.nn.dynamic_rnn(cell,x_data,initial_state=initial_state,dtype=tf.float32)
+    
+    
+    
+    sess = tf.Session()
+    sess.run(tf.global_variables_initializer())
+    print("output", sess.run(outputs))
+    print("hidden state",sess.run(_states))
+    sess.close()
+	
+	
+	
 def embedding():
     tf.reset_default_graph()
 
