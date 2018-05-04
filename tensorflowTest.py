@@ -237,8 +237,8 @@ def test_seq2seq():
 
     print("data shape: ", x_data.shape)
     sess = tf.InteractiveSession()
-    input_dim = 5
-    output_dim = input_dim
+    vocab_size = 5
+    output_dim = vocab_size
     batch_size = len(x_data)
     hidden_dim =6
     num_layers = 2
@@ -246,7 +246,7 @@ def test_seq2seq():
     embedding_dim = 8
     state_tuple_mode = True
     init_state_flag = 1
-    init = np.arange(input_dim*embedding_dim).reshape(input_dim,-1)
+    init = np.arange(vocab_size*embedding_dim).reshape(vocab_size,-1)
     with tf.variable_scope('test',reuse=tf.AUTO_REUSE) as scope:
         # Make rnn
         cells = []
