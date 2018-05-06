@@ -413,6 +413,43 @@ LSTMStateTuple(c=array([[-0.08561244, -0.71315455],[-0.02546103, -0.3122089 ]], 
         vv = checkpoint_utils.load_variable(checkpoint_dir, v[0])
         print(vv) #values   
         
+=======================
+Bahdanau attention weight
+encoder_hidden_size = 300   = context vector size
+decoder_hidden_size = 110
+BahdanauAttention_depth = 99
+attention_layer_size=77 
+
+[<tf.Variable 'embed/embeddings:0' shape=(103, 100) dtype=float32_ref>, 
+ <tf.Variable 'rnn/gru_cell/gates/kernel:0' shape=(400, 600) dtype=float32_ref>, 
+ <tf.Variable 'rnn/gru_cell/gates/bias:0' shape=(600,) dtype=float32_ref>, 
+ <tf.Variable 'rnn/gru_cell/candidate/kernel:0' shape=(400, 300) dtype=float32_ref>, 
+ <tf.Variable 'rnn/gru_cell/candidate/bias:0' shape=(300,) dtype=float32_ref>, 
+ 
+ <tf.Variable 'decode/memory_layer/kernel:0' shape=(300, 99) dtype=float32_ref>, 
+  <tf.Variable 'decode/decoder/output_projection_wrapper/attention_wrapper/bahdanau_attention/query_layer/kernel:0' shape=(110, 99) dtype=float32_ref>,  ==>   decoder_hidden_size x BahdanauAttention_depth
+ <tf.Variable 'decode/decoder/output_projection_wrapper/attention_wrapper/bahdanau_attention/attention_v:0' shape=(99,) dtype=float32_ref>, 
+ 
+ ==> context weight 계산 
+ 
+ <tf.Variable 'decode/decoder/output_projection_wrapper/attention_wrapper/gru_cell/gates/kernel:0' shape=(287, 220) dtype=float32_ref>, ==> (input 100 + decoder_hidden_size 110 + attention_layer_size 77)  x 2*decoder hidden
+ <tf.Variable 'decode/decoder/output_projection_wrapper/attention_wrapper/gru_cell/gates/bias:0' shape=(220,) dtype=float32_ref>, 
+ <tf.Variable 'decode/decoder/output_projection_wrapper/attention_wrapper/gru_cell/candidate/kernel:0' shape=(287, 110) dtype=float32_ref>, 
+ <tf.Variable 'decode/decoder/output_projection_wrapper/attention_wrapper/gru_cell/candidate/bias:0' shape=(110,) dtype=float32_ref>, 
+ 
+
+ 
+ <tf.Variable 'decode/decoder/output_projection_wrapper/attention_wrapper/attention_layer/kernel:0' shape=(410, 77) dtype=float32_ref>,  None이 아닐 때, ==> tf.contrib.seq2seq.AttentionWrapper 에서 (encoder_hidden_size : decoder_hidden_size) ==>attention_layer_size  ==> attention
+ 
+ 
+ <tf.Variable 'decode/decoder/output_projection_wrapper/kernel:0' shape=(77, 103) dtype=float32_ref>,   ==> outprojectionwrapper 또는 out_layer를 통해, attention(output)의 크기를 원하는 크기를 바꾼다.
+ <tf.Variable 'decode/decoder/output_projection_wrapper/bias:0' shape=(103,) dtype=float32_ref>]
+
+======================
+	
+	
+	
+	
 if __name__ == "__main__":   
     test1()
     
