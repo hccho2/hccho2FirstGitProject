@@ -553,6 +553,12 @@ chars, _ = zip(*y) # alphabet 만
 vocab = { ch:i for i,ch in enumerate(chars) } # alphabet에 숫자에 대응 부여
 tensor = np.array(list(map(vocab.get, data))) # data를 숫자로 변환
 =====================================================================================
+# dict 정렬
+vocab = {'a': 3,'b':7, 'c': 1}
+X =sorted(vocab, key=vocab.get, reverse=True)  #내림차순 list
+Y =sorted(vocab, key=vocab.get, reverse=False) #오름차순 list
+=====================================================================================
+
 def change_ont_hot_label(X,n_dim=10):
     T = np.zeros((X.size, n_dim))
     for idx, row in enumerate(T):
@@ -623,11 +629,7 @@ os.path.splitext(filename)  ==> ('E:\\dir1\\dir2\\aa','txt')
 os.path.splitext(os.path.basename(filename))[0]
 os.path.join(parentsdir, 'aaaa.dat')
 =====================================================================================
-# dict 정렬
-vocab = {'a': 3,'b':7, 'c': 1}
-X =sorted(vocab, key=vocab.get, reverse=True)  #내림차순 list
-Y =sorted(vocab, key=vocab.get, reverse=False) #오름차순 list
-=====================================================================================
+
 
 =====================================================================================
 
