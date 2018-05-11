@@ -646,6 +646,8 @@ def basic_tokenizer(sentence):
 s = 'Can we make this quick?  Roxanne Korrine and Andrew Barrett are having an incredibly horrendous public break- up on the quad.  Again.'
 x = basic_tokenizer(s) # ['Can', 'we', 'make', 'this', 'quick', '?', 'Roxanne', 'Korrine', 'and', 'Andrew', 'Barrett', 'are', 'having', 'an', 'incredibly', 'horrendous', 'public', 'break-', 'up', 'on', 'the', 'quad', '.', 'Again', '.']
 
+y=[w.strip() for w in s.split(' ') if w] #['Can', 'we', 'make', 'this', 'quick?', 'Roxanne', 'Korrine', 'and', 'Andrew', 'Barrett','are', 'having', 'an', 'incredibly', 'horrendous', 'public', 'break-', 'up', 'on', 'the', 'quad.', 'Again.']
+
 =====================================================================================
 
 =====================================================================================
