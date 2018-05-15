@@ -446,8 +446,24 @@ attention_layer_size=77
  <tf.Variable 'decode/decoder/output_projection_wrapper/bias:0' shape=(103,) dtype=float32_ref>]
 
 ======================
-	
-	
+# tf.layers.dense 의 input tensor가 3차원일 때:
+# 예: input.shape (2,3,4) x units = 5  ==> (2,3,5)가 만들어지고, weight는 (4,5) size 이다
+def dense_test():
+    tf.reset_default_graph()
+    A0 = np.arange(24).reshape(2,3,4).astype(np.float32)
+    A = tf.convert_to_tensor(A0)
+    init = np.arange(20).reshape(4,5).astype(np.float32)
+    x = tf.layers.dense(A,5,kernel_initializer=tf.constant_initializer(init),activation=None)
+    
+    sess = tf.Session()
+    sess.run(tf.global_variables_initializer())
+    
+    graph = tf.get_default_graph()
+    
+    xx = sess.run(x)
+    w = sess.run(graph.get_tensor_by_name('dense/kernel:0'))
+    print(xx)
+    print(w)
 	
 	
 if __name__ == "__main__":   
