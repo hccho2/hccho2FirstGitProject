@@ -392,6 +392,16 @@ print(filelist_dir, output_dir, total_epoch,batch_size  )
 parser.add_argument("--adam",dest='lbfgs',help="True=lbfgs, False=Adam", action="store_false")
 parser.set_defaults(lbfgs=True)
 =====================================================================================
+import argparse
+parser=argparse.ArgumentParser()
+parser.add_argument('-auto', action='store_false', )
+parser.add_argument("--max_epochs", type=int, default=100, help="number of training epochs")
+args=parser.parse_args()
+print(args)
+print(vars(args))  # 내장함수 vars를 이용하여 dict형으로 변환
+
+
+=====================================================================================
 parser = argparse.ArgumentParser()
 parser.add_argument('--batch_size', default=100, type=int, help='batch size')
 parser.add_argument('--train_steps', default=1000, type=int,help='number of training steps')
