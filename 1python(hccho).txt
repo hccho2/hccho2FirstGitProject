@@ -660,7 +660,20 @@ x = basic_tokenizer(s) # ['Can', 'we', 'make', 'this', 'quick', '?', 'Roxanne', 
 y=[w.strip() for w in s.split(' ') if w] #['Can', 'we', 'make', 'this', 'quick?', 'Roxanne', 'Korrine', 'and', 'Andrew', 'Barrett','are', 'having', 'an', 'incredibly', 'horrendous', 'public', 'break-', 'up', 'on', 'the', 'quad.', 'Again.']
 
 =====================================================================================
+# simple graph
+import numpy as np
+import matplotlib.pyplot as plt
+def f(x,a):
+    return (0.5*(1+a))* x + (0.5 * (1 - a)) * np.abs(x)
 
+x = np.linspace(-3,3,100)
+y= f(x,0.2)
+
+plt.figure(figsize=(6, 6))
+plt.plot(x, y, c=[1, 0.2, 0.05], linewidth=8)
+plt.xlim([-3, 3])
+plt.ylim([-3, 3])
+plt.show()
 =====================================================================================
 
 =====================================================================================
