@@ -89,6 +89,39 @@ def LogisticRegression():
     plt.plot(total_cost)
 
     plt.show()
+    
+def LogisticRegression2():
+    learning_rate=1e-3
+    N_Data = A.shape[0]
+    
+    AA2 = AddFeatures(AA[:,1:],3)
+    
+    #W = np.random.standard_normal(size=(3,1))
+    #W = np.array([[ 0.8330605 ],[-0.35352278],[-0.44010514]])
+    W = np.zeros([AA2.shape[1],1])
+    
+    total_cost = []
+    for step in range(400001):
+        temp = (sigmoid(np.dot(AA2,W)) - B) /N_Data
+        W -= learning_rate * np.dot(AA2.T, temp)
+        
+        if step % 10000 == 0:
+            total_cost.append(np.mean( -B*np.log(sigmoid(np.dot(AA2,W))+0.0000001) - (1-B)*np.log(1-sigmoid(np.dot(AA2,W))+0.0000001)  ))
+            print(step, total_cost[-1])
+
+            
+    print("W: ", W) 
+    print("Cost: ", np.mean( -B*np.log(sigmoid(np.dot(AA2,W))+0.0000001) - (1-B)*np.log(1-sigmoid(np.dot(AA2,W))+0.0000001)  ) )
+    prediction = 1*(sigmoid(np.dot(AA2,W))>=0.5)
+    acc = np.mean(1*(prediction==B))
+    print("Accuracy: ", acc)
+    
+    
+    plt.subplot(132)
+    plt.scatter(A[:, 0], A[:, 1], c=prediction.flatten(),marker=">")
+    plt.subplot(133)
+    plt.plot(total_cost)
+    
 def LogisticRegressionTF():    
     X = tf.placeholder(tf.float32, shape=[None, 3])
     Y = tf.placeholder(tf.float32, shape=[None, 1])    
