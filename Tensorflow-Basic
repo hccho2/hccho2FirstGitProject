@@ -91,7 +91,15 @@ def MultivariateRegressionTF():
     print("W1, b1, W2, b2 ", sess.run([W1,b1,W2,b2]))
 
 def MultivariateRegressionTF2():
+    import matplotlib.pyplot as plt
     tf.reset_default_graph()
+    
+    mydata = np.genfromtxt('mydata2.txt',delimiter=',',dtype=np.float32)
+    A = mydata[:,0:2]
+    B = mydata[:,-1].reshape(-1,1)  # mydata[:,2:3]
+    plt.subplot(131)
+    plt.scatter(A[:, 0], A[:, 1], c=B.flatten(),marker=">")
+    
 
     # placeholders for a tensor that will be always fed.
     X = tf.placeholder(tf.float32, shape=[None, 3])
