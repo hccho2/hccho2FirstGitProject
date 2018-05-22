@@ -125,6 +125,58 @@ def MultivariateRegressionTF2():
     graph = tf.get_default_graph()
     print(sess.run(graph.get_tensor_by_name(name='L1/kernel:0')))
 
+def LogisticRegressionTF4():    
+    # veiwing gradient values within tensorflow
+    tf.reset_default_graph()
+    
+    #AA2 = AddFeatures(AA[:,1:],3)
+    AA2 = A
+    
+    # placeholders for a tensor that will be always fed.
+    X = tf.placeholder(tf.float32, shape=[None, AA2.shape[1]])
+    Y = tf.placeholder(tf.float32, shape=[None, 1])
+    
+    
+    mode = 1
+    
+    if mode == 0:
+        logits = tf.layers.dense(X,units=1, activation = None,name='L1')
+    else:
+        L1 = tf.layers.dense(X,units=5, activation = tf.nn.relu,name='L1')
+        logits = tf.layers.dense(L1,units=1, activation = None,name='L2')
+    
+    
+
+    
+    # Simplified cost/loss function
+    loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=logits, labels=Y ))
+    
+    # Minimize
+    optimizer = tf.train.AdamOptimizer(learning_rate=0.01)
+    train = optimizer.minimize(loss)
+
+    
+    predicted = tf.cast(logits >= 0, dtype=tf.float32)
+    accuracy = tf.reduce_mean(tf.cast(tf.equal(predicted, Y), dtype=tf.float32))    
+    total_cost = []
+    with tf.Session() as sess:
+        # Initialize TensorFlow variables
+        sess.run(tf.global_variables_initializer())
+        
+        for step in range(10000):
+            _, l, acc,p = sess.run([train,loss,accuracy,predicted], feed_dict={X: AA2, Y: B})
+            if step % 1000 == 0:
+                print(step, l)
+                total_cost.append(l)
+        # Accuracy report
+        print("\nAccuracy: ", acc, "\nloss", l)    
+    plt.subplot(132)
+    plt.scatter(A[:, 0], A[:, 1], c=p.flatten(),marker=">")    
+    plt.subplot(133)
+    plt.plot(total_cost)
+    sess.close()  
+
+
 if __name__ == "__main__":
     MultivariateRegressionTF()
     MultivariateRegressionTF2()
