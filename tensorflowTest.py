@@ -277,7 +277,7 @@ def test_seq2seq():
     tf.reset_default_graph()
 
     x_data = np.array([[0, 3, 1, 2, 4, 3],[1, 3, 1, 2, 3, 2],[2, 4, 0, 2, 4, 1]], dtype=np.int32)
-
+    y_data = np.array([[1,2,0,4,2,3],[0,2,3,4,1,1],[3,1,1,2,0,0]],dtype=np.int32)
     print("data shape: ", x_data.shape)
     sess = tf.InteractiveSession()
     vocab_size = 5
@@ -302,7 +302,7 @@ def test_seq2seq():
 
         embedding = tf.get_variable("embedding", initializer=init.astype(np.float32),dtype = tf.float32)
         inputs = tf.nn.embedding_lookup(embedding, x_data)  # batch_size  x seq_length x embedding_dim
-
+	Y = tf.convert_to_tensor(y_data)
         if init_state_flag==0:
              initial_state = cell.zero_state(batch_size, tf.float32) #(batch_size x hidden_dim) x layer 개수 
         else:
@@ -321,6 +321,10 @@ def test_seq2seq():
         decoder = tf.contrib.seq2seq.BasicDecoder(cell=cell,helper=helper,initial_state=initial_state,output_layer=output_layer)    
         outputs, last_state, last_sequence_lengths = tf.contrib.seq2seq.dynamic_decode(decoder=decoder,output_time_major=False,impute_finished=True)
 
+        weights = tf.ones(shape=[batch_size,seq_length])
+        loss =   tf.contrib.seq2seq.sequence_loss(logits=outputs.rnn_output, targets=Y, weights=weights)
+	
+	
         sess.run(tf.global_variables_initializer())
         print("initial_state: ", sess.run(initial_state))
         print("\n\noutputs: ",outputs)
@@ -335,7 +339,7 @@ def test_seq2seq():
         print(sess.run(output_layer.trainable_weights[0]))  # kernel(weight)
         print(sess.run(output_layer.trainable_weights[1]))  # bias
 
-        
+        print("loss: {:.4f}".format(sess.run(loss)))
 
         
         
