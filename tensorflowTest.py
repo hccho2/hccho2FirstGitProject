@@ -328,7 +328,9 @@ def test_seq2seq():
         sess.run(tf.global_variables_initializer())
         print("initial_state: ", sess.run(initial_state))
         print("\n\noutputs: ",outputs)
-        print("\n",sess.run(outputs.rnn_output)) #batch_size, seq_length, outputs
+        o = sess.run(outputs.rnn_output)  #batch_size, seq_length, outputs
+        p = sess.run(tf.nn.softmax(outputs.rnn_output)).reshape(-1,vocab_size)
+        print("\n",o) #batch_size, seq_length, outputs
 
         print("\n\nlast_state: ",last_state)
         print(sess.run(last_state)) # batch_size, hidden_dim
@@ -339,9 +341,8 @@ def test_seq2seq():
         print(sess.run(output_layer.trainable_weights[0]))  # kernel(weight)
         print(sess.run(output_layer.trainable_weights[1]))  # bias
 
-        print("loss: {:.4f}".format(sess.run(loss)))
-
-        
+        print("loss: {:20.6f}".format(sess.run(loss)))
+        print("manual cal. loss: {:0.6f} ".format(np.average(-np.log(p[np.arange(y_data.size),y_data.flatten()]))) )
         
 def test_bidirectional(): 
     import tensorflow as tf
