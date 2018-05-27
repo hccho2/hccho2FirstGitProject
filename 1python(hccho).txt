@@ -411,6 +411,14 @@ parser.add_argument('--train_steps', default=1000, type=int,help='number of trai
 
 args = parser.parse_args(sys.argv[1:])  # 새로운 argument추가는 불가. 이미 정의된 argument update가능
 
+=====================================================================================
+parser = argparse.ArgumentParser()
+args = parser.parse_args()
+
+args.num_hidden = 10
+args.num_epoch = 20
+print(args)
+
 
 =====================================================================================
 flags = tf.app.flags
