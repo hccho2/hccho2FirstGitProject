@@ -498,6 +498,17 @@ gif = images[0]
 gif.save(fp="./output.gif", format='gif', save_all=True, append_images=images[1:])
 print(Image.open("./output.gif").n_frames)
 =====================================================================================
+import skimage.io
+from tensorflow.examples.tutorials.mnist import input_data
+mnist = input_data.read_data_sets('D:\hccho\CommonDataset\mnist', one_hot=True)
+inputs = mnist.train.images
+labels = mnist.train.labels
+n  = 14
+skimage.io.imshow(inputs[n].reshape(28,28))
+print(labels[n])
+
+
+=====================================================================================
 print(os.listdir("../"))     <---모든 디렉토리
 
 =====================================================================================
