@@ -154,3 +154,9 @@ https://facebook.com/255834461424286_556808447993551
  5) https://www.facebook.com/deeplearningtalk/
  6) http://bcho.tistory.com/category/빅데이타/머신러닝
 7) https://brunch.co.kr/magazine/kakaoaireport
+
+
+=======================================================
+인용을 위한 표현:
+Inspired from Andrej Karpathy's char-rnn.
+
