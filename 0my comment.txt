@@ -160,3 +160,4 @@ https://facebook.com/255834461424286_556808447993551
 인용을 위한 표현:
 Inspired from Andrej Karpathy's char-rnn.
 
+Based on pix2pix by Isola et al.
