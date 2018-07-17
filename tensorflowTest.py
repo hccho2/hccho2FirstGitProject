@@ -486,6 +486,35 @@ def dense_test():
     print(xx)
     print(w)
 	
+def tf_image()
+    import skimage.io as io
+    import matplotlib.pyplot as plt
+    cat_img = io.imread('cat.jpeg')  # integer numpy array, (194, 260, 3)
+    
+    
+    cat_string = cat_img.tostring()  # b'\xff\xff\xff\xff\xff\xff\xff\xff\xff\ ....'
+    
+    reconstructed_cat_1d = np.fromstring(cat_string, dtype=np.uint8)  # array([255, 255, 255, ..., 255, 255, 255], dtype=uint8)
+    reconstructed_cat_img = reconstructed_cat_1d.reshape(cat_img.shape)
+    print(np.allclose(cat_img, reconstructed_cat_img))
+    
+    
+    
+    with tf.gfile.FastGFile('cat.jpeg', 'rb') as f:
+        cat_img2 = f.read()  # b'\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\
+        cat_img2 = tf.image.decode_jpeg(cat_img2, channels=3)
+        cat_img2 = tf.image.resize_images(cat_img2, size=cat_img.shape[:-1])
+        
+    sess = tf.Session()
+    cat_img2 = sess.run(cat_img2).astype(np.uint8) 
+    
+    # numerical 문제로 같은 값은 아니다.
+    print(np.mean([cat_img, cat_img2],axis=(1,2,3)))
+    
+    io.imshow(np.concatenate([cat_img,cat_img2],axis=1))
+    
+    plt.show()
+	
 	
 if __name__ == "__main__":   
     test1()
