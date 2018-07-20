@@ -486,7 +486,7 @@ def dense_test():
     print(xx)
     print(w)
 	
-def tf_image()
+def tf_binary_image()
     import skimage.io as io
     import matplotlib.pyplot as plt
     cat_img = io.imread('cat.jpeg')  # integer numpy array, (194, 260, 3)
