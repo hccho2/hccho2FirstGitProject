@@ -529,6 +529,7 @@ def TFRecord_reading1():
     
     
     image_buffer = features['image/encoded_image']
+    file_name_buffer = features['image/file_name']
     image = tf.image.decode_jpeg(image_buffer, channels=3)
     image = tf.image.resize_images(image, size=(256, 256))
     
@@ -537,11 +538,9 @@ def TFRecord_reading1():
     
     image.set_shape([256, 256, 3])
     
-    images = tf.train.shuffle_batch( [image], batch_size=5, num_threads=8, capacity=1500, min_after_dequeue=100 )
     
-    
-    
-    #x = features[ 'image/file_name']
+    # image와 file_name_buffer를 같이 shuffle_batch로 해야, data쌍이 맞다.
+    images,file_names = tf.train.shuffle_batch( [image,file_name_buffer], batch_size=5, num_threads=8, capacity=1500, min_after_dequeue=100 )
     
     sess = tf.Session()
     
@@ -551,12 +550,16 @@ def TFRecord_reading1():
     
     
     sess.run(tf.global_variables_initializer())
-    a=sess.run([images])
-    b=sess.run([images])
+    a,z=sess.run([images,file_names])
+    b=sess.run(images)
     
-    print(a[0].shape,b[0].shape)
+    print(a.shape,b.shape)
     print(np.mean([a[0],b[0]],axis=(1,2,3)))
     
+    print(z)
+    
+    io.imshow(np.concatenate(a,axis=1))
+    plt.show()
     
 def TFRecord_reading2():
     filename = 'D:\\hccho\\CycleGAN-TensorFlow-master\\data\\tfrecords\\apple.tfrecords'
@@ -564,21 +567,27 @@ def TFRecord_reading2():
     
     
     reconstructed_images = []
+    reconstructed_file_names = []
     for string_record in record_iterator:
         example = tf.train.Example()
         example.ParseFromString(string_record)
-        image_buffer = example.features.feature['image/encoded_image'].bytes_list.value[0]
-        image = tf.image.decode_jpeg(image_buffer, channels=3)
-        image = tf.image.resize_images(image, size=(256, 256))        
         
-        reconstructed_images.append(image)
-    
+        image_buffer = example.features.feature['image/encoded_image'].bytes_list.value[0]   # binary data
+        image = tf.image.decode_jpeg(image_buffer, channels=3)  # binary data가 tensor로 변환된다.
+        image = tf.image.resize_images(image, size=(256, 256))
+        reconstructed_images.append(image)    
+        
+        file_name_buffer = example.features.feature['image/file_name'].bytes_list.value[0] # tensor 아님
+        reconstructed_file_names.append(file_name_buffer)
+        
     print(len(reconstructed_images))
     
     sess = tf.Session()
-    x = sess.run(reconstructed_images[0])
+    x = sess.run(reconstructed_images[101])
     
-    print(x.shape)
+    print(x.shape, reconstructed_file_names[101])
+    io.imshow(x/127.5 -1.0)
+    plt.show()
 
 	
 if __name__ == "__main__":   
