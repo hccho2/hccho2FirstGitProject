@@ -514,7 +514,72 @@ def tf_binary_image()
     io.imshow(np.concatenate([cat_img,cat_img2],axis=1))
     
     plt.show()
-	
+
+def TFRecord_reading1():
+    filename = 'D:\\hccho\\CycleGAN-TensorFlow-master\\data\\tfrecords\\apple.tfrecords'
+    
+    
+    filename_queue = tf.train.string_input_producer([filename])
+    reader = tf.TFRecordReader()
+    
+    
+    _, serialized_example = reader.read(filename_queue)
+    
+    features = tf.parse_single_example(serialized_example, features={'image/file_name': tf.FixedLenFeature([], tf.string), 'image/encoded_image': tf.FixedLenFeature([], tf.string),})
+    
+    
+    image_buffer = features['image/encoded_image']
+    image = tf.image.decode_jpeg(image_buffer, channels=3)
+    image = tf.image.resize_images(image, size=(256, 256))
+    
+    image = tf.image.convert_image_dtype(image, dtype=tf.float32)
+    image = image/127.5 -1.0
+    
+    image.set_shape([256, 256, 3])
+    
+    images = tf.train.shuffle_batch( [image], batch_size=5, num_threads=8, capacity=1500, min_after_dequeue=100 )
+    
+    
+    
+    #x = features[ 'image/file_name']
+    
+    sess = tf.Session()
+    
+    # 이부분이 반드시 있어야 됨.
+    coord = tf.train.Coordinator()
+    threads = tf.train.start_queue_runners(sess=sess, coord=coord)
+    
+    
+    sess.run(tf.global_variables_initializer())
+    a=sess.run([images])
+    b=sess.run([images])
+    
+    print(a[0].shape,b[0].shape)
+    print(np.mean([a[0],b[0]],axis=(1,2,3)))
+    
+    
+def TFRecord_reading2():
+    filename = 'D:\\hccho\\CycleGAN-TensorFlow-master\\data\\tfrecords\\apple.tfrecords'
+    record_iterator = tf.python_io.tf_record_iterator(path=filename)
+    
+    
+    reconstructed_images = []
+    for string_record in record_iterator:
+        example = tf.train.Example()
+        example.ParseFromString(string_record)
+        image_buffer = example.features.feature['image/encoded_image'].bytes_list.value[0]
+        image = tf.image.decode_jpeg(image_buffer, channels=3)
+        image = tf.image.resize_images(image, size=(256, 256))        
+        
+        reconstructed_images.append(image)
+    
+    print(len(reconstructed_images))
+    
+    sess = tf.Session()
+    x = sess.run(reconstructed_images[0])
+    
+    print(x.shape)
+
 	
 if __name__ == "__main__":   
     test1()
