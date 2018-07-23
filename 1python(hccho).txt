@@ -518,7 +518,13 @@ labels = mnist.train.labels
 n  = 14
 skimage.io.imshow(inputs[n].reshape(28,28))
 print(labels[n])
+=====================================================================================
+# numpy image concat
+# a: shape =(5, 256, 256, 3)
 
+np.concatenate(a,axis=0)   ==>    (1280, 256, 3)  <---- a[0],a[1],a[2],a[3],a[4] 가 axis = 0으로 concat된다.
+np.concatenate(a,axis=1)   ==>    (256, 1280, 3)
+np.concatenate(a,axis=1)   ==>    (256, 256, 15)
 
 =====================================================================================
 print(os.listdir("../"))     <---모든 디렉토리
