@@ -1,4 +1,5 @@
-# np.sum([np.prod(v.get_shape().as_list()) for v in tf.trainable_variables()])
+def get_network_size():
+    print ('network size: {:,}'.format(np.sum([np.prod(v.get_shape().as_list()) for v in tf.trainable_variables()])))
 
 
 def test1():
