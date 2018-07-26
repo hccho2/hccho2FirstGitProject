@@ -519,6 +519,17 @@ n  = 14
 skimage.io.imshow(inputs[n].reshape(28,28))
 print(labels[n])
 =====================================================================================
+def change_image_format():
+    import os, glob
+    a = os.path.join("D:\hccho\StackGAN-hccho\StcakGAN-Result", "*.png") #string을  \로 이어  path를 만든다.
+    b = glob.glob(a) # wild card를 풀어  filename list를 만든다.
+    
+    
+    for f in b:
+        image = Image.open(f)
+        image.save(f[:f.find('png')] + 'jpg')
+
+=====================================================================================
 # numpy image concat
 # a: shape =(5, 256, 256, 3)
 
