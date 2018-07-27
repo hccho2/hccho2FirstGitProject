@@ -519,7 +519,7 @@ def tf_binary_image()
     plt.show()
 
 def TFRecord_reading1():
-    # tfrecord에서 0~255의 값을 가지는 image data가 저장되어 있다.
+    # tfrecord에서binary data가 저장되어 있는데, tf.image.decode_jpeg로 이용해서 0~255 사이 값으로 변환한다.
     filename = 'D:\\hccho\\CycleGAN-TensorFlow-master\\data\\tfrecords\\apple.tfrecords'
     
     
@@ -566,6 +566,7 @@ def TFRecord_reading1():
     plt.show()
     
 def TFRecord_reading2():
+    # tfrecord에서binary data가 저장되어 있는데, tf.image.decode_jpeg로 이용해서 0~255 사이 값으로 변환한다.
     filename = 'D:\\hccho\\CycleGAN-TensorFlow-master\\data\\tfrecords\\apple.tfrecords'
     record_iterator = tf.python_io.tf_record_iterator(path=filename)
     
