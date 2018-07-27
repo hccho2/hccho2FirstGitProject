@@ -519,6 +519,7 @@ def tf_binary_image()
     plt.show()
 
 def TFRecord_reading1():
+    # tfrecord에서 0~255의 값을 가지는 image data가 저장되어 있다.
     filename = 'D:\\hccho\\CycleGAN-TensorFlow-master\\data\\tfrecords\\apple.tfrecords'
     
     
@@ -586,7 +587,7 @@ def TFRecord_reading2():
     print(len(reconstructed_images))
     
     sess = tf.Session()
-    x = sess.run(reconstructed_images[101])
+    x = sess.run(reconstructed_images[101])   # 0.0~255.0 사이의 float값
     
     print(x.shape, reconstructed_file_names[101])
     io.imshow(x/127.5 -1.0)
