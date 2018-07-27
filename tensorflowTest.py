@@ -594,6 +594,15 @@ def TFRecord_reading2():
     io.imshow(x/127.5 -1.0)
     plt.show()
 
+def expand_and_concat():
+    tf.reset_default_graph()
+    y = tf.placeholder(tf.float32, [100,200,30], 'y')
+    x = tf.placeholder(tf.float32, [200,40], 'x')
+    x = tf.expand_dims(x,0)  # (1, 200, 40)
+    x = tf.tile(x,[100,1,1]) # (100, 200, 40)
+    
+    z = tf.concat([x,y],axis=2) # (100, 200, 70)
+	
 	
 if __name__ == "__main__":   
     test1()
