@@ -756,7 +756,16 @@ X = {'a': 12,'b':'xx'}
 
 print('axx {b}zz{a}'.format(**X))
 =====================================================================================
-
+# progress bar tqdm
+from tqdm import tqdm,trange
+from time import sleep
+with tqdm(total=200) as pbar:
+    for i in range(10):
+        sleep(0.1)
+        if (i+1) % 2 == 0:
+            tqdm.write("Done task %i" % (i+1))
+        pbar.set_description("Processing %d" % i)
+        pbar.update(20)  # 위에서 설정한 total = 200을 20씩 업데이트 한다. 그러면 10번 실행. loop 회수와 일치시키면 됨
 =====================================================================================
 
 =====================================================================================
