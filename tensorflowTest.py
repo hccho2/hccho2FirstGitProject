@@ -602,8 +602,23 @@ def expand_and_concat():
     x = tf.tile(x,[100,1,1]) # (100, 200, 40)
     
     z = tf.concat([x,y],axis=2) # (100, 200, 70)
-	
-	
+
+
+def patial_initialization():
+    # 초기화 되지 않은 변수만 초기화
+    uninitialized_vars = []
+    for var in tf.global_variables():
+        try:
+            self.sess.run(var)
+        except tf.errors.FailedPreconditionError:
+            uninitialized_vars.append(var)
+    
+    init_new_vars_op = tf.variables_initializer(uninitialized_vars)
+    
+    sess.run(init_new_vars_op)
+
+
+
 if __name__ == "__main__":   
     test1()
     
