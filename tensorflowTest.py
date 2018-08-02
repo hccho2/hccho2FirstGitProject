@@ -633,6 +633,27 @@ def instance_normalization_test():
     gamma = graph.get_tensor_by_name('InstanceNorm/gamma:0')
     print(sess.run([beta,gamma]))
 
+
+def FC_vs_Conv2d():
+    import tensorflow as tf
+    import numpy as np
+    tf.reset_default_graph()
+    
+    x = np.arange(12).reshape(3,4).astype(np.float32)
+    w = np.arange(20).reshape(4,5).astype(np.float32)
+    z1 = np.matmul(x,w)
+    
+    y=tf.layers.conv2d(tf.convert_to_tensor(x.reshape(3,1,1,4)),filters=5, kernel_size=1, strides=1,kernel_initializer=tf.constant_initializer(w.reshape(1,1,4,5)),use_bias=False)
+    
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        z2 =sess.run(y)
+        z2 = np.squeeze(z2)
+        
+    print(z1,z2)    
+
+
+
 if __name__ == "__main__":   
     test1()
     
