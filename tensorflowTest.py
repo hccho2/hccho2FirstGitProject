@@ -617,7 +617,21 @@ def patial_initialization():
     
     sess.run(init_new_vars_op)
 
+def instance_normalization_test():
 
+    import tensorflow as tf
+    tf.reset_default_graph()
+    x = tf.placeholder(tf.float32, [None,16,16,3])
+    param_initializers = {'beta':tf.random_normal_initializer(mean=0.0, stddev=0.02, dtype=tf.float32),'gamma': tf.ones_initializer()}
+    #param_initializers = {'beta':tf.random_normal_initializer(mean=0.0, stddev=0.02, dtype=tf.float32)}
+    y = tf.contrib.layers.instance_norm(x,param_initializers=param_initializers)
+    sess = tf.Session()
+    
+    sess.run(tf.global_variables_initializer())
+    graph = tf.get_default_graph()
+    beta = graph.get_tensor_by_name('InstanceNorm/beta:0')
+    gamma = graph.get_tensor_by_name('InstanceNorm/gamma:0')
+    print(sess.run([beta,gamma]))
 
 if __name__ == "__main__":   
     test1()
