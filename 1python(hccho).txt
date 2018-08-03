@@ -759,7 +759,8 @@ print('axx {b}zz{a}'.format(**X))
 # progress bar tqdm
 from tqdm import tqdm,trange
 from time import sleep
-with tqdm(total=200) as pbar:
+# ncols = bar의 폭 조절
+with tqdm(total=200,ncols=70) as pbar:
     for i in range(10):
         sleep(0.1)
         if (i+1) % 2 == 0:
