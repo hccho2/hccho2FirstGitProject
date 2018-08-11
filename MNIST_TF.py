@@ -406,19 +406,21 @@ def MNIST_CNN():
     keep_prob = tf.placeholder(tf.float32)
     
     # inforgan discriminator structure
+    INIT=tf.random_normal_initializer(mean=0.0, stddev=0.02, dtype=tf.float32)
     XX = tf.reshape(X,[-1,28,28,1])
-    net1 = tf.layers.conv2d(XX, filters=64,  kernel_size=4, strides=2, padding='SAME',activation=lambda x: tf.nn.leaky_relu(x,0.2)) # =(?, 14, 14, 64)
-    net2 = tf.layers.conv2d(net1, filters=128,  kernel_size=4, strides=2, padding='SAME',activation=None) # (?, 7, 7, 128)
+    net1 = tf.layers.conv2d(XX, filters=64,  kernel_size=4, strides=2, padding='SAME',kernel_initializer=INIT,activation=lambda x: tf.nn.leaky_relu(x,0.2)) # =(?, 14, 14, 64)
+    
+    net2 = tf.layers.conv2d(net1, filters=128,  kernel_size=4, strides=2, padding='SAME',kernel_initializer=INIT,activation=None,use_bias=False) # (?, 7, 7, 128)
     net2 = tf.nn.leaky_relu(tf.layers.batch_normalization(net2, training=training),0.2)
-    net2 = tf.nn.dropout(net2,keep_prob=keep_prob)
+
     
     net3 = tf.reshape(net2,[-1,7*7*128])
-    net3 = tf.layers.dense(net3,units=1024)
+    net3 = tf.layers.dense(net3,units=1024,use_bias=True,kernel_initializer=INIT)
     net3 = tf.nn.leaky_relu(tf.layers.batch_normalization(net3, training=training),0.2)
-    net3 = tf.nn.dropout(net3,keep_prob=keep_prob)
+
     
     
-    logits = tf.layers.dense(net3,units=10)
+    logits = tf.layers.dense(net3,units=10,kernel_initializer=INIT)
     hypothesis = tf.nn.softmax(logits)
     
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits,labels=Y))
@@ -452,7 +454,71 @@ def MNIST_CNN():
 
         print("Accuracy: ", accuracy.eval(session=sess, feed_dict={X: mnist.test.images, Y: mnist.test.labels,training: False,keep_prob: 1.0}))
         
-        
+def MNIST_CNN2():
+    # test acc를 98.85 정도에서 99.3정도로 올리기 위해 모두의 딥러닝 강좌와 동일하게 모델 작성
+    mnist = input_data.read_data_sets("../CommonDataset/mnist", one_hot=True)
+    nb_classses = 10
+    data_feature = 784
+    learning_rate = 0.001
+
+    X = tf.placeholder(tf.float32,[None,data_feature])
+    Y = tf.placeholder(tf.float32,[None,nb_classses])
+    training = tf.placeholder(tf.bool)
+    keep_prob = tf.placeholder(tf.float32)
+    
+
+    INIT= tf.contrib.layers.xavier_initializer()
+    
+    XX = tf.reshape(X,[-1,28,28,1])
+    net1 = tf.layers.conv2d(XX, filters=32,  kernel_size=3, strides=1, padding='SAME',activation= tf.nn.relu,kernel_initializer=INIT) # (?, 28, 28, 32)
+    net1 = tf.nn.dropout(tf.nn.max_pool(net1,ksize=[1, 2, 2, 1],strides=[1, 2, 2, 1], padding='SAME'),keep_prob=keep_prob) # (?, 14, 14, 32)
+
+    net2 = tf.layers.conv2d(net1, filters=64,  kernel_size=3, strides=1, padding='SAME',activation=tf.nn.relu,kernel_initializer=INIT) # (?, 14, 14, 64)
+    net2 = tf.nn.dropout(tf.nn.max_pool(net2,ksize=[1, 2, 2, 1],strides=[1, 2, 2, 1], padding='SAME'),keep_prob=keep_prob) # (?, 7, 7, 64)
+
+    net3 = tf.layers.conv2d(net2, filters=128,  kernel_size=3, strides=1, padding='SAME',activation=tf.nn.relu,kernel_initializer=INIT) # (?, 7, 7, 128)
+    net3 = tf.nn.dropout(tf.nn.max_pool(net3,ksize=[1, 2, 2, 1],strides=[1, 2, 2, 1], padding='SAME'),keep_prob=keep_prob) # (?, 4, 4, 128)
+    
+    
+    net4 = tf.reshape(net3,[-1,4*4*128])
+    net4 = tf.layers.dense(net4,units=625,activation=tf.nn.relu,kernel_initializer=INIT)
+    net4 = tf.nn.dropout(net4,keep_prob=keep_prob)
+
+
+    logits = tf.layers.dense(net4,units=10,kernel_initializer=INIT)
+    hypothesis = tf.nn.softmax(logits)
+    
+    cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits,labels=Y))
+    extra_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+    with tf.control_dependencies(extra_update_ops):
+        optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
+    
+    correct_prediction = tf.equal(tf.argmax(hypothesis, 1), tf.argmax(Y, 1))
+    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+    
+    
+    
+    training_epochs = 15
+    batch_size = 512
+    
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+
+        for epoch in range(training_epochs):
+            avg_cost = 0
+            total_batch = int(mnist.train.num_examples/batch_size)  # 55000/batch_size
+
+            for i in range(total_batch):
+                batch_xs,batch_ys = mnist.train.next_batch(batch_size)
+                c,_ =sess.run([cost,optimizer],feed_dict={X:batch_xs, Y:batch_ys, training: True,keep_prob: 0.7})
+                avg_cost += c / total_batch
+            
+            train_acc = sess.run(accuracy,feed_dict={X:batch_xs, Y:batch_ys, training: False,keep_prob: 1.0})    
+            test_acc = sess.run(accuracy, feed_dict={X: mnist.test.images, Y: mnist.test.labels,training: False, keep_prob: 1.0})  # test data 10000개
+            print("Epoch: ", "%4d" % (epoch+1), 'cost = ','{:.9f}'.format(avg_cost),'train acc = {:.4f}'.format(train_acc) ,'test acc = {:.4f}'.format(test_acc))
+
+        print("Accuracy: ", accuracy.eval(session=sess, feed_dict={X: mnist.test.images, Y: mnist.test.labels,training: False,keep_prob: 1.0}))
+     
         
 if __name__ == "__main__":
     #MNIST_LogisticRegression()
@@ -461,4 +527,5 @@ if __name__ == "__main__":
     #MNIST_NN2(layer_size_list=[784,256,256,10],Xavier=True)
     #MNIST_NN2(layer_size_list=[784,512,512,512,512,10],Xavier=True,Dropout=True,KeepProb=0.7)
     #MNIST_NN3(layer_size_list=[784,512,512,512,512,10],Xavier=True,KeepProb=0.97)
-    MNIST_CNN()
+    #MNIST_CNN()
+    MNIST_CNN2()
