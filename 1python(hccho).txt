@@ -124,6 +124,18 @@ with printoptions(precision=3, suppress=True):
     print('truncated SVD')
     print(U[:,:r].dot(np.diag(s[:r])).dot(V[:r,:]))
     print(UU[:,:r].dot(np.diag(ss[:r])).dot(VV[:r,:]))    
+    
+    # 행 축소
+    r=4
+    print('row reduction')
+    print(U[:,:r].T.dot(a))
+
+    # 열 축소
+    r=3
+    print('col reduction')
+    print(a.dot(V[:r,:].T))
+    
+    
 =====================================================================================
 def f(x):
     return x+10
