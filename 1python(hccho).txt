@@ -110,6 +110,9 @@ with printoptions(precision=3, suppress=True):
     r= np.linalg.matrix_rank(a)
     print(U[:,:r].dot(np.diag(s[:r])).dot(V[:r,:]))
     print(UU[:,:r].dot(np.diag(ss[:r])).dot(VV[:r,:]))
+    r = 5 # rank 보다 작게 잡아, demension reduction을 할 수 있다.
+    print(U[:,:r].dot(np.diag(s[:r])).dot(V[:r,:]))
+    print(UU[:,:r].dot(np.diag(ss[:r])).dot(VV[:r,:]))    
 =====================================================================================
 def f(x):
     return x+10
