@@ -53,7 +53,12 @@ A[[0,1,2],[0,0,1]] = [1,2,7]   #numpy array A[0,0],A[1,0],A[2,1]에 각각 1,2,
 
 
 ===================================================================
-# Symmetric Matrix는 singular value = eigenvalue
+# singular value of a ~ sqrt(eigenvalue) of a(a.T)
+# data matrix a의 평균을 0으로 맞추고 나면, SVD는 PCA의 일반화. 
+# SVD는 a.dot(a.T)를 계산하는 과정에서의 수치적인 손실을 줄일 수 있더 더 안정적이다.
+
+
+
 # np.linalg의 첫번째  return  U의 열vector가 eigenvector에 해당함.
 
 import contextlib
