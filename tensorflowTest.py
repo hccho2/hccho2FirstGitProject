@@ -472,6 +472,7 @@ attention_layer_size=77
 ======================
 # tf.layers.dense 의 input tensor가 3차원일 때:
 # 예: input.shape (2,3,4) x units = 5  ==> (2,3,5)가 만들어지고, weight는 (4,5) size 이다
+# https://github.com/tensorflow/tensorflow/issues/8175
 def dense_test():
     tf.reset_default_graph()
     A0 = np.arange(24).reshape(2,3,4).astype(np.float32)
