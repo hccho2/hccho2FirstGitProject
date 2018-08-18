@@ -1,4 +1,13 @@
+eclipse: Windows-Preference-PyDev-Interpreters-Python Interpreter  ---> 복수로 등록 가능
+예: 
+python     C:\Anaconda\python.exe
+tfcpu      C:\Anaconda\hccho-virtual\tfcpu\Scripts\python.exe
 
+이렇게 등록한 2개는 각각의 project에서 선택가능하다.  project의 properties - PyDev-Interpreter/Grammar - Interpreter 에서 선택하면 된다.
+
+=====================================================================
+
+sys.path.insert(0,'D:\\hccho\\ML\\PythonCode\\StackGAN-master')  <--- 코드내에 추가
 =====================================================================
 num_batch = int(max_train/batch_size) # 1epoch에 필요한 반복
 
