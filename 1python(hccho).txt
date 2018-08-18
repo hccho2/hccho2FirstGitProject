@@ -8,6 +8,7 @@ tfcpu      C:\Anaconda\hccho-virtual\tfcpu\Scripts\python.exe
 =====================================================================
 
 sys.path.insert(0,'D:\\hccho\\ML\\PythonCode\\StackGAN-master')  <--- 코드내에 추가
+또는 eclipse project properties에서 Resource-Linded Resources에서 path를 등록하면 
 =====================================================================
 num_batch = int(max_train/batch_size) # 1epoch에 필요한 반복
 
