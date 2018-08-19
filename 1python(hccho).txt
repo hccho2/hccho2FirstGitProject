@@ -690,11 +690,12 @@ print(A.x)
 =====================================================================================
 getattr
 =====================================================================================
-print("float: {:0.8f}, int: {:10d}".format(2.34, 45))
-print("{:10}".format('test')) # left align
-print("{:>10}{:>10}".format('test',123)) # right align
-print("{:>10}{:06d}".format('test',123)) # fill 0, 6digit
-print("{:06.2f}".format(3.14156))
+print("float: {:0.8f}, int: {:10d}".format(2.34, 45))  # float: 2.34000000
+print("{:10}".format('test')) # left align             # int:         45
+print("{:>10}{:>10}".format('test',123)) # right align #      test       123
+print("{:>10}{:06d}".format('test',123)) # fill 0, 6digit #       test000123
+print("{:06.2f}".format(3.14156))   #003.14
+print("{:,.2f}".format(1233456.8934))  # 1,233,456.89
 =====================================================================================
 import collections
 
