@@ -436,7 +436,33 @@ LSTMStateTuple(c=array([[-0.08561244, -0.71315455],[-0.02546103, -0.3122089 ]], 
         print(v) # tuple(variable name, [shape])
         vv = checkpoint_utils.load_variable(checkpoint_dir, v[0])
         print(vv) #values   
-        
+ 
+def init_from_checkpoint():
+    checkpoint_dir = 'D:\\hccho\\multi-speaker-tacotron-tensorflow-master\\logs\\moon_2018-08-18_20-01-48\\model.ckpt-48000' # 구체적으로 명시
+    #checkpoint_dir = 'D:\\hccho\\cs231n-Assignment\\assignment3\\save-sigle-layer # 디렉토리만 지정 ==> 가장 최근
+    var_list = checkpoint_utils.list_variables(checkpoint_dir)
+    
+    
+    #1 직접 선언한 variable 초기화
+    vv = checkpoint_utils.load_variable(checkpoint_dir, var_list[100][0])
+    w = tf.get_variable('var1', shape=vv.shape)
+    tf.train.init_from_checkpoint(checkpoint_dir,{var_list[100][0]: w})  # initializer 해야 값이 할당된다.
+    #2 간접적으로 선언된 variable 초기화
+    vv2 = checkpoint_utils.load_variable(checkpoint_dir, var_list[140][0])
+    X = np.arange(2*128).reshape(2,128).astype(np.float32)
+    Y = tf.layers.dense(tf.convert_to_tensor(X),units=128)
+    tf.train.init_from_checkpoint(checkpoint_dir,{var_list[140][0]: 'dense/kernel'})
+    graph = tf.get_default_graph()
+    
+    
+    sess = tf.Session()
+    sess.run(tf.global_variables_initializer())
+    ww,kk = sess.run([w,graph.get_tensor_by_name('dense/kernel:0')])
+    
+    print(np.allclose(ww,vv))
+    print(np.allclose(kk,vv2))
+
+
 =======================
 Bahdanau attention weight
 encoder_hidden_size = 300   = context vector size
