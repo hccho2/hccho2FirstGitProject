@@ -423,7 +423,7 @@ LSTMStateTuple(c=array([[-0.08561244, -0.71315455],[-0.02546103, -0.3122089 ]], 
 			   h=array([[-0.04539058, -0.2564498 ],[-0.01013058, -0.18332982]], dtype=float32))
 """        
         
-
+=======================
  def get_info_from_checkpoint():
     import tensorflow as tf
     tf.reset_default_graph()
