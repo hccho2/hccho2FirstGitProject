@@ -792,12 +792,12 @@ grid = np.mgrid[0:2, 0:3].reshape(2,-1).T
 
 import os
 filename='E:\\dir1\\dir2\\aa.txt'
-os.path.dirname(filename)
-os.path.abspath(filename)
-os.path.basename(filename)
-os.path.splitext(filename)  ==> ('E:\\dir1\\dir2\\aa','txt')
-os.path.splitext(os.path.basename(filename))[0]
-os.path.join(parentsdir, 'aaaa.dat')
+os.path.dirname(filename)  # 'E:\\dir1\\dir2'
+os.path.abspath(filename)  # 'E:\\dir1\\dir2\\aa.txt'
+os.path.basename(filename)  # 'aa.txt'
+os.path.splitext(filename)  ==> ('E:\\dir1\\dir2\\aa','txt')  이걸 이용해서 확장자 변경가능
+os.path.splitext(os.path.basename(filename))[0]  # ('aa', '.txt')
+os.path.join(os.path.dirname(filename), 'aaaa.dat')  # 'E:\\dir1\\dir2\\aaaa.dat'
 
 
 # all sub directory
