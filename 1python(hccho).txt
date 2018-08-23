@@ -1,3 +1,11 @@
+venv로 가상환경 만들기
+
+1. 가상환경을 만들 디렉토리를 만들어 이동한다.
+2. python -m venv 가상환경이름   --> 현재 디렉토리 아래에 가상환경 이름을 가진 directory가 만들어진다.
+3. 가상환경이 만들어지 directory로 이동한다.
+4. xxxx>     Scripts\activate
+5. 종료하려면, deactivate
+=====================================================================
 eclipse: Windows-Preference-PyDev-Interpreters-Python Interpreter  ---> 복수로 등록 가능
 예: 
 python     C:\Anaconda\python.exe
