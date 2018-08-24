@@ -889,7 +889,39 @@ with tqdm(total=200,ncols=70) as pbar:
         pbar.set_description("Processing {}-{}".format(i,i*10))
         pbar.update(20)  # 위에서 설정한 total = 200을 20씩 업데이트 한다. 그러면 10번 실행. loop 회수와 일치시키면 됨
 =====================================================================================
+# Multi Processing,    if __name__ == '__main__': <--- 이것이 있는 파일에서 실행해야 함.
+from contextlib import closing
+from multiprocessing import Pool
+from functools import partial
+def isPrime2(n):
+    if n==2 or n==3: return True
+    if n%2==0 or n<2: return False
+    for i in range(3,int(n**0.5)+1,2):   # only odd numbers
+        if n%i==0:
+            return False    
 
+    return True
+items = [23245457771477,23245457771477,23245457771477,23245457771477,12345,456789,23245457771477,23245457771477,23245457771477,23245457771477,23245457771477]
+items = items + items + items + items + items + items + items + items + items
+def test():
+    results = []
+    fn = partial(isPrime2)
+    with closing(Pool(processes=2)) as pool:
+        for out in tqdm(pool.imap_unordered(isPrime2, items), total=len(items), desc="Prime Check"):
+            results.append(out)
+def test2():
+    for item in tqdm(items, total=len(items), desc="Prime Check"):
+        isPrime2(item)
+
+
+if __name__ == '__main__':
+    s = time.time()
+    test()
+    print(time.time()-s," sec")
+
+    s = time.time()
+    test2()
+    print(time.time()-s," sec")
 =====================================================================================
 
 =====================================================================================
