@@ -890,8 +890,13 @@ with tqdm(total=200,ncols=70) as pbar:
         pbar.update(20)  # 위에서 설정한 total = 200을 20씩 업데이트 한다. 그러면 10번 실행. loop 회수와 일치시키면 됨
 =====================================================================================
 # Multi Processing,    if __name__ == '__main__': <--- 이것이 있는 파일에서 실행해야 함.
+
+=====================================================================================
+import time
+from tqdm import tqdm
 from contextlib import closing
 from multiprocessing import Pool
+from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 def isPrime2(n):
     if n==2 or n==3: return True
@@ -906,14 +911,27 @@ items = items + items + items + items + items + items + items + items + items
 def test():
     results = []
     fn = partial(isPrime2)
-    with closing(Pool(processes=2)) as pool:
+    with closing(Pool(processes=None)) as pool:
         for out in tqdm(pool.imap_unordered(isPrime2, items), total=len(items), desc="Prime Check"):
             results.append(out)
+    print(results)
 def test2():
+    # 단순히 serial하게 처리
     for item in tqdm(items, total=len(items), desc="Prime Check"):
         isPrime2(item)
 
+def test3():
+    # CPU 집약적인 작업을 위해 ProcessPoolExecutor를 사용하는게 좋습니다. ThreadPoolExecutor는 네트워크 작업 또는 I / O에 더 적합합니다
+    executor = ProcessPoolExecutor(max_workers=None)
+    futures = []
 
+    for item in items:
+        fn = partial(isPrime2,item)
+        futures.append(executor.submit(fn))
+        
+    n_frames = [future.result() for future in tqdm(futures)]
+    n_frames = [n_frame for n_frame in n_frames if n_frame is not None]
+    print(n_frames)
 if __name__ == '__main__':
     s = time.time()
     test()
@@ -922,8 +940,10 @@ if __name__ == '__main__':
     s = time.time()
     test2()
     print(time.time()-s," sec")
-=====================================================================================
 
+    s = time.time()
+    test3()
+    print(time.time()-s," sec")
 =====================================================================================
 
 =====================================================================================
