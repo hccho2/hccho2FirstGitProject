@@ -376,6 +376,13 @@ np.save('test.npy',A)
 a = np.load('test.npy')  # numpy.ndarray
 b = a.item()  # 저장했던 dict. 이렇게 해야, b가 a와 같은 dict가 된다.
 =====================================================================================
+A ={'a':[1,2,3],'b': [3,4,5,3,6,6,4]}  # dict
+np.savez('test.npz',**A)  # 이렇게 저장해야, 다시 load했을 때, dict형으로 복원이 편한다.
+data = np.load('test.npz')  # dict(data) --> dict형으로 쉽게 변환되고, 변환하지 않아도 dict 처럼 사용가능.
+
+
+
+=====================================================================================
 # 파일 한줄씩 읽어, list에 저장
 with open('wnids.txt', 'r') as f:
     A = [x.strip() for x in f]
