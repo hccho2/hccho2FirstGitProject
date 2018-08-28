@@ -15,10 +15,12 @@ class DataFeeder(threading.Thread):
         self.sess = sess
         
         
-        self.placeholders = [tf.placeholder(tf.float32, [None,3]), tf.placeholder(tf.float32, [None,1])  ]
+        self.placeholders = [tf.placeholder(tf.float32, [None,3]), tf.placeholder(tf.float32, [None,1])  ] # 여기에 data를 넣어준다.
         queue = tf.FIFOQueue(capacity=8, dtypes=[tf.float32,tf.float32], name='input_queue')
         self.enqueue_op = queue.enqueue(self.placeholders)
         
+        
+        # 다음의 self.x, self.y를 모델에서 사용한다.
         self.x, self.y =  queue.dequeue()
         self.x.set_shape(self.placeholders[0].shape)
         self.y.set_shape(self.placeholders[1].shape)
