@@ -55,7 +55,9 @@ def main():
             simnet = SimpleNet(train_feeder)  
             i=0
             sess.run(tf.global_variables_initializer())
-            train_feeder.start()
+            train_feeder.start()  # 반드시 있어야됨
+            
+            
             while not coord.should_stop():
                 sess.run(simnet.train_op)
                 i = i+1
@@ -65,19 +67,18 @@ def main():
                     
                 if i>=3000:
                     coord.request_stop()
-                
-#             for step in range(10000):
-#                 if coord.should_stop():
-#                     break
-#                 sess.run(simnet.train_op)
-#                 if step%1000==0:
-#                     print(sess.run(simnet.loss))                
-                
+            """    
+            for step in range(3000):
+                sess.run(simnet.train_op)
+                if step%1000==0:
+                    print(sess.run(simnet.loss))                
+            """ 
         except Exception as e:
             print('Exiting due to exception: %s' % e)
             coord.request_stop(e)
 
         finally:
+            print('finally')
             coord.request_stop()
          
 
