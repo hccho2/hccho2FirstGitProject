@@ -676,6 +676,70 @@ def FC_vs_Conv2d():
 
 
 
+###############################################
+import threading
+import tensorflow as tf
+def basic_queue():
+    
+    mode = 1
+    if mode==1:
+        data_queue = tf.train.string_input_producer(["a.txt","b.txt","c.txt"],shuffle=False)
+    elif mode==2:
+        data_queue = tf.train.input_producer([1.1,2.2,3.33,4.45],shuffle=False)
+        
+        
+    with tf.Session() as sess:
+        coord = tf.train.Coordinator()
+        threads = tf.train.start_queue_runners(coord=coord,sess=sess)
+    
+        for step in range(10):
+    
+            print(sess.run(data_queue.dequeue()) )
+    
+        coord.request_stop()
+        coord.join(threads)
+
+def basic_queue2():
+    
+    mode = 1
+    if mode==1:
+        QUEUE_LENGTH = 20
+        data_queue = tf.FIFOQueue(QUEUE_LENGTH,"float")
+        enq_ops1 = data_queue.enqueue_many(([1.0,2.0,3.0],) )
+        enq_ops2 = data_queue.enqueue_many(([4.0,5.0,6.0],) )
+        enq_ops3 = data_queue.enqueue_many(([6.0,7.0,8.0],) )
+        qr = tf.train.QueueRunner(data_queue,[enq_ops1,enq_ops2,enq_ops3])
+
+    with tf.Session() as sess:
+        coord = tf.train.Coordinator()
+        threads = qr.create_threads(sess, coord=coord, start=True)
+    
+        for step in range(10):
+    
+            print(sess.run(data_queue.dequeue()) )
+    
+        coord.request_stop()
+        coord.join(threads)
+
+def Thread_Example():
+    import sys
+    import threading
+    
+    class DestinationThread(threading.Thread):
+        def __init__(self,target,args,kwargs):
+            super(DestinationThread, self).__init__(target=target, args=args, kwargs=kwargs)
+        def run(self):
+            self._target(*self._args, **self._kwargs)
+    
+    def func(a, k):
+        print("func(): a=%s, k=%s" % (a, k))
+    
+    thread = DestinationThread(target=func, args=(1,), kwargs={"k": 2})
+    thread.start()
+    thread.join()
+
+###############################################
+
 if __name__ == "__main__":   
     test1()
     
