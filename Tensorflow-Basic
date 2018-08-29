@@ -183,7 +183,34 @@ def LogisticRegressionTF4():
     plt.subplot(133)
     plt.plot(total_cost)
     sess.close()  
-
+    
+    
+def sin_fitting():
+    
+    X = np.linspace(0, 15, 301)
+    Y =  np.sin(2*X - 0.1)+ np.random.normal(size=len(X), scale=0.2)
+    X = X.reshape(-1,1)
+    Y= Y.reshape(-1,1)
+    plt.plot(X,Y)
+    
+    x = tf.placeholder(tf.float32, [None,1])
+    y = tf.placeholder(tf.float32, [None,1])
+    
+    L1 = tf.layers.dense(x,units=10, activation = tf.nn.sigmoid,name='L1')
+    L2 = tf.layers.dense(L1,units=10, activation = tf.nn.sigmoid,name='L2')
+    L3 = tf.layers.dense(L2,units=1, activation = None,name='L3')
+    loss = tf.reduce_mean( 0.5*tf.square(L3-y))
+    train = tf.train.AdamOptimizer(learning_rate=0.001).minimize(loss )
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        for j in range(30000):
+            sess.run(train, feed_dict={x: X, y: Y})
+            if j%4000 ==0:
+                loss_ = sess.run(loss, feed_dict={x: X, y: Y})
+                print("{}: loss = {}".format(j,loss_ ))
+    
+        Y_ = sess.run(L3,feed_dict={x:X})
+        plt.plot(X,Y_)
 
 if __name__ == "__main__":
     MultivariateRegressionTF()
