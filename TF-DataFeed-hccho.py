@@ -29,8 +29,10 @@ class DataFeeder(threading.Thread):
         try:
             while not self.coord.should_stop():
                 data_length = len(myDataX)
-                s = np.random.choice(data_length,self.batch_size,replace=False)
-                self.sess.run(self.enqueue_op,feed_dict={self.placeholders[0]: myDataX[s],self.placeholders[1]:myDataY[s]})
+                
+                for _ in range(5): # 필요한 만큼 data를 미리 만들어 놓을 수 있다.
+                    s = np.random.choice(data_length,self.batch_size,replace=False)
+                    self.sess.run(self.enqueue_op,feed_dict={self.placeholders[0]: myDataX[s],self.placeholders[1]:myDataY[s]})
         except Exception as e:
             print('Exiting due to exception: %s' % e)
             self.coord.request_stop(e)            
@@ -67,7 +69,7 @@ def main():
                 if i%1000==0:
                     print(sess.run(simnet.loss))
                     
-                if i>=3000:
+                if i>=8000:
                     coord.request_stop()
             """    
             for step in range(3000):
