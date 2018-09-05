@@ -23,6 +23,8 @@ class Goblin(Unit):
     def show_status(self):
         super(Goblin, self).show_status()
         print('공격 타입: {}'.format(self.attack_type))
+    def __call__(self,x):
+        print("="*x)
         
 goblin_1 = Goblin('병사', 'Small', 100, '근접 공격')
 
@@ -30,7 +32,7 @@ goblin_1.show_status()
 
 goblin_1.f()
 
-
+goblin_1(10)
 
 
 
