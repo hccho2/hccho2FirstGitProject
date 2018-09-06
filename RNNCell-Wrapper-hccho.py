@@ -33,7 +33,7 @@ class MyRnnWrapper(RNNCell):
 
     # zero_state는 반드시 재정의해야 하는 것은 아니다. 필요에 따라...
     def zero_state(self,batch_size,dtype=tf.float32):
-        return tf.ones([batch_size,self.sate_size],dtype)
+        return tf.ones([batch_size,self.sate_size],dtype)  # test 목적으로 1을 넣어 봄
 
 
 
