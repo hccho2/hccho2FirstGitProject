@@ -220,10 +220,10 @@ def attention_multicell_test():
         input_lengths = [20]*batch_size
         # attention mechanism
         attention_mechanism = tf.contrib.seq2seq.BahdanauAttention(num_units=11, memory=encoder_outputs,memory_sequence_length=input_lengths)
-        cell = tf.contrib.seq2seq.AttentionWrapper(cell, attention_mechanism, attention_layer_size=13)
+        cell = tf.contrib.seq2seq.AttentionWrapper(cell, attention_mechanism, attention_layer_size=13)  # AttentionWrapperState를 return한다.
 
 
-        initial_state = cell.zero_state(batch_size, tf.float32) #(batch_size x hidden_dim) x layer 개수 
+        initial_state = cell.zero_state(batch_size, tf.float32) #(batch_size x hidden_dim) x layer 개수   ==> AttentionWrapperState class object를 return한다.
   
         if train_mode:
             helper = tf.contrib.seq2seq.TrainingHelper(inputs, np.array([seq_length]*batch_size))
