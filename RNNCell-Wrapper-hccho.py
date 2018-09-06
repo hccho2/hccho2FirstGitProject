@@ -57,7 +57,7 @@ class MyRnnHelper(Helper):
         return tf.TensorShape([])
 
     def next_inputs(self, time, outputs, state,sample_ids, name=None):
-        finished = (time + 1 >= 7)
+        finished = (time + 1 >= 7)   # finished = (time + 1 >= [7,8,9] )  <---- batch 마다 길이가 다를 수도 있다.
         next_inputs = outputs[:, -self._output_dim:]*2 #test를 위해서 곱하기 2
         return (finished, next_inputs, state)
 
