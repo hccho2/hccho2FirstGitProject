@@ -278,9 +278,9 @@ def attention_multicell_test():
 
             
 if __name__ == '__main__':
-    #dynamic_decode_test()
+    dynamic_decode_test()
     #attention_test()
-    attention_multicell_test()
+    #attention_multicell_test()
     
     print('Done')
 

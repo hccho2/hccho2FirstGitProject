@@ -3,11 +3,12 @@
 import tensorflow as tf
 import numpy as np
 from tensorflow.contrib.rnn import RNNCell
-
+from tensorflow.contrib.seq2seq import Helper
 from tensorflow.python.layers.core import Dense
 
 tf.reset_default_graph()
-
+SOS_token = 0
+EOS_token = 4
 class MyRnnWrapper(RNNCell):
     # property(output_size, state_size) 2개와 call을 정의하면 된다.
     def __init__(self,name,hidden_dim):
@@ -36,12 +37,44 @@ class MyRnnWrapper(RNNCell):
         return tf.ones([batch_size,self.sate_size],dtype)  # test 목적으로 1을 넣어 봄
 
 
+class MyRnnHelper(Helper):
+    # property(batch_size,sample_ids_dtype,sample_ids_shape)이 정의되어야 하고, initialize,sample,next_inputs이 정의되어야 한다.
+    def __init__(self,embedding,batch_size,output_dim):
+        self._embedding = embedding
+        self._batch_size = batch_size
+        self._output_dim = output_dim
+
+    @property
+    def batch_size(self):
+        return self._batch_size
+
+    @property
+    def sample_ids_dtype(self):
+        return tf.int32
+
+    @property
+    def sample_ids_shape(self):
+        return tf.TensorShape([])
+
+    def next_inputs(self, time, outputs, state,sample_ids, name=None):
+        finished = (time + 1 >= 7)
+        next_inputs = outputs[:, -self._output_dim:]*2
+        return (finished, next_inputs, state)
+
+    def initialize(self, name=None):
+        # 시작하는 input을 정의한다.
+        # return finished, first_inputs. finished는 시작이니까, 무조건 False
+        # first_inputs는 예를 위해서, SOS_token으로 만들어 보았다.
+        return (tf.tile([False], [self._batch_size]), tf.nn.embedding_lookup(self._embedding,tf.tile([SOS_token], [self._batch_size])))  
+
+    def sample(self, time, outputs, state, name=None):
+        return tf.tile([0], [self._batch_size])  # Return all 0; we ignore them
+
+
+
 
 def wapper_test():
     vocab_size = 5
-    SOS_token = 0
-    EOS_token = 4
-    
     x_data = np.array([[SOS_token, 3, 1, 2, 3, 2],[SOS_token, 3, 1, 2, 3, 1],[SOS_token, 1, 3, 2, 2, 1]], dtype=np.int32)
     y_data = np.array([[1,2,0,3,2,EOS_token],[3,2,3,3,1,EOS_token],[3,1,1,2,0,EOS_token]],dtype=np.int32)
     print("data shape: ", x_data.shape)
@@ -55,7 +88,7 @@ def wapper_test():
     
     init = np.arange(vocab_size*embedding_dim).reshape(vocab_size,-1)
     
-    train_mode = True
+    train_mode = False
     with tf.variable_scope('test') as scope:
         # Make rnn
         cell = MyRnnWrapper("xxx",hidden_dim)
@@ -72,7 +105,8 @@ def wapper_test():
         if train_mode:
             helper = tf.contrib.seq2seq.TrainingHelper(inputs, np.array([seq_length]*batch_size))
         else:
-            helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(embedding, start_tokens=tf.tile([SOS_token], [batch_size]), end_token=EOS_token)
+            #helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(embedding, start_tokens=tf.tile([SOS_token], [batch_size]), end_token=EOS_token)
+            helper = MyRnnHelper(embedding,batch_size,embedding_dim)
     
         #output_layer = Dense(output_dim, name='output_projection')
         decoder = tf.contrib.seq2seq.BasicDecoder(cell=cell,helper=helper,initial_state=initial_state,output_layer=None)    
