@@ -170,7 +170,7 @@ def attention_test():
      <tf.Variable 'test/embedding:0' shape=(5, 8) dtype=float32_ref>,
      <tf.Variable 'test/memory_layer/kernel:0' shape=(30, 11) dtype=float32_ref>,                                             Wm
      <tf.Variable 'test/decoder/attention_wrapper/bahdanau_attention/query_layer/kernel:0' shape=(6, 11) dtype=float32_ref>,  Wq
-     <tf.Variable 'test/decoder/attention_wrapper/bahdanau_attention/attention_v:0' shape=(11,) dtype=float32_ref>,
+     <tf.Variable 'test/decoder/attention_wrapper/bahdanau_attention/attention_v:0' shape=(11,) dtype=float32_ref>,           va(attention)
      <tf.Variable 'test/decoder/attention_wrapper/basic_rnn_cell/kernel:0' shape=(27, 6) dtype=float32_ref>,
      <tf.Variable 'test/decoder/attention_wrapper/basic_rnn_cell/bias:0' shape=(6,) dtype=float32_ref>,
      <tf.Variable 'test/decoder/attention_wrapper/attention_layer/kernel:0' shape=(36, 13) dtype=float32_ref>,    Wa
@@ -264,7 +264,7 @@ def attention_multicell_test():
      <tf.Variable 'test/embedding:0' shape=(5, 8) dtype=float32_ref>,
      <tf.Variable 'test/memory_layer/kernel:0' shape=(30, 11) dtype=float32_ref>,
      <tf.Variable 'test/decoder/attention_wrapper/bahdanau_attention/query_layer/kernel:0' shape=(6, 11) dtype=float32_ref>,
-     <tf.Variable 'test/decoder/attention_wrapper/bahdanau_attention/attention_v:0' shape=(11,) dtype=float32_ref>,
+     <tf.Variable 'test/decoder/attention_wrapper/bahdanau_attention/attention_v:0' shape=(11,) dtype=float32_ref>,                           va(attention)
      <tf.Variable 'test/decoder/attention_wrapper/multi_rnn_cell/cell_0/basic_rnn_cell/kernel:0' shape=(27, 6) dtype=float32_ref>,
      <tf.Variable 'test/decoder/attention_wrapper/multi_rnn_cell/cell_0/basic_rnn_cell/bias:0' shape=(6,) dtype=float32_ref>,
      <tf.Variable 'test/decoder/attention_wrapper/multi_rnn_cell/cell_1/basic_rnn_cell/kernel:0' shape=(12, 6) dtype=float32_ref>,
