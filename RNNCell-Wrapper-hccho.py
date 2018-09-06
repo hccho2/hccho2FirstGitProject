@@ -58,7 +58,7 @@ class MyRnnHelper(Helper):
 
     def next_inputs(self, time, outputs, state,sample_ids, name=None):
         finished = (time + 1 >= 7)
-        next_inputs = outputs[:, -self._output_dim:]*2
+        next_inputs = outputs[:, -self._output_dim:]*2 #test를 위해서 곱하기 2
         return (finished, next_inputs, state)
 
     def initialize(self, name=None):
