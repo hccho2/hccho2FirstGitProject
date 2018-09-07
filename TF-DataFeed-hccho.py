@@ -25,7 +25,7 @@ class DataFeeder(threading.Thread):
         self.x.set_shape(self.placeholders[0].shape)
         self.y.set_shape(self.placeholders[1].shape)
         
-    def run(self):
+    def run(self):  # run이 반드시 정의되어야 한다.
         try:
             while not self.coord.should_stop():
                 data_length = len(myDataX)
