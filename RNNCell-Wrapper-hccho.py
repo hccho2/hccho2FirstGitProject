@@ -87,10 +87,10 @@ class MyRnnHelper(Helper):
     def sample_ids_shape(self):
         return tf.TensorShape([])
 
-    def next_inputs(self, time, outputs, state,sample_ids, name=None):
-        finished = (time + 1 >= 7)
+    def next_inputs(self, time, outputs, state,sample_ids, name=None):   # time+1을 위한 input을 만든다., outputs,state,sample_ids는 time의 결과이다.
+        finished = (time + 1 >= 7)    # finished = (time + 1 >= [7,8,9])
         next_inputs = outputs[:, -self._output_dim:]*2
-        return (finished, next_inputs, state)
+        return (finished, next_inputs, state)  #finished==True이면 next_inputs,state는 의미가 없다.
 
     def initialize(self, name=None):
         # 시작하는 input을 정의한다.
@@ -106,7 +106,7 @@ class MyRnnHelper(Helper):
 
 def wapper_test():
     vocab_size = 5
-    x_data = np.array([[SOS_token, 3, 1, 2, 3, 2],[SOS_token, 3, 1, 2, 3, 1],[SOS_token, 1, 3, 2, 2, 1]], dtype=np.int32)
+    x_data = np.array([[SOS_token, 3, 3, 2, 3, 2],[SOS_token, 3, 1, 2, 3, 1],[SOS_token, 1, 3, 2, 2, 1]], dtype=np.int32)
     y_data = np.array([[1,2,0,3,2,EOS_token],[3,2,3,3,1,EOS_token],[3,1,1,2,0,EOS_token]],dtype=np.int32)
     print("data shape: ", x_data.shape)
     sess = tf.InteractiveSession()
@@ -123,7 +123,7 @@ def wapper_test():
     with tf.variable_scope('test') as scope:
         # Make rnn
         cell = MyRnnWrapper("xxx",hidden_dim)
-        cell = MyRnnWrapper2(tf.contrib.rnn.BasicRNNCell(num_units=hidden_dim),"xxx",hidden_dim)
+        #cell = MyRnnWrapper2(tf.contrib.rnn.BasicRNNCell(num_units=hidden_dim),"xxx",hidden_dim)
     
         embedding = tf.get_variable("embedding", initializer=init.astype(np.float32),dtype = tf.float32)
         inputs = tf.nn.embedding_lookup(embedding, x_data) # batch_size  x seq_length x embedding_dim
@@ -140,7 +140,7 @@ def wapper_test():
             #helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(embedding, start_tokens=tf.tile([SOS_token], [batch_size]), end_token=EOS_token)
             helper = MyRnnHelper(embedding,batch_size,embedding_dim)
     
-        #output_layer = Dense(output_dim, name='output_projection')
+        output_layer = Dense(output_dim, name='output_projection')
         decoder = tf.contrib.seq2seq.BasicDecoder(cell=cell,helper=helper,initial_state=initial_state,output_layer=None)    
         # maximum_iterations를 설정하지 않으면, inference에서 EOS토큰을 만나지 못하면 무한 루프에 빠진다.
         outputs, last_state, last_sequence_lengths = tf.contrib.seq2seq.dynamic_decode(decoder=decoder,output_time_major=False,impute_finished=True,maximum_iterations=10)
@@ -167,7 +167,6 @@ def wapper_test():
 
 if __name__ == "__main__":
     wapper_test()
-
 
 
 
