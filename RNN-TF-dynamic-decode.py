@@ -133,7 +133,9 @@ def attention_test():
         input_lengths = [20]*batch_size
         # attention mechanism
         attention_mechanism = tf.contrib.seq2seq.BahdanauAttention(num_units=11, memory=encoder_outputs,memory_sequence_length=input_lengths)
-        cell = tf.contrib.seq2seq.AttentionWrapper(cell, attention_mechanism, attention_layer_size=13)
+        
+        # output_attention = True(default) ==> 이면 output으로 attention이 나가고, False이면 cell의 output이 나간다
+        cell = tf.contrib.seq2seq.AttentionWrapper(cell, attention_mechanism, attention_layer_size=13,output_attention=True)
 
 
         initial_state = cell.zero_state(batch_size, tf.float32) #(batch_size x hidden_dim) x layer 개수 
@@ -178,9 +180,9 @@ def attention_test():
      <tf.Variable 'test/memory_layer/kernel:0' shape=(30, 11) dtype=float32_ref>,                                             Wm
      <tf.Variable 'test/decoder/attention_wrapper/bahdanau_attention/query_layer/kernel:0' shape=(6, 11) dtype=float32_ref>,  Wq
      <tf.Variable 'test/decoder/attention_wrapper/bahdanau_attention/attention_v:0' shape=(11,) dtype=float32_ref>,           va(attention)
-     <tf.Variable 'test/decoder/attention_wrapper/basic_rnn_cell/kernel:0' shape=(27, 6) dtype=float32_ref>,
+     <tf.Variable 'test/decoder/attention_wrapper/basic_rnn_cell/kernel:0' shape=(27, 6) dtype=float32_ref>,                  27 = embedding_dim(=input dim = 8) + attention_layer_size(13) + hidden_dim(6)
      <tf.Variable 'test/decoder/attention_wrapper/basic_rnn_cell/bias:0' shape=(6,) dtype=float32_ref>,
-     <tf.Variable 'test/decoder/attention_wrapper/attention_layer/kernel:0' shape=(36, 13) dtype=float32_ref>,    Wa
+     <tf.Variable 'test/decoder/attention_wrapper/attention_layer/kernel:0' shape=(36, 13) dtype=float32_ref>,    Wa          36 = encoder hidden_dim(30)+ (decoder) hidden_dim(=6)
      <tf.Variable 'test/decoder/output_projection/kernel:0' shape=(13, 5) dtype=float32_ref>,
      <tf.Variable 'test/decoder/output_projection/bias:0' shape=(5,) dtype=float32_ref>
     
@@ -285,8 +287,8 @@ def attention_multicell_test():
 
             
 if __name__ == '__main__':
-    dynamic_decode_test()
-    #attention_test()
+    #dynamic_decode_test()
+    attention_test()
     #attention_multicell_test()
     
     print('Done')
