@@ -1,5 +1,5 @@
 # coding: utf-8
-
+# user defined Wrapper
 import tensorflow as tf
 import numpy as np
 from tensorflow.contrib.rnn import RNNCell
@@ -37,6 +37,37 @@ class MyRnnWrapper(RNNCell):
         return tf.ones([batch_size,self.sate_size],dtype)  # test 목적으로 1을 넣어 봄
 
 
+class MyRnnWrapper2(RNNCell):
+    # property(output_size, state_size) 2개와 call을 정의하면 된다.
+    # 일반적인 User defined Wrapper는 cell(eg GRUCell)을 입력받아 필요한 작업을 추가하는 방식이다.
+    # 입력받지 않으면, init에서 필요한 cell을 만들면 된다.
+    def __init__(self,cell,name,hidden_dim):
+        super(MyRnnWrapper2, self).__init__(name=name)
+        self.sate_size = hidden_dim
+        self.cell = cell # 
+    @property
+    def output_size(self):
+        return 2 + self.sate_size  # embedding_dim + 
+
+    @property
+    def state_size(self):
+        return self.sate_size  
+
+    # 다음의 call은 내부적으로 __call__과 연결되어 있다.
+    def call(self, inputs, state):
+        # 이 call 함수를 통해 cell과 cell이 연결된다.
+        # input에 필요에 따라, 원하는 작업을 하면 된다.
+        cell_out, cell_state = self.cell(inputs,state)
+        cell_output = tf.concat([inputs,cell_out],axis=-1)
+        next_state = state + 0.11
+        return cell_output, next_state 
+
+
+    # zero_state는 반드시 재정의해야 하는 것은 아니다. 필요에 따라...
+    def zero_state(self,batch_size,dtype=tf.float32):
+        return tf.ones([batch_size,self.sate_size],dtype)  # test 목적으로 1을 넣어 봄
+
+
 class MyRnnHelper(Helper):
     # property(batch_size,sample_ids_dtype,sample_ids_shape)이 정의되어야 하고, initialize,sample,next_inputs이 정의되어야 한다.
     def __init__(self,embedding,batch_size,output_dim):
@@ -57,8 +88,8 @@ class MyRnnHelper(Helper):
         return tf.TensorShape([])
 
     def next_inputs(self, time, outputs, state,sample_ids, name=None):
-        finished = (time + 1 >= 7)   # finished = (time + 1 >= [7,8,9] )  <---- batch 마다 길이가 다를 수도 있다.
-        next_inputs = outputs[:, -self._output_dim:]*2 #test를 위해서 곱하기 2
+        finished = (time + 1 >= 7)
+        next_inputs = outputs[:, -self._output_dim:]*2
         return (finished, next_inputs, state)
 
     def initialize(self, name=None):
@@ -92,6 +123,7 @@ def wapper_test():
     with tf.variable_scope('test') as scope:
         # Make rnn
         cell = MyRnnWrapper("xxx",hidden_dim)
+        cell = MyRnnWrapper2(tf.contrib.rnn.BasicRNNCell(num_units=hidden_dim),"xxx",hidden_dim)
     
         embedding = tf.get_variable("embedding", initializer=init.astype(np.float32),dtype = tf.float32)
         inputs = tf.nn.embedding_lookup(embedding, x_data) # batch_size  x seq_length x embedding_dim
