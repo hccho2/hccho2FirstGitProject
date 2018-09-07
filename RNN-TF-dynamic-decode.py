@@ -45,6 +45,11 @@ def dynamic_decode_test():
     
         Y = tf.convert_to_tensor(y_data)
     
+    
+        # tf.contrib.rnn.OutputProjectionWrapper  마지막에 FC layer를 하나 더 추가하는 효과. 아래에서 적용하는 Dense보다 앞에 적용된다. Dense가 있기 때문에 OutputProjectionWrapper 또는 Dense로 처리 가능함
+        if True:
+            cell = tf.contrib.rnn.OutputProjectionWrapper(cell,13)
+    
         if init_state_flag==0:
              initial_state = cell.zero_state(batch_size, tf.float32) #(batch_size x hidden_dim) x layer 개수 
         else:
