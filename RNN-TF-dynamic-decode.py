@@ -120,6 +120,7 @@ def attention_test():
     init = np.arange(vocab_size*embedding_dim).reshape(vocab_size,-1)
     
     train_mode = True
+    alignment_history_flag = True   # True이면 initial_state나 last state를 sess.run 하면 안됨. alignment_history가 function이기 때문에...
     with tf.variable_scope('test',reuse=tf.AUTO_REUSE) as scope:
         # Make rnn cell
         cell = tf.contrib.rnn.BasicRNNCell(num_units=hidden_dim)
@@ -129,13 +130,15 @@ def attention_test():
     
         Y = tf.convert_to_tensor(y_data)
     
-        encoder_outputs = tf.ones([batch_size,20,30])
+        #encoder_outputs = tf.ones([batch_size,20,30])
+        encoder_outputs = tf.convert_to_tensor(np.random.normal(0,1,[batch_size,20,30]).astype(np.float32))
+        
         input_lengths = [20]*batch_size
         # attention mechanism
-        attention_mechanism = tf.contrib.seq2seq.BahdanauAttention(num_units=11, memory=encoder_outputs,memory_sequence_length=input_lengths)
+        attention_mechanism = tf.contrib.seq2seq.BahdanauAttention(num_units=11, memory=encoder_outputs,memory_sequence_length=input_lengths,normalize=False)
         
         # output_attention = True(default) ==> 이면 output으로 attention이 나가고, False이면 cell의 output이 나간다
-        cell = tf.contrib.seq2seq.AttentionWrapper(cell, attention_mechanism, attention_layer_size=13,output_attention=True)
+        cell = tf.contrib.seq2seq.AttentionWrapper(cell, attention_mechanism, attention_layer_size=13,alignment_history=alignment_history_flag,output_attention=True)
 
 
         initial_state = cell.zero_state(batch_size, tf.float32) #(batch_size x hidden_dim) x layer 개수 
@@ -154,15 +157,34 @@ def attention_test():
         loss =   tf.contrib.seq2seq.sequence_loss(logits=outputs.rnn_output, targets=Y, weights=weights)
      
      
+        
+        
+        opt = tf.train.AdamOptimizer(0.01).minimize(loss)
+        
         sess.run(tf.global_variables_initializer())
-        print("initial_state: ", sess.run(initial_state))
+        for i in range(100):
+            loss_,_ =sess.run([loss,opt])
+            print("{} loss: = {}".format(i,loss_))
+        
+        if alignment_history_flag ==False:
+            print("initial_state: ", sess.run(initial_state))
         print("\n\noutputs: ",outputs)
         o = sess.run(outputs.rnn_output)  #batch_size, seq_length, outputs
         o2 = sess.run(tf.argmax(outputs.rnn_output,axis=-1))
         print("\n",o,o2) #batch_size, seq_length, outputs
      
         print("\n\nlast_state: ",last_state)
-        print(sess.run(last_state)) # batch_size, hidden_dim
+        if alignment_history_flag == False:
+            print(sess.run(last_state)) # batch_size, hidden_dim
+        else:
+            print("alignment_history: ", last_state.alignment_history.stack())
+            print(sess.run(last_state.alignment_history.stack()))
+            print("cell_state: ", sess.run(last_state.cell_state))
+            print("attention: ", sess.run(last_state.attention))
+            print("time: ", sess.run(last_state.time))
+            print("alignments: ", sess.run(last_state.alignments))
+            print("attention_state: ", sess.run(last_state.attention_state))
+
      
         print("\n\nlast_sequence_lengths: ",last_sequence_lengths)
         print(sess.run(last_sequence_lengths)) #  [seq_length]*batch_size    
@@ -208,7 +230,6 @@ def attention_multicell_test():
     seq_length = x_data.shape[1]
     embedding_dim = 8
     state_tuple_mode = True
-
     init = np.arange(vocab_size*embedding_dim).reshape(vocab_size,-1)
     
     train_mode = True
@@ -292,7 +313,6 @@ if __name__ == '__main__':
     #attention_multicell_test()
     
     print('Done')
-
 
 
 
