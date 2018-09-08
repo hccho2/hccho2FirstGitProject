@@ -493,6 +493,8 @@ attention_layer_size=77
 ======================
 # tf.layers.dense 의 input tensor가 3차원일 때:
 # 예: input.shape (2,3,4) x units = 5  ==> (2,3,5)가 만들어지고, weight는 (4,5) size 이다
+# 즉, 4개의 숫자들 간의 계산으로 새로운 5개의 숫자를 만들어낸다. 첫번째, 두번째 index들 간의 계산은 이루어지지 않는다.
+# (batch_size, Time Length, embedding_dim)으로 해석하면, batch나 Time간의 계산은 되지 않고, embedding만 연산된다.
 # https://github.com/tensorflow/tensorflow/issues/8175
 def dense_test():
     tf.reset_default_graph()
@@ -510,7 +512,10 @@ def dense_test():
     w = sess.run(graph.get_tensor_by_name('dense/kernel:0'))
     print(xx)
     print(w)
-	
+
+======================
+
+
 def tf_binary_image()
     import skimage.io as io
     import matplotlib.pyplot as plt
