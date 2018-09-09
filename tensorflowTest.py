@@ -745,6 +745,38 @@ def Thread_Example():
 
 ###############################################
 
+def map_structure_test():
+
+    from tensorflow.python.util import nest
+    
+    def myfunc(inputs, outputs):
+        return nest.map_structure(lambda inp, out: inp + out,inputs+0.0002, outputs)
+    
+    f = lambda inp, out: inp + out
+    a = tf.constant([1.0,2.0])
+    b = tf.constant([100.0,200.0])
+    sess = tf.Session()
+    print(sess.run(a+b))
+    print(sess.run(myfunc(a,b)))
+    print(sess.run(f(a,b)))
+
+###############################################
+
+
+
+
+###############################################
+
+
+###############################################
+
+
+###############################################
+
+
+
+###############################################
+
 if __name__ == "__main__":   
     test1()
     
