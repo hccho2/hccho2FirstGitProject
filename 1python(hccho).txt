@@ -743,7 +743,7 @@ X =sorted(vocab, key=vocab.get, reverse=True)  #내림차순 list
 Y =sorted(vocab, key=vocab.get, reverse=False) #오름차순 list
 =====================================================================================
 
-def change_ont_hot_label(X,n_dim=10):
+def change_one_hot_label(X,n_dim=10):
     T = np.zeros((X.size, n_dim))
     for idx, row in enumerate(T):
         row[X[idx]] = 1
