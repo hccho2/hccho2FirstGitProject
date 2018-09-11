@@ -764,10 +764,17 @@ def map_structure_test():
 # manual gradient update
 
 optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.001)
-gradients, variables = zip(*optimizer.compute_gradients(loss))
+gradients, variables = zip(*optimizer.compute_gradients(loss))  # optimizer.compute_gradients(loss) 가 'list of (gradient, variable) pairs' return하기 때문에 zip으로 
 clipped_gradients, _ = tf.clip_by_global_norm(gradients, 1.0)   # 필요에 따라
 
 optimize = optimizer.apply_gradients(zip(clipped_gradients, variables),global_step=global_step)
+
+또는 
+
+optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.001)
+gradients_variables = optimizer.compute_gradients(loss)) 
+
+optimize = optimizer.apply_gradients(gradients_variables),global_step=global_step)
 
 
 
