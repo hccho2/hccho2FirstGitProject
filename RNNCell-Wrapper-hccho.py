@@ -207,15 +207,14 @@ class BahdanauMonotonicAttention_hccho(_BaseMonotonicAttentionMechanism):
       alignments_bias = tf.get_variable("alignments_bias", shape = (1),dtype=processed_query.dtype, initializer=tf.zeros_initializer())  # hccho
       
       score += score_bias
-    alignments = self._probability_fn(score, state)   #BahdanauAttention에서 _probability_fn = softmax.          그런데, state는 어디에 사용하나???
+    alignments = self._probability_fn(score, state)   #BahdanauAttention에서 _probability_fn = softmax
     
-    # hccho.
+    next_state = alignments   # 다음 alignment 계산에 사용할 state 값
+    # hccho. alignment가 attention 계산에 직접 사용된다.
     alignments = tf.nn.relu(alignments+alignments_bias)
     alignments = alignments/(tf.reduce_sum(alignments,axis=-1,keepdims=True) + 1.0e-12 )  # hccho 수정
     
-    
-    
-    next_state = alignments
+
     return alignments, next_state
 
 
