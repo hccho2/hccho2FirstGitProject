@@ -109,113 +109,113 @@ class MyRnnHelper(Helper):
 
 
 class BahdanauMonotonicAttention_hccho(_BaseMonotonicAttentionMechanism):
-  """Monotonic attention mechanism with Bahadanau-style energy function.
+    """Monotonic attention mechanism with Bahadanau-style energy function.
 
-  This type of attention enforces a monotonic constraint on the attention
-  distributions; that is once the model attends to a given point in the memory
-  it can't attend to any prior points at subsequence output timesteps.  It
-  achieves this by using the _monotonic_probability_fn instead of softmax to
-  construct its attention distributions.  Since the attention scores are passed
-  through a sigmoid, a learnable scalar bias parameter is applied after the
-  score function and before the sigmoid.  Otherwise, it is equivalent to
-  BahdanauAttention.  This approach is proposed in
+    This type of attention enforces a monotonic constraint on the attention
+    distributions; that is once the model attends to a given point in the memory
+    it can't attend to any prior points at subsequence output timesteps.  It
+    achieves this by using the _monotonic_probability_fn instead of softmax to
+    construct its attention distributions.  Since the attention scores are passed
+    through a sigmoid, a learnable scalar bias parameter is applied after the
+    score function and before the sigmoid.  Otherwise, it is equivalent to
+    BahdanauAttention.  This approach is proposed in
 
-  Colin Raffel, Minh-Thang Luong, Peter J. Liu, Ron J. Weiss, Douglas Eck,
-  "Online and Linear-Time Attention by Enforcing Monotonic Alignments."
-  ICML 2017.  https://arxiv.org/abs/1704.00784
-  """
-
-  def __init__(self,
-               num_units,
-               memory,
-               memory_sequence_length=None,
-               normalize=False,
-               score_mask_value=None,
-               sigmoid_noise=0.,
-               sigmoid_noise_seed=None,
-               score_bias_init=0.,
-               mode="parallel",
-               dtype=None,
-               name="BahdanauMonotonicAttentionHccho"):
-    """Construct the Attention mechanism.
-
-    Args:
-      num_units: The depth of the query mechanism.
-      memory: The memory to query; usually the output of an RNN encoder.  This
-        tensor should be shaped `[batch_size, max_time, ...]`.
-      memory_sequence_length (optional): Sequence lengths for the batch entries
-        in memory.  If provided, the memory tensor rows are masked with zeros
-        for values past the respective sequence lengths.
-      normalize: Python boolean.  Whether to normalize the energy term.
-      score_mask_value: (optional): The mask value for score before passing into
-        `probability_fn`. The default is -inf. Only used if
-        `memory_sequence_length` is not None.
-      sigmoid_noise: Standard deviation of pre-sigmoid noise.  See the docstring
-        for `_monotonic_probability_fn` for more information.
-      sigmoid_noise_seed: (optional) Random seed for pre-sigmoid noise.
-      score_bias_init: Initial value for score bias scalar.  It's recommended to
-        initialize this to a negative value when the length of the memory is
-        large.
-      mode: How to compute the attention distribution.  Must be one of
-        'recursive', 'parallel', or 'hard'.  See the docstring for
-        `tf.contrib.seq2seq.monotonic_attention` for more information.
-      dtype: The data type for the query and memory layers of the attention
-        mechanism.
-      name: Name to use when creating ops.
+    Colin Raffel, Minh-Thang Luong, Peter J. Liu, Ron J. Weiss, Douglas Eck,
+    "Online and Linear-Time Attention by Enforcing Monotonic Alignments."
+    ICML 2017.  https://arxiv.org/abs/1704.00784
     """
-    # Set up the monotonic probability fn with supplied parameters
-    if dtype is None:
-      dtype = tf.float32
-    wrapped_probability_fn = functools.partial(
-        _monotonic_probability_fn, sigmoid_noise=sigmoid_noise, mode=mode,
-        seed=sigmoid_noise_seed)
-    super(BahdanauMonotonicAttention_hccho, self).__init__(
-        query_layer=Dense(num_units, name="query_layer", use_bias=False, dtype=dtype),
-        memory_layer=Dense(num_units, name="memory_layer", use_bias=False, dtype=dtype),
-        memory=memory,
-        probability_fn=wrapped_probability_fn,
-        memory_sequence_length=memory_sequence_length,
-        score_mask_value=score_mask_value,
-        name=name)
-    self._num_units = num_units
-    self._normalize = normalize
-    self._name = name
-    self._score_bias_init = score_bias_init
 
-  def __call__(self, query, state):
-    """Score the query based on the keys and values.
+    def __init__(self,
+                 num_units,
+                 memory,
+                 memory_sequence_length=None,
+                 normalize=False,
+                 score_mask_value=None,
+                 sigmoid_noise=0.,
+                 sigmoid_noise_seed=None,
+                 score_bias_init=0.,
+                 mode="parallel",
+                 dtype=None,
+                 name="BahdanauMonotonicAttentionHccho"):
+        """Construct the Attention mechanism.
 
-    Args:
-      query: Tensor of dtype matching `self.values` and shape
-        `[batch_size, query_depth]`.
-      state: Tensor of dtype matching `self.values` and shape
-        `[batch_size, alignments_size]`
-        (`alignments_size` is memory's `max_time`).
+        Args:
+          num_units: The depth of the query mechanism.
+          memory: The memory to query; usually the output of an RNN encoder.  This
+            tensor should be shaped `[batch_size, max_time, ...]`.
+          memory_sequence_length (optional): Sequence lengths for the batch entries
+            in memory.  If provided, the memory tensor rows are masked with zeros
+            for values past the respective sequence lengths.
+          normalize: Python boolean.  Whether to normalize the energy term.
+          score_mask_value: (optional): The mask value for score before passing into
+            `probability_fn`. The default is -inf. Only used if
+            `memory_sequence_length` is not None.
+          sigmoid_noise: Standard deviation of pre-sigmoid noise.  See the docstring
+            for `_monotonic_probability_fn` for more information.
+          sigmoid_noise_seed: (optional) Random seed for pre-sigmoid noise.
+          score_bias_init: Initial value for score bias scalar.  It's recommended to
+            initialize this to a negative value when the length of the memory is
+            large.
+          mode: How to compute the attention distribution.  Must be one of
+            'recursive', 'parallel', or 'hard'.  See the docstring for
+            `tf.contrib.seq2seq.monotonic_attention` for more information.
+          dtype: The data type for the query and memory layers of the attention
+            mechanism.
+          name: Name to use when creating ops.
+        """
+        # Set up the monotonic probability fn with supplied parameters
+        if dtype is None:
+            dtype = tf.float32
+        wrapped_probability_fn = functools.partial(
+            _monotonic_probability_fn, sigmoid_noise=sigmoid_noise, mode=mode,
+            seed=sigmoid_noise_seed)
+        super(BahdanauMonotonicAttention_hccho, self).__init__(
+            query_layer=Dense(num_units, name="query_layer", use_bias=False, dtype=dtype),
+            memory_layer=Dense(num_units, name="memory_layer", use_bias=False, dtype=dtype),
+            memory=memory,
+            probability_fn=wrapped_probability_fn,
+            memory_sequence_length=memory_sequence_length,
+            score_mask_value=score_mask_value,
+            name=name)
+        self._num_units = num_units
+        self._normalize = normalize
+        self._name = name
+        self._score_bias_init = score_bias_init
 
-    Returns:
-      alignments: Tensor of dtype matching `self.values` and shape
-        `[batch_size, alignments_size]` (`alignments_size` is memory's
-        `max_time`).
-    """
-    with tf.variable_scope(
-        None, "bahdanau_monotonic_hccho_attention", [query]):
-      processed_query = self.query_layer(query) if self.query_layer else query
-      score = _bahdanau_score(processed_query, self._keys, self._normalize)     # keys 가 memory임
-      score_bias = tf.get_variable("attention_score_bias", dtype=processed_query.dtype, initializer=self._score_bias_init)
-      
-      #alignments_bias = tf.get_variable("alignments_bias", shape = state.get_shape()[-1],dtype=processed_query.dtype, initializer=tf.zeros_initializer())  # hccho
-      alignments_bias = tf.get_variable("alignments_bias", shape = (1),dtype=processed_query.dtype, initializer=tf.zeros_initializer())  # hccho
-      
-      score += score_bias
-    alignments = self._probability_fn(score, state)   #BahdanauAttention에서 _probability_fn = softmax
-    
-    next_state = alignments   # 다음 alignment 계산에 사용할 state 값
-    # hccho. alignment가 attention 계산에 직접 사용된다.
-    alignments = tf.nn.relu(alignments+alignments_bias)
-    alignments = alignments/(tf.reduce_sum(alignments,axis=-1,keepdims=True) + 1.0e-12 )  # hccho 수정
-    
+    def __call__(self, query, state):
+        """Score the query based on the keys and values.
 
-    return alignments, next_state
+        Args:
+          query: Tensor of dtype matching `self.values` and shape
+            `[batch_size, query_depth]`.
+          state: Tensor of dtype matching `self.values` and shape
+            `[batch_size, alignments_size]`
+            (`alignments_size` is memory's `max_time`).
+
+        Returns:
+          alignments: Tensor of dtype matching `self.values` and shape
+            `[batch_size, alignments_size]` (`alignments_size` is memory's
+            `max_time`).
+        """
+        with tf.variable_scope(
+            None, "bahdanau_monotonic_hccho_attention", [query]):
+            processed_query = self.query_layer(query) if self.query_layer else query
+            score = _bahdanau_score(processed_query, self._keys, self._normalize)     # keys 가 memory임
+            score_bias = tf.get_variable("attention_score_bias", dtype=processed_query.dtype, initializer=self._score_bias_init)
+
+            #alignments_bias = tf.get_variable("alignments_bias", shape = state.get_shape()[-1],dtype=processed_query.dtype, initializer=tf.zeros_initializer())  # hccho
+            alignments_bias = tf.get_variable("alignments_bias", shape = (1),dtype=processed_query.dtype, initializer=tf.zeros_initializer())  # hccho
+
+            score += score_bias
+        alignments = self._probability_fn(score, state)   #BahdanauAttention에서 _probability_fn = softmax
+
+        next_state = alignments   # 다음 alignment 계산에 사용할 state 값
+        # hccho. alignment가 attention 계산에 직접 사용된다.
+        alignments = tf.nn.relu(alignments+alignments_bias)
+        alignments = alignments/(tf.reduce_sum(alignments,axis=-1,keepdims=True) + 1.0e-12 )  # hccho 수정
+
+
+        return alignments, next_state
 
 
 
@@ -368,6 +368,5 @@ def wapper_attention_test():
 if __name__ == "__main__":
     #wapper_test()
     wapper_attention_test()
-
 
 
