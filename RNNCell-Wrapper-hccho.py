@@ -16,13 +16,23 @@ SOS_token = 0
 EOS_token = 4
 class MyRnnWrapper(RNNCell):
     # property(output_size, state_size) 2개와 call을 정의하면 된다.
-    def __init__(self,name,hidden_dim):
+    def __init__(self,name,state_dim):
         super(MyRnnWrapper, self).__init__(name=name)
-        self.sate_size = hidden_dim
+        self.sate_size = state_dim
+
+    def build(self, inputs_shape):
+        # 필요한 trainable variable이 있으면 여기서 생성하고, self.built = True로 설정하면 된다.
+        # 이곳을 잘 정의하면 BasicRNNCell, GRUCell, BasicLSTMCell같은 것을 만들 수 있다.
+        # 여기서 선언한 Variable들을 아래의 call에서 input, state와 엮어서 필요한 계산을 하면된다.
+        # BasicRNNCell, GRUCell 소스 코드를 보면 그렇데 되어 있다.
+        
+        # helper에서 필요한 정보를 받아서 inputs_shape를 받아오는 것이다.
+        self.inputs_shape = inputs_shape.as_list()
+        self.built = True
 
     @property
     def output_size(self):
-        return 4  # embedding_dim *2
+        return 4  # input_dim *2
 
     @property
     def state_size(self):
@@ -52,7 +62,9 @@ class MyRnnWrapper2(RNNCell):
         self.cell = cell # 
     @property
     def output_size(self):
-        return 2 + self.sate_size  # embedding_dim + 
+        # 아래 call에서 intput과 state를 concat하는 방식이기 때문에, output size는 input dim + state size가 된다. 그런데, input dim을 어떻게 알수 있나?
+        # 이런 경우는 input dim을 알아야 하는 특수한 경우이기 때문에, init에서 input dim을 입력받아야 한다.
+        return 2 + self.sate_size  
 
     @property
     def state_size(self):
@@ -256,8 +268,12 @@ def wapper_test():
             helper = MyRnnHelper(embedding,batch_size,embedding_dim)
     
         output_layer = Dense(output_dim, name='output_projection')
+        
+        #BasicDecoder는 clas
         decoder = tf.contrib.seq2seq.BasicDecoder(cell=cell,helper=helper,initial_state=initial_state,output_layer=output_layer)    
+        
         # maximum_iterations를 설정하지 않으면, inference에서 EOS토큰을 만나지 못하면 무한 루프에 빠진다.
+        # dynamic_decode는 class가 아니고 function임
         outputs, last_state, last_sequence_lengths = tf.contrib.seq2seq.dynamic_decode(decoder=decoder,output_time_major=False,impute_finished=True,maximum_iterations=10)
     
         weights = tf.ones(shape=[batch_size,seq_length])
@@ -366,7 +382,7 @@ def wapper_attention_test():
         print(sess.run(last_sequence_lengths)) #  [seq_length]*batch_size   
 
 if __name__ == "__main__":
-    #wapper_test()
-    wapper_attention_test()
+    wapper_test()
+    #wapper_attention_test()
 
 
