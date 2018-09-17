@@ -563,6 +563,8 @@ def tf_binary_image()
     plt.show()
 
 def TFRecord_reading1():
+    from skimage import io
+    from matplotlib import pyplot as plt
     # tfrecord에서binary data가 저장되어 있는데, tf.image.decode_jpeg로 이용해서 0~255 사이 값으로 변환한다.
     filename = 'D:\\hccho\\CycleGAN-TensorFlow-master\\data\\tfrecords\\apple.tfrecords'
     
