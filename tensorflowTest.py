@@ -1,3 +1,19 @@
+w0= np.array([[[  4,   3,   6,   7],
+     [ -5,   5,   0,  -6],
+     [ -4,   9,  -6,   1]],
+     [[ -7,   1,  -3,  -1],
+      [ -6,  16,  10,  12],
+      [  6,   5,   8, -15]]]).astype(np.float32)
+
+weights1 = tf.get_variable('weights1', shape=w0.shape,initializer=tf.constant_initializer(w0))
+weights3 = tf.get_variable('weights3', initializer=w0)
+weights2 = tf.Variable(w0, name='weights2')
+
+
+
+
+
+
 def get_network_size():
     print ('network size: {:,}'.format(np.sum([np.prod(v.get_shape().as_list()) for v in tf.trainable_variables()])))
 
