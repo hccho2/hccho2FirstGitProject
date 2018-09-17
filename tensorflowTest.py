@@ -648,6 +648,31 @@ def TFRecord_reading2():
     io.imshow(x/127.5 -1.0)
     plt.show()
 
+def TFRecord_reading3():
+    # tf.data.TFRecordDataset 이용하는 방식인데, 위에서 만든 example인 TFRecord_reading1()과 유사
+    filename = 'D:\\hccho\\CycleGAN-TensorFlow-master\\data\\tfrecords\\apple.tfrecords'
+    my_dataset = tf.data.TFRecordDataset(filename)
+    
+    my_dataset = my_dataset.map(mydecode)
+    my_dataset = my_dataset.repeat()
+    my_dataset = my_dataset.shuffle(buffer_size=100)
+    
+    iterator = tf.data.Iterator.from_structure(my_dataset.output_types, my_dataset.output_shapes)
+    init_op = iterator.make_initializer(my_dataset)
+    next_element = iterator.get_next()
+    with tf.Session() as sess:
+        sess.run(init_op)
+        x,y = sess.run(next_element)
+        io.imshow(x)
+        plt.title(y)
+        plt.show()
+    
+        x,y = sess.run(next_element)
+        io.imshow(x)
+        plt.title(y)
+        plt.show()    
+	
+	
 def expand_and_concat():
     tf.reset_default_graph()
     y = tf.placeholder(tf.float32, [100,200,30], 'y')
