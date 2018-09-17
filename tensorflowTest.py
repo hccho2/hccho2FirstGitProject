@@ -5,6 +5,7 @@ w0= np.array([[[  4,   3,   6,   7],
       [ -6,  16,  10,  12],
       [  6,   5,   8, -15]]]).astype(np.float32)
 
+weights0 = tf.get_variable('weights0', shape=w0.shape)
 weights1 = tf.get_variable('weights1', shape=w0.shape,initializer=tf.constant_initializer(w0))
 weights3 = tf.get_variable('weights3', initializer=w0)
 weights2 = tf.Variable(w0, name='weights2')
