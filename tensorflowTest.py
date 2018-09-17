@@ -600,16 +600,21 @@ def TFRecord_reading1():
     
     
     sess.run(tf.global_variables_initializer())
-    a,z=sess.run([images,file_names])
-    b=sess.run(images)
+    a,z=sess.run([images,file_names])   # images, file_names가 쌍으로 
+    b=sess.run(images)                  # images만 사용해도, 내부적으로는 file_names도 소모 
     
     print(a.shape,b.shape)
     print(np.mean([a[0],b[0]],axis=(1,2,3)))
+    print(z)
+    io.imshow(np.concatenate(a,axis=1))
+    plt.show() 
+    ########################
     
+    a,z=sess.run([images,file_names])   # images, file_names가 쌍으로 
     print(z)
     
     io.imshow(np.concatenate(a,axis=1))
-    plt.show()
+    plt.show()  
     
 def TFRecord_reading2():
     # tfrecord에서binary data가 저장되어 있는데, tf.image.decode_jpeg로 이용해서 0~255 사이 값으로 변환한다.
