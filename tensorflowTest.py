@@ -563,9 +563,11 @@ def tf_binary_image()
     plt.show()
 
 def TFRecord_reading1():
+    # tfrecord 파일에 있는 data를 thread에 넣어 놓고 sess.run 할 때마다 뽑아 사용하기
+    # tfrecord에서binary data가 저장되어 있는데, tf.image.decode_jpeg로 이용해서 0~255 사이 값으로 변환한다.
     from skimage import io
     from matplotlib import pyplot as plt
-    # tfrecord에서binary data가 저장되어 있는데, tf.image.decode_jpeg로 이용해서 0~255 사이 값으로 변환한다.
+    
     filename = 'D:\\hccho\\CycleGAN-TensorFlow-master\\data\\tfrecords\\apple.tfrecords'
     
     
@@ -617,6 +619,7 @@ def TFRecord_reading1():
     plt.show()  
     
 def TFRecord_reading2():
+    # tfrecord 파일에서 전체 data 뽑아내기
     # tfrecord에서binary data가 저장되어 있는데, tf.image.decode_jpeg로 이용해서 0~255 사이 값으로 변환한다.
     filename = 'D:\\hccho\\CycleGAN-TensorFlow-master\\data\\tfrecords\\apple.tfrecords'
     record_iterator = tf.python_io.tf_record_iterator(path=filename)
