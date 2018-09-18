@@ -44,6 +44,13 @@ plt.plot(x, y2, label='cos', linestyle='--')
 plt.show()
 plt.close()
 
+# 2개 같이 그리기
+bb, = plt.plot(y1,label='raw')
+bb_, = plt.plot(y2,label='prediction')
+plt.legend(handles=[bb, bb_])
+
+
+
 # Two subplots, the axes array is 1-d
 f, axarr = plt.subplots(2, sharex=True)
 axarr[0].plot(x, y1)
