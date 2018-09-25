@@ -650,6 +650,7 @@ def TFRecord_reading2():
 
 def TFRecord_reading3():
     # tf.data.TFRecordDataset 이용하는 방식인데, 위에서 만든 example인 TFRecord_reading1()과 유사
+    # 이 방식은 Coordinator 없이 iterator를 이용
     filename = 'D:\\hccho\\CycleGAN-TensorFlow-master\\data\\tfrecords\\apple.tfrecords'
     my_dataset = tf.data.TFRecordDataset(filename)
     
@@ -671,6 +672,38 @@ def TFRecord_reading3():
         io.imshow(x)
         plt.title(y)
         plt.show()    
+	
+def shuffle_batch():
+    # shuffle_batch를 이용하는 또 다른 방식
+    # 전체 data를 tf.train.slice_input_producer에 넣어 처리
+    myDataX = np.array([[0,0,1],[0,1,1],[1,0,1],[1,1,1],[0,0,1],[0,1,1],[1,0,1],[1,1,1],[0,0,1],[0,1,1],[1,0,1],[1,1,1]]).astype(np.float32)
+    myDataY = np.array([[0,1,1,1,0,1,1,1,0,1,1,1]]).astype(np.float32).T
+    
+    X = tf.convert_to_tensor(myDataX, tf.float32)
+    Y = tf.convert_to_tensor(myDataY, tf.float32)    
+    
+    # Create Queues
+    input_queues = tf.train.slice_input_producer([X, Y])
+    batch_size= 4
+    x, y = tf.train.shuffle_batch(input_queues,num_threads=8,batch_size=batch_size, capacity=batch_size*64, 
+                                  min_after_dequeue=batch_size*32, allow_smaller_final_batch=False)       
+    
+    
+    with tf.Session() as sess:
+        
+        coord = tf.train.Coordinator()
+        threads = tf.train.start_queue_runners(sess=sess, coord=coord)
+        
+        
+        print(sess.run([x,y]))
+
+        
+        print(sess.run([x,y]))
+
+        coord.request_stop()
+        coord.join(threads)  
+    
+    print('Done')
 	
 	
 def expand_and_concat():
