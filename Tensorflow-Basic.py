@@ -38,6 +38,27 @@ print(var_list)
 print(var_list2)    
 
 ====================================================
+def simple_net():
+    tf.reset_default_graph()
+    X = np.array([[0,0,1],[0,1,1],[1,0,1],[1,1,1],[0,0,1],[0,1,1],[1,0,1],[1,1,1],[0,0,1],[0,1,1],[1,0,1],[1,1,1]]).astype(np.float32)
+    Y = np.array([[0,1,1,1,0,1,1,1,0,1,1,1]]).astype(np.float32).T
+    
+    W = tf.get_variable('weight', dtype=tf.float32,shape=[3,1], initializer=tf.initializers.constant(1))
+    b = tf.get_variable('bias',dtype=tf.float32,shape=[1],initializer=tf.initializers.zeros())
+    Z = tf.matmul(X,W)+b
+    
+    loss = tf.nn.l2_loss(Z-Y)
+    opt = tf.train.AdamOptimizer(0.001).minimize(loss)
+    
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        
+        
+        for step in range(100):
+            _, loss_ = sess.run([opt,loss])
+            print('{}:  loss = {}'.format(step,loss_))
+
+====================================================
 
 # -*- coding: utf-8 -*-
 import tensorflow as tf
