@@ -924,7 +924,7 @@ def test():
             results.append(out)
     print(results)
 def test2():
-    # 단순히 serial하게 처리
+    # 단순히 serial하게 처리. cpu process 1개만 사용.
     for item in tqdm(items, total=len(items), desc="Prime Check"):
         isPrime2(item)
 
