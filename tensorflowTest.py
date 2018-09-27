@@ -864,6 +864,17 @@ optimize = optimizer.apply_gradients(gradients_variables),global_step=global_ste
 
 
 ###############################################
+import tensorflow as tf
+pred=tf.placeholder(dtype=tf.bool,name='bool')
+cond = tf.constant([[1,-1],[-2,3]])
+x = tf.constant([[10,20],[30,40]])
+y = tf.constant([[-10,-20],[-30,-400]])
+z = tf.where(tf.less(cond,0),x,y)
+sess = tf.Session()
+print(sess.run(z))
+
+[[ -10   20]
+ [  30 -400]]
 
 
 ###############################################
