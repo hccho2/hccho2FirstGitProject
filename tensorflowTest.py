@@ -869,12 +869,17 @@ pred=tf.placeholder(dtype=tf.bool,name='bool')
 cond = tf.constant([[1,-1],[-2,3]])
 x = tf.constant([[10,20],[30,40]])
 y = tf.constant([[-10,-20],[-30,-400]])
-z = tf.where(tf.less(cond,0),x,y)
+z1 = tf.where(tf.less(cond,0),x,y) # 조건식에 array가 오고, elementwise 계산된다.
+z2 = tf.cond(tf.less(-1,0),lambda : x, lambda : y)  # 조건식에 scalar 값
 sess = tf.Session()
-print(sess.run(z))
+print(sess.run(z1))
+print(sess.run(z2))
+
 
 [[ -10   20]
  [  30 -400]]
+[[10 20]
+ [30 40]]
 
 
 ###############################################
