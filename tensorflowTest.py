@@ -883,7 +883,21 @@ print(sess.run(z2))
 
 
 ###############################################
+def recurrence(last_output, current_input):
+    # 이 함수의 return 갯수는 last_output의 len과 같고, initalizer의 length와도 일치해야 한다.
+    return (last_output[1], last_output[0] + last_output[1])
+N = tf.placeholder(tf.int32, shape=(), name='N')
+fibonacci = tf.scan(fn=recurrence,elems=tf.range(N), initializer=(10,37) )
+with tf.Session() as session:
+    o_val = session.run(fibonacci, feed_dict={N: 8})
+    print("output:", o_val)
+"""    
+last_output = (10,37), current_input = 0  ==> (37,47)
 
+last_output = (37,47), current_input = 1  ==> (47,84)
+
+last_output = (47,84), current_input = 2  ==> (84,131)
+"""
 
 ###############################################
 
