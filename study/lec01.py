@@ -40,9 +40,9 @@ def MultivariateRegression():
     b = np.zeros(1)
     
     for step in range(2001):
-        temp = 2*(np.dot(A,W)+b - B)/N_Data
-        W -= learning_rate * np.dot(A.T, temp)
-        b -= learning_rate * np.sum(temp,axis=0)
+        temp = 2*(np.dot(A,W)+b - B)/N_Data  # (5,1)
+        W -= learning_rate * np.dot(A.T, temp)  # (3,5)x(5,1) ==> (3,1)
+        b -= learning_rate * np.sum(temp,axis=0) # (5,1) ==> (1)
         
     print("W,b: ", W, b) 
     print("Cost: ", np.mean((np.dot(A,W)+b -B)**2))
@@ -51,11 +51,9 @@ def MultivariateRegression():
     bb, = plt.plot(B,label='raw')
     bb_, = plt.plot(B_,label='prediction')
     plt.legend(handles=[bb, bb_])
-    
+    plt.show()
     
 def MultivariateRegressionTF():
-
-
     # placeholders for a tensor that will be always fed.
     X = tf.placeholder(tf.float32, shape=[None, 3])
     Y = tf.placeholder(tf.float32, shape=[None, 1])
@@ -65,6 +63,11 @@ def MultivariateRegressionTF():
     
     W = tf.Variable(tf.ones([3, 1]), name='weight')
     b = tf.Variable(tf.zeros([1]), name='bias')  
+    
+#     W = tf.get_variable( name='weight',shape=[3,1],initializer=tf.initializers.random_normal())
+#     b = tf.get_variable( name='bias',shape=[1],initializer=tf.initializers.zeros())
+    
+    
     # Hypothesis
     hypothesis = tf.matmul(X, W) + b
     
@@ -89,13 +92,16 @@ def MultivariateRegressionTF():
 
     print("W, b ", sess.run([W,b]))
     print("Cost: ", sess.run(cost,feed_dict={X: A, Y: B}))
-    print("Prediction: ", sess.run(hypothesis,feed_dict={X: A, Y: B}))
+    print("Prediction: ", sess.run(hypothesis,feed_dict={X: A}))  # Y에 대한 feed가 필요없음
     
-    print(tf.global_variables())
+    #print(tf.global_variables())
     
+    # 새로운 data에 대한 predict(inference)
+    new_data = [[90,91,92]]
+    print("Prediction for new data: {} --->".format(new_data), sess.run(hypothesis,feed_dict={X: new_data}).T)  # Y에 대한 feed가 필요없음
     
-    
-def MultivariateRegressionTF2():    
+def MultivariateRegressionTF2():   
+    # variable 선언없이 dense를 활용 
     X = tf.placeholder(tf.float32, shape=[None, 3])
     Y = tf.placeholder(tf.float32, shape=[None, 1])    
     
@@ -115,9 +121,9 @@ def MultivariateRegressionTF2():
 
 
     print("Cost: ", sess.run(cost,feed_dict={X: A, Y: B}))
-    print("Prediction: ", sess.run(hypothesis,feed_dict={X: A, Y: B}).T)
+    print("Prediction: ", sess.run(hypothesis,feed_dict={X: A}).T)  # Y에 대한 feed가 필요없음
  
-    
+
     
     
 def MNIST(): 
@@ -142,6 +148,6 @@ def MNIST():
     
 if __name__ == "__main__":    
     #MultivariateRegression()
-    #MultivariateRegressionTF()
+    MultivariateRegressionTF()
     #MultivariateRegressionTF2()
-    MNIST()
+    #MNIST()
