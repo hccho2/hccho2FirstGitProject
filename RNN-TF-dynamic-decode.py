@@ -131,13 +131,21 @@ def attention_test():
         Y = tf.convert_to_tensor(y_data)
     
         #encoder_outputs = tf.ones([batch_size,20,30])
-        encoder_outputs = tf.convert_to_tensor(np.random.normal(0,1,[batch_size,20,30]).astype(np.float32))  # 20: encoder sequence length, 30: encoder hidden dim
+        encoder_outputs = tf.convert_to_tensor(np.random.normal(0,1,[batch_size,20,30]).astype(np.float32)) # 20: encoder sequence length, 30: encoder hidden dim
         
         input_lengths = [20]*batch_size
-        # attention mechanism
-        attention_mechanism = tf.contrib.seq2seq.BahdanauAttention(num_units=11, memory=encoder_outputs,memory_sequence_length=input_lengths,normalize=False)
+        
+        
+        # attention mechanism  # num_units = Na = 11
+        #attention_mechanism = tf.contrib.seq2seq.BahdanauAttention(num_units=11, memory=encoder_outputs,memory_sequence_length=input_lengths,normalize=False)
+        #attention_mechanism = tf.contrib.seq2seq.BahdanauMonotonicAttention(num_units=11, memory=encoder_outputs,memory_sequence_length=input_lengths)
+        
+        # LuongAttention에서는 num_units이 임의로 들어가면 안되고, decoder의 hidden_dim과 일치해야 한다
+        attention_mechanism = tf.contrib.seq2seq.LuongAttention(num_units=hidden_dim, memory=encoder_outputs,memory_sequence_length=input_lengths)
+        
         
         # output_attention = True(default) ==> 이면 output으로 attention이 나가고, False이면 cell의 output이 나간다
+        # attention_layer_size = N_l
         cell = tf.contrib.seq2seq.AttentionWrapper(cell, attention_mechanism, attention_layer_size=13,alignment_history=alignment_history_flag,output_attention=True)
 
 
@@ -202,7 +210,7 @@ def attention_test():
      <tf.Variable 'test/memory_layer/kernel:0' shape=(30, 11) dtype=float32_ref>,                                             Wm
      <tf.Variable 'test/decoder/attention_wrapper/bahdanau_attention/query_layer/kernel:0' shape=(6, 11) dtype=float32_ref>,  Wq
      <tf.Variable 'test/decoder/attention_wrapper/bahdanau_attention/attention_v:0' shape=(11,) dtype=float32_ref>,           va(attention)
-     <tf.Variable 'test/decoder/attention_wrapper/basic_rnn_cell/kernel:0' shape=(27, 6) dtype=float32_ref>,                  27 = embedding_dim(=input dim = 8) + attention_layer_size(13) + hidden_dim(6)
+     <tf.Variable 'test/decoder/attention_wrapper/basic_rnn_cell/kernel:0' shape=(27, 6) dtype=float32_ref>,                  27 = embedding_dim(=input dim = 8) + attention_layer_size(N_l=13) + hidden_dim(6)
      <tf.Variable 'test/decoder/attention_wrapper/basic_rnn_cell/bias:0' shape=(6,) dtype=float32_ref>,
      <tf.Variable 'test/decoder/attention_wrapper/attention_layer/kernel:0' shape=(36, 13) dtype=float32_ref>,    Wa          36 = encoder hidden_dim(30)+ (decoder) hidden_dim(=6)
      <tf.Variable 'test/decoder/output_projection/kernel:0' shape=(13, 5) dtype=float32_ref>,
