@@ -48,7 +48,14 @@ plt.close()
 bb, = plt.plot(y1,label='raw')
 bb_, = plt.plot(y2,label='prediction')
 plt.legend(handles=[bb, bb_])
+####################################################
 
+import numpy as np
+import matplotlib.pyplot as plt
+A = np.arange(20).reshape(4,-1)
+plt.plot(np.arange(4),A) # A: (n=4,m) --> column방향의 data에 대해서 graph를 m개 그린다.
+plt.plot(np.arange(4),A[:,:2])  #  graph를 2개 그린다
+####################################################
 
 
 # Two subplots, the axes array is 1-d
