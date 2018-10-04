@@ -649,6 +649,23 @@ def TFRecord_reading2():
     plt.show()
 
 def TFRecord_reading3():
+    import skimage.io as io
+    import matplotlib.pyplot as plt
+    def mydecode(serialized_example):
+        features = tf.parse_single_example(serialized_example, features={'image/file_name': tf.FixedLenFeature([], tf.string), 'image/encoded_image': tf.FixedLenFeature([], tf.string),})
+        
+        
+        image_buffer = features['image/encoded_image']
+        file_name_buffer = features['image/file_name']
+        image = tf.image.decode_jpeg(image_buffer, channels=3)
+        image = tf.image.resize_images(image, size=(256, 256))
+        
+        image = tf.image.convert_image_dtype(image, dtype=tf.float32)
+        image = image/127.5 -1.0
+        
+        image.set_shape([256, 256, 3])
+        return image,file_name_buffer
+	
     # tf.data.TFRecordDataset 이용하는 방식인데, 위에서 만든 example인 TFRecord_reading1()과 유사
     # 이 방식은 Coordinator 없이 iterator를 이용
     filename = 'D:\\hccho\\CycleGAN-TensorFlow-master\\data\\tfrecords\\apple.tfrecords'
