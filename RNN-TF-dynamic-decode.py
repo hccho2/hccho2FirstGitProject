@@ -133,15 +133,15 @@ def attention_test():
         #encoder_outputs = tf.ones([batch_size,20,30])
         encoder_outputs = tf.convert_to_tensor(np.random.normal(0,1,[batch_size,20,30]).astype(np.float32)) # 20: encoder sequence length, 30: encoder hidden dim
         
-        input_lengths = [20]*batch_size
-        
+        #input_lengths = [20]*batch_size
+        input_lengths = [5,10,20]  # encoder에 padding 같은 것이 있을 경우, attention을 주지 않기 위해
         
         # attention mechanism  # num_units = Na = 11
-        #attention_mechanism = tf.contrib.seq2seq.BahdanauAttention(num_units=11, memory=encoder_outputs,memory_sequence_length=input_lengths,normalize=False)
+        attention_mechanism = tf.contrib.seq2seq.BahdanauAttention(num_units=11, memory=encoder_outputs,memory_sequence_length=input_lengths,normalize=False)
         #attention_mechanism = tf.contrib.seq2seq.BahdanauMonotonicAttention(num_units=11, memory=encoder_outputs,memory_sequence_length=input_lengths)
         
         # LuongAttention에서는 num_units이 임의로 들어가면 안되고, decoder의 hidden_dim과 일치해야 한다
-        attention_mechanism = tf.contrib.seq2seq.LuongAttention(num_units=hidden_dim, memory=encoder_outputs,memory_sequence_length=input_lengths)
+        #attention_mechanism = tf.contrib.seq2seq.LuongAttention(num_units=hidden_dim, memory=encoder_outputs,memory_sequence_length=input_lengths)
         
         
         # output_attention = True(default) ==> 이면 output으로 attention이 나가고, False이면 cell의 output이 나간다
@@ -186,11 +186,17 @@ def attention_test():
             print(sess.run(last_state)) # batch_size, hidden_dim
         else:
             print("alignment_history: ", last_state.alignment_history.stack())
-            print(sess.run(last_state.alignment_history.stack()))
+            alignment_history_ = sess.run(last_state.alignment_history.stack())
+            print(alignment_history_)
+            print("alignment_history sum: ",np.sum(alignment_history_,axis=-1))
+            
             print("cell_state: ", sess.run(last_state.cell_state))
             print("attention: ", sess.run(last_state.attention))
             print("time: ", sess.run(last_state.time))
-            print("alignments: ", sess.run(last_state.alignments))
+            
+            alignments_ = sess.run(last_state.alignments)
+            print("alignments: ", alignments_)
+            print('alignments sum: ', np.sum(alignments_,axis=1))   # alignments의 합이 1인지 확인
             print("attention_state: ", sess.run(last_state.attention_state))
 
      
