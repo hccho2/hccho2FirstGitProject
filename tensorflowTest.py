@@ -848,11 +848,11 @@ def Thread_Example():
 ###############################################
 
 def map_structure_test():
-
     from tensorflow.python.util import nest
     
     def myfunc(inputs, outputs):
-        return nest.map_structure(lambda inp, out: inp + out,inputs+0.0002, outputs)
+        # map_structure: 아래 예에서 inputs+0.00099 --> lambda의 inp에 전달, outputs/10.0 --> lambda의 out에 전달된다.
+        return nest.map_structure(lambda inp, out: inp + out,inputs+0.00099, outputs/10.0)
     
     f = lambda inp, out: inp + out
     a = tf.constant([1.0,2.0])
@@ -861,6 +861,10 @@ def map_structure_test():
     print(sess.run(a+b))
     print(sess.run(myfunc(a,b)))
     print(sess.run(f(a,b)))
+    
+    [101. 202.]
+    [11.00099 22.00099]
+    [101. 202.]
 
 ###############################################
 # manual gradient update
