@@ -17,7 +17,7 @@ class DataFeeder(threading.Thread):
         
         self.placeholders = [tf.placeholder(tf.float32, [None,3]), tf.placeholder(tf.float32, [None,1])  ] # 여기에 data를 넣어준다.
         queue = tf.FIFOQueue(capacity=8, dtypes=[tf.float32,tf.float32], name='input_queue')
-        self.enqueue_op = queue.enqueue(self.placeholders)
+        self.enqueue_op = queue.enqueue(self.placeholders)   # run함수에서 sess.run(self.enqueue_op) 해야하면, feed_dict로 self.placeholders에 data를 넘겨야 한다.
         
         
         # 다음의 self.x, self.y를 모델에서 사용한다.
