@@ -928,7 +928,7 @@ sess = tf.Session()
 lr = 0.01
 w = tf.get_variable("test", [1], dtype=tf.float32)
 
-global_step = tf.Variable(0, name='global_step', trainable=False)
+global_step = tf.Variable(5, name='global_step', trainable=False)  # 초기값에 5을 넣으면, 5에서 출발함.
 
 # decayed_learning_rate = learning_rate * decay_rate ^ (global_step / decay_steps)
 lr = tf.train.exponential_decay(lr, global_step=global_step, decay_steps = 1000, decay_rate = 0.95)  # global_step이 1000이 될때, lr*0.95에 도달하는 속도로 감소
