@@ -921,11 +921,38 @@ last_output = (47,84), current_input = 2  ==> (84,131)
 """
 
 ###############################################
+# global_step & exponential_decay
+result = []
+sess = tf.Session()
+
+lr = 0.01
+w = tf.get_variable("test", [1], dtype=tf.float32)
+
+global_step = tf.Variable(0, name='global_step', trainable=False)
+
+# decayed_learning_rate = learning_rate * decay_rate ^ (global_step / decay_steps)
+lr = tf.train.exponential_decay(lr, global_step=global_step, decay_steps = 1000, decay_rate = 0.95)  # global_step이 1000이 될때, lr*0.95에 도달하는 속도로 감소
+
+optimizer = tf.train.AdamOptimizer(lr).minimize(tf.abs(w),global_step=global_step)
+sess.run(tf.global_variables_initializer())
+for i in range(40000):
+    _, lr_ = sess.run([optimizer, lr])
+    result.append(lr_)
+print(sess.run(global_step))
+plt.plot(result)
+
+
+###############################################
 
 
 
 ###############################################
 
+
+###############################################
+
+
+###############################################
 if __name__ == "__main__":   
     test1()
     
