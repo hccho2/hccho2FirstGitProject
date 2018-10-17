@@ -146,10 +146,12 @@ def attention_test():
         
         # output_attention = True(default) ==> 이면 output으로 attention이 나가고, False이면 cell의 output이 나간다
         # attention_layer_size = N_l
-        cell = tf.contrib.seq2seq.AttentionWrapper(cell, attention_mechanism, attention_layer_size=13,alignment_history=alignment_history_flag,output_attention=True)
+        attention_initial_state = cell.zero_state(batch_size, tf.float32)
+        cell = tf.contrib.seq2seq.AttentionWrapper(cell, attention_mechanism, attention_layer_size=13,initial_cell_state=attention_initial_state,
+                                                   alignment_history=alignment_history_flag,output_attention=True)
 
-
-        initial_state = cell.zero_state(batch_size, tf.float32) #(batch_size x hidden_dim) x layer 개수 
+        # 여기서 zero_state를 부르면, 위의 attentionwrapper에서 넝허준 attention_initial_state를 가져온다. 즉, AttentionWrapperState.cell_state에는 넣어준 값이 들어있다.
+        initial_state = cell.zero_state(batch_size, tf.float32) # AttentionWrapperState
  
         if train_mode:
             helper = tf.contrib.seq2seq.TrainingHelper(inputs, np.array([seq_length]*batch_size))
