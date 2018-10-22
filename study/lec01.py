@@ -19,6 +19,8 @@ A = np.array(a)
 A.shape
 np.argmax(A)
 np.argmax(A,1)
+A = np.concatenate((np.ones((A.shape[0],1)),A), axis=1)
+A = np.insert(A,0,np.ones(A.shape[0]),axis=1)
 """
 
 
@@ -39,7 +41,7 @@ def MultivariateRegression():
     W = np.ones((3,1))
     b = np.zeros(1)
     
-    for step in range(2001):
+    for step in range(2000):
         temp = 2*(np.dot(A,W)+b - B)/N_Data  # (5,1)
         W -= learning_rate * np.dot(A.T, temp)  # (3,5)x(5,1) ==> (3,1)
         b -= learning_rate * np.sum(temp,axis=0) # (5,1) ==> (1)
@@ -83,7 +85,7 @@ def MultivariateRegressionTF():
     # Initializes global variables in the graph.
     sess.run(tf.global_variables_initializer())
     
-    for step in range(2001):
+    for step in range(2000):
         cost_val, hy_val, _ = sess.run(
             [cost, hypothesis, train], feed_dict={X: A, Y: B})
         if step % 500 == 0:
@@ -147,7 +149,7 @@ def MNIST():
     print('Done')
     
 if __name__ == "__main__":    
-    #MultivariateRegression()
-    MultivariateRegressionTF()
+    MultivariateRegression()
+    #MultivariateRegressionTF()
     #MultivariateRegressionTF2()
     #MNIST()
