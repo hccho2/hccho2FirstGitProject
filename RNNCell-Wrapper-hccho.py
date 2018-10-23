@@ -74,7 +74,8 @@ class MyRnnWrapper2(RNNCell):
     def call(self, inputs, state):
         # 이 call 함수를 통해 cell과 cell이 연결된다.
         # input에 필요에 따라, 원하는 작업을 하면 된다.
-        cell_out, cell_state = self.cell(inputs,state)
+        fc_outputs = tf.layers.dense(inputs,units=10,name='myFC')
+        cell_out, cell_state = self.cell(fc_outputs,state)
         cell_output = tf.concat([inputs,cell_out],axis=-1)
         next_state = state + 0.11
         return cell_output, next_state 
