@@ -42,9 +42,11 @@ def MultivariateRegressionTF():
     X = tf.placeholder(tf.float32, shape=[None, 3])
     Y = tf.placeholder(tf.float32, shape=[None, 1])
     
-    W = tf.Variable(tf.random_normal([3, 1]), name='weight')
-    b = tf.Variable(tf.random_normal([1]), name='bias')
+#    W = tf.Variable(tf.random_normal([3, 1]), name='weight')
+#    b = tf.Variable(tf.random_normal([1]), name='bias')
     
+    W = tf.Variable(tf.zeros([3, 1]), name='weight')
+    b = tf.Variable(tf.zeros([1]), name='bias')  
     # Hypothesis
     hypothesis = tf.matmul(X, W) + b
     
@@ -60,7 +62,7 @@ def MultivariateRegressionTF():
     # Initializes global variables in the graph.
     sess.run(tf.global_variables_initializer())
     
-    for step in range(2001):
+    for step in range(200001):
         cost_val, hy_val, _ = sess.run(
             [cost, hypothesis, train], feed_dict={X: A, Y: B})
         if step % 500 == 0:

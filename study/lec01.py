@@ -132,8 +132,8 @@ def MNIST():
     from tensorflow.examples.tutorials.mnist import input_data
     import skimage.io
     #tf.set_random_seed(1234)
-    mnist = input_data.read_data_sets(".\\mnist", one_hot=False)
-    
+    mnist = input_data.read_data_sets(".\\mnist", one_hot=False)   #mnist.train.images, mnist.test.labels
+    print(mnist.train.labels.shape)
     batch_size = 5
     # mnist.validation.num_examples <---5000, mnist.train.num_examples <---- 55000, mnist.test.num_examples <---- 10000
     print("# of train data", mnist.train.num_examples)
@@ -149,7 +149,7 @@ def MNIST():
     print('Done')
     
 if __name__ == "__main__":    
-    MultivariateRegression()
+    #MultivariateRegression()
     #MultivariateRegressionTF()
     #MultivariateRegressionTF2()
-    #MNIST()
+    MNIST()

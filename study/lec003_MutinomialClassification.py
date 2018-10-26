@@ -80,9 +80,6 @@ def MultinomialClassification():
 
     prediction = np.argmax(softmax(np.dot(A,W)),axis=1)
     acc = np.mean(1*(prediction==B.flatten()))
-    
-    plt.plot(total_cost)
-
     print("Accuracy for Training Data: ", acc)
     
     prediction = np.argmax(softmax(np.dot(mydata_test[:,0:-1],W)),axis=1)
@@ -90,7 +87,9 @@ def MultinomialClassification():
     print("Accuracy for Test Data: ", acc)
     
     print(mydata_test, prediction)
-
+    plt.plot(total_cost)
+    
+    
 def MultinomialClassificationTF():
     learning_rate=1e-3
     N_Data = A.shape[0]
