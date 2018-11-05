@@ -29,6 +29,29 @@ B = AA[:,-1].reshape(-1,1)  # AA[:,2:3]
 
 plt.scatter(A[:, 0], A[:, 1], c=B,marker=">")
 
+
+#scatter with values
+y = [2.56422, 3.77284, 3.52623, 3.51468, 3.02199]
+z = [0.15, 0.3, 0.45, 0.6, 0.75]
+x = [1,0,0,0,1]
+n = [58, 651, 393, 203, 123]
+
+fig, ax = plt.subplots()
+ax.scatter(z, y,c=x)
+
+for i, txt in enumerate(n):
+    ax.annotate(txt, (z[i], y[i]))
+
+#plot with values
+x=[1,2,3]
+y=[9,8,7]
+
+plt.plot(x,y)
+for a,b in zip(x, y): 
+    plt.text(a, b, str(b))
+plt.show() 
+  
+
 # 하나씩 그리기
 plt.plot(x, y1, label='sin')
 plt.show()
