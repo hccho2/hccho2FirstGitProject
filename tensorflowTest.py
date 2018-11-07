@@ -943,7 +943,73 @@ plt.plot(result)
 
 
 ###############################################
-
+def dilation_conv_compare():
+    """
+    https://github.com/ibab/tensorflow-wavenet  의 dilation convolution 구현과
+    tensorflow의 tf.layers.conv1d에서 dilation_rate을 지정했을 때와 비교
+    ==> 결론: 일치함.
+    
+    
+    """
+    def time_to_batch(value, dilation, name=None):
+        with tf.name_scope('time_to_batch'):
+            shape = tf.shape(value)
+            pad_elements = dilation - 1 - (shape[1] + dilation - 1) % dilation
+            padded = tf.pad(value, [[0, 0], [0, pad_elements], [0, 0]])
+            reshaped = tf.reshape(padded, [-1, dilation, shape[2]])
+            transposed = tf.transpose(reshaped, perm=[1, 0, 2])
+            return tf.reshape(transposed, [shape[0] * dilation, -1, shape[2]])
+    
+    def batch_to_time(value, dilation, name=None):
+        with tf.name_scope('batch_to_time'):
+            shape = tf.shape(value)
+            prepared = tf.reshape(value, [dilation, -1, shape[2]])
+            transposed = tf.transpose(prepared, perm=[1, 0, 2])
+            return tf.reshape(transposed, [tf.div(shape[0], dilation), -1, shape[2]])
+    def causal_conv(value, filter_, dilation, name='causal_conv'):
+        with tf.name_scope(name):
+            filter_width = tf.shape(filter_)[0]
+            if dilation > 1:
+                transformed = time_to_batch(value, dilation)  # (?, ?, 32)
+                conv = tf.nn.conv1d(transformed, filter_, stride=1, padding='VALID')
+                restored = batch_to_time(conv, dilation)
+            else:
+                restored = tf.nn.conv1d(value, filter_, stride=1, padding='VALID')
+            # Remove excess elements at the end.
+            out_width = tf.shape(value)[1] - (filter_width - 1) * dilation
+            result = tf.slice(restored, [0, 0, 0], [-1, out_width, -1])  # index [0,0,0]에서 부터 크기 [-1,out_width, -1] 크기를 잘라낸다.
+            return result
+    t = tf.constant([0,1,2,3,4,2,0,2,4,3,2,0,3,1,2,3,4,2,0,2,4,3,2,0,3,1,2,3,4,2,0,2,4,3,])
+    t = tf.reshape(t,(2,-1))
+    
+    
+    dilation = 3
+    filter_width=2 
+    quantization_channels=5
+    residual_channels=32
+    
+    input_batch=tf.one_hot(t, quantization_channels)
+    
+    
+    xx = tf.layers.conv1d(input_batch,filters=residual_channels,kernel_size=filter_width,padding='valid',dilation_rate=dilation,use_bias=False)
+    graph = tf.get_default_graph()
+    sess = tf.Session()
+    sess.run(tf.global_variables_initializer())
+    
+    
+    yy=sess.run(xx)
+    
+    w0 = sess.run(graph.get_tensor_by_name('conv1d/kernel:0'))
+    
+    ###############
+    #weights_filter = tf.get_variable('weight',shape=[filter_width,quantization_channels,residual_channels])
+    weights_filter = tf.get_variable('weight',initializer= tf.constant(w0))
+    
+    x=causal_conv(input_batch, weights_filter, dilation)
+    sess.run(tf.initialize_variables([weights_filter]))
+    y=sess.run(x)
+    
+    print(np.array_equal(y,yy))
 
 
 ###############################################
