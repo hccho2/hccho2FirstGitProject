@@ -772,14 +772,17 @@ def FC_vs_Conv2d():
     w = np.arange(20).reshape(4,5).astype(np.float32)
     z1 = np.matmul(x,w)
     
+    # kernel size=1, stride=1이므로, padding은 same이나 valid나 동일함.
     y=tf.layers.conv2d(tf.convert_to_tensor(x.reshape(3,1,1,4)),filters=5, kernel_size=1, strides=1,kernel_initializer=tf.constant_initializer(w.reshape(1,1,4,5)),use_bias=False)
+    w=tf.layers.conv1d(tf.convert_to_tensor(x.reshape(3,1,4)),filters=5, kernel_size=1, strides=1,kernel_initializer=tf.constant_initializer(w.reshape(1,4,5)),use_bias=False)
     
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
-        z2 =sess.run(y)
+        z2,z3 =sess.run([y,w])
         z2 = np.squeeze(z2)
-        
-    print(z1,z2)    
+        z3 = np.squeeze(z3)
+    print(z1,z2,z3) 
+  
 
 
 
