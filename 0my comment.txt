@@ -1,6 +1,10 @@
 im2col cython compile: cs231n assignment중
 python setup.py build_ext --inplace --compiler=msvc
 =======================
+pydev updat 후, error내서 warning에 나온대로 실행.
+C:\Users\Administrator\.p2\pool\plugins\org.python.pydev.core_7.0.0.201811071319\pysrc\setup_cython.py build_ext --inplace
+=======================
+
 import tensorflow as tf
 
 with tf.name_scope('some_scope1'):
