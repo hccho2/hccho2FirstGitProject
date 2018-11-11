@@ -979,7 +979,7 @@ def dilation_conv_compare():
             else:
                 restored = tf.nn.conv1d(value, filter_, stride=1, padding='VALID')
             # Remove excess elements at the end.
-            out_width = tf.shape(value)[1] - (filter_width - 1) * dilation
+            out_width = tf.shape(value)[1] - (filter_width - 1) * dilation # 이미 valid padding을 했기 때문에, 자를게 남아 있나? -->남아 있다. time_to_batch를 거치면서 추가적인 padding이 되었기 때문
             result = tf.slice(restored, [0, 0, 0], [-1, out_width, -1])  # index [0,0,0]에서 부터 크기 [-1,out_width, -1] 크기를 잘라낸다.
             return result
     t = tf.constant([0,1,2,3,4,2,0,2,4,3,2,0,3,1,2,3,4,2,0,2,4,3,2,0,3,1,2,3,4,2,0,2,4,3,])
