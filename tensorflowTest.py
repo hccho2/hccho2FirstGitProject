@@ -1014,7 +1014,22 @@ def dilation_conv_compare():
     
     print(np.array_equal(y,yy))
 
-
+def padding_test():
+    # valid 를 적용할 때, 어떤 부분을 잘라내는것인가? 정답은 끝부분을 잘라냄. 가운데를 도려내는 방식은 아님.
+    X = np.arange(11).reshape(1,-1,1).astype(np.float32)
+    X = tf.convert_to_tensor(X)
+    Y = tf.layers.conv1d(X,filters=1,kernel_size=3,strides=3,padding='valid',use_bias=False,kernel_initializer= tf.initializers.ones())
+    
+    sess = tf.Session()
+    graph = tf.get_default_graph()
+    sess.run(tf.global_variables_initializer())
+    xx,yy=sess.run([X,Y])
+    
+    w0 = sess.run(graph.get_tensor_by_name('conv1d/kernel:0'))
+    
+    print(w0)
+    print(xx)
+    print(yy)
 ###############################################
 
 
