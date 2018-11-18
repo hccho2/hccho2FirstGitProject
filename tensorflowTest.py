@@ -1012,7 +1012,7 @@ def dilation_conv_compare():
     sess.run(tf.initialize_variables([weights_filter]))
     y=sess.run(x)
     
-    print(np.array_equal(y,yy))
+    print(np.array_equal(y,yy))  # numpy.testing.assert_allclose  <--- 오차 범위내에서 
 
 def padding_test():
     # valid 를 적용할 때, 어떤 부분을 잘라내는것인가? 정답은 끝부분을 잘라냄. 가운데를 도려내는 방식은 아님.
