@@ -1113,7 +1113,66 @@ finally:
     coord.join(threads)
 
 ###############################################
+# tacotron의 keith ito의 구현방식
+# placeholder로 retrun 되는 것이 명확하다.
+import threading
 
+class MyDataFeed2(threading.Thread):
+    def __init__(self,coord,batch_size):
+        super(MyDataFeed2, self).__init__()
+        self.coord = coord
+        self.batch_size = batch_size
+        self.placeholder_dataX1 = tf.placeholder(dtype=tf.float32, shape=[None,2,3])
+        self.placeholder_dataX2 = tf.placeholder(dtype=tf.int32, shape=[None,1])
+        queue_size= 32
+        self.queueX = tf.FIFOQueue(queue_size, [tf.float32,tf.int32])
+        self.enqueueX = self.queueX.enqueue([self.placeholder_dataX1,self.placeholder_dataX2])
+        
+        self.X1, self.X2= self.queueX.dequeue()
+        self.X1.set_shape(self.placeholder_dataX1.shape)
+        self.X2.set_shape(self.placeholder_dataX2.shape)
+    def run(self):
+        try:
+            while not self.coord.should_stop():
+                self.make_batches()
+        except Exception as e:
+            self.coord.request_stop(e)       
+    def start_in_session(self, session):
+        self.sess = session
+        self.start()
+              
+    def make_batches(self):
+        
+        for _ in range(10): # batch size만큼의 data를 원하는 만큼 만든다.
+            x = np.random.normal(0,1,self.batch_size*6).reshape(-1,2,3)
+            self.sess.run(self.enqueueX, feed_dict={self.placeholder_dataX1: x, self.placeholder_dataX2: 100*x[:,0,1].reshape(self.batch_size,-1)})
+
+
+coord = tf.train.Coordinator()
+mydatafeed = MyDataFeed2(coord,batch_size=2)
+
+
+with tf.Session() as sess:
+    try:
+        sess.run(tf.global_variables_initializer())
+        start_step = 0
+        mydatafeed.start_in_session(sess)
+        
+        while not coord.should_stop():
+
+            a,b = sess.run([mydatafeed.X1,mydatafeed.X2])
+            print(start_step,a,b)
+            
+            a = sess.run(mydatafeed.X1)
+            print(start_step,a)
+            
+            start_step +=1
+            if start_step >= 10:
+                # error message가 나오지만, 여기서 멈춘 것은 맞다.
+                raise Exception('End xxx')
+    except Exception as e:
+        print('finally')
+        coord.request_stop(e)
 
 ###############################################
 
