@@ -1059,12 +1059,12 @@ class MyDataFeed():
     def thread_main(self, sess):
         stop = False
         while not stop:
-            x = np.random.normal(0,1,6).reshape(2,3)
+            
             for _ in range(10):  # 한번에 처리하고 싶은 만큼
                 if self.coord.should_stop():
                     stop = True
                     break
-                
+                x = np.random.normal(0,1,6).reshape(2,3)
                 #enqueueX,enqueueY의 쌍은 start_threads에서 thread=1일 때만 맞다. 그런데, thread = 1 일 때는 data생성 속도가 느려, 같은 data를 반복해서 내보는 경우가 있다. 
                 #그래서 pair를 이루는 data를 지금과 같이 queueX,queueY로 분리하는 것은 좋지 못하다. queueX하나에서 묶어 처리하는 것이 바람직 하다.
                 sess.run(self.enqueueX, feed_dict={self.placeholder_dataX1: x, self.placeholder_dataX2: [100*x[0][1]]})
