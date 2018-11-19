@@ -1031,6 +1031,105 @@ def padding_test():
     print(xx)
     print(yy)
 ###############################################
+# wavenet ibab구현 방식
+# enqueue는 data를 만들고, dequeue는 data를 꺼낸다.
+# start_threads(thread_main call) --> thread_main
+# 외부에서 dequeueX, dequeueY로 필요한 data를 가져가는 구조.
+import threading
+class MyDataFeed():
+    def __init__(self,coord):
+        self.coord = coord
+        self.threads = []
+        
+        
+        #dequeue_many를 사용하므로, batch 크기는 지정할 필요 없다.
+        self.placeholder_dataX1 = tf.placeholder(dtype=tf.float32, shape=[2,3])
+        self.placeholder_dataX2 = tf.placeholder(dtype=tf.int32, shape=[1])
+        queue_size= 32
+        self.queueX = tf.FIFOQueue(queue_size, [tf.float32,tf.int32],shapes=[(2,3),(1)])
+        self.enqueueX = self.queueX.enqueue([self.placeholder_dataX1,self.placeholder_dataX2])
+        
+        # 위에서 만든 queueX와 별도로 queueY를 만들었는데, data의 pair가 맞아야 한다면, 분리하여 만드는 것이 바람직하지 않다.
+        self.placeholder_dataY = tf.placeholder(dtype=tf.int32, shape=[1])
+        self.queueY = tf.FIFOQueue(queue_size, [tf.int32],shapes=[(1)])
+        self.enqueueY = self.queueY.enqueue([self.placeholder_dataY])
+        
+                
+    def thread_main(self, sess):
+        stop = False
+        while not stop:
+            x = np.random.normal(0,1,6).reshape(2,3)
+            for _ in range(10):  # 한번에 처리하고 싶은 만큼
+                if self.coord.should_stop():
+                    stop = True
+                    break
+                
+                #enqueueX,enqueueY의 쌍은 start_threads에서 thread=1일 때만 맞다. 그런데, thread = 1 일 때는 data생성 속도가 느려, 같은 data를 반복해서 내보는 경우가 있다. 
+                #그래서 pair를 이루는 data를 지금과 같이 queueX,queueY로 분리하는 것은 좋지 못하다. queueX하나에서 묶어 처리하는 것이 바람직 하다.
+                sess.run(self.enqueueX, feed_dict={self.placeholder_dataX1: x, self.placeholder_dataX2: [100*x[0][1]]})
+                sess.run(self.enqueueY, feed_dict={self.placeholder_dataY: [100*x[0][0]]})
+                
+                
+    def start_threads(self, sess, n_threads=1):
+        for _ in range(n_threads):
+            thread = threading.Thread(target=self.thread_main, args=(sess,))
+            thread.daemon = True  # Thread will close when parent quits.
+            thread.start()
+            self.threads.append(thread)
+        return self.threads
+    
+    
+    def dequeueX(self, num_batch):  # num_elements <--- batch_size를 의미함.
+        return self.queueX.dequeue_many(num_batch)
+    def dequeueY(self, num_batch):
+        return self.queueY.dequeue_many(num_batch)    
+
+coord = tf.train.Coordinator()
+mydatafeed = MyDataFeed(coord)
+my_batchX = mydatafeed.dequeueX(num_batch=2)
+my_batchY = mydatafeed.dequeueY(num_batch=2)
+
+
+sess = tf.Session()
+sess.run(tf.global_variables_initializer())
+
+threads = tf.train.start_queue_runners(sess=sess, coord=coord)
+mydatafeed.start_threads(sess,n_threads=1)  # n_threads 개수가 충분해야 속도을 맞출 수 있다. 부족하면, 같은 걸 return한다. --> thread >1이면 my_batchX,my_batchY 쌍의 깨진다.
+
+try:
+    for step in range(7):
+        a,b,c = sess.run([my_batchX[0],my_batchX[1],my_batchY])
+        print(step,a,b,c)
+        
+
+except KeyboardInterrupt:
+    # Introduce a line break after ^C is displayed so save message
+    # is on its own line.
+    print('KeyboardInterrupt')  # 이건 잘 작동하지 않음
+finally:
+    print('finally')
+    coord.request_stop()
+    coord.join(threads)
+
+###############################################
+
+
+###############################################
+
+
+###############################################
+
+
+###############################################
+
+
+###############################################
+
+
+###############################################
+
+
+###############################################
 
 
 ###############################################
