@@ -1032,6 +1032,7 @@ def padding_test():
     print(yy)
 ###############################################
 # wavenet ibab구현 방식
+# placeholder를 만들 때, batch 크기에 대한 것이 없는 상태로 만들고, dequeue_many를 활용하여 batch 만큼 묶는다.
 # enqueue는 data를 만들고, dequeue는 data를 꺼낸다.
 # start_threads(thread_main call) --> thread_main
 # 외부에서 dequeueX, dequeueY로 필요한 data를 가져가는 구조.
