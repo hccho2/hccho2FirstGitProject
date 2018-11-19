@@ -561,7 +561,7 @@ def tf_binary_image()
     io.imshow(np.concatenate([cat_img,cat_img2],axis=1))
     
     plt.show()
-
+#############################################################
 def TFRecord_reading1():
     # tfrecord 파일에 있는 data를 thread에 넣어 놓고 sess.run 할 때마다 뽑아 사용하기
     # tfrecord에서binary data가 저장되어 있는데, tf.image.decode_jpeg로 이용해서 0~255 사이 값으로 변환한다.
@@ -617,7 +617,7 @@ def TFRecord_reading1():
     
     io.imshow(np.concatenate(a,axis=1))
     plt.show()  
-    
+#############################################################    
 def TFRecord_reading2():
     # tfrecord 파일에서 전체 data 뽑아내기
     # tfrecord에서binary data가 저장되어 있는데, tf.image.decode_jpeg로 이용해서 0~255 사이 값으로 변환한다.
@@ -647,7 +647,7 @@ def TFRecord_reading2():
     print(x.shape, reconstructed_file_names[101])
     io.imshow(x/127.5 -1.0)
     plt.show()
-
+#############################################################
 def TFRecord_reading3():
     import skimage.io as io
     import matplotlib.pyplot as plt
@@ -689,7 +689,7 @@ def TFRecord_reading3():
         io.imshow(x)
         plt.title(y)
         plt.show()    
-	
+#############################################################
 def shuffle_batch():
     # shuffle_batch를 이용하는 또 다른 방식
     # 전체 data를 tf.train.slice_input_producer에 넣어 처리
@@ -722,7 +722,7 @@ def shuffle_batch():
     
     print('Done')
 	
-	
+#############################################################
 def expand_and_concat():
     tf.reset_default_graph()
     y = tf.placeholder(tf.float32, [100,200,30], 'y')
@@ -732,7 +732,7 @@ def expand_and_concat():
     
     z = tf.concat([x,y],axis=2) # (100, 200, 70)
 
-
+#############################################################
 def patial_initialization():
     # 초기화 되지 않은 변수만 초기화
     uninitialized_vars = []
@@ -745,7 +745,7 @@ def patial_initialization():
     init_new_vars_op = tf.variables_initializer(uninitialized_vars)
     
     sess.run(init_new_vars_op)
-
+#############################################################
 def instance_normalization_test():
 
     import tensorflow as tf
@@ -830,7 +830,7 @@ def basic_queue2():
     
         coord.request_stop()
         coord.join(threads)
-
+##########################################################
 def Thread_Example():
     import sys
     import threading
