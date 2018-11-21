@@ -1099,7 +1099,7 @@ mydatafeed.start_threads(sess,n_threads=1)  # n_threads 개수가 충분해야 �
 
 try:
     for step in range(7):
-        a,b,c = sess.run([my_batchX[0],my_batchX[1],my_batchY])
+        a,b,c = sess.run([my_batchX[0],my_batchX[1],my_batchY])  #queue에 할당된 op가 관련된 계산일 때만, Queue가 data를 가져온다.
         print(step,a,b,c)
         
 
