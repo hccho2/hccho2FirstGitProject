@@ -116,8 +116,7 @@ def MultivariateRegressionTF2():
     sess.run(tf.global_variables_initializer())
     
     for step in range(20000):
-        cost_val, hy_val, _ = sess.run(
-            [cost, hypothesis, train], feed_dict={X: A, Y: B})
+        cost_val, hy_val, _ = sess.run([cost, hypothesis, train], feed_dict={X: A, Y: B})
         if step % 1000 == 0:
             print(step, "Cost: ", cost_val)
 
@@ -138,7 +137,7 @@ def MNIST():
     # mnist.validation.num_examples <---5000, mnist.train.num_examples <---- 55000, mnist.test.num_examples <---- 10000
     print("# of train data", mnist.train.num_examples)
     
-    batch_xs, batch_ys = mnist.train.next_batch(batch_size)  #(batch_size,784)
+    batch_xs, batch_ys = mnist.train.next_batch(batch_size)  #(batch_size,784)   MNISTdata는 0~1사이값
     
     skimage.io.imshow(batch_xs[0].reshape(28,28))
     plt.show()
