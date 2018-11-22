@@ -1175,7 +1175,11 @@ with tf.Session() as sess:
         coord.request_stop(e)
 
 ###############################################
+with tf.variable_scope("foo", reuse=tf.AUTO_REUSE):
+    w1 = tf.get_variable(name='w', shape=(2, 3, 5))
 
+with tf.variable_scope("foo", reuse=tf.AUTO_REUSE):
+    w2 = tf.get_variable(name='w')  # 이미 선언된 변수 가져오기
 
 ###############################################
 
