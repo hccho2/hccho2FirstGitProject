@@ -1188,32 +1188,44 @@ def TF_Variables_Update():
     A = [ tf.Variable(initial_value=tf.zeros(shape=[3,4], dtype=tf.float32), name='A1', trainable=False), 
          tf.Variable(initial_value=tf.zeros(shape=[7,4], dtype=tf.float32), name='A2', trainable=False)]
     
-    
+    B = tf.ones(shape=[4,1],dtype=tf.float32)
+    C = tf.matmul(A[0],B)   
     x = tf.placeholder(tf.float32)
     
-    method = 1
+    method = 2
     if method == 0:
         A[0] = tf.scatter_update(A[0],tf.range(tf.shape(A[0])[0]), tf.concat([A[0][1:],tf.ones([1,4])*x],axis=0))
-    else:
+    elif method==1:
         A[0] = tf.scatter_update(A[0],tf.range(tf.shape(A[0])[0]-1), A[0][1:])
         A[0] = tf.scatter_update(A[0],[2], tf.ones([1,4])*x)                                           
-                                                                      
-                     
+    elif method==2:
+        # 이 방법은 항상 같은 결과를 얻지 못한다. 이 방법은 사용하며 안됨
+        X = []
+        X.append(tf.scatter_update(A[0],tf.range(tf.shape(A[0])[0]-1), A[0][1:])) 
+        X.append(tf.scatter_update(A[0],[2], tf.ones([1,4])*x))                                                           
+                  
     with tf.Session() as sess:
-        sess.run(tf.global_variables_initializer())            
-        a = sess.run(A,feed_dict={x:2.0})
-        print(a)
-        
-        a = sess.run(A,feed_dict={x:4.0})
-        print(a)    
-         
-        a = sess.run(A,feed_dict={x:5.0})
-        print(a)
-         
-        a = sess.run(A,feed_dict={x:-3.0})
-        print(a)    
-        
-    print('Done')
+        sess.run(tf.global_variables_initializer())
+        if method==2:
+            sess.run(X,feed_dict={x:2.0})
+            sess.run(X,feed_dict={x:4.0})
+            b = sess.run(X,feed_dict={x:5.0})
+    
+    
+            a,_ = sess.run([A,X],feed_dict={x:-3.0})
+            print(a) 
+        else:
+            a = sess.run(A,feed_dict={x:2.0})
+            print(a)
+            
+            a = sess.run(A,feed_dict={x:4.0})
+            print(a)
+                     
+            a = sess.run(A,feed_dict={x:5.0})
+            print(a)
+              
+            a = sess.run(A,feed_dict={x:-3.0})
+            print(a) 
 
 ###############################################
 
