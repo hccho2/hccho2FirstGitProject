@@ -1182,7 +1182,38 @@ with tf.variable_scope("foo", reuse=tf.AUTO_REUSE):
     w2 = tf.get_variable(name='w')  # 이미 선언된 변수 가져오기
 
 ###############################################
-
+def TF_Variables_Update():
+    tf.reset_default_graph()
+    
+    A = [ tf.Variable(initial_value=tf.zeros(shape=[3,4], dtype=tf.float32), name='A1', trainable=False), 
+         tf.Variable(initial_value=tf.zeros(shape=[7,4], dtype=tf.float32), name='A2', trainable=False)]
+    
+    
+    x = tf.placeholder(tf.float32)
+    
+    method = 1
+    if method == 0:
+        A[0] = tf.scatter_update(A[0],tf.range(tf.shape(A[0])[0]), tf.concat([A[0][1:],tf.ones([1,4])*x],axis=0))
+    else:
+        A[0] = tf.scatter_update(A[0],tf.range(tf.shape(A[0])[0]-1), A[0][1:])
+        A[0] = tf.scatter_update(A[0],[2], tf.ones([1,4])*x)                                           
+                                                                      
+                     
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())            
+        a = sess.run(A,feed_dict={x:2.0})
+        print(a)
+        
+        a = sess.run(A,feed_dict={x:4.0})
+        print(a)    
+         
+        a = sess.run(A,feed_dict={x:5.0})
+        print(a)
+         
+        a = sess.run(A,feed_dict={x:-3.0})
+        print(a)    
+        
+    print('Done')
 
 ###############################################
 
