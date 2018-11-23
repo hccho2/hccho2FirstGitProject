@@ -1211,8 +1211,8 @@ def TF_Variables_Update():
             sess.run(X,feed_dict={x:4.0})
             b = sess.run(X,feed_dict={x:5.0})
     
-    
-            a,_ = sess.run([A,X],feed_dict={x:-3.0})  # [A,X]를 같이 연산하기 때문에, A,X의 계산순서가 일정하지 못하다.
+    	    # [A,X]를 run 하는데 있어, X는 X[0],X[1]이 있다. X[0],A,X[1]순으로 연산이 될 경우도 있다.
+            a,_ = sess.run([A,X],feed_dict={x:-3.0})  # [A,X]를 같이 연산하기 때문에, A,X의 계산순서가 일정하지 못하다.  
             print(a) 
         else:
             a = sess.run(A,feed_dict={x:2.0})
