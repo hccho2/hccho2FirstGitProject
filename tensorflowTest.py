@@ -782,8 +782,24 @@ def FC_vs_Conv2d():
         z2 = np.squeeze(z2)
         z3 = np.squeeze(z3)
     print(z1,z2,z3) 
-  
-
+###############################################
+def conv2d_transpose():
+    init = tf.contrib.layers.xavier_initializer(uniform=False)
+    #init = tf.random_normal_initializer(mean=0.0, stddev=0.02, dtype=tf.float32)
+    X = np.arange(2*10*10*1).reshape(2,10,10,1).astype(np.float32)
+    X=tf.convert_to_tensor(X)
+    Y = tf.layers.conv2d(X,filters=2, kernel_size=3, strides=2,padding='same',kernel_initializer=init,use_bias=False)
+    YY = tf.layers.conv2d_transpose(X,filters=2, kernel_size=(3,3), strides=(2,1),padding='same',kernel_initializer=init,use_bias=False)
+    
+    weight = tf.get_variable('weight',shape=(3,3,2,1),dtype=tf.float32)  # shape의 마지막 2개는 out_channel, in_channel 순이다.
+    YYY = tf.nn.conv2d_transpose(X,weight,output_shape=(2,20,10,2),strides=[1,2,1,1],padding='SAME')
+    sess = tf.Session()
+    
+    sess.run(tf.global_variables_initializer())
+    graph = tf.get_default_graph()
+    w = graph.get_tensor_by_name('conv2d/kernel:0')
+    
+    ww = sess.run(w)
 
 
 ###############################################
