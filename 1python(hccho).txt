@@ -256,7 +256,11 @@ with open('class_info.pickle','rb') as f:
 =====================================================================================
 dict형으로 변수들을 묶어서 한번에 쓰고, 한번에 읽어올수 있다.
 파일을 열때 'b'(binary)로 해야함.
+with open('data.pickle', 'wb') as f:
+    pickle.dump(data, f)
 
+with open('data.pickle','rb') as f:
+    data1=pickle.load(f)
 =====================================================================================
 # 다음과 같이 열어야 하는 경우도 있음.
 from sklearn.externals import joblib
@@ -379,6 +383,8 @@ b = a.item()  # 저장했던 dict. 이렇게 해야, b가 a와 같은 dict가 �
 A ={'a':[1,2,3],'b': [3,4,5,3,6,6,4]}  # dict
 np.savez('test.npz',**A)  # 이렇게 저장해야, 다시 load했을 때, dict형으로 복원이 편한다.
 data = np.load('test.npz')  # dict(data) --> dict형으로 쉽게 변환되고, 변환하지 않아도 dict 처럼 사용가능.
+단, dict로 만들어진 A속에 dict형이 있으면 잘 복원되지 않는다. dict를 포함하고 있는 경우는 pickle로 저장하는 것이 좋다.
+
 =====================================================================================
 # npy는 numpy array이지만, npz는 dict형에 가깝다.
 a = np.load('D:\\hccho\\data\\LJ001-0001-audio.npy')  # numpy.ndarray
