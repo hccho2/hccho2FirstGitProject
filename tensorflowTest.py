@@ -1052,7 +1052,7 @@ def padding_test():
 # enqueue는 data를 만들고, dequeue는 data를 꺼낸다.
 # start_threads(thread_main call) --> thread_main
 # 외부에서 dequeueX, dequeueY로 필요한 data를 가져가는 구조.
-# queue를 2개로 분리하는 것이 좋지 못하기 때문에, 이 후 사람들은 구현은 queue를 하나로 묶어서 구현하고 있다.
+# queue를 2개로 분리하는 것이 좋지 못하기 때문에, 이 후 사람들(e.g. wavenet vocoder-azraelkuan)은 구현은 queue를 하나로 묶어서 구현하고 있다.
 import threading
 class MyDataFeed():
     def __init__(self,coord):
@@ -1132,6 +1132,7 @@ finally:
 ###############################################
 # tacotron의 keith ito의 구현방식
 # placeholder로 retrun 되는 것이 명확하다.
+# data feed 용 class를 만들때, threading.Thread를 상속받아 sub class로 만든다.
 import threading
 
 class MyDataFeed2(threading.Thread):
