@@ -91,7 +91,7 @@ def myclass_test():
     sess = tf.Session()
     
     #my_mnist = MyMINIST(sess,'mnist')
-    my_mnist = MINIST_Ensemble(sess,10,'mnist')
+    my_mnist = MINIST_Ensemble(sess,5,'mnist')
     
     sess.run(tf.global_variables_initializer())
     s=time.time()

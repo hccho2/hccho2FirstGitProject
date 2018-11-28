@@ -15,7 +15,7 @@ np.set_printoptions(threshold=np.nan)
 
 
 
-def MNIST_NN():
+def MNIST_NN1():
     tf.set_random_seed(1234)
     batch_size = 125
     num_epoch= 10
@@ -113,7 +113,7 @@ def MNIST_NN2():
     plt.show()
 if __name__ == "__main__":    
     s=time.time()
-    MNIST_NN2()
+    MNIST_NN1()
     e=time.time()
     
     print('done: {} sec'.format(e-s))
