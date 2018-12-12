@@ -1246,7 +1246,14 @@ def TF_Variables_Update():
             print(a) 
 
 ###############################################
+x = tf.placeholder(tf.int32)
+y = tf.placeholder(tf.int32)
+assert_op = tf.assert_equal(x,y,data=[x,y])
+with tf.control_dependencies([assert_op]):
+    c = x+y
 
+with tf.Session() as sess:
+    print(sess.run(c,feed_dict={x:3,y:4}))
 
 ###############################################
 
