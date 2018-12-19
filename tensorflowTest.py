@@ -1177,13 +1177,16 @@ with tf.Session() as sess:
         mydatafeed.start_in_session(sess)
         
         while not coord.should_stop():
-
+	    # sess.run이 돌아갈 때마다, data 1set가 사용된다.
             a,b = sess.run([mydatafeed.X1,mydatafeed.X2])
             print(start_step,a,b)
             
             a = sess.run(mydatafeed.X1)
             print(start_step,a)
-            
+
+            b = sess.run(mydatafeed.X2)  # 바로 위의 a와는 별도.
+            print(start_step,b)
+	
             start_step +=1
             if start_step >= 10:
                 # error message가 나오지만, 여기서 멈춘 것은 맞다.
