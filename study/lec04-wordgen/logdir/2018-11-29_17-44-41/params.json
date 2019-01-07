@@ -1,0 +1,7 @@
+{
+    "batch_size": 100,
+    "embedding_dim": 50,
+    "name": "my_model",
+    "vocabulary_size": 250,
+    "word_dim": 3
+}
