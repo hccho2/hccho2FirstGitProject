@@ -1259,7 +1259,13 @@ with tf.Session() as sess:
     print(sess.run(c,feed_dict={x:3,y:4}))
 
 ###############################################
+# array의 특정 index 추출. gather, gather_nd
+x = tf.placeholder(tf.float32,shape=[3,3])
+y = tf.placeholder(tf.int32,shape=[None,2])
+z = tf.gather_nd(x,y)
 
+with tf.Session() as sess:
+    w = sess.run(z,feed_dict={x:[ [1.1, 2.2, 3.3] ,[4.4, 5.5, 6.6], [7.7, 8.8, 9.9] ], y:[[0,1],[1,2]]})
 
 ###############################################
 
