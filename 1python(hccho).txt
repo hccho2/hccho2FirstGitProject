@@ -978,6 +978,17 @@ def sigmoid(x):
     else:
         z = exp(x)
         return z / (1 + z)
+	
+def sigmoid(x):
+    pos_mask = (x >= 0)
+    neg_mask = (x < 0)
+    z = np.zeros_like(x,dtype=float)
+    z[pos_mask] = np.exp(-x[pos_mask])
+    z[neg_mask] = np.exp(x[neg_mask])
+    top = np.ones_like(x,dtype=float)
+    top[neg_mask] = z[neg_mask]
+    return top / (1 + z)
+	
 =====================================================================================
 
 =====================================================================================
