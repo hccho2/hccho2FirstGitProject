@@ -279,9 +279,9 @@ def display_nearest_words():
         print("distance: ", -result.values)        
 if __name__ == "__main__":    
     s=time.time()
-    train()
+    #train()
     #generate()
-    #display_nearest_words()
+    display_nearest_words()
     
     e=time.time()
     
