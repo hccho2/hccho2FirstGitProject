@@ -10,7 +10,7 @@ y1 = np.sin(x ** 2)
 y2= np.cos(x ** 2)
 
 
-
+#####################################################
 # scatter
 x_train = [1,2,3]
 y_train = [1,2,3]
@@ -22,6 +22,13 @@ plt.ylabel('y')
 x1,x2,y1,y2 = plt.axis()
 plt.axis((0,5,0,5))
 
+#####################################################
+x_train = [1,2,3]
+y_train = [1,2,3]
+plt.plot(x,y)
+plt.title('mu-law')
+plt.show()
+#####################################################
 #scatter
 AA = np.genfromtxt('mydata.txt',delimiter=',')
 A = AA[:,0:2]
