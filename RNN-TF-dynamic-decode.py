@@ -74,7 +74,7 @@ def dynamic_decode_test():
         outputs, last_state, last_sequence_lengths = tf.contrib.seq2seq.dynamic_decode(decoder=decoder,output_time_major=False,impute_finished=True,maximum_iterations=10)
     
         weights = tf.ones(shape=[batch_size,seq_length])
-        loss =   tf.contrib.seq2seq.sequence_loss(logits=outputs.rnn_output, targets=Y, weights=weights)
+        loss =   tf.contrib.seq2seq.sequence_loss(logits=outputs.rnn_output, targets=Y, weights=weights)  # logit: batch_major(N,T,output_dim) --> dynamic_decode의 output_time_major=True와 아귀가 맞지 않음.
     
     
         sess.run(tf.global_variables_initializer())
