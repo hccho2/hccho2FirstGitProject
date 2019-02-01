@@ -1277,7 +1277,24 @@ Tensorflow matmul: shape(N,m,n)과 shape(N,n,k) ==> (N,m,k)
 shape(N,m,n)과 (
 
 ###############################################
+x = np.arange(20).reshape(2,2,5).astype(np.float32)
+y = tf.convert_to_tensor(x)
+# axix = 0을 제외하고, 평균, 분산으로 normalization
+z = tf.contrib.layers.layer_norm(y)
 
+
+graph = tf.get_default_graph()
+
+sess = tf.Session()
+sess.run(tf.global_variables_initializer())
+result = sess.run(z)
+gamma,beta = sess.run([graph.get_tensor_by_name('LayerNorm/gamma:0'),graph.get_tensor_by_name('LayerNorm/beta:0')])
+print("gamma", gamma)
+print("beta", beta)
+print("result", result)
+m = np.mean(x,axis=(1,2),keepdims=True)
+s = np.std(x,axis=(1,2),keepdims=True)
+print("check", (x-m)/s)
 
 ###############################################
 
