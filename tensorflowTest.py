@@ -788,6 +788,29 @@ def FC_vs_Conv2d():
         z3 = np.squeeze(z3)
     print(z1,z2,z3) 
 ###############################################
+# kernel_size=1, strides=1 인 경우에는 valid padding 과 same padding은 동일한 결과를 준다.
+
+T=4
+x = np.arange(T*4).reshape(1,T,4).astype(np.float32)
+x = tf.convert_to_tensor(x)
+w = np.arange(20).reshape(4,5).astype(np.float32)
+z1=tf.layers.conv1d(x,filters=5, 
+                   kernel_size=1, strides=1,kernel_initializer=tf.constant_initializer(w.reshape(1,4,5)),
+                   use_bias=False,padding='valid')
+
+z2=tf.layers.conv1d(x,filters=5, 
+                   kernel_size=1, strides=1,kernel_initializer=tf.constant_initializer(w.reshape(1,4,5)),
+                   use_bias=False,padding='same')
+sess = tf.Session()
+sess.run(tf.global_variables_initializer())
+
+print(sess.run(z1))
+print(sess.run(z2))
+
+
+
+
+###############################################
 def conv2d_transpose():
     init = tf.contrib.layers.xavier_initializer(uniform=False)
     #init = tf.random_normal_initializer(mean=0.0, stddev=0.02, dtype=tf.float32)
