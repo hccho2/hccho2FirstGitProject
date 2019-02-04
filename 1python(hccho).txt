@@ -53,6 +53,8 @@ for i in range(num_epoch):
 np.set_printoptions(threshold=np.nan)  <--- 모든 data 다 표시
 np.set_printoptions(precision=4)  <--- 유효숫자 표시
 np.set_printoptions(suppress=True) <----- e없이 표시
+
+np.set_printoptions(suppress=True, formatter={'float_kind':'{:5.3f}'.format}, linewidth=130)
 ====================================================================
 import ctypes  # An included library with Python install.
 def Mbox(title, text, style):
