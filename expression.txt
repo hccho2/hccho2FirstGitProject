@@ -1,2 +1,6 @@
 In Deepvoice3 paper it was mentioned (quote):
 "The WaveNet vocoder sounds more natural as the WORLD vocoder introduces various noticeable artifacts."
+
+
+In ths case, ...  <--- 이러한 경우, 
+
