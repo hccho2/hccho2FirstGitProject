@@ -32,13 +32,19 @@ def dynamic_decode_test():
     train_mode = True
     with tf.variable_scope('test',reuse=tf.AUTO_REUSE) as scope:
         # Make rnn
-        cells = []
-        for _ in range(num_layers):
+        
+        method = 1
+        if method == 0:
+            cells = []
+            for _ in range(num_layers):
+                cell = tf.contrib.rnn.BasicRNNCell(num_units=hidden_dim)
+                #cell = tf.contrib.rnn.BasicLSTMCell(num_units=hidden_dim,state_is_tuple=state_tuple_mode)
+                #cell = tf.contrib.rnn.GRUCell(num_units=hidden_dim)
+                cells.append(cell)
+            cell = tf.contrib.rnn.MultiRNNCell(cells)    
+        else:
             #cell = tf.contrib.rnn.BasicRNNCell(num_units=hidden_dim)
-            cell = tf.contrib.rnn.BasicLSTMCell(num_units=hidden_dim,state_is_tuple=state_tuple_mode)
-            cells.append(cell)
-        cell = tf.contrib.rnn.MultiRNNCell(cells)    
-        #cell = tf.contrib.rnn.BasicRNNCell(num_units=hidden_dim)
+            cell = tf.contrib.rnn.LSTMCell(num_units=hidden_dim,num_proj=7)
     
         embedding = tf.get_variable("embedding", initializer=init.astype(np.float32),dtype = tf.float32)
         inputs = tf.nn.embedding_lookup(embedding, x_data) # batch_size  x seq_length x embedding_dim
@@ -48,7 +54,7 @@ def dynamic_decode_test():
     
         # tf.contrib.rnn.OutputProjectionWrapper  마지막에 FC layer를 하나 더 추가하는 효과. 아래에서 적용하는 Dense보다 앞에 적용된다. Dense가 있기 때문에 OutputProjectionWrapper 또는 Dense로 처리 가능함
         # FC layer를 multiple로 적용하려면 OutputProjectionWrapper을 사용해야 함.
-        if True:
+        if False:
             cell = tf.contrib.rnn.OutputProjectionWrapper(cell,13)
             cell = tf.contrib.rnn.OutputProjectionWrapper(cell,17)
     
@@ -68,13 +74,16 @@ def dynamic_decode_test():
             helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(embedding, start_tokens=tf.tile([SOS_token], [batch_size]), end_token=EOS_token)
     
         output_layer = Dense(output_dim, name='output_projection')
+        #output_layer = None
+        
+        
         decoder = tf.contrib.seq2seq.BasicDecoder(cell=cell,helper=helper,initial_state=initial_state,output_layer=output_layer)    
         # maximum_iterations를 설정하지 않으면, inference에서 EOS토큰을 만나지 못하면 무한 루프에 빠진다
         # last_state는 num_layers 만큼 나온다.
         outputs, last_state, last_sequence_lengths = tf.contrib.seq2seq.dynamic_decode(decoder=decoder,output_time_major=False,impute_finished=True,maximum_iterations=10)
     
         weights = tf.ones(shape=[batch_size,seq_length])
-        loss =   tf.contrib.seq2seq.sequence_loss(logits=outputs.rnn_output, targets=Y, weights=weights)  # logit: batch_major(N,T,output_dim) --> dynamic_decode의 output_time_major=True와 아귀가 맞지 않음.
+        loss =   tf.contrib.seq2seq.sequence_loss(logits=outputs.rnn_output, targets=Y, weights=weights)
     
     
         sess.run(tf.global_variables_initializer())
@@ -89,12 +98,12 @@ def dynamic_decode_test():
     
         print("\n\nlast_sequence_lengths: ",last_sequence_lengths)
         print(sess.run(last_sequence_lengths)) #  [seq_length]*batch_size    
-        
-        print("kernel(weight)",sess.run(output_layer.trainable_weights[0]))  # kernel(weight)
-        print("bias",sess.run(output_layer.trainable_weights[1]))  # bias
+        if output_layer is not None:
+            print("kernel(weight)",sess.run(output_layer.trainable_weights[0]))  # kernel(weight)
+            print("bias",sess.run(output_layer.trainable_weights[1]))  # bias
     
         if train_mode:
-            p = sess.run(tf.nn.softmax(outputs.rnn_output)).reshape(-1,output_dim)
+            p = sess.run(tf.nn.softmax(outputs.rnn_output)).reshape(-1,output_dim)   #(18,5) = (batch_size x seq_length, vocab_size)
             print("loss: {:20.6f}".format(sess.run(loss)))
             print("manual cal. loss: {:0.6f} ".format(np.average(-np.log(p[np.arange(y_data.size),y_data.flatten()]))) )
 
@@ -146,6 +155,7 @@ def attention_test():
         
         # output_attention = True(default) ==> 이면 output으로 attention이 나가고, False이면 cell의 output이 나간다
         # attention_layer_size = N_l
+        
         attention_initial_state = cell.zero_state(batch_size, tf.float32)
         cell = tf.contrib.seq2seq.AttentionWrapper(cell, attention_mechanism, attention_layer_size=13,initial_cell_state=attention_initial_state,
                                                    alignment_history=alignment_history_flag,output_attention=True)
@@ -324,12 +334,11 @@ def attention_multicell_test():
 
             
 if __name__ == '__main__':
-    #dynamic_decode_test()
-    attention_test()
+    dynamic_decode_test()
+    #attention_test()
     #attention_multicell_test()
     
     print('Done')
-
 
 
 
