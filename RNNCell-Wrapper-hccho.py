@@ -42,6 +42,7 @@ class MyRnnWrapper(RNNCell):
     def call(self, inputs, state):
         # 이 call 함수를 통해 cell과 cell이 연결된다.
         # input에 필요에 따라, 원하는 작업을 하면 된다.
+        xxx = tf.get_variable("zxx",[1],dtype=tf.float32)
         cell_output = tf.concat([inputs,inputs],axis=-1)
         next_state = state + 0.11
         return cell_output, next_state 
@@ -84,8 +85,8 @@ class MyRnnWrapper2(RNNCell):
     # zero_state는 반드시 재정의해야 하는 것은 아니다. 필요에 따라...
     def zero_state(self,batch_size,dtype=tf.float32):
         return tf.ones([batch_size,self.sate_size],dtype)  # test 목적으로 1을 넣어 봄
-
-
+     
+    
 class MyRnnHelper(Helper):
     # property(batch_size,sample_ids_dtype,sample_ids_shape)이 정의되어야 하고, initialize,sample,next_inputs이 정의되어야 한다.
     def __init__(self,embedding,batch_size,output_dim):
@@ -105,9 +106,15 @@ class MyRnnHelper(Helper):
     def sample_ids_shape(self):
         return tf.TensorShape([])
 
-    def next_inputs(self, time, outputs, state,sample_ids, name=None):   # time+1을 위한 input을 만든다., outputs,state,sample_ids는 time의 결과이다.
+    def next_inputs(self, time, outputs, state,sample_ids, name=None):   # time+1을 위한 input을 만든다., outputs,state,sample_ids는 time step에서의 결과이다.
+        # 넘어오는 sample_ids는 sample 함수에어 계산된어 넘어온 값이다.   <----- 이런 계사은 BasicDecoder의 'step' 함수에서 이루어 진다.
+        # next input을 계산하기 위해서 sample_ids를 이용하거나, outpus를 이용하거나 선택하면 된다.
+        
+        
         finished = (time + 1 >= 7)    # finished = (time + 1 >= [7,8,9])
-        next_inputs = outputs[:, -self._output_dim:]*2
+        #next_inputs = outputs[:, -self._output_dim:]*2
+        next_inputs = tf.nn.embedding_lookup(self._embedding,sample_ids)
+        #next_inputs = tf.zeros_like(next_inputs)
         return (finished, next_inputs, state)  #finished==True이면 next_inputs,state는 의미가 없다.
 
     def initialize(self, name=None):
@@ -213,6 +220,9 @@ class BahdanauMonotonicAttention_hccho(_BaseMonotonicAttentionMechanism):
         with tf.variable_scope(
             None, "bahdanau_monotonic_hccho_attention", [query]):
             processed_query = self.query_layer(query) if self.query_layer else query
+            
+            # processed_query: (N,num_units)  ==> self._keys와 더하기 위해서  _bahdanau_score 내부에서 (N,1,num_units) 으로 변환.
+            # self._keys: (N, encoder_dim, num_units)
             score = _bahdanau_score(processed_query, self._keys, self._normalize)     # keys 가 memory임
             score_bias = tf.get_variable("attention_score_bias", dtype=processed_query.dtype, initializer=self._score_bias_init)
 
@@ -247,11 +257,11 @@ def wapper_test():
     
     init = np.arange(vocab_size*embedding_dim).reshape(vocab_size,-1)
     
-    train_mode = True
+    train_mode = False
     with tf.variable_scope('test') as scope:
         # Make rnn
-        cell = MyRnnWrapper("xxx",hidden_dim)
-        #cell = MyRnnWrapper2(tf.contrib.rnn.BasicRNNCell(num_units=hidden_dim),"xxx",hidden_dim)
+        #cell = MyRnnWrapper("xxx",hidden_dim)
+        cell = MyRnnWrapper2(tf.contrib.rnn.BasicRNNCell(num_units=hidden_dim),"xxx",hidden_dim)
     
         embedding = tf.get_variable("embedding", initializer=init.astype(np.float32),dtype = tf.float32)
         inputs = tf.nn.embedding_lookup(embedding, x_data) # batch_size  x seq_length x embedding_dim
@@ -286,7 +296,7 @@ def wapper_test():
         print("\n\noutputs: ",outputs)
         o = sess.run(outputs.rnn_output)  #batch_size, seq_length, outputs
         o2 = sess.run(tf.argmax(outputs.rnn_output,axis=-1))
-        print("\n",o,o2) #batch_size, seq_length, outputs
+        print("\n",o,"\n argmax --> ",o2) #batch_size, seq_length, outputs
     
         print("\n\nlast_state: ",last_state)
         print(sess.run(last_state)) # batch_size, hidden_dim
@@ -313,12 +323,12 @@ def wapper_attention_test():
     
     init = np.arange(vocab_size*embedding_dim).reshape(vocab_size,-1)
     
-    train_mode = True
+    train_mode = False
     alignment_history_flag = False
     with tf.variable_scope('test') as scope:
         # Make rnn
-        cell = MyRnnWrapper("xxx",hidden_dim)
-        #cell = MyRnnWrapper2(tf.contrib.rnn.BasicRNNCell(num_units=hidden_dim),"xxx",hidden_dim)
+        #cell = MyRnnWrapper("xxx",hidden_dim)
+        cell = MyRnnWrapper2(tf.contrib.rnn.BasicRNNCell(num_units=hidden_dim),"xxx",hidden_dim)
     
         embedding = tf.get_variable("embedding", initializer=init.astype(np.float32),dtype = tf.float32)
         inputs = tf.nn.embedding_lookup(embedding, x_data) # batch_size  x seq_length x embedding_dim
@@ -374,7 +384,7 @@ def wapper_attention_test():
         print("\n\noutputs: ",outputs)
         o = sess.run(outputs.rnn_output)  #batch_size, seq_length, outputs
         o2 = sess.run(tf.argmax(outputs.rnn_output,axis=-1))
-        print("\n",o,o2) #batch_size, seq_length, outputs
+        print("\n",o,"\n argmax --> ",o2) #batch_size, seq_length, outputs
     
         print("\n\nlast_state: ",last_state)
         print(sess.run(last_state)) # batch_size, hidden_dim
@@ -385,5 +395,4 @@ def wapper_attention_test():
 if __name__ == "__main__":
     wapper_test()
     #wapper_attention_test()
-
 
