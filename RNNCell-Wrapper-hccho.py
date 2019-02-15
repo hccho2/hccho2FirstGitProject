@@ -124,7 +124,8 @@ class MyRnnHelper(Helper):
         return (tf.tile([False], [self._batch_size]), tf.nn.embedding_lookup(self._embedding,tf.tile([SOS_token], [self._batch_size])))  
 
     def sample(self, time, outputs, state, name=None):
-        return tf.tile([0], [self._batch_size])  # Return all 0; we ignore them
+        return tf.argmax(outputs, axis=-1,output_type=tf.int32)
+        #return tf.tile([2], [self._batch_size])  # Return all 0; we ignore them
 
 
 
@@ -295,7 +296,7 @@ def wapper_test():
         print("initial_state: ", sess.run(initial_state))
         print("\n\noutputs: ",outputs)
         o = sess.run(outputs.rnn_output)  #batch_size, seq_length, outputs
-        o2 = sess.run(tf.argmax(outputs.rnn_output,axis=-1))
+        o2 = sess.run(tf.argmax(outputs.rnn_output,axis=-1))   # outputs.sample_id에 이미 계산되어 있다.
         print("\n",o,"\n argmax --> ",o2) #batch_size, seq_length, outputs
     
         print("\n\nlast_state: ",last_state)
@@ -383,7 +384,7 @@ def wapper_attention_test():
         print("initial_state: ", sess.run(initial_state))
         print("\n\noutputs: ",outputs)
         o = sess.run(outputs.rnn_output)  #batch_size, seq_length, outputs
-        o2 = sess.run(tf.argmax(outputs.rnn_output,axis=-1))
+        o2 = sess.run(tf.argmax(outputs.rnn_output,axis=-1))   # outputs.sample_id에 이미 계산되어 있다.
         print("\n",o,"\n argmax --> ",o2) #batch_size, seq_length, outputs
     
         print("\n\nlast_state: ",last_state)
