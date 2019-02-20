@@ -1024,7 +1024,18 @@ Y[np.tile(np.arange(batch_size),[batch_size,1]).T, np.vstack([prev-1,prev,prev+1
 alignment_new = alignment0*Y
 
 =====================================================================================
+# with
+class controlled_execution:
+    def __enter__(self):
+        print("enter...")
+        return np.arange(4).reshape(2,-1)
+    def __exit__(self, type, value, traceback):
+        print("exit...")
+        
 
+
+with controlled_execution() as xx:
+    print(xx.shape)
 =====================================================================================
 
 =====================================================================================
