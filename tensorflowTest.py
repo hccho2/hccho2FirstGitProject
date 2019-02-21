@@ -2,6 +2,8 @@
 tf.logging.set_verbosity(tf.logging.ERROR)
 
 ######################################################################
+np.sum([np.prod(v.get_shape().as_list()) for v in tf.trainable_variables()])
+######################################################################
 
 w0= np.array([[[  4,   3,   6,   7],
      [ -5,   5,   0,  -6],
