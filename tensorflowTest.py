@@ -4,6 +4,16 @@ tf.logging.set_verbosity(tf.logging.ERROR)
 ######################################################################
 np.sum([np.prod(v.get_shape().as_list()) for v in tf.trainable_variables()])
 ######################################################################
+# 아래의 api는 어떻게 사용하는지 한번 정리해야 겠다~~
+
+tf.scatter_update
+tf.gether
+tf.gather_nd
+tf.scatter_add
+tf.sequence_mask
+
+
+######################################################################
 
 w0= np.array([[[  4,   3,   6,   7],
      [ -5,   5,   0,  -6],
