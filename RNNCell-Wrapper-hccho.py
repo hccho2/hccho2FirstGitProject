@@ -86,7 +86,72 @@ class MyRnnWrapper2(RNNCell):
     def zero_state(self,batch_size,dtype=tf.float32):
         return tf.ones([batch_size,self.sate_size],dtype)  # test 목적으로 1을 넣어 봄
      
-    
+
+
+class ZoneoutLSTMCell(RNNCell):
+    '''Wrapper for tf LSTM to create Zoneout LSTM Cell
+
+    inspired by:
+    https://github.com/teganmaharaj/zoneout/blob/master/zoneout_tensorflow.py
+
+    Published by one of 'https://arxiv.org/pdf/1606.01305.pdf' paper writers.
+
+    Many thanks to @Ondal90 for pointing this out. You sir are a hero!
+    '''
+    def __init__(self, num_units, is_training, zoneout_factor_cell=0., zoneout_factor_output=0., state_is_tuple=True, name=None):
+        '''Initializer with possibility to set different zoneout values for cell/hidden states.
+        '''
+        zm = min(zoneout_factor_output, zoneout_factor_cell)
+        zs = max(zoneout_factor_output, zoneout_factor_cell)
+
+        if zm < 0. or zs > 1.:
+            raise ValueError('One/both provided Zoneout factors are not in [0, 1]')
+
+        self._cell = tf.nn.rnn_cell.LSTMCell(num_units, state_is_tuple=state_is_tuple, name=name)
+        self._zoneout_cell = zoneout_factor_cell
+        self._zoneout_outputs = zoneout_factor_output
+        self.is_training = is_training
+        self.state_is_tuple = state_is_tuple
+
+    @property
+    def state_size(self):
+        return self._cell.state_size
+
+    @property
+    def output_size(self):
+        return self._cell.output_size
+
+    def __call__(self, inputs, state, scope=None):
+        '''Runs vanilla LSTM Cell and applies zoneout.
+        '''
+        #Apply vanilla LSTM
+        output, new_state = self._cell(inputs, state, scope)
+
+        if self.state_is_tuple:
+            (prev_c, prev_h) = state
+            (new_c, new_h) = new_state
+        else:
+            num_proj = self._cell._num_units if self._cell._num_proj is None else self._cell._num_proj
+            prev_c = tf.slice(state, [0, 0], [-1, self._cell._num_units])
+            prev_h = tf.slice(state, [0, self._cell._num_units], [-1, num_proj])
+            new_c = tf.slice(new_state, [0, 0], [-1, self._cell._num_units])
+            new_h = tf.slice(new_state, [0, self._cell._num_units], [-1, num_proj])
+
+        #Apply zoneout
+        if self.is_training:
+            #nn.dropout takes keep_prob (probability to keep activations) not drop_prob (probability to mask activations)!
+            c = (1 - self._zoneout_cell) * tf.nn.dropout(new_c - prev_c, (1 - self._zoneout_cell)) + prev_c
+            h = (1 - self._zoneout_outputs) * tf.nn.dropout(new_h - prev_h, (1 - self._zoneout_outputs)) + prev_h
+
+        else:
+            c = (1 - self._zoneout_cell) * new_c + self._zoneout_cell * prev_c
+            h = (1 - self._zoneout_outputs) * new_h + self._zoneout_outputs * prev_h
+
+        new_state = tf.nn.rnn_cell.LSTMStateTuple(c, h) if self.state_is_tuple else tf.concat(1, [c, h])
+
+        return output, new_state
+
+   
 class MyRnnHelper(Helper):
     # property(batch_size,sample_ids_dtype,sample_ids_shape)이 정의되어야 하고, initialize,sample,next_inputs이 정의되어야 한다.
     def __init__(self,embedding,batch_size,output_dim):
@@ -111,7 +176,7 @@ class MyRnnHelper(Helper):
         # next input을 계산하기 위해서 sample_ids를 이용하거나, outpus를 이용하거나 선택하면 된다.
         
         
-        finished = (time + 1 >= 7)    # finished = (time + 1 >= [7,8,9])
+        finished = (time + 1 >= 10)    # finished = (time + 1 >= [3,5,4])
         #next_inputs = outputs[:, -self._output_dim:]*2
         next_inputs = tf.nn.embedding_lookup(self._embedding,sample_ids)
         #next_inputs = tf.zeros_like(next_inputs)
@@ -258,12 +323,15 @@ def wapper_test():
     
     init = np.arange(vocab_size*embedding_dim).reshape(vocab_size,-1)
     
-    train_mode = False
+    train_mode = True
     with tf.variable_scope('test') as scope:
         # Make rnn
         #cell = MyRnnWrapper("xxx",hidden_dim)
-        cell = MyRnnWrapper2(tf.contrib.rnn.BasicRNNCell(num_units=hidden_dim),"xxx",hidden_dim)
-    
+        #cell = MyRnnWrapper2(tf.contrib.rnn.BasicRNNCell(num_units=hidden_dim),"xxx",hidden_dim)
+        cell = ZoneoutLSTMCell(num_units=hidden_dim, is_training=train_mode, zoneout_factor_cell=0.1, zoneout_factor_output=0.1, state_is_tuple=True, name='zoneoutLSTM')
+        
+        
+        
         embedding = tf.get_variable("embedding", initializer=init.astype(np.float32),dtype = tf.float32)
         inputs = tf.nn.embedding_lookup(embedding, x_data) # batch_size  x seq_length x embedding_dim
     
@@ -330,6 +398,7 @@ def wapper_attention_test():
         # Make rnn
         #cell = MyRnnWrapper("xxx",hidden_dim)
         cell = MyRnnWrapper2(tf.contrib.rnn.BasicRNNCell(num_units=hidden_dim),"xxx",hidden_dim)
+        
     
         embedding = tf.get_variable("embedding", initializer=init.astype(np.float32),dtype = tf.float32)
         inputs = tf.nn.embedding_lookup(embedding, x_data) # batch_size  x seq_length x embedding_dim
@@ -392,6 +461,9 @@ def wapper_attention_test():
     
         print("\n\nlast_sequence_lengths: ",last_sequence_lengths)
         print(sess.run(last_sequence_lengths)) #  [seq_length]*batch_size   
+
+
+
 
 if __name__ == "__main__":
     wapper_test()
