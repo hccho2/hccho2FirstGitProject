@@ -402,8 +402,6 @@ def dynamic_decode_class_test():
     
     
 
-    result_all = []
-
     result = sess.run(test_model.outputs.rnn_output)
     result = np.argmax(result,axis=-1)
     result_all = [index_to_char[x] for x in result[0]]
