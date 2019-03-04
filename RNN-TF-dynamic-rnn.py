@@ -19,9 +19,12 @@ class DynamicRNN():
             init = tf.contrib.layers.xavier_initializer(uniform=False)
             embedding = tf.get_variable("embedding", shape=[output_dim,embedding_dim],initializer=tf.contrib.layers.xavier_initializer(uniform=False),dtype = tf.float32)
             inputs = tf.nn.embedding_lookup(embedding, self.X) # batch_size  x seq_length x embedding_dim
-        
-            initial_state = cell.zero_state(batch_size, tf.float32) #(batch_size x hidden_dim) 
-            self.outputs, self.last_state = tf.nn.dynamic_rnn(cell,inputs,sequence_length=[seq_length]*batch_size,initial_state=initial_state)    
+            
+            if is_training:
+                self.initial_state = cell.zero_state(batch_size, tf.float32) #(batch_size x hidden_dim) 
+            else:
+                self.initial_state = tf.placeholder(tf.float32,shape=[batch_size,hidden_dim])
+            self.outputs, self.last_state = tf.nn.dynamic_rnn(cell,inputs,sequence_length=[seq_length]*batch_size,initial_state=self.initial_state)    
     
             weights = tf.ones(shape=[batch_size,seq_length])
             self.loss =   tf.contrib.seq2seq.sequence_loss(logits=self.outputs, targets=self.Y, weights=weights)
@@ -114,8 +117,9 @@ def dynamic_rnn_class_test():
     
     x_data = np.array([[SOS_token]], dtype=np.int32)
     result_all = []
+    initial_state = np.zeros([1,hidden_dim])
     for i in range(20):
-        result = sess.run(test_model.outputs, feed_dict={test_model.X: x_data})
+        result,initial_state = sess.run([test_model.outputs,test_model.last_state], feed_dict={test_model.X: x_data,test_model.initial_state: initial_state})
         result = np.argmax(result,axis=-1)
         x_data = result
         result_all.append(index_to_char[result[0][0]])

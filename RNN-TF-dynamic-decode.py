@@ -7,7 +7,40 @@ import tensorflow as tf
 from tensorflow.python.layers.core import Dense
 tf.reset_default_graph()
 
+class DynamicDecode():
+    def __init__(self,batch_size,hidden_dim,output_dim,embedding_dim,seq_length=None,is_training=True):
+        
+        with tf.variable_scope('DynamicDecoder',reuse = tf.AUTO_REUSE) as scope:
+            if not is_training:
+                seq_length = 1
+            self.X = tf.placeholder(tf.int32,shape=[None,None])   # batch_size, seq_length
+            self.Y = tf.placeholder(tf.int32,shape=[None,None])
+            
+            cell = tf.contrib.rnn.BasicRNNCell(num_units=hidden_dim)
+            cell = tf.contrib.rnn.OutputProjectionWrapper(cell,output_dim)
+        
+            init = tf.contrib.layers.xavier_initializer(uniform=False)
+            embedding = tf.get_variable("embedding", shape=[output_dim,embedding_dim],initializer=tf.contrib.layers.xavier_initializer(uniform=False),dtype = tf.float32)
+            inputs = tf.nn.embedding_lookup(embedding, self.X) # batch_size  x seq_length x embedding_dim
+        
+            initial_state = cell.zero_state(batch_size, tf.float32) #(batch_size x hidden_dim) 
 
+            if is_training:
+                helper = tf.contrib.seq2seq.TrainingHelper(inputs, np.array([seq_length]*batch_size))
+            else:
+                SOS_token=0
+                EOS_token = output_dim-1
+                helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(embedding, start_tokens=tf.tile([SOS_token], [batch_size]), end_token=EOS_token)
+            
+            decoder = tf.contrib.seq2seq.BasicDecoder(cell=cell,helper=helper,initial_state=initial_state)
+            self.outputs, self.last_state, self.last_sequence_lengths = tf.contrib.seq2seq.dynamic_decode(decoder=decoder,output_time_major=False,impute_finished=True,maximum_iterations=20)
+
+  
+            weights = tf.ones(shape=[batch_size,seq_length])
+            self.loss =   tf.contrib.seq2seq.sequence_loss(logits=self.outputs.rnn_output, targets=self.Y, weights=weights)
+            self.opt = tf.train.AdamOptimizer(0.1).minimize(self.loss)
+            
+            
 def dynamic_decode_test():
 
     vocab_size = 5
@@ -29,7 +62,7 @@ def dynamic_decode_test():
     init_state_flag = 0
     init = np.arange(vocab_size*embedding_dim).reshape(vocab_size,-1)
     
-    train_mode = True
+    train_mode = False
     with tf.variable_scope('test',reuse=tf.AUTO_REUSE) as scope:
         # Make rnn
         
@@ -331,10 +364,56 @@ def attention_multicell_test():
     """
 
 
+def dynamic_decode_class_test():
+    vocab_size = 6
+    SOS_token = 0
+    EOS_token = 5
+    
+    #x_data = np.array([[SOS_token, 3, 1, 2, 3, 2],[SOS_token, 3, 1, 2, 3, 1],[SOS_token, 1, 3, 2, 2, 1]], dtype=np.int32)
+    #y_data = np.array([[1,2,0,3,2,EOS_token],[3,2,3,3,1,EOS_token],[3,1,1,2,0,EOS_token]],dtype=np.int32)
+    
+    index_to_char = {SOS_token: '<S>', 1: 'h', 2: 'e', 3: 'l', 4: 'o', EOS_token: '<E>'}
+    x_data = np.array([[SOS_token, 1, 2, 3, 3, 4]], dtype=np.int32)
+    y_data = np.array([[1, 2, 3, 3, 4,EOS_token]],dtype=np.int32)
+    
+    Y = tf.convert_to_tensor(y_data)
+    print("data shape: ", x_data.shape)
+    sess = tf.InteractiveSession()
+    
+    output_dim = vocab_size
+    batch_size = len(x_data)
+    hidden_dim =6
+    seq_length = x_data.shape[1]
+    embedding_dim = 8
+    
+    model = DynamicDecode(batch_size=batch_size,hidden_dim=hidden_dim,output_dim=vocab_size,embedding_dim=embedding_dim,seq_length=seq_length,is_training=True)
+    test_model = DynamicDecode(batch_size=1,hidden_dim=hidden_dim,output_dim=vocab_size,embedding_dim=embedding_dim,is_training=False)
+    
+    
+    sess = tf.Session()
+    sess.run(tf.global_variables_initializer())
+    
+    
+    for i in range(2000):
+        loss , _ = sess.run([model.loss,model.opt],feed_dict={model.X: x_data,model.Y: y_data})
+        if i % 100 == 0:
+            print(i, 'loss: {}'.format(loss))
+    
+    
+    
 
+    result_all = []
+
+    result = sess.run(test_model.outputs.rnn_output)
+    result = np.argmax(result,axis=-1)
+    result_all = [index_to_char[x] for x in result[0]]
+        
+    
+    print(result_all)
             
 if __name__ == '__main__':
-    dynamic_decode_test()
+    #dynamic_decode_test()
+    dynamic_decode_class_test()
     #attention_test()
     #attention_multicell_test()
     
