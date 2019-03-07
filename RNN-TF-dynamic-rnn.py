@@ -37,7 +37,7 @@ def dynamic_rnn_test():
     EOS_token = 5
     
     x_data = np.array([[SOS_token, 3, 1, 4, 3, 2],[SOS_token, 3, 4, 2, 3, 1],[SOS_token, 1, 3, 2, 2, 1]], dtype=np.int32)
-    y_data = np.array([[1,2,0,3,2,EOS_token],[3,2,3,4,1,EOS_token],[3,1,1,4,0,EOS_token]],dtype=np.int32)
+    y_data = np.array([[3, 1, 4, 3, 2,EOS_token],[3, 4, 2, 3, 1,EOS_token],[1, 3, 2, 2, 1,EOS_token]],dtype=np.int32)
     Y = tf.convert_to_tensor(y_data)
     print("data shape: ", x_data.shape)
     sess = tf.InteractiveSession()
@@ -84,7 +84,7 @@ def dynamic_rnn_class_test():
     EOS_token = 5
     
     #x_data = np.array([[SOS_token, 3, 1, 4, 3, 2],[SOS_token, 3, 4, 2, 3, 1],[SOS_token, 1, 3, 2, 2, 1]], dtype=np.int32)
-    #y_data = np.array([[1,2,0,3,2,EOS_token],[3,2,3,4,1,EOS_token],[3,1,1,4,0,EOS_token]],dtype=np.int32)
+    #y_data = np.array([[3, 1, 4, 3, 2,EOS_token],[3, 4, 2, 3, 1,EOS_token],[1, 3, 2, 2, 1,EOS_token]],dtype=np.int32)
     
     index_to_char = {SOS_token: '<S>', 1: 'h', 2: 'e', 3: 'l', 4: 'o', EOS_token: '<E>'}
     x_data = np.array([[SOS_token, 1, 2, 3, 3, 4]], dtype=np.int32)
