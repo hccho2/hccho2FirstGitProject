@@ -43,18 +43,18 @@ class DynamicDecode():
             
 def dynamic_decode_test():
 
-    vocab_size = 5
+    vocab_size = 6
     SOS_token = 0
-    EOS_token = 4
+    EOS_token = 5
     
-    x_data = np.array([[SOS_token, 3, 1, 2, 3, 2],[SOS_token, 3, 1, 2, 3, 1],[SOS_token, 1, 3, 2, 2, 1]], dtype=np.int32)
-    y_data = np.array([[1,2,0,3,2,EOS_token],[3,2,3,3,1,EOS_token],[3,1,1,2,0,EOS_token]],dtype=np.int32)
+    x_data = np.array([[SOS_token, 3, 1, 4, 3, 2],[SOS_token, 3, 4, 2, 3, 1],[SOS_token, 1, 3, 2, 2, 1]], dtype=np.int32)
+    y_data = np.array([[1,2,0,3,2,EOS_token],[3,2,3,4,1,EOS_token],[3,1,1,4,0,EOS_token]],dtype=np.int32)
     print("data shape: ", x_data.shape)
     sess = tf.InteractiveSession()
     
     output_dim = vocab_size
     batch_size = len(x_data)
-    hidden_dim =6
+    hidden_dim =7
     num_layers = 2
     seq_length = x_data.shape[1]
     embedding_dim = 8
@@ -143,18 +143,18 @@ def dynamic_decode_test():
 
 def attention_test():
     # BasicRNNCell을 single로 쌓아 attention 적용
-    vocab_size = 5
+    vocab_size = 6
     SOS_token = 0
-    EOS_token = 4
+    EOS_token = 5
     
-    x_data = np.array([[SOS_token, 3, 1, 2, 3, 2],[SOS_token, 3, 1, 2, 3, 1],[SOS_token, 1, 3, 2, 2, 1]], dtype=np.int32)
-    y_data = np.array([[1,2,0,3,2,EOS_token],[3,2,3,3,1,EOS_token],[3,1,1,2,0,EOS_token]],dtype=np.int32)
+    x_data = np.array([[SOS_token, 3, 1, 4, 3, 2],[SOS_token, 3, 4, 2, 3, 1],[SOS_token, 1, 3, 2, 2, 1]], dtype=np.int32)
+    y_data = np.array([[1,2,0,3,2,EOS_token],[3,2,3,4,1,EOS_token],[3,1,1,4,0,EOS_token]],dtype=np.int32)
     print("data shape: ", x_data.shape)
     sess = tf.InteractiveSession()
     
     output_dim = vocab_size
     batch_size = len(x_data)
-    hidden_dim =6
+    hidden_dim =7
     seq_length = x_data.shape[1]
     embedding_dim = 8
     state_tuple_mode = True
@@ -257,15 +257,17 @@ def attention_test():
             print("manual cal. loss: {:0.6f} ".format(np.average(-np.log(p[np.arange(y_data.size),y_data.flatten()]))) )            
 
     """
-     <tf.Variable 'test/embedding:0' shape=(5, 8) dtype=float32_ref>,
-     <tf.Variable 'test/memory_layer/kernel:0' shape=(30, 11) dtype=float32_ref>,                                             Wm
-     <tf.Variable 'test/decoder/attention_wrapper/bahdanau_attention/query_layer/kernel:0' shape=(6, 11) dtype=float32_ref>,  Wq
-     <tf.Variable 'test/decoder/attention_wrapper/bahdanau_attention/attention_v:0' shape=(11,) dtype=float32_ref>,           va(attention)
-     <tf.Variable 'test/decoder/attention_wrapper/basic_rnn_cell/kernel:0' shape=(27, 6) dtype=float32_ref>,                  27 = embedding_dim(=input dim = 8) + attention_layer_size(N_l=13) + hidden_dim(6)
-     <tf.Variable 'test/decoder/attention_wrapper/basic_rnn_cell/bias:0' shape=(6,) dtype=float32_ref>,
-     <tf.Variable 'test/decoder/attention_wrapper/attention_layer/kernel:0' shape=(36, 13) dtype=float32_ref>,    Wa          36 = encoder hidden_dim(30)+ (decoder) hidden_dim(=6)
-     <tf.Variable 'test/decoder/output_projection/kernel:0' shape=(13, 5) dtype=float32_ref>,
-     <tf.Variable 'test/decoder/output_projection/bias:0' shape=(5,) dtype=float32_ref>
+    <tf.Variable 'test/embedding:0' shape=(6, 8) dtype=float32_ref>, 
+    <tf.Variable 'test/memory_layer/kernel:0' shape=(30, 11) dtype=float32_ref>,                                                 Wm: (encoder_hidden_dim = 30, num_units=11)
+    <tf.Variable 'test/decoder/attention_wrapper/basic_rnn_cell/kernel:0' shape=(28, 7) dtype=float32_ref>,                      28 = embedding_dim(=input dim = 8) + attention_layer_size(N_l=13) + hidden_dim(7)
+    <tf.Variable 'test/decoder/attention_wrapper/basic_rnn_cell/bias:0' shape=(7,) dtype=float32_ref>, 
+    <tf.Variable 'test/decoder/attention_wrapper/bahdanau_attention/query_layer/kernel:0' shape=(7, 11) dtype=float32_ref>,      Wq: (hidden_dim, num_units)
+    <tf.Variable 'test/decoder/attention_wrapper/bahdanau_attention/attention_v:0' shape=(11,) dtype=float32_ref>,               va
+    <tf.Variable 'test/decoder/attention_wrapper/attention_layer/kernel:0' shape=(37, 13) dtype=float32_ref>,                    Wa: 37 = encoder hidden_dim(30)+ decoder_hidden_dim(7), attention_layer_size(13)
+    
+    <tf.Variable 'test/decoder/output_projection/kernel:0' shape=(13, 6) dtype=float32_ref>, 
+    <tf.Variable 'test/decoder/output_projection/bias:0' shape=(6,) dtype=float32_ref>
+
     
     """
 
@@ -273,18 +275,18 @@ def attention_test():
 
 def attention_multicell_test():
     # BasicRNNCell을 multi로 쌓아 attention 적용. multi에서는 제일 아래 layer에 attention을 적용한다
-    vocab_size = 5
+    vocab_size = 6
     SOS_token = 0
-    EOS_token = 4
+    EOS_token = 5
     
-    x_data = np.array([[SOS_token, 3, 1, 2, 3, 2],[SOS_token, 3, 1, 2, 3, 1],[SOS_token, 1, 3, 2, 2, 1]], dtype=np.int32)
-    y_data = np.array([[1,2,0,3,2,EOS_token],[3,2,3,3,1,EOS_token],[3,1,1,2,0,EOS_token]],dtype=np.int32)
+    x_data = np.array([[SOS_token, 3, 1, 4, 3, 2],[SOS_token, 3, 4, 2, 3, 1],[SOS_token, 1, 3, 2, 2, 1]], dtype=np.int32)
+    y_data = np.array([[1,2,0,3,2,EOS_token],[3,2,3,4,1,EOS_token],[3,1,1,4,0,EOS_token]],dtype=np.int32)
     print("data shape: ", x_data.shape)
     sess = tf.InteractiveSession()
     
     output_dim = vocab_size
     batch_size = len(x_data)
-    hidden_dim =6
+    hidden_dim =7
     num_layers = 2
     seq_length = x_data.shape[1]
     embedding_dim = 8
@@ -349,19 +351,6 @@ def attention_multicell_test():
             print("loss: {:20.6f}".format(sess.run(loss)))
             print("manual cal. loss: {:0.6f} ".format(np.average(-np.log(p[np.arange(y_data.size),y_data.flatten()]))) ) 
 
-    """
-     <tf.Variable 'test/embedding:0' shape=(5, 8) dtype=float32_ref>,
-     <tf.Variable 'test/memory_layer/kernel:0' shape=(30, 11) dtype=float32_ref>,
-     <tf.Variable 'test/decoder/attention_wrapper/bahdanau_attention/query_layer/kernel:0' shape=(6, 11) dtype=float32_ref>,
-     <tf.Variable 'test/decoder/attention_wrapper/bahdanau_attention/attention_v:0' shape=(11,) dtype=float32_ref>,                           va(attention)
-     <tf.Variable 'test/decoder/attention_wrapper/multi_rnn_cell/cell_0/basic_rnn_cell/kernel:0' shape=(27, 6) dtype=float32_ref>,
-     <tf.Variable 'test/decoder/attention_wrapper/multi_rnn_cell/cell_0/basic_rnn_cell/bias:0' shape=(6,) dtype=float32_ref>,
-     <tf.Variable 'test/decoder/attention_wrapper/multi_rnn_cell/cell_1/basic_rnn_cell/kernel:0' shape=(12, 6) dtype=float32_ref>,
-     <tf.Variable 'test/decoder/attention_wrapper/multi_rnn_cell/cell_1/basic_rnn_cell/bias:0' shape=(6,) dtype=float32_ref>,
-     <tf.Variable 'test/decoder/attention_wrapper/attention_layer/kernel:0' shape=(36, 13) dtype=float32_ref>,
-     <tf.Variable 'test/decoder/output_projection/kernel:0' shape=(13, 5) dtype=float32_ref>,
-     <tf.Variable 'test/decoder/output_projection/bias:0' shape=(5,) dtype=float32_ref>
-    """
 
 
 def dynamic_decode_class_test():
@@ -369,8 +358,8 @@ def dynamic_decode_class_test():
     SOS_token = 0
     EOS_token = 5
     
-    #x_data = np.array([[SOS_token, 3, 1, 2, 3, 2],[SOS_token, 3, 1, 2, 3, 1],[SOS_token, 1, 3, 2, 2, 1]], dtype=np.int32)
-    #y_data = np.array([[1,2,0,3,2,EOS_token],[3,2,3,3,1,EOS_token],[3,1,1,2,0,EOS_token]],dtype=np.int32)
+    #x_data = np.array([[SOS_token, 3, 1, 4, 3, 2],[SOS_token, 3, 4, 2, 3, 1],[SOS_token, 1, 3, 2, 2, 1]], dtype=np.int32)
+    #y_data = np.array([[1,2,0,3,2,EOS_token],[3,2,3,4,1,EOS_token],[3,1,1,4,0,EOS_token]],dtype=np.int32)
     
     index_to_char = {SOS_token: '<S>', 1: 'h', 2: 'e', 3: 'l', 4: 'o', EOS_token: '<E>'}
     x_data = np.array([[SOS_token, 1, 2, 3, 3, 4]], dtype=np.int32)
@@ -411,8 +400,8 @@ def dynamic_decode_class_test():
             
 if __name__ == '__main__':
     #dynamic_decode_test()
-    dynamic_decode_class_test()
-    #attention_test()
+    #dynamic_decode_class_test()
+    attention_test()
     #attention_multicell_test()
     
     print('Done')
