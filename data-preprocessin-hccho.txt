@@ -1,0 +1,14 @@
+
+
+from sklearn.preprocessing import StandardScaler
+
+x = np.arange(20).reshape(5,4).astype(np.float32)
+y =  np.arange(16).reshape(4,4).astype(np.float32)
+print(np.mean(x,axis=0))
+
+
+scaler = StandardScaler()
+x = scaler.fit_transform( x )   # (x-m)/s
+print(scaler.mean_, scaler.scale_,scaler.var_,scaler.n_samples_seen_)
+
+y = scaler.transform( y )   # (y-m)/s  x에 적용했던 m,s를 적용
