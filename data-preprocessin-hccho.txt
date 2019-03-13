@@ -1,3 +1,7 @@
+"""
+https://scikit-learn.org/stable/modules/preprocessing.html
+"""
+
 
 from sklearn.preprocessing import StandardScaler,MinMaxScaler,MaxAbsScaler,RobustScaler
 
