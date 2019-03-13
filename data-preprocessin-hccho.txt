@@ -47,7 +47,9 @@ dg = pd.get_dummies(df)
 dg2 = pd.get_dummies(df['sex'])
 dg3 = pd.get_dummies(df,columns=['sex'])
 
-
+# type 변환
+dg3['age'] = dg3['age'].astype(str)
+dg3['age'] = dg3['age'].astype(np.int32)
 
 ############################################################
 
