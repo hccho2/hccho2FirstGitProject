@@ -11,4 +11,4 @@ scaler = StandardScaler()
 x = scaler.fit_transform( x )   # (x-m)/s
 print(scaler.mean_, scaler.scale_,scaler.var_,scaler.n_samples_seen_)
 
-y = scaler.transform( y )   # (y-m)/s  x¿¡ Àû¿ëÇß´ø m,s¸¦ Àû¿ë
+y = scaler.transform( y )   # (y-m)/s  xì— ì ìš©í–ˆë˜ m,së¥¼ ì ìš©
