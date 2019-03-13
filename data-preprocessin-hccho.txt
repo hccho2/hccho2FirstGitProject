@@ -1,14 +1,30 @@
 
-
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler,MinMaxScaler,MaxAbsScaler,RobustScaler
 
 x = np.arange(20).reshape(5,4).astype(np.float32)
 y =  np.arange(16).reshape(4,4).astype(np.float32)
 print(np.mean(x,axis=0))
 
 
-scaler = StandardScaler()
-x = scaler.fit_transform( x )   # (x-m)/s
-print(scaler.mean_, scaler.scale_,scaler.var_,scaler.n_samples_seen_)
-
-y = scaler.transform( y )   # (y-m)/s  x에 적용했던 m,s를 적용
+scaler_type=4
+if scaler_type==1:
+    scaler = StandardScaler()
+    x = scaler.fit_transform( x )   # (x-m)/s
+    print("params", scaler.mean_, scaler.scale_,scaler.var_,scaler.n_samples_seen_)
+    
+    y = scaler.transform( y )   # (y-m)/s  x에 적용했던 m,s를 적용
+elif scaler_type==2:
+    scaler = MinMaxScaler()
+    x = scaler.fit_transform( x )   
+    y = scaler.transform( y )   
+    print(x,y)
+elif scaler_type==3:
+    scaler = MaxAbsScaler()
+    x = scaler.fit_transform( x )   
+    y = scaler.transform( y ) 
+    print(x,y)
+elif scaler_type==4:
+    scaler = MaxAbsScaler()
+    x = scaler.fit_transform( x )   
+    y = scaler.transform( y ) 
+    print(x,y) 
