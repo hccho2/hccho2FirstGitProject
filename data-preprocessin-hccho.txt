@@ -2,6 +2,15 @@
 https://scikit-learn.org/stable/modules/preprocessing.html
 """
 
+############################################################
+df.info()
+df['col_name'].value_counts()  # categorical data의 상세 내용
+df.isnull().sum()  # null 정보
+
+df.head(10) # 상위 몇 줄 
+
+
+############################################################
 
 from sklearn.preprocessing import StandardScaler,MinMaxScaler,MaxAbsScaler,RobustScaler
 
