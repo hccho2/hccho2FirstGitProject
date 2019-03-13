@@ -52,7 +52,13 @@ dg3['age'] = dg3['age'].astype(str)
 dg3['age'] = dg3['age'].astype(np.int32)
 
 ############################################################
+# DataFrame concat(row wise)
 
+s1 = pd.DataFrame([0, 1], index=['A', 'B'])
+s2 = pd.DataFrame([2, 3, 4], index=['A', 'B', 'C'])
+s = pd.concat([s1, s2])
+ss = s.reset_index(drop=True)  # drop=True 옵션을 주면 기존 index가 없으지고, 새로운 index가 생긴다.
+#sss = ss.drop(columns=['index'])  # drop=True을 주지 않았을 경우, 'index' 컬럼을 지운다.
 ############################################################
 
 
