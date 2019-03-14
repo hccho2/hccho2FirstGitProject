@@ -1,6 +1,13 @@
 """
 https://scikit-learn.org/stable/modules/preprocessing.html
 """
+############################################################
+# 
+data = {'type': ['softdrink', 'juice', 'softdrink', 'softdrink',    'juice','juice','juice'],
+    'product': [np.nan,'orange', 'pepsi', 'pepsi', 'orange','grape',np.nan], 
+    'price': [25, 94, 57, 62, 70,50,60]}
+
+
 
 ############################################################
 df.info()
