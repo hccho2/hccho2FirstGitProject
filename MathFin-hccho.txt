@@ -1,0 +1,17 @@
+* visual studio mathfin
+  - 32bit com: Unicode Release MinSize, Win32플랫품
+  - 64bit com: Unicode Release MinSize64, 플랫폼 x64
+  
+* 64bit OS 컴퓨터에서 regsvr32.exe 등록
+  - 32bit com dll을 64bit 컴퓨터에 등록 C:\Windows\SysWOW64\regsvr32.exe 로 등록
+  - 64bit com dll을 64bit 컴퓨터에 등록 C:\Windows\System32\regsvr32.exe 로 등록
+  
+* 64bit 컴퓨터에 32bit dll, 64bit dll을 동시에 등록 가능
+  - 64bit com dll은, 64bit os 컴튜터지만, 32bit Excel에서는 불러 사용할 수 없다.
+  
+* Excel 32bit, 64bit 확인: 
+ - Excel 2010: 도움말 -> 버전 정보 보임
+ - Excel 2007: 잘 확인안됨 --> 올드 버전이니, 32bit이겠지....
+ 
+ 
+* 집 PC. Window 10은 64bit OS이지만, Excel이 32bit이므로, MathFin 32bit DLL을 설치해야 함
