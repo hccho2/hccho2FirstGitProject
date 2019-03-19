@@ -1070,7 +1070,41 @@ def dilation_conv_compare():
     y=sess.run(x)
     
     print(np.array_equal(y,yy))  # numpy.testing.assert_allclose  <--- 오차 범위내에서 
+###############################################
+# dilation 연산을 행렬곱으로 변환하여 연산한 결과와 비교
+def dilation_check():
+    batch_size=2
+    T=10
+    c_in=2
+    c_out=3
+    kernel_size=4
+    dilation = 3
+    strides = 1
+    
+    T = dilation*(kernel_size-1) + 1  # 이렇게 잡아여, 연산후 길이가 1이 된다.
+    x = np.random.normal(size=[batch_size,T,c_in])
+    xx = x[:,0::dilation,:]
+    xx = tf.convert_to_tensor(xx)
+    w = np.random.normal(size=[kernel_size,c_in,c_out]).astype(np.float64)
+    z1=tf.layers.conv1d(xx,filters=c_out,kernel_size=kernel_size, strides=1,kernel_initializer=tf.constant_initializer(w),
+                       use_bias=False,padding='valid')
+    
+    
+    #linearized_weights = tf.reshape(tf.trainable_variables()[0],[-1,c_out])
+    linearized_weights = tf.reshape(tf.convert_to_tensor(w),[-1,c_out])
+    z2 =  tf.matmul(tf.reshape(xx,[batch_size,-1]),linearized_weights)
+    
+    sess = tf.Session()
+    sess.run(tf.global_variables_initializer())
+    
+    z1_=sess.run(z1)
+    z2_=sess.run(z2)
+    
+    print(z1_)
+    print(z2_)
 
+
+###############################################
 def padding_test():
     # valid 를 적용할 때, 어떤 부분을 잘라내는것인가? 정답은 끝부분을 잘라냄. 가운데를 도려내는 방식은 아님.
     X = np.arange(11).reshape(1,-1,1).astype(np.float32)
