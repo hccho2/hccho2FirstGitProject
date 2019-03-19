@@ -1089,10 +1089,9 @@ def dilation_check():
     z1=tf.layers.conv1d(xx,filters=c_out,kernel_size=kernel_size, strides=1,kernel_initializer=tf.constant_initializer(w),
                        use_bias=False,padding='valid')
     
-    
-    #linearized_weights = tf.reshape(tf.trainable_variables()[0],[-1,c_out])
-    linearized_weights = tf.reshape(tf.convert_to_tensor(w),[-1,c_out])
-    z2 =  tf.matmul(tf.reshape(xx,[batch_size,-1]),linearized_weights)
+   
+    linearized_weights = tf.reshape(tf.convert_to_tensor(w),[-1,c_out]) #(kernel_size,c_in,c_out) ==> (kernel_size*c_in,c_out)
+    z2 =  tf.matmul(tf.reshape(xx,[batch_size,-1]),linearized_weights)  # xx: (batch_size,kernel_size,c_in) ==> (batch_size,kernel_size*c_in)
     
     sess = tf.Session()
     sess.run(tf.global_variables_initializer())
