@@ -1084,12 +1084,14 @@ def dilation_check():
     T = dilation*(kernel_size-1) + 1  # 이렇게 잡아여, 연산후 길이가 1이 된다.
     x = np.random.normal(size=[batch_size,T,c_in])
     xx = x[:,0::dilation,:]
+    
+    x = tf.convert_to_tensor(x)
     xx = tf.convert_to_tensor(xx)
     w = np.random.normal(size=[kernel_size,c_in,c_out]).astype(np.float64)
-    z1=tf.layers.conv1d(xx,filters=c_out,kernel_size=kernel_size, strides=1,kernel_initializer=tf.constant_initializer(w),
+    z1=tf.layers.conv1d(x,filters=c_out,kernel_size=kernel_size, strides=1,dilation_rate=3,kernel_initializer=tf.constant_initializer(w),
                        use_bias=False,padding='valid')
     
-   
+       
     linearized_weights = tf.reshape(tf.convert_to_tensor(w),[-1,c_out]) #(kernel_size,c_in,c_out) ==> (kernel_size*c_in,c_out)
     z2 =  tf.matmul(tf.reshape(xx,[batch_size,-1]),linearized_weights)  # xx: (batch_size,kernel_size,c_in) ==> (batch_size,kernel_size*c_in)
     
