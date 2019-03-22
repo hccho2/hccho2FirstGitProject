@@ -1106,7 +1106,7 @@ def dilation_check():
 ###############################################
  def dilation_speed_test():
     # conv1d로 dilation했을 때와, matmul로 했을 때의 속도 비교
-    # ==> 결론: matmul이 더 빠르다.  45초 vs 4.5초
+    # ==> 결론: matmul이 gpu에서는 훨씬 빠르고(45초 vs 4.5초), cpu에서는 약간 빠르다(9.76 초 vs 9.19초)
     batch_size=2
     
     c_in=256
@@ -1147,7 +1147,7 @@ def dilation_check():
     e = time.time()
     
     print(e-s,"sec")
-    print(np.array_equal(z1_,z2_))
+    print(np.array_equal(np.squeeze(z1_),z2_))
     
 
 ###############################################
