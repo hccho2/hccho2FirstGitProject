@@ -1103,7 +1103,52 @@ def dilation_check():
     
     print(z1_)
     print(z2_)
-
+###############################################
+ def dilation_speed_test():
+    # conv1d로 dilation했을 때와, matmul로 했을 때의 속도 비교
+    # ==> 결론: matmul이 더 빠르다.  45초 vs 4.5초
+    batch_size=2
+    
+    c_in=256
+    c_out=256
+    kernel_size=4
+    dilation = 3
+    strides = 1
+    
+    T = dilation*(kernel_size-1) + 1  # 이렇게 잡아여, 연산후 길이가 1이 된다.
+    x = np.random.normal(size=[batch_size,T,c_in])
+    xx = x[:,0::dilation,:]
+    
+    x = tf.convert_to_tensor(x)
+    xx = tf.convert_to_tensor(xx)
+    w = np.random.normal(size=[kernel_size,c_in,c_out]).astype(np.float64)
+    layer  = tf.layers.Conv1D(filters=c_out,kernel_size=kernel_size,dilation_rate=dilation, strides=1,kernel_initializer=tf.constant_initializer(w),
+                       use_bias=False,padding='valid')
+    
+    
+    z1 = layer(x)
+    
+    z2 = tf.matmul(tf.reshape(xx,(batch_size,-1)), tf.reshape(layer.kernel,(-1,c_out)))
+    
+    sess = tf.Session()
+    sess.run(tf.global_variables_initializer())
+    
+    s = time.time()
+    for i in range(20000):
+        z1_= sess.run(z1)
+    e = time.time()
+    
+    print(e-s,"sec")
+    
+    
+    s = time.time()
+    for i in range(20000):
+        z2_= sess.run(z2)
+    e = time.time()
+    
+    print(e-s,"sec")
+    print(np.array_equal(z1_,z2_))
+    
 
 ###############################################
 def padding_test():
