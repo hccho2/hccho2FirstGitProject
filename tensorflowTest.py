@@ -1105,6 +1105,8 @@ def dilation_check():
     print(z2_)
 ###############################################
  def dilation_speed_test():
+    # conv1d로 dilation했을 때와, matmul로 했을 때의 속도 비교
+    # ==> 결론: matmul이 gpu에서는 훨씬 빠르고(45초 vs 4.5초), cpu에서는 약간 빠르다(9.76 초 vs 9.19초)
     batch_size=2
     
     c_in=256
@@ -1133,7 +1135,7 @@ def dilation_check():
     sess.run(tf.global_variables_initializer())
     
     s = time.time()
-    for i in range(1000):
+    for i in range(20000):
         z1_= sess.run(z1)
     e = time.time()
     
@@ -1141,7 +1143,7 @@ def dilation_check():
     
     
     s = time.time()
-    for i in range(1000):
+    for i in range(20000):
         z2_= sess.run(z2)
     e = time.time()
     
