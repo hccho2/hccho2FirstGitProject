@@ -669,6 +669,44 @@ def change_image_format():
 np.concatenate(a,axis=0)   ==>    (1280, 256, 3)  <---- a[0],a[1],a[2],a[3],a[4] 가 axis = 0으로 concat된다.
 np.concatenate(a,axis=1)   ==>    (256, 1280, 3)
 np.concatenate(a,axis=1)   ==>    (256, 256, 15)
+=====================================================================================
+img_path = "cat.jpeg"
+
+im = plt.imread(img_path)
+h,w,c = im.shape
+h1 = w1 = 512
+img_raw = tf.io.read_file(img_path)
+img_tensor = tf.reshape(tf.image.decode_image(img_raw),im.shape)
+
+img_upsampled = tf.image.resize_images(img_tensor,size=(h1,w1),method=1)   #BILINEAR = 0, NEAREST_NEIGHBOR = 1, BICUBIC = 2, AREA = 3
+
+
+
+sess = tf.Session()
+x = sess.run(img_tensor)
+x_upsampled = sess.run(img_upsampled)
+
+fig = plt.figure()
+fig.suptitle("Upsampling", fontsize=16)
+ax = plt.subplot("121")
+ax.set_title("Origin")
+
+ax.imshow(x,extent=[0,w,0,h])
+ax.set_aspect('equal',anchor ='SW')
+
+
+
+ax = plt.subplot("122")
+ax.set_title("Resize")
+
+ax.imshow(x_upsampled,extent=[0,h1,0,w1])
+ax.set_aspect('equal',anchor ='SW')
+
+
+plt.axes
+plt.show()
+
+
 
 =====================================================================================
 print(os.listdir("../"))     <---모든 디렉토리
