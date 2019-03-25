@@ -1105,8 +1105,6 @@ def dilation_check():
     print(z2_)
 ###############################################
  def dilation_speed_test():
-    # conv1d로 dilation했을 때와, matmul로 했을 때의 속도 비교
-    # ==> 결론: matmul이 gpu에서는 훨씬 빠르고(45초 vs 4.5초), cpu에서는 약간 빠르다(9.76 초 vs 9.19초)
     batch_size=2
     
     c_in=256
@@ -1116,7 +1114,7 @@ def dilation_check():
     strides = 1
     
     T = dilation*(kernel_size-1) + 1  # 이렇게 잡아여, 연산후 길이가 1이 된다.
-    x = np.random.normal(size=[batch_size,T,c_in])
+    x = np.random.normal(size=[batch_size,T,c_in]).astype(np.float32)
     xx = x[:,0::dilation,:]
     
     x = tf.convert_to_tensor(x)
@@ -1125,16 +1123,17 @@ def dilation_check():
     layer  = tf.layers.Conv1D(filters=c_out,kernel_size=kernel_size,dilation_rate=dilation, strides=1,kernel_initializer=tf.constant_initializer(w),
                        use_bias=False,padding='valid')
     
-    
-    z1 = layer(x)
+    layer.build((1,1,c_in))   #마지막 dim만 의미가 있다.  build가 없다면, z1=layer(x)를 해서 kernel이 잡힌다.
     
     z2 = tf.matmul(tf.reshape(xx,(batch_size,-1)), tf.reshape(layer.kernel,(-1,c_out)))
+    z1 = layer(x)
+    
     
     sess = tf.Session()
     sess.run(tf.global_variables_initializer())
     
     s = time.time()
-    for i in range(20000):
+    for i in range(1000):
         z1_= sess.run(z1)
     e = time.time()
     
@@ -1142,12 +1141,11 @@ def dilation_check():
     
     
     s = time.time()
-    for i in range(20000):
+    for i in range(1000):
         z2_= sess.run(z2)
     e = time.time()
     
     print(e-s,"sec")
-    #print(np.array_equal(np.squeeze(z1_),z2_))
     print(np.allclose(np.squeeze(z1_),z2_))
     
 
