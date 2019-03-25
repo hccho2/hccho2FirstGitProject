@@ -1147,7 +1147,8 @@ def dilation_check():
     e = time.time()
     
     print(e-s,"sec")
-    print(np.array_equal(np.squeeze(z1_),z2_))
+    #print(np.array_equal(np.squeeze(z1_),z2_))
+    print(np.allclose(np.squeeze(z1_),z2_))
     
 
 ###############################################
