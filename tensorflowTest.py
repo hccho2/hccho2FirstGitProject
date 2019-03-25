@@ -1436,7 +1436,18 @@ w1 = tf.gather_nd(x,[[0],[2]])  # [[ 0.,  1.,  2.,  3.,  4.],[10., 11., 12., 13.
 w2 = tf.gather_nd(x,[[0,2],[2,1]])  # [ 2., 11.]
 
 ###############################################
-	
+def my_func(x):
+    return 2*x*x-3.0
+
+x = tf.placeholder(tf.float32,shape=None)
+
+y = tf.contrib.eager.py_func(func=my_func, inp=[x], Tout=tf.float32)
+
+x_= [1.0,-1.0]
+with tf.Session() as sess:
+  y_ = sess.run(y, feed_dict={x: x_})
+print(x_, y_)
+
 	
 	
 ###############################################
