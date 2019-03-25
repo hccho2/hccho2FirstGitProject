@@ -1451,7 +1451,16 @@ print(x_, y_)
 	
 	
 ###############################################
+# cpu에서는 'channels_first'가 작동하지 않는다.
+x = np.random.normal(size=[2,48,48]).astype(np.float32)
+x = tf.convert_to_tensor(x)
+y  = tf.layers.conv1d(x,filters=48,kernel_size=3, strides=1,use_bias=False,padding='valid',data_format='channels_last') # 'channels_first'
 
+sess = tf.Session()
+sess.run(tf.global_variables_initializer())
+
+y_ = sess.run(y)
+print(y_)
 
 ###############################################
 	
