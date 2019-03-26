@@ -258,8 +258,8 @@ filters=1
 kernel_size = (3,freq_axis_kernel_size )  # 3은  hop_size가 아니고, hard coding되어 있네~~
 strides=(hop_size,1)
 
-subpixedl_layer = SubPixelConvolution(filters, kernel_size,padding='same', strides=strides,
+subpixel_layer = SubPixelConvolution(filters, kernel_size,padding='same', strides=strides,
                                       NN_init=NN_init, NN_scaler=NN_scaler,up_layers=up_layers, name='SubPixelConvolution_layer')
 
-x_resized5 = subpixedl_layer(x_exapand_dim)
+x_resized5 = subpixel_layer(x_exapand_dim)
 x_resized5 = tf.squeeze(x_resized5,3) 
