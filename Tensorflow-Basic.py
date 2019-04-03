@@ -233,6 +233,79 @@ def sin_fitting():
         Y_ = sess.run(L3,feed_dict={x:X})
         plt.plot(X,Y_)
 
+def sin_fitting_rnn():
+    # 결과가 좋지 않다. sine 값은 위로 올라가는 0과 아래오 내려가는 0이 섞여 있는데, 다음 값을 예측하는 것이 되지 않는다.
+    # tf.contrib.seq2seq.InferenceHelper 의 사용법
+    from tensorflow.python.layers.core import Dense
+    XX = np.linspace(0, 15, 301)   # data를 생성하는데만 사용
+    YY =  np.sin(2*XX - 0.1)+ np.random.normal(size=len(XX), scale=0.2) # train에 사용
+    XX = XX.reshape(-1,1)
+    YY= YY.reshape(-1,1)
+    #plt.plot(XX,YY)
+    
+    batch_size = 5
+    seq_length = 10
+    output_dim =1
+    
+    hidden_dim=50
+    
+    X = tf.placeholder(tf.float32,shape=[None,None,1])
+    Y = tf.placeholder(tf.float32,shape=[None,None,1])
+    
+    cell = tf.contrib.rnn.BasicRNNCell(num_units=hidden_dim)
+    initial_state = cell.zero_state(batch_size, tf.float32) #(batch_size x hidden_dim) x layer 개수 
+    
+    helper = tf.contrib.seq2seq.TrainingHelper(X, np.array([seq_length]*batch_size))
+    
+    output_layer = Dense(output_dim, name='output_projection')
+    
+    decoder = tf.contrib.seq2seq.BasicDecoder(cell=cell,helper=helper,initial_state=initial_state,output_layer=output_layer)
+    outputs, last_state, last_sequence_lengths = tf.contrib.seq2seq.dynamic_decode(decoder=decoder,output_time_major=False,impute_finished=True,maximum_iterations=seq_length)
+    
+    loss =   tf.reduce_mean(tf.square(outputs.rnn_output - Y))
+     
+    opt = tf.train.AdamOptimizer(0.01).minimize(loss)
+    sess = tf.Session()
+    sess.run(tf.global_variables_initializer())
+    for i in range(5000):
+        x_batch = []
+        for j in range(batch_size):
+            idx = np.random.randint(0,len(XX)-seq_length-1)
+        
+            x_batch.append(YY[idx:idx+seq_length+1])
+        x_batch=np.array(x_batch)
+        loss_,_ =sess.run([loss,opt],feed_dict={X: x_batch[:,:seq_length,:],Y:x_batch[:,1:,:]})
+        
+        if i%100==0:
+            print("{} loss: = {}".format(i,loss_))    
+    
+    ##################################################
+    batch_size_test =1
+    def _sample_fn(decoder_outputs):
+        return decoder_outputs
+    def _end_fn(sample_ids):
+        # infinite
+        return tf.tile([False], [batch_size_test])
+    helper = tf.contrib.seq2seq.InferenceHelper(
+        sample_fn=_sample_fn,
+        sample_shape=[1],
+        sample_dtype=tf.float32,
+        start_inputs=[[0.0]],
+        end_fn=_end_fn,
+    )
+    initial_state = cell.zero_state(batch_size_test, tf.float32)
+    decoder = tf.contrib.seq2seq.BasicDecoder(cell=cell,helper=helper,initial_state=initial_state,output_layer=output_layer)
+    outputs, last_state, last_sequence_lengths = tf.contrib.seq2seq.dynamic_decode(decoder=decoder,output_time_major=False,impute_finished=True,maximum_iterations=200)
+    
+    
+    test_output =  sess.run(outputs.rnn_output)
+    test_output = np.squeeze(test_output,axis=0)
+    print(test_output.shape)
+    
+    plt.plot(test_output)    
+        
+        
+        
 if __name__ == "__main__":
     MultivariateRegressionTF()
     MultivariateRegressionTF2()
