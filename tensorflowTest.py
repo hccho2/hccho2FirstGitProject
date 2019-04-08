@@ -1469,7 +1469,47 @@ y_ = sess.run(y)
 print(y_)
 
 ###############################################
-	
+def CTC_Loss():
+    batch_size=2
+    output_T=5
+    target_T=3
+    num_class = 4
+    
+    x = np.arange(40).reshape(batch_size,output_T,num_class).astype(np.float32)
+    x = np.random.randn(batch_size,output_T,num_class)
+    x = np.array([[[ 0.74273746,  0.07847633, -0.89669566,  0.87111101],
+            [ 0.35377891,  0.87161664,  0.45004634, -0.01664156],
+            [-0.4019564 ,  0.59862392, -0.90470981, -0.16236736],
+            [ 0.28194173,  0.82136263,  0.06700599, -0.43223688],
+            [ 0.1487472 ,  1.04652007, -0.51399114, -0.4759599 ]],
+    
+           [[-0.53616811, -2.025543  , -0.06641838, -1.88901458],
+            [-0.75484499,  0.24393693, -0.08489008, -1.79244747],
+            [ 0.36912486,  0.93965647,  0.42183299,  0.89334628],
+            [-0.6257366 , -2.25099419, -0.59857886,  0.35591563],
+            [ 0.72191422,  0.37786281,  1.70582983,  0.90937337]]]).astype(np.float32)
+    xx = tf.convert_to_tensor(x)
+    logits = tf.transpose(xx,[1,0,2])
+    
+    
+    
+    
+    
+    yy = np.random.randint(0,num_class-1,size=(batch_size,target_T))  # low=0, high=3 ==> 0,1,2
+    yy = np.array([[1, 2, 2],[1, 0, 1]]).astype(np.int32)
+    
+    
+    zero = tf.constant(0, dtype=tf.int32)
+    where = tf.not_equal(yy, zero)
+    indices = tf.where(where)
+    values = tf.gather_nd(yy, indices)
+    targets = tf.SparseTensor(indices, values, yy.shape)
+    
+    
+    loss = tf.nn.ctc_loss(labels=targets,inputs=logits,sequence_length=[output_T]*batch_size)
+    
+    sess = tf.Session()
+    l = sess.run(loss)
 	
 ###############################################
 	
@@ -1481,6 +1521,22 @@ print(y_)
 	
 ###############################################
 	
+
+###############################################
+	
+	
+###############################################
+	
+
+###############################################
+	
+	
+###############################################
+	
+	
+###############################################
+	
+###############################################
 if __name__ == "__main__":   
     test1()
     
