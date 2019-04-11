@@ -1488,10 +1488,10 @@ def CTC_Loss():
             [ 0.36912486,  0.93965647,  0.42183299,  0.89334628],
             [-0.6257366 , -2.25099419, -0.59857886,  0.35591563],
             [ 0.72191422,  0.37786281,  1.70582983,  0.90937337]]]).astype(np.float32)
+    
     xx = tf.convert_to_tensor(x)
+    xx = tf.Variable(xx)
     logits = tf.transpose(xx,[1,0,2])
-    
-    
     
     
     
@@ -1508,8 +1508,15 @@ def CTC_Loss():
     
     loss = tf.nn.ctc_loss(labels=targets,inputs=logits,sequence_length=[output_T]*batch_size)
     
+    optimizer = tf.train.GradientDescentOptimizer(learning_rate=1)
+    gradient = optimizer.compute_gradients(loss)
+    prob = tf.nn.softmax(xx,axis=-1)
+    
     sess = tf.Session()
+    sess.run(tf.global_variables_initializer())
     l = sess.run(loss)
+    g = sess.run(gradient[0][0])
+    p = sess.run(prob)
 	
 ###############################################
 	
