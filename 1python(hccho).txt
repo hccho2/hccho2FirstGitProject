@@ -1075,7 +1075,9 @@ class controlled_execution:
 with controlled_execution() as xx:
     print(xx.shape)
 =====================================================================================
-
+def softmax(x):  
+    x = x - np.max(x,axis=-1,keepdims=True) 
+    return np.exp(x) / np.sum(np.exp(x),axis=-1,keepdims=True)
 =====================================================================================
 
 =====================================================================================
