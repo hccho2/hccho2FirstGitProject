@@ -1493,11 +1493,8 @@ def CTC_Loss():
     xx = tf.Variable(xx)
     logits = tf.transpose(xx,[1,0,2])
     
-    
-    
     yy = np.random.randint(0,num_class-1,size=(batch_size,target_T))  # low=0, high=3 ==> 0,1,2
     yy = np.array([[1, 2, 2],[1, 0, 1]]).astype(np.int32)
-    
     
     zero = tf.constant(0, dtype=tf.int32)
     where = tf.not_equal(yy, zero)
@@ -1505,18 +1502,30 @@ def CTC_Loss():
     values = tf.gather_nd(yy, indices)
     targets = tf.SparseTensor(indices, values, yy.shape)
     
-    
     loss = tf.nn.ctc_loss(labels=targets,inputs=logits,sequence_length=[output_T]*batch_size)
     
     optimizer = tf.train.GradientDescentOptimizer(learning_rate=1)
     gradient = optimizer.compute_gradients(loss)
+    
+    
     prob = tf.nn.softmax(xx,axis=-1)
+    # jacobian을 이용해서 logits에 대한 softmax값의 미분을 구한다.
+    a = xx[0,1]
+    b = tf.nn.softmax(a)
+    grad = jacobian(b,a)
+    
+    
+    # logit에 대한 미분을 softmax에 대한 미분으로 변환하기 위해 grad의 inverse를 곱한다.
+    # grad의 역행렬이 존재하지 않는다.
+    
     
     sess = tf.Session()
     sess.run(tf.global_variables_initializer())
     l = sess.run(loss)
     g = sess.run(gradient[0][0])
     p = sess.run(prob)
+    gg = sess.run(grad)
+
 	
 ###############################################
 	
