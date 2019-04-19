@@ -16,7 +16,7 @@ tfcpu      C:\Anaconda\hccho-virtual\tfcpu\Scripts\python.exe
 =====================================================================
 import sys
 sys.path.append("../")   <--- 코드내에 추가
-
+sys.path.append("D:\\hccho\\im2txt\\im2txt")
 
 sys.path.insert(0,'D:\\hccho\\ML\\PythonCode\\StackGAN-master')  <--- 코드내에 추가
 또는 eclipse project properties에서 Resource-Linked Resources에서 path를 등록하면 
