@@ -14,6 +14,8 @@ tfcpu      C:\Anaconda\hccho-virtual\tfcpu\Scripts\python.exe
 이렇게 등록한 2개는 각각의 project에서 선택가능하다.  project의 properties - PyDev-Interpreter/Grammar - Interpreter 에서 선택하면 된다.
 
 =====================================================================
+> pip download 
+=====================================================================
 import sys
 sys.path.append("../")   <--- 코드내에 추가
 sys.path.append("D:\\hccho\\im2txt\\im2txt")
