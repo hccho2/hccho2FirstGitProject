@@ -1,3 +1,9 @@
+pydev 수동 설치:
+- features와 plugins 파일들을 위치에 복사한다.
+- java는 설치해도 되지만, eclipse아래에 jre디렉토리 만들고, 복사해도 
+- eclipse 실행 후, windows-preferences-PyDev-Interpreters-Python Interpreter - QuickAuto-Config
+
+===========================================================================
 venv로 가상환경 만들기
 
 1. 가상환경을 만들 디렉토리를 만들어 이동한다.
