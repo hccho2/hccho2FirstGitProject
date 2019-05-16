@@ -306,7 +306,53 @@ def MNIST_NN2(layer_size_list,Xavier=True,Dropout=False,KeepProb=0.7):
     
     sess.close()
 
+def mnist_classifier():
+    #위의 MNIST_NN2와 동일한 모델, tf.layers.dense를 이용하여 구현
+    tf.set_random_seed(1234)
+    batch_size = 256
+    num_epoch= 100
+    
+    mnist = input_data.read_data_sets("..//mnist/", one_hot=True)   #mnist.train.images, mnist.test.labels
+    X = tf.placeholder(tf.float32, shape=[None, 784])
+    Y = tf.placeholder(tf.float32, shape=[None, 10])
 
+    init = tf.contrib.layers.xavier_initializer(uniform=True)
+    layer1 = tf.layers.dense(X,units=256,activation=tf.nn.relu,kernel_initializer=init)  
+    layer2 = tf.layers.dense(layer1,units=256,activation=tf.nn.relu,kernel_initializer=init) 
+    logits = tf.layers.dense(layer2,units=10,activation=None,kernel_initializer=init)
+   
+    predict = tf.nn.softmax(logits)
+    correct_prediction = tf.equal(tf.argmax(predict, axis=1), tf.argmax(Y, axis=1))
+    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+    
+    cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(labels=Y,logits=logits))
+    
+    optimizer = tf.train.AdamOptimizer(learning_rate=1e-3).minimize(cost)
+    
+    sess = tf.Session()
+    sess.run(tf.global_variables_initializer())
+    
+    n_iter = mnist.train.num_examples // batch_size
+    s=time.time()
+    for i in range(num_epoch):
+        for j in range(n_iter):
+            batch_xs, batch_ys = mnist.train.next_batch(batch_size)
+            sess.run(optimizer,feed_dict={X:batch_xs,Y:batch_ys})
+        cost_,train_acc = sess.run([cost,accuracy],feed_dict={X:batch_xs,Y:batch_ys})
+        test_acc = sess.run(accuracy, feed_dict={X: mnist.test.images, Y: mnist.test.labels})  # test data 10000개
+        print('epoch: {}, loss = {:.4f}, train acc = {:.4f}, test_acc = {:.4f}, elapsed = {:.2f}'.format(i+1,cost_,train_acc,test_acc,time.time()-s))
+    
+    
+    batch_xs, batch_ys = mnist.test.next_batch(10)
+    predict_ = sess.run(predict,feed_dict={X:batch_xs})
+
+    print('label: ', np.argmax(batch_ys,axis=1))
+    print('predict: ', np.argmax(predict_,axis=1))
+
+    batch_xs = batch_xs.reshape(-1,28,28)
+    skimage.io.imshow(np.concatenate(batch_xs,axis=1))
+    plt.title('predict:' + str(np.argmax(predict_,axis=1)))
+    plt.show()
 def MNIST_NN3(layer_size_list,Xavier=True,KeepProb=0.7):
     # 실험적으로 activation function 없이 dropout만 적용  ==> 잘 안됨(activation 없이 layer를 늘려도 accuracy 올라가지 않음)
     tf.reset_default_graph()
