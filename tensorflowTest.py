@@ -1528,7 +1528,15 @@ def CTC_Loss():
 
 	
 ###############################################
-	
+t_vars = tf.trainable_variables()
+d_vars = [var for var in t_vars if "discriminator" in var.name]
+
+
+t_vars = tf.trainable_variables()
+d_vars = [var for var in t_vars if var.name.startswith('d_lr')]
+
+
+d_loss_optimizer = tf.train.AdamOptimizer(learning_rate,beta1=0.5).minimize(self.d_loss,var_list=d_vars)
 ###############################################
 	
 	
