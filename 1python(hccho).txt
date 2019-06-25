@@ -162,6 +162,7 @@ with printoptions(precision=3, suppress=True):
     print('eigenvalue 비교',np.sqrt(w) - s)
     print('U.dot(U.T)',U.dot(U.T))
     print('UU.dot(UU.T)',UU.dot(UU.T))   # Identity 안됨
+    print('UU.T.dot(UU)',UU.T.dot(UU))
     print('V.dot(V.T)', V.dot(V.T))
     print('VV.dot(VV.T)', VV.dot(VV.T))
     
