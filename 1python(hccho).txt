@@ -159,6 +159,7 @@ print(UU.shape,ss.shape,VV.shape)
 
 with printoptions(precision=3, suppress=True):
     # enginvalue 비교
+    print('eigen decomposition', z.dot(np.diag(w)).dot(z.T) - aa)
     print('eigenvalue 비교',np.sqrt(w) - s)
     print('U.dot(U.T)',U.dot(U.T))
     print('UU.dot(UU.T)',UU.dot(UU.T))   # Identity 안됨
