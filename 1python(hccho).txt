@@ -1098,16 +1098,23 @@ def softmax(x):
 =====================================================================================
 #deep copy
 
-a = np.array([[1,2],[3,4]]).astype(np.float16)
-b = np.zeros_like(a)
-c = np.zeros_like(a)
-
-b = a   # shallow copy
-c[...] = a  # deep copy(c가 미리 선언되어 있어야 한다.  c = np.zeros_like(a)  )  
-b[1] = [3.6,5.6]
-c[1] = [3.9,5.9]
-
-print(a,b,c)
+def copy_test():
+    a = np.array([[1,2],[3,4]]).astype(np.float16)
+    b = np.zeros_like(a)
+    c = np.zeros_like(a)
+    
+    b = a   # shallow copy
+    
+    deep_copy=False
+    if deep_copy:
+        c[...] = a  # deep copy(c가 미리 선언되어 있어야 한다.  c = np.zeros_like(a)  )  
+    else: c = a[:]   # c =a 와 동일
+    b[1] = [3.6,5.6]
+    c[1] = [3.9,5.9]
+    
+    print("a: ", a,'\nb: ',b,'\nc: ',c)
+    
+copy_test()
 
 =====================================================================================
 
