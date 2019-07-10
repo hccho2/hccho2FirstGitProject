@@ -1545,7 +1545,8 @@ d_vars = [var for var in t_vars if var.name.startswith('d_lr')]
 
 d_loss_optimizer = tf.train.AdamOptimizer(learning_rate,beta1=0.5).minimize(self.d_loss,var_list=d_vars)
 ###############################################
-	
+tensorflow이 seed 고정은 graph level에서의 고정이다.
+tf.set_random_seed(1)는 tf.Session() 선언 이후에 위치해야 한다.
 	
 ###############################################
 	
