@@ -475,27 +475,32 @@ LSTMStateTuple(c=array([[-0.08561244, -0.71315455],[-0.02546103, -0.3122089 ]], 
  
 def init_from_checkpoint():
     from tensorflow.contrib.framework.python.framework import checkpoint_utils
-    checkpoint_dir = 'D:\\hccho\\multi-speaker-tacotron-tensorflow-master\\logs\\moon_2018-08-18_20-01-48\\model.ckpt-48000' # 구체적으로 명시
-    #checkpoint_dir = 'D:\\hccho\\cs231n-Assignment\\assignment3\\save-sigle-layer # 디렉토리만 지정 ==> 가장 최근
+    
+    
+    checkpoint_dir = 'D:\\hccho\\Tacotron-2-hccho\\ver1\\logdir-tacotron2\\moon+son_2019-02-27_00-21-42\\model.ckpt-56000' # 구체적으로 명시
+    #checkpoint_dir = 'D:\\hccho\\cs231n-Assignment\\assignment3\\save-sigle-layer' # 디렉토리만 지정 ==> 가장 최근
     var_list = checkpoint_utils.list_variables(checkpoint_dir)
     
     
-    #1 직접 선언한 variable 초기화
-    vv = checkpoint_utils.load_variable(checkpoint_dir, var_list[100][0])
+    #1 직접 선언한 variable을 ckpt로부터 값 불러와 초기화
+    vv = checkpoint_utils.load_variable(checkpoint_dir, var_list[50][0])  #  var_list[50][0]<--name,  var_list[50][1]<-- shape
     w = tf.get_variable('var1', shape=vv.shape)
-    tf.train.init_from_checkpoint(checkpoint_dir,{var_list[100][0]: w})  # initializer 해야 값이 할당된다.
-    #2 간접적으로 선언된 variable 초기화
-    vv2 = checkpoint_utils.load_variable(checkpoint_dir, var_list[140][0])
-    X = np.arange(2*128).reshape(2,128).astype(np.float32)
-    Y = tf.layers.dense(tf.convert_to_tensor(X),units=128)
-    tf.train.init_from_checkpoint(checkpoint_dir,{var_list[140][0]: 'dense/kernel'})
+    tf.train.init_from_checkpoint(checkpoint_dir,{var_list[50][0]: w})  # var_list[50]에 있는 값이 w로 할당된다. sess.run(tf.global_variables_initializer()) 해야 값이 할당된다.
+    
+    
+    
+    #2 tf.layers.dense로 간접적으로 선언된 variable을 ckpt로부터 값 불러와 초기화
+    vv2 = checkpoint_utils.load_variable(checkpoint_dir, var_list[141][0])
+    X = np.arange(3*16).reshape(3,16).astype(np.float32)  # var_list[141]의  shape확인 후, 잡았다.
+    Y = tf.layers.dense(tf.convert_to_tensor(X),units=2048,name='hccho')
+    tf.train.init_from_checkpoint(checkpoint_dir,{var_list[141][0]: 'hccho/kernel'})
+    
+    
     graph = tf.get_default_graph()
-    
-    
     sess = tf.Session()
     sess.run(tf.global_variables_initializer())
-    ww,kk = sess.run([w,graph.get_tensor_by_name('dense/kernel:0')])
     
+    ww,kk = sess.run([w,graph.get_tensor_by_name('hccho/kernel:0')])
     print(np.allclose(ww,vv))
     print(np.allclose(kk,vv2))
 
