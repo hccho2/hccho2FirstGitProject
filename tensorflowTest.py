@@ -474,6 +474,7 @@ LSTMStateTuple(c=array([[-0.08561244, -0.71315455],[-0.02546103, -0.3122089 ]], 
         print(vv) #values   
  
 def init_from_checkpoint():
+    #ckpt로 부터 특정 값만 뽑아내어, 선언한 변수 초기화 하기.
     from tensorflow.contrib.framework.python.framework import checkpoint_utils
     
     
