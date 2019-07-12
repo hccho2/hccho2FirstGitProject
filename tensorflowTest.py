@@ -1549,7 +1549,18 @@ tensorflow이 seed 고정은 graph level에서의 고정이다.
 tf.set_random_seed(1)는 tf.Session() 선언 이후에 위치해야 한다.
 	
 ###############################################
-	
+batch_size = 2
+num_true = 5 # word2vec에서 정답 label은 1개가 보통
+labels = tf.convert_to_tensor(np.array([[0,1,2,3,4],[5,6,7,8,9]],dtype=np.int64))  #(batch_size,num_true)
+num_sampled =50
+num_classes = 50
+
+
+a = tf.nn.log_uniform_candidate_sampler(true_classes=labels,num_true=num_true,num_sampled=num_sampled,unique=True,range_max=num_classes)
+sess = tf.Session()
+b = sess.run(a)
+
+print(np.sum(b[2]))
 	
 ###############################################
 	
