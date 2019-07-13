@@ -172,7 +172,8 @@ def attention_test():
     
         Y = tf.convert_to_tensor(y_data)
     
-        #encoder_outputs = tf.ones([batch_size,20,30])
+        # encoder_outputs = tf.ones([batch_size,20,30])
+        # encoder_outputs의 (N,T,xx). 여기서 하나의 미니 배치에서는 길이 T로 만들어져 있다(padding). 그러나 미니 배치마다 길이가 달라진다.
         encoder_outputs = tf.convert_to_tensor(np.random.normal(0,1,[batch_size,20,30]).astype(np.float32)) # 20: encoder sequence length, 30: encoder hidden dim
         
         #input_lengths = [20]*batch_size
