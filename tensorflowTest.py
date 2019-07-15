@@ -1152,7 +1152,44 @@ def dilation_check2():
     print(z1_)
     print(z2_)
 
-
+def dilation_check2():
+    # 모든 길이에 대해 일반화
+    batch_size=2
+    T=10
+    c_in=2
+    c_out=3
+    kernel_size=4
+    dilation = 3
+    strides = 1
+    
+    out_len=9
+    T = dilation*(kernel_size-1) + out_len  # 이렇게 잡아여, 연산후 길이가 2이 된다.
+    x = np.random.normal(size=[batch_size,T,c_in])
+    
+    #xx = x[:,0::dilation,:]
+    xx = []
+    for i in range(out_len):
+        xx.append(x[:,i::dilation,:][:,:kernel_size,:])
+    xx = np.concatenate(xx,axis=1)
+    
+    x = tf.convert_to_tensor(x)
+    xx = tf.convert_to_tensor(xx)
+    w = np.random.normal(size=[kernel_size,c_in,c_out]).astype(np.float64)
+    z1=tf.layers.conv1d(x,filters=c_out,kernel_size=kernel_size, strides=1,dilation_rate=3,kernel_initializer=tf.constant_initializer(w),
+                       use_bias=False,padding='valid')
+    
+       
+    linearized_weights = tf.reshape(tf.convert_to_tensor(w),[-1,c_out]) #(kernel_size,c_in,c_out) ==> (kernel_size*c_in,c_out)
+    z2 =  tf.matmul(tf.reshape(xx,[-1,kernel_size*c_in]),linearized_weights)  # xx: (batch_size,kernel_size,c_in) ==> (batch_size,kernel_size*c_in)
+    z2 = tf.reshape(z2,[batch_size,-1,c_out])
+    sess = tf.Session()
+    sess.run(tf.global_variables_initializer())
+    
+    z1_=sess.run(z1)
+    z2_=sess.run(z2)
+    
+    print(z1_)
+    print(z2_)
 
 ###############################################
  def dilation_speed_test():
