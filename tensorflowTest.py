@@ -1085,7 +1085,7 @@ def dilation_conv_compare():
     print(np.array_equal(y,yy))  # numpy.testing.assert_allclose  <--- 오차 범위내에서 
 ###############################################
 # dilation 연산을 행렬곱으로 변환하여 연산한 결과와 비교
-def dilation_check():
+def dilation_check1():
     batch_size=2
     T=10
     c_in=2
@@ -1116,6 +1116,44 @@ def dilation_check():
     
     print(z1_)
     print(z2_)
+
+def dilation_check2():
+    # dilation_check1은 output 길이가 1이 되는 특수한 경우. 이번에는 output 길이 2가 되는 경우.
+    batch_size=2
+    T=10
+    c_in=2
+    c_out=3
+    kernel_size=4
+    dilation = 3
+    strides = 1
+    
+    T = dilation*(kernel_size-1) + 2  # 이렇게 잡아여, 연산후 길이가 2이 된다.
+    x = np.random.normal(size=[batch_size,T,c_in])
+    
+    #xx = x[:,0::dilation,:]
+    xx = np.concatenate([x[:,0::dilation,:],x[:,1::dilation,:]],axis=1)  # 길이 2이기 때문에...2개만 concat
+    
+    x = tf.convert_to_tensor(x)
+    xx = tf.convert_to_tensor(xx)
+    w = np.random.normal(size=[kernel_size,c_in,c_out]).astype(np.float64)
+    z1=tf.layers.conv1d(x,filters=c_out,kernel_size=kernel_size, strides=1,dilation_rate=3,kernel_initializer=tf.constant_initializer(w),
+                       use_bias=False,padding='valid')
+    
+       
+    linearized_weights = tf.reshape(tf.convert_to_tensor(w),[-1,c_out]) #(kernel_size,c_in,c_out) ==> (kernel_size*c_in,c_out)
+    z2 =  tf.matmul(tf.reshape(xx,[-1,kernel_size*c_in]),linearized_weights)  # xx: (batch_size,kernel_size,c_in) ==> (batch_size,kernel_size*c_in)
+    z2 = tf.reshape(z2,[batch_size,-1,c_out])
+    sess = tf.Session()
+    sess.run(tf.global_variables_initializer())
+    
+    z1_=sess.run(z1)
+    z2_=sess.run(z2)
+    
+    print(z1_)
+    print(z2_)
+
+
+
 ###############################################
  def dilation_speed_test():
     # conv1d로 dilation했을 때와, matmul로 했을 때의 속도 비교
