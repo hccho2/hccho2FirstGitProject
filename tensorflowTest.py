@@ -725,7 +725,7 @@ def shuffle_batch():
     # shuffle_batch를 이용하는 또 다른 방식
     # 전체 data를 tf.train.slice_input_producer에 넣어 처리
     myDataX = np.array([[0,0,1],[0,1,1],[1,0,1],[1,1,1],[0,0,1],[0,1,1],[1,0,1],[1,1,1],[0,0,1],[0,1,1],[1,0,1],[1,1,1]]).astype(np.float32)
-    myDataY = np.array([[0,1,1,1,0,1,1,1,0,1,1,1]]).astype(np.float32).T
+    myDataY = np.array([[0,1,2,3,4,5,6,7,8,9,10,11]]).astype(np.float32).T
     
     X = tf.convert_to_tensor(myDataX, tf.float32)
     Y = tf.convert_to_tensor(myDataY, tf.float32)    
@@ -742,11 +742,8 @@ def shuffle_batch():
         coord = tf.train.Coordinator()
         threads = tf.train.start_queue_runners(sess=sess, coord=coord)
         
-        
-        print(sess.run([x,y]))
-
-        
-        print(sess.run([x,y]))
+    	for i in range(20):
+            print(sess.run([x,y]))
 
         coord.request_stop()
         coord.join(threads)  
