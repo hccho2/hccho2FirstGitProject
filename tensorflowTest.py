@@ -751,6 +751,7 @@ def shuffle_batch():
     print('Done')
 #############################################################
 def Make_Batch():
+    # 이 example도 data가 simple할 때는 가능하지만, mini batch별로 조작을 어떻게 해야하는지???
     from tensorflow.keras import preprocessing
     samples = ['너 오늘 이뻐 보인다', 
                '나는 오늘 기분이 더러워', 
