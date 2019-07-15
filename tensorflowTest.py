@@ -749,7 +749,52 @@ def shuffle_batch():
         coord.join(threads)  
     
     print('Done')
-	
+#############################################################
+def Make_Batch():
+
+    from tensorflow.keras import preprocessing
+    samples = ['너 오늘 이뻐 보인다', 
+               '나는 오늘 기분이 더러워', 
+               '끝내주는데, 좋은 일이 있나봐', 
+               '나 좋은 일이 생겼어', 
+               '아 오늘 진짜 짜증나', 
+               '환상적인데, 정말 좋은거 같아']
+    
+    label = [[1], [0], [1], [1], [0], [1]]
+    MAX_LEN = 6
+    
+    tokenizer = preprocessing.text.Tokenizer()
+    tokenizer.fit_on_texts(samples)
+    sequences = tokenizer.texts_to_sequences(samples)
+    
+    sequences = preprocessing.sequence.pad_sequences(sequences, maxlen=MAX_LEN, padding='post')
+    
+    word_index = tokenizer.word_index
+    
+    
+    
+    BATCH_SIZE = 2
+    EPOCH = 20
+    
+    def mapping_fn(X, Y=None):
+        input = {'x': X}
+        label = Y
+        return input, label
+    
+    dataset = tf.data.Dataset.from_tensor_slices((sequences, label))
+    dataset = dataset.map(mapping_fn)
+    dataset = dataset.shuffle(len(sequences))
+    dataset = dataset.batch(BATCH_SIZE) 
+    dataset = dataset.repeat(EPOCH)
+    iterator = dataset.make_one_shot_iterator()
+    next_data = iterator.get_next()
+    
+    with tf.Session() as sess:
+        while True:
+            try:
+                print(sess.run(next_data))
+            except tf.errors.OutOfRangeError:
+                break	
 #############################################################
 def expand_and_concat():
     tf.reset_default_graph()
