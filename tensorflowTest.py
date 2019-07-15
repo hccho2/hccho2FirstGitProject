@@ -751,7 +751,6 @@ def shuffle_batch():
     print('Done')
 #############################################################
 def Make_Batch():
-
     from tensorflow.keras import preprocessing
     samples = ['너 오늘 이뻐 보인다', 
                '나는 오늘 기분이 더러워', 
@@ -777,9 +776,9 @@ def Make_Batch():
     EPOCH = 20
     
     def mapping_fn(X, Y=None):
-        input = {'x': X}
-        label = Y
-        return input, label
+        input = {'xx': X}  # dict로 보낼 때, key는 
+        lable = Y # label = {'yy': Y}로 해도 된다.
+        return input, label  # input은 dict, label은 numpy array로 
     
     dataset = tf.data.Dataset.from_tensor_slices((sequences, label))
     dataset = dataset.map(mapping_fn)
@@ -792,9 +791,9 @@ def Make_Batch():
     with tf.Session() as sess:
         while True:
             try:
-                print(sess.run(next_data))
+                print(sess.run(next_data)) # <---tuple, next_data[0],next_data[1]로 각각 접근 가능
             except tf.errors.OutOfRangeError:
-                break	
+                break
 #############################################################
 def expand_and_concat():
     tf.reset_default_graph()
