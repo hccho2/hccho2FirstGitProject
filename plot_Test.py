@@ -232,7 +232,19 @@ plt.show()
 
 
 ##########################################################
+# 각각의 x축 값으로 그리기
+x = np.linspace(0, 2 * np.pi, 400)
+y1 = np.sin(x ** 2)
+y2= np.cos(x ** 2)
+y3 = np.sin(x[::2]**2)
+plt.plot(x, y1, label='sin')
+plt.plot(x, y2, label='cos', linestyle='--')
+plt.plot(x[::2], y3, label='sin**', linestyle='-')
 
+
+plt.legend(loc='upper left')
+plt.show()
+plt.close()
 
 
 
