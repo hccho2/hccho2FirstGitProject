@@ -827,6 +827,8 @@ def padded_batch_test():
     dataset = dataset.shuffle(buffer_size=1)
     # Repeat the input indefinitly
     dataset = dataset.repeat()  
+    dataset = dataset.prefetch(20)  # buffer_size = 20
+
     # Generate batches
     dataset = dataset.padded_batch(2, padded_shapes=([None],[None]), 
                                    padding_values=(tf.constant(-1, dtype=tf.int64),
