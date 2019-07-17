@@ -24,11 +24,11 @@ def get_most_recent_checkpoint(checkpoint_dir):
     print(" [*] Found lastest checkpoint: {}".format(lastest_checkpoint))
     return lastest_checkpoint
 class DataFeeder(threading.Thread):
-    def __init__(self,sess,coordinator,batch_size):
+    def __init__(self,coordinator,batch_size):
         super(DataFeeder, self).__init__()
         self.coord = coordinator
         self.batch_size = batch_size
-        self.sess = sess
+        self.step = 0  # train step에 따라 data feed 성격이 달라 질 것에 대비
         
         
         self.placeholders = [tf.placeholder(tf.float32, [None,3]), tf.placeholder(tf.float32, [None,1])  ] # 여기에 data를 넣어준다.
@@ -40,6 +40,12 @@ class DataFeeder(threading.Thread):
         self.x, self.y =  queue.dequeue()
         self.x.set_shape(self.placeholders[0].shape)
         self.y.set_shape(self.placeholders[1].shape)
+
+
+    def start_in_session(self, session, start_step):
+        self.step = start_step
+        self.sess = session
+        self.start()
         
     def run(self):
         try:
@@ -71,6 +77,8 @@ class SimpleNet2():
     def __init__(self,datafeeder):
         self.datafeeder = datafeeder
         self.build_model()
+        
+
     def build_model(self):
         
         L1 = tf.layers.dense(self.datafeeder.x,units=4, activation = tf.sigmoid,name='L1')
@@ -82,15 +90,19 @@ class SimpleNet2():
 
 def run_and_save_SimpleNet():
     
+    coord = tf.train.Coordinator()
+    train_feeder = DataFeeder(coord,batch_size=2)
+    simnet = SimpleNet(train_feeder)  
+    
+    
+    
+    
     with tf.Session() as sess:
         try:
-            coord = tf.train.Coordinator()
-            train_feeder = DataFeeder(sess,coord,batch_size=2)
             
-            simnet = SimpleNet(train_feeder)  
             step=0
             sess.run(tf.global_variables_initializer())
-            train_feeder.start()  # 반드시 있어야됨
+            train_feeder.start_in_session(sess,step)  # 반드시 있어야됨
             
             
             while not coord.should_stop():
