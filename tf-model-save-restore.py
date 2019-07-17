@@ -15,6 +15,10 @@ ckpt_file_name_preface = 'model.ckpt'   # 이 이름을 바꾸면, get_most_rece
 checkpoint_path = os.path.join(log_dir, ckpt_file_name_preface)
 def get_most_recent_checkpoint(checkpoint_dir):
     checkpoint_paths = [path for path in glob("{}/*.ckpt-*.data-*".format(checkpoint_dir))]
+    
+    if checkpoint_paths == []: 
+        return ''
+    
     idxes = [int(os.path.basename(path).split('-')[1].split('.')[0]) for path in checkpoint_paths]
 
     max_idx = max(idxes)
@@ -69,22 +73,11 @@ class SimpleNet():
         L1 = tf.layers.dense(self.datafeeder.x,units=4, activation = tf.sigmoid,name='L1')
         L2 = tf.layers.dense(L1,units=1, activation = tf.sigmoid,name='L2')
         self.loss = tf.reduce_mean( 0.5*tf.square(L2-self.datafeeder.y))
-        self.train_op = tf.train.AdamOptimizer(learning_rate=0.1).minimize(self.loss )
-
-
-class SimpleNet2():
-    # class의 init에서 datafeeder를 받아들이는 것이 좋지 않다. train만 하는 것이 아니고, inference도 있기 때문
-    def __init__(self,datafeeder):
-        self.datafeeder = datafeeder
-        self.build_model()
         
+    def add_optimizer(self,global_step):
+        self.train_op = tf.train.AdamOptimizer(learning_rate=0.1).minimize(self.loss,global_step=global_step )
 
-    def build_model(self):
-        
-        L1 = tf.layers.dense(self.datafeeder.x,units=4, activation = tf.sigmoid,name='L1')
-        L2 = tf.layers.dense(L1,units=1, activation = tf.sigmoid,name='L2')
-        self.loss = tf.reduce_mean( 0.5*tf.square(L2-self.datafeeder.y))
-        self.train_op = tf.train.AdamOptimizer(learning_rate=0.1).minimize(self.loss )
+
 
 
 
@@ -94,29 +87,39 @@ def run_and_save_SimpleNet():
     train_feeder = DataFeeder(coord,batch_size=2)
     simnet = SimpleNet(train_feeder)  
     
+    global_step = tf.Variable(0, name='global_step', trainable=False)
+    simnet.add_optimizer(global_step)
     
-    
-    
+    saver = tf.train.Saver(tf.global_variables())
     with tf.Session() as sess:
         try:
             
-            step=0
             sess.run(tf.global_variables_initializer())
-            train_feeder.start_in_session(sess,step)  # 반드시 있어야됨
+            
+            # 모델 restore
+            restore_path = get_most_recent_checkpoint(log_dir)
+            if restore_path == '':
+                start_step=0
+                sess.run(tf.assign(global_step, 0))
+            else:
+                saver.restore(sess, restore_path)
+                print('Resuming from checkpoint: %s' %(restore_path))
+            
+            start_step = sess.run(global_step)
             
             
+            train_feeder.start_in_session(sess,start_step)  # 반드시 있어야됨
             while not coord.should_stop():
-                sess.run(simnet.train_op)
-                step = step+1
+                step, _ =sess.run([global_step,simnet.train_op])
                  
                 if step%1000==0:
-                    print("step ",step, ", loss = ", sess.run(simnet.loss))
+                    print("step ",step, ": loss = ", sess.run(simnet.loss))
                 
                 
                 
                 if step%30000 ==0:
                     #print(tf.global_variables())
-                    saver = tf.train.Saver(tf.global_variables())
+                    
                     saver.save(sess, checkpoint_path, global_step=step)
 
         except Exception as e:
@@ -129,22 +132,25 @@ def run_and_save_SimpleNet():
             
             
 def model_restore_SimpleNet():
+    
+    coord = tf.train.Coordinator()
+
+    train_feeder = DataFeeder(coord,batch_size=2)   
+    start_step = 0
     with tf.Session() as sess:
         try:
-            coord = tf.train.Coordinator()
 
-            train_feeder = DataFeeder(sess,coord,batch_size=2)
             
             simnet = SimpleNet(train_feeder)  
             sess.run(tf.global_variables_initializer())
-            train_feeder.start()
+            train_feeder.start_in_session(sess,start_step)
             while not coord.should_stop():
                 saver = tf.train.Saver(tf.global_variables())
                 
                 print(sess.run(tf.get_default_graph().get_tensor_by_name('L1/kernel:0')))
                 print('Before restore loss = ', sess.run(simnet.loss))
                 
-                restore_path = get_most_recent_checkpoint('.//hccho-ckpt')
+                restore_path = get_most_recent_checkpoint(log_dir)
                 saver.restore(sess, restore_path)
                 print('model restored!!!')
                 #sess.run(tf.global_variables_initializer())  # restore 후, 다시 initializer 하면 안됨.
@@ -160,7 +166,135 @@ def model_restore_SimpleNet():
         finally:
             print('finally')
             coord.request_stop()        
+
+
+
+###########################################################################################
+###########################################################################################
+###########################################################################################
+###########################################################################################
+###########################################################################################
+###########################################################################################
+###########################################################################################
+"""
+SimpleNet의 init에서 datafeeder를 구조를 가지고 있다. train만 하는 것이 아니고, inference도 있기 때문
+SimpleNet2로 개선
+
+"""
+class SimpleNet2():
+    
+    def __init__(self,train_mode=False):
+        self.train_mode=train_mode
+
+    def build_model(self, inputs,outputs=None):
+        
+        L1 = tf.layers.dense(inputs,units=4, activation = tf.sigmoid,name='L1')
+        self.L2 = tf.layers.dense(L1,units=1, activation = tf.sigmoid,name='L2')
+        if self.train_mode:
+            self.loss = tf.reduce_mean( 0.5*tf.square(self.L2-outputs))
+    
+    def add_optimizer(self,global_step):
+        # optimizer에 global_step을 넘겨줘야, global_step이 자동으로 증가된다.
+        self.train_op = tf.train.AdamOptimizer(learning_rate=0.1).minimize(self.loss,global_step=global_step )
+
+def run_and_save_SimpleNet2():
+    
+    coord = tf.train.Coordinator()
+    train_feeder = DataFeeder(coord,batch_size=2)
+    simnet = SimpleNet2(train_mode=True)  
+    simnet.build_model(train_feeder.x, train_feeder.y)
+    
+    
+    global_step = tf.Variable(0, name='global_step', trainable=False)
+    simnet.add_optimizer(global_step)
+    
+    saver = tf.train.Saver(tf.global_variables())
+    with tf.Session() as sess:
+        try:
+            
+            sess.run(tf.global_variables_initializer())
+            
+            # 모델 restore
+            restore_path = get_most_recent_checkpoint(log_dir)
+            if restore_path == '':
+                start_step=0
+                sess.run(tf.assign(global_step, 0))
+            else:
+                saver.restore(sess, restore_path)
+                print('Resuming from checkpoint: %s' %(restore_path))
+            
+            start_step = sess.run(global_step)
+            
+            
+            train_feeder.start_in_session(sess,start_step)  # 반드시 있어야됨
+            while not coord.should_stop():
+                step, _ =sess.run([global_step,simnet.train_op])
+                 
+                if step%1000==0:
+                    print("step ",step, ": loss = ", sess.run(simnet.loss))
+                
+                
+                
+                if step%30000 ==0:
+                    #print(tf.global_variables())
+                    saver.save(sess, checkpoint_path, global_step=step)
+                    print('Saving checkpoint to: %s-%d' % (checkpoint_path, step))
+                    
+
+        except Exception as e:
+            print('Exiting due to exception: %s' % e)
+            coord.request_stop(e)
+
+        finally:
+            print('finally')
+            coord.request_stop()
+            
+            
+def model_restore_SimpleNet2():
+    
+
+    start_step = 0
+    
+    inputs = tf.placeholder(tf.float32, [None,3])
+    simnet = SimpleNet2(train_mode=False)  
+    simnet.build_model(inputs)    
+    
+    with tf.Session() as sess:
+
+
+        sess.run(tf.global_variables_initializer())
+
+        saver = tf.train.Saver(tf.global_variables())
+        
+        print(sess.run(tf.get_default_graph().get_tensor_by_name('L1/kernel:0')))
+        print('prediction before training = ', sess.run(simnet.L2,feed_dict={inputs: myDataX[:2] }))
+        
+        
+        
+        
+        restore_path = get_most_recent_checkpoint(log_dir)
+        saver.restore(sess, restore_path)
+        print('model restored!!!')
+  
+  
+        print(sess.run(tf.get_default_graph().get_tensor_by_name('L1/kernel:0')))
+        print('prediction after training = ', sess.run(simnet.L2,feed_dict={inputs: myDataX[:2] }))
+            
+            
+
+      
+
+
+
+
+
+
         
 if __name__ == '__main__':
-    run_and_save_SimpleNet()    
+    #run_and_save_SimpleNet()    
     #model_restore_SimpleNet()
+    
+    ###########################
+    ###########################
+    run_and_save_SimpleNet2()
+    #model_restore_SimpleNet2()
