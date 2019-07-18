@@ -5,14 +5,38 @@ import tensorflow as tf
 import threading
 import os
 from glob import glob
+from datetime import datetime
 tf.reset_default_graph()
+
+def get_time():
+    return datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
 
 myDataX = np.array([[0,0,1],[0,1,1],[1,0,1],[1,1,1],[0,0,1],[0,1,1],[1,0,1],[1,1,1],[0,0,1],[0,1,1],[1,0,1],[1,1,1]]).astype(np.float32)
 myDataY = np.array([[0,1,1,1,0,1,1,1,0,1,1,1]]).astype(np.float32).T
 
-log_dir = "hccho-ckpt"
+
+##### project setting
+model_name = "hccho-mm"
+log_dir = "hccho-ckpt"    # 'logs-hccho'
 ckpt_file_name_preface = 'model.ckpt'   # 이 이름을 바꾸면, get_most_recent_checkpoint도 바꿔야 한다.
-checkpoint_path = os.path.join(log_dir, ckpt_file_name_preface)
+
+
+load_path = None  # 새로운 training
+#load_path = 'hccho-ckpt\\hccho-mm-2019-07-18_09-01-19'
+#####
+
+
+if load_path is None:
+    load_path = os.path.join(log_dir, "{}-{}".format(model_name, get_time()))
+    os.makedirs(load_path)
+
+checkpoint_path = os.path.join(load_path, ckpt_file_name_preface)
+
+
+
+
+
 def get_most_recent_checkpoint(checkpoint_dir):
     checkpoint_paths = [path for path in glob("{}/*.ckpt-*.data-*".format(checkpoint_dir))]
     
@@ -215,7 +239,7 @@ def run_and_save_SimpleNet2():
             sess.run(tf.global_variables_initializer())
             
             # 모델 restore
-            restore_path = get_most_recent_checkpoint(log_dir)
+            restore_path = get_most_recent_checkpoint(load_path)
             if restore_path == '':
                 start_step=0
                 sess.run(tf.assign(global_step, 0))
@@ -272,7 +296,7 @@ def model_restore_SimpleNet2():
         
         
         
-        restore_path = get_most_recent_checkpoint(log_dir)
+        restore_path = get_most_recent_checkpoint(load_path)
         saver.restore(sess, restore_path)
         print('model restored!!!')
   
@@ -283,12 +307,6 @@ def model_restore_SimpleNet2():
             
 
       
-
-
-
-
-
-
         
 if __name__ == '__main__':
     #run_and_save_SimpleNet()    
