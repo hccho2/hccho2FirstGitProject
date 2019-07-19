@@ -416,7 +416,41 @@ print(c.keys())  # --> ['linear', 'mel', 'tokens', 'loss_coeff', 'allow_pickle']
 # 파일 한줄씩 읽어, list에 저장
 with open('wnids.txt', 'r') as f:
     A = [x.strip() for x in f]
+=====================================================================================
+import pandas as pd
+
+filename = 'D:\\test.txt'
+data = {}
+data["review"] = []
+with open(filename, "r", encoding='utf-8') as file:
+    data["review"].append(file.read())
+
     
+with open(filename, "r", encoding='utf-8') as file:
+    A = [x.strip() for x in file]
+    
+"""
+Bromwell High is a cartoon comedy.
+It ran at the same time as some 
+other programs about school life, 
+such as "Teachers".
+ My 35 years in the teaching profession lead me to believe that Bromwell
+
+
+
+==>
+data
+{'review': ['Bromwell High is a cartoon comedy.\nIt ran at the same time as some \nother programs about school life, \nsuch as "Teachers".\n My 35 years in the teaching profession lead me to believe that Bromwell\n\n\n']}
+
+A
+['Bromwell High is a cartoon comedy.',
+ 'It ran at the same time as some',
+ 'other programs about school life,',
+ 'such as "Teachers".',
+ 'My 35 years in the teaching profession lead me to believe that Bromwell',
+ '',
+ '']
+
 =====================================================================================
 # loadtxt, genfromtxt는 같은 기능이지만, 
 # genfromtxt는 missing data를 다룰 수 있는 다양한 옵션이 있다.
