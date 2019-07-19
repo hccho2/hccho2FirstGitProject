@@ -1740,6 +1740,7 @@ data_set = tf.keras.utils.get_file(fname="D:\hccho\\CommonDataset\\imdb.tar.gz",
 
 # 파일은 지정 디렉토리에 받지만, 압축 푼 것은 ....
 #The final location of a file example.txt would therefore be ~/.keras/datasets/example.txt 
+# return 값은 Path to the downloaded file
 data_set = tf.keras.utils.get_file(fname="D:\hccho\\CommonDataset\\imdb.tar.gz", origin="http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz", extract=True)
 	
 ###############################################
