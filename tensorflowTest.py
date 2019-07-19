@@ -1729,10 +1729,18 @@ b = sess.run(a)
 print(np.sum(b[2]))
 	
 ###############################################
-	
+# C:\Users\Administrator\.keras\datasets  아래에 다운
+#data_set = tf.keras.utils.get_file(fname="imdb.tar.gz", origin="http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz", extract=True)
+
+data_set = tf.keras.utils.get_file(fname="D:\hccho\\CommonDataset\\imdb.tar.gz", origin="http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz", extract=True)	
 
 ###############################################
-	
+# C:\Users\Administrator\.keras\datasets  아래에 다운
+#data_set = tf.keras.utils.get_file(fname="imdb.tar.gz", origin="http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz", extract=True)
+
+# 파일은 지정 디렉토리에 받지만, 압축 푼 것은 ....
+#The final location of a file example.txt would therefore be ~/.keras/datasets/example.txt 
+data_set = tf.keras.utils.get_file(fname="D:\hccho\\CommonDataset\\imdb.tar.gz", origin="http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz", extract=True)
 	
 ###############################################
 	
