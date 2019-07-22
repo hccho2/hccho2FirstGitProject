@@ -1,11 +1,20 @@
 # -*- coding: utf-8 -*-
 import tensorflow as tf
+from tensorflow.examples.tutorials.mnist import input_data
 import numpy as np
 import matplotlib.pyplot as plt
 import logging
 import argparse
 import iris_data
 import timeline
+
+"""
+model_dir에 checkpoint 파일이 저장되어 있으면 load하여 train을 이어간다.
+
+
+"""
+
+
 def Run1():
 
     num_points = 300
@@ -294,7 +303,68 @@ def Run3():
 
     
 
+def Run4():
+    # input data를 placeholder로...
+    tf.logging.set_verbosity(tf.logging.INFO)
+    mnist = input_data.read_data_sets("D:\\hccho\\CommonDataset\\mnist", one_hot=True)
+    batch_size = 128
+
+    def input_fn_train():
+        inp = tf.placeholder(tf.float32, shape=[None, 28*28], name='x')
+        output = tf.placeholder(tf.int64, shape=[None, 10], name='y')
+        #return {'x': inp,'y': output}, None    # 두번째 return targets은 여기서는 사용하지 않으므로 None
+        return {'my_x': inp}, output    # targets를 사용하려면...
     
+    
+    
+    def feed_fn():
+        batch_x, batch_y = mnist.train.next_batch(batch_size)
+        return {'x:0': batch_x, 'y:0': batch_y }
+    
+    
+    def hccho_model2(features, labels, mode, params):
+    
+        x = features['my_x']
+        
+    
+        # model
+        init = tf.contrib.layers.xavier_initializer()
+        L1 = tf.layers.dense(x,units=256, kernel_initializer=init,activation = tf.nn.relu,name='L1')
+        L2 = tf.layers.dense(L1,units=128, kernel_initializer=init, activation = tf.nn.relu,name='L2')
+        logits = tf.layers.dense(L2,units=10, kernel_initializer=init,activation = None,name='L3')
+
+        predicted_classes = tf.argmax(logits,axis=1)
+        # predicction
+        if mode == tf.estimator.ModeKeys.PREDICT:
+            predictions = {'predict': predicted_classes }
+            return tf.estimator.EstimatorSpec(mode, predictions=predictions)   
+
+        
+        #y = features['y']
+        y = labels
+        
+        # Compute loss.     loss를 tf.estimator.ModeKeys.PREDICT 보다 앞쪽에 정의하면 predict 모드에서 error발생
+        loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(labels=y,logits = logits))
+        accuracy = tf.metrics.accuracy(labels=tf.argmax(y,axis=1), predictions=predicted_classes, name='acc_op')
+        # Compute evaluation metrics.
+        if mode == tf.estimator.ModeKeys.EVAL:
+            metrics = {'acc': accuracy}    
+            return tf.estimator.EstimatorSpec(mode, loss=loss, eval_metric_ops=metrics)
+   
+
+       
+        optimizer = tf.train.AdamOptimizer(learning_rate=0.05)
+        train_op = optimizer.minimize(loss, global_step=tf.train.get_global_step())   
+        logging_hook = tf.train.LoggingTensorHook({"loss" : loss, "accuracy" : accuracy[1] }, every_n_iter=200)
+        
+        return tf.estimator.EstimatorSpec(mode, loss=loss, train_op=train_op,training_hooks = [logging_hook])
+    
+    params={'hidden_units': [10, 10],'n_classes': 10, 'model_dir': 'D:\\hccho\\RNN\\seq2seq\\Estimator-ckpt' }
+    my_config =tf.estimator.RunConfig(log_step_count_steps=500,save_summary_steps=500,save_checkpoints_steps=1000)   # INFO:tensorflow:global_step/sec: 317.864  <--- 출력회수 제어
+    classifier = tf.estimator.Estimator(model_fn=hccho_model2,model_dir = params['model_dir'] ,params=params,config = my_config)
+    
+    
+    classifier.train( input_fn=input_fn_train,hooks=[tf.train.FeedFnHook(feed_fn)],steps=1000)  
     
     
 if __name__ == '__main__':
@@ -311,7 +381,7 @@ if __name__ == '__main__':
 
     Run3()
 
-
+    #Run4()
 
     print('Done')
 
