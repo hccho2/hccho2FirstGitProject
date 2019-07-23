@@ -7,6 +7,7 @@ import logging
 import argparse
 import iris_data
 import timeline
+from tensorflow.python.keras import backend as K
 
 """
 model_dir에 checkpoint 파일이 저장되어 있으면 load하여 train을 이어간다.
@@ -90,10 +91,6 @@ def Run1():
 
 def Run2():
 
-
-
-
-
     tf.logging.set_verbosity(tf.logging.INFO)
     tf.app.run(main)
 
@@ -129,6 +126,7 @@ def my_model(features, labels, mode, params):
     tf.summary.scalar('accuracy', accuracy[1])
 
     if mode == tf.estimator.ModeKeys.EVAL:
+        # K.learning_phase(): False
         return tf.estimator.EstimatorSpec(
             mode, loss=loss, eval_metric_ops=metrics)
 
@@ -141,6 +139,10 @@ def my_model(features, labels, mode, params):
 
 
 def main(argv):
+    parser = argparse.ArgumentParser()
+    
+    parser.add_argument('--batch_size', default=100, type=int, help='batch size')
+    parser.add_argument('--train_steps', default=1000, type=int,help='number of training steps')
     args = parser.parse_args(argv[1:])
     
 
@@ -264,7 +266,8 @@ def Run3():
         if mode == tf.estimator.ModeKeys.EVAL:
             accuracy = tf.metrics.mean_absolute_error(labels=labels,predictions=logits)
             metrics = {'xxxx': accuracy}    
-            return tf.estimator.EstimatorSpec(mode, loss=loss, eval_metric_ops=metrics)
+            eval_logging_hook = tf.train.LoggingTensorHook({"eval-----my logits" : -logits, "eval----my labels": labels}, every_n_iter=1)
+            return tf.estimator.EstimatorSpec(mode, loss=loss, eval_metric_ops=metrics,evaluation_hooks=[eval_logging_hook])
    
 
        
@@ -286,16 +289,18 @@ def Run3():
     
     
     
-    classifier.train( input_fn=input_fn_train,steps=1000)  
+    classifier.train( input_fn=input_fn_train,steps=1000)  # steps는 최대 실행 횟수이다. data가 다 소진되면 steps를 다 채우지 못할 수도 있다.
     
     
 
     # evaluation
-    eval_result = classifier.evaluate(input_fn = input_fn_eval,steps=10)
+    print("Evaluation ================================")
+    eval_result = classifier.evaluate(input_fn = input_fn_eval,steps=2)  # steps는 최대 실행 횟수이다. data가 다 소진되면 steps를 다 채우지 못할 수도 있다.
     print('\nTest set loss: {loss:0.3f}, xxxx: {xxxx:0.3f}\n'.format(**eval_result))
     
     
     # predict
+    print("Prediction ================================")
     A2 = np.array([[73., 80., 75.],[73., 66., 70.]])
     input_fn_predict = tf.estimator.inputs.numpy_input_fn(x = {"x":A2},batch_size=len(A2),shuffle=False)
     predictions = classifier.predict(input_fn=input_fn_predict)   # user defined function이 아니면, lambda function으로 넘기면 안됨
@@ -348,14 +353,14 @@ def Run4():
         accuracy = tf.metrics.accuracy(labels=tf.argmax(y,axis=1), predictions=predicted_classes, name='acc_op')
         # Compute evaluation metrics.
         if mode == tf.estimator.ModeKeys.EVAL:
-            metrics = {'acc': accuracy}    
+            metrics = {'acc=====': accuracy,'acc---': accuracy} # 이곳에 들어가는 op는 tf.metrics.accuracy로 만들어 진 것이어야 한다.
             return tf.estimator.EstimatorSpec(mode, loss=loss, eval_metric_ops=metrics)
    
 
        
         optimizer = tf.train.AdamOptimizer(learning_rate=0.05)
         train_op = optimizer.minimize(loss, global_step=tf.train.get_global_step())   
-        logging_hook = tf.train.LoggingTensorHook({"loss" : loss, "accuracy" : accuracy[1] }, every_n_iter=200)
+        logging_hook = tf.train.LoggingTensorHook({"loss----" : loss, "accuracy" : accuracy[1] }, every_n_iter=200)
         
         return tf.estimator.EstimatorSpec(mode, loss=loss, train_op=train_op,training_hooks = [logging_hook])
     
@@ -364,21 +369,24 @@ def Run4():
     classifier = tf.estimator.Estimator(model_fn=hccho_model2,model_dir = params['model_dir'] ,params=params,config = my_config)
     
     
-    classifier.train( input_fn=input_fn_train,hooks=[tf.train.FeedFnHook(feed_fn)],steps=1000)  
     
-    
+    classifier.train( input_fn=input_fn_train,hooks=[tf.train.FeedFnHook(feed_fn)],steps=1000)  # steps=train 회수
+    print("---Evaluation---")
+    classifier.evaluate( input_fn=input_fn_train,hooks=[tf.train.FeedFnHook(feed_fn)],steps=1)  
+
+def argparse_test():
+    # python tf-Estimator.py --batch_size 124  <----add_argument를 통해 추가한 것만 가능
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--batch_size', default=100, type=int, help='batch size')
+    parser.add_argument('--train_steps', default=1000, type=int,help='number of training steps')
+    args = parser.parse_args()
+    print(args.batch_size)  
 if __name__ == '__main__':
-    #Run1()
     
+    #argparse_test()
     
-#     parser = argparse.ArgumentParser()
-#     parser.add_argument('--batch_size', default=100, type=int, help='batch size')
-#     parser.add_argument('--train_steps', default=1000, type=int,help='number of training steps')
-#     Run2()
-
-
-
-
+    #Run1()  # tf.estimator.LinearRegressor
+    #Run2()
     Run3()
 
     #Run4()
