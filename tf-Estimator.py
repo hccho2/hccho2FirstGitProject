@@ -206,6 +206,7 @@ def my_format(values):
         res.append('{}={}'.format(v,values[v]))
     return '\n'.join(res)
 def Run3():
+    # train, eval, predict mode에서의 다양한 출력
     tf.logging.set_verbosity(tf.logging.INFO)
     A = np.array([[73., 80., 75.],
           [93., 88., 93.],
@@ -220,7 +221,7 @@ def Run3():
         x = {"x":np.array(A,dtype=np.float32)},
         y = np.array(B,dtype=np.float32),
         num_epochs=10000,
-        batch_size=2,
+        batch_size=5,
         shuffle=True
     )
 
@@ -250,13 +251,13 @@ def Run3():
         L1 = tf.layers.dense(inputs,units=5, activation = tf.nn.relu,name='L1')
         logits = tf.layers.dense(L1,units=1, activation = None,name='L2')
 
-
         # predicction
         if mode == tf.estimator.ModeKeys.PREDICT:
             predictions = {
-                'logits': logits
+                'logits': logits, 'L1': L1,
             }
-            return tf.estimator.EstimatorSpec(mode, predictions=predictions)   
+            prediction_hooks = tf.train.LoggingTensorHook({"prediction hook-----my logits" : -logits, "prediction hook2----L1": L1}, every_n_iter=1)
+            return tf.estimator.EstimatorSpec(mode, predictions=predictions,prediction_hooks=[prediction_hooks])   # predictions를 train mode에 넣어도 계산해주지 않는다.
 
 
         # Compute loss.     loss를 tf.estimator.ModeKeys.PREDICT 보다 앞쪽에 정의하면 predict 모드에서 error발생
@@ -266,12 +267,12 @@ def Run3():
         if mode == tf.estimator.ModeKeys.EVAL:
             accuracy = tf.metrics.mean_absolute_error(labels=labels,predictions=logits)
             metrics = {'xxxx': accuracy}    
-            eval_logging_hook = tf.train.LoggingTensorHook({"eval-----my logits" : -logits, "eval----my labels": labels}, every_n_iter=1)
+            eval_logging_hook = tf.train.LoggingTensorHook({"eval-----my logits" : -logits, "eval2----my labels": labels}, every_n_iter=1)
             return tf.estimator.EstimatorSpec(mode, loss=loss, eval_metric_ops=metrics,evaluation_hooks=[eval_logging_hook])
    
 
-       
-        optimizer = tf.train.AdagradOptimizer(learning_rate=10)
+        #optimizer = tf.train.GradientDescentOptimizer(0.00001)   
+        optimizer = tf.train.AdagradOptimizer(learning_rate=1.0)  # AdagradOptimizer는 lr이 좀 높아야 되네...
         train_op = optimizer.minimize(loss, global_step=tf.train.get_global_step())   
    
         logging_hook = tf.train.LoggingTensorHook({"loss" : loss, "accuracy" : tf.reduce_mean(tf.abs(logits-labels))}, every_n_iter=200)
@@ -301,7 +302,7 @@ def Run3():
     
     # predict
     print("Prediction ================================")
-    A2 = np.array([[73., 80., 75.],[73., 66., 70.]])
+    A2 = np.array([[73., 80., 75.],[58., 66., 70.]])
     input_fn_predict = tf.estimator.inputs.numpy_input_fn(x = {"x":A2},batch_size=len(A2),shuffle=False)
     predictions = classifier.predict(input_fn=input_fn_predict)   # user defined function이 아니면, lambda function으로 넘기면 안됨
     print(list(predictions))
@@ -392,4 +393,3 @@ if __name__ == '__main__':
     #Run4()
 
     print('Done')
-
