@@ -26,7 +26,7 @@ C = (1/N)*np.matmul(X.T,X)
 
 p,v = np.linalg.eig(C)  # column vector가 eigenvector
 
-p=np.argsort(-p)
+q=np.argsort(-p)
 v = v[:,q]
 
 
@@ -35,3 +35,5 @@ Y=np.matmul(v.T,X.T).T
 plt.scatter(Y[:,0],Y[:,1],s=1)
 plt.axis([-10, 10, -10, 10])
 plt.show()
+
+
