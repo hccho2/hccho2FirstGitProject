@@ -6,11 +6,12 @@
 import pandas as pd
 import xgboost as xgb
 from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import accuracy_score
 import numpy as np
 
 # Load the data
-train_df = pd.read_csv('../input/train.csv', header=0)
-test_df = pd.read_csv('../input/test.csv', header=0)
+train_df = pd.read_csv('./input/train.csv', header=0)
+test_df = pd.read_csv('./input/test.csv', header=0)
 
 # We'll impute missing values using the median for numeric columns and the most
 # common value for string columns.
@@ -42,16 +43,23 @@ for feature in nonnumeric_columns:
     big_X_imputed[feature] = le.fit_transform(big_X_imputed[feature])
 
 # Prepare the inputs for the model
-train_X = big_X_imputed[0:train_df.shape[0]].as_matrix()
-test_X = big_X_imputed[train_df.shape[0]::].as_matrix()
+train_X = big_X_imputed[0:train_df.shape[0]].values
+test_X = big_X_imputed[train_df.shape[0]::].values
 train_y = train_df['Survived']
 
 # You can experiment with many other options here, using the same .fit() and .predict()
 # methods; see http://scikit-learn.org
 # This example uses the current build of XGBoost, from https://github.com/dmlc/xgboost
 gbm = xgb.XGBClassifier(max_depth=3, n_estimators=300, learning_rate=0.05).fit(train_X, train_y)
-predictions = gbm.predict(test_X)
 
+
+y_pred = gbm.predict(train_X)
+predictions = [round(value) for value in y_pred]
+accuracy = accuracy_score(train_y, predictions)
+print("Accuracy: %.2f%%" % (accuracy * 100.0))
+
+
+predictions = gbm.predict(test_X)
 # Kaggle needs the submission to have a certain format;
 # see https://www.kaggle.com/c/titanic-gettingStarted/download/gendermodel.csv
 # for an example of what it's supposed to look like.
