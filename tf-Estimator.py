@@ -375,6 +375,64 @@ def Run4():
     print("---Evaluation---")
     classifier.evaluate( input_fn=input_fn_train,hooks=[tf.train.FeedFnHook(feed_fn)],steps=1)  
 
+def Run5():
+    # input function을 tf.data.Dataset를 이용하여 구현
+    DATA_SIZE = 1000
+    
+    BATCH_SIZE = 3
+    NUM_EPOCHS = 1
+    
+    train_input = np.random.randn(DATA_SIZE,3)
+    train_label = np.random.randint(2,size=DATA_SIZE).reshape(-1,1)
+    
+    def mapping_fn(X, Y):
+        # def model_fn(features, labels, mode):  
+        #     features['x']로 접근
+        inputs, labels = {'x': X}, Y
+        return inputs, labels
+    
+    def train_input_fn():
+        dataset = tf.data.Dataset.from_tensor_slices((train_input, train_label))
+        dataset = dataset.shuffle(buffer_size=50000)
+        dataset = dataset.batch(BATCH_SIZE)
+        dataset = dataset.repeat(count=NUM_EPOCHS)
+        dataset = dataset.map(mapping_fn)
+        iterator = dataset.make_one_shot_iterator()
+        
+        return iterator.get_next()
+    
+    
+    a1 = train_input_fn()
+    a2 = train_input_fn()
+    
+    sess = tf.Session()
+    b1,b2 = sess.run([a1,a2])
+    
+    
+    train_input2 = np.random.randn(DATA_SIZE,3)
+    
+    def mapping_fn2(base, hypothesis, label):
+        # def model_fn(features, labels, mode):  
+        #     features['x1'], features['x2']로 접근
+        features = {"x1": base, "x2": hypothesis}
+        return features, label
+    
+    def train_input_fn2():
+        dataset = tf.data.Dataset.from_tensor_slices((train_input, train_input2, train_label))
+        dataset = dataset.shuffle(buffer_size=10000)
+        dataset = dataset.batch(BATCH_SIZE)
+        dataset = dataset.map(mapping_fn2)
+        dataset = dataset.repeat(NUM_EPOCHS)
+        iterator = dataset.make_one_shot_iterator()
+        
+        return iterator.get_next()
+    
+    c1 = train_input_fn2()
+    c2 = train_input_fn2()
+    
+    d1,d2 = sess.run([c1,c2])
+
+
 def argparse_test():
     # python tf-Estimator.py --batch_size 124  <----add_argument를 통해 추가한 것만 가능
     parser = argparse.ArgumentParser()
