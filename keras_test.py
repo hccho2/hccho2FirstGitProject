@@ -28,5 +28,19 @@ def keras_layer_test():
     a1,a2 = sess.run([pool1,pool2])
     print(np.allclose(a1,np.squeeze(a2)))
     
+  
+
+def keras_test2():
+    """
+    keras는 class object를 먼저 만들고, 다음 단계로 input을 집어 넎는 방식
     
-keras_layer_test()
+    """
+    L1 = tf.keras.layers.Dense(units=39,activation=tf.nn.relu)
+    
+    
+    
+    init_inputs = tf.placeholder(tf.float32, shape=(3,4))
+    y = L1(init_inputs)
+    
+    print(y)
+
