@@ -1194,7 +1194,18 @@ okt=Okt()
 a3 = okt.morphs(a1, stem=True)
 print(a3)
 =====================================================================================
+#  numpy array --> pandas DataFrame
+data = np.array([[2,3,4.5],[3,4,2]])
+df = pd.DataFrame(data,columns=['A','AA','B'])  
+print(df)
 
+# numpy array를 DataFrame에 칼럼으로 추가
+df=df.join(pd.DataFrame(data,columns=['C','CC','D']))
+print(df)
+
+# column 삭제
+df.drop('CC', axis=1, inplace=True)
+print(df)
 =====================================================================================
 
 =====================================================================================
