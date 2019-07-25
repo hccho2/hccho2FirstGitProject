@@ -14,7 +14,7 @@
 
 import pandas as pd
 import xgboost as xgb
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from sklearn.metrics import accuracy_score
 import numpy as np
 
@@ -51,6 +51,12 @@ le = LabelEncoder()
 for feature in nonnumeric_columns:
     big_X_imputed[feature] = le.fit_transform(big_X_imputed[feature])  # female, male을 각각 0,1로 바꾼다.
 
+##### hccho 수정: one-hot 변환   ---> accuracy는 더 낮게 나온다. why???   female, male 2개 category라서 그런가?
+# one_hot_encoded = OneHotEncoder().fit_transform(big_X_imputed[nonnumeric_columns]).toarray()
+# big_X_imputed.drop(nonnumeric_columns, axis=1, inplace=True)
+# big_X_imputed=big_X_imputed.join(pd.DataFrame(one_hot_encoded))
+####
+
 # Prepare the inputs for the model
 train_X = big_X_imputed[0:train_df.shape[0]].values
 test_X = big_X_imputed[train_df.shape[0]::].values
@@ -59,7 +65,7 @@ train_y = train_df['Survived']
 # You can experiment with many other options here, using the same .fit() and .predict()
 # methods; see http://scikit-learn.org
 # This example uses the current build of XGBoost, from https://github.com/dmlc/xgboost
-gbm = xgb.XGBClassifier(max_depth=3, n_estimators=300, learning_rate=0.05).fit(train_X, train_y)
+gbm = xgb.XGBClassifier(max_depth=10, n_estimators=1000, learning_rate=0.05).fit(train_X, train_y)
 
 
 y_pred = gbm.predict(train_X)
