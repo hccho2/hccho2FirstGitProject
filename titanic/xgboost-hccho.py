@@ -1,7 +1,16 @@
+# https://www.kaggle.com/datacanary/xgboost-example-python/
+
 # This script shows you how to make a submission using a few
 # useful Python libraries.
 # It gets a public leaderboard score of 0.76077.
 # Maybe you can tweak it and do better...?
+
+
+"""
+- train, test data를 합쳐서, missing 처리 같은 전처리를 하고, 다시 분리한다.
+- 결측값대체(imputation)
+"""
+
 
 import pandas as pd
 import xgboost as xgb
@@ -40,7 +49,7 @@ big_X_imputed = DataFrameImputer().fit_transform(big_X)
 # details and options
 le = LabelEncoder()
 for feature in nonnumeric_columns:
-    big_X_imputed[feature] = le.fit_transform(big_X_imputed[feature])
+    big_X_imputed[feature] = le.fit_transform(big_X_imputed[feature])  # female, male을 각각 0,1로 바꾼다.
 
 # Prepare the inputs for the model
 train_X = big_X_imputed[0:train_df.shape[0]].values
@@ -66,3 +75,15 @@ predictions = gbm.predict(test_X)
 submission = pd.DataFrame({ 'PassengerId': test_df['PassengerId'],
                             'Survived': predictions })
 submission.to_csv("submission.csv", index=False)
+
+
+
+
+
+
+
+
+
+
+
+
