@@ -44,3 +44,41 @@ def keras_test2():
     
     print(y)
 
+def keras_rnn():
+    tf.set_random_seed(123)
+    
+    batch_size = 2
+    hidden_dim = 3
+    input_dim = 2
+    output_dim = 7
+    T = 6
+    inputs = tf.placeholder(tf.float32, shape=(batch_size,T,input_dim))
+    h0 = tf.zeros(shape=(batch_size,hidden_dim),dtype=tf.float32)
+    
+    """
+    return_sequences=True --> 전체 output.
+    return_state=True -> 전체 output, last state가 출력
+    
+    """
+    cell = tf.keras.layers.SimpleRNN(units=hidden_dim,return_sequences=True,stateful=True,return_state=False)  
+    output_layer = tf.keras.layers.Dense(output_dim, name='output_projection')
+    BN = tf.keras.layers.BatchNormalization()
+    
+    
+    
+    a = cell(inputs,initial_state=h0)
+    out = output_layer(a)
+    out = BN(out)
+    
+    
+    print(out)
+    print(tf.trainable_variables())
+    
+    
+    x = np.arange(batch_size*T*input_dim).reshape(batch_size,T,input_dim)
+    
+    sess = tf.Session()
+    sess.run(tf.global_variables_initializer())
+    
+    y = sess.run(out,feed_dict={inputs: x})
+    print(y)
