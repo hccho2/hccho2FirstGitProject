@@ -78,6 +78,7 @@ def test2():
 
 def test3():
     # tf.keras.layers.SimpleRNNCell  이용하기
+    # 1 step을 반복적으로 사용하는 것이기 때문에, SimpleRNN보다 SimpleRNNCell이 더 자연스럽다
     batch_size = 2
     hidden_dim = 3
     input_dims = 2
