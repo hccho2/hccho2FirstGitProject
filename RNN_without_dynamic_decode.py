@@ -18,6 +18,13 @@ tf.layers.MaxPooling1D
 tf.layers.MaxPooling2D
 
 tf.layers.BatchNormalization
+
+
+1. 아래처럼 직접 loop 돌린다.
+2. 0 한개로 만든 garbage input으르 만들어 넣는다.
+3. AttentinWrapper를 customization한다.  AttentinWrapper에서 attention vector와 input이 concat되기 때문에, 이부분을 변경한다.
+
+
 """
 
 import tensorflow as tf
