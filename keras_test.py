@@ -59,6 +59,7 @@ def keras_rnn():
     return_sequences=True --> 전체 output.
     return_state=True -> 전체 output, last state가 출력
     
+    SimpleRNN 내부에서 SimpleRNNCell을 사용하는 구조. SimpleRNNCell을 직접 사용하지는 않는다.
     """
     cell = tf.keras.layers.SimpleRNN(units=hidden_dim,return_sequences=True,stateful=True,return_state=False)  
     output_layer = tf.keras.layers.Dense(output_dim, name='output_projection')
