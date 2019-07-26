@@ -42,7 +42,9 @@ def Run1():
     plt.show()
     
     
-    tf.logging._logger.setLevel(logging.INFO)   # 이게 있어야 출력이됨.(없으면 spyder에서만 출력이됨)
+    #tf.logging._logger.setLevel(logging.INFO)   # 이게 있어야 출력이됨.(없으면 spyder에서만 출력이됨)
+    tf.logging.set_verbosity(tf.logging.INFO)
+    
     
     input_fn_train = tf.estimator.inputs.numpy_input_fn(
         x = {"x":np.array(x_data[:200],dtype=np.float32)},
@@ -127,8 +129,7 @@ def my_model(features, labels, mode, params):
 
     if mode == tf.estimator.ModeKeys.EVAL:
         # K.learning_phase(): False
-        return tf.estimator.EstimatorSpec(
-            mode, loss=loss, eval_metric_ops=metrics)
+        return tf.estimator.EstimatorSpec(mode, loss=loss, eval_metric_ops=metrics)   # loss, eval_metric_ops른 넣었기 때문에 2개가 return
 
     # Create training op.
     assert mode == tf.estimator.ModeKeys.TRAIN
@@ -394,7 +395,7 @@ def Run5():
     def train_input_fn():
         dataset = tf.data.Dataset.from_tensor_slices((train_input, train_label))
         dataset = dataset.shuffle(buffer_size=50000)
-        dataset = dataset.batch(BATCH_SIZE)
+        dataset = dataset.batch(BATCH_SIZE,drop_remainder=True) # BATCH_SIZE단위로 자르고, 남는 자투리 처리 여부
         dataset = dataset.repeat(count=NUM_EPOCHS)
         dataset = dataset.map(mapping_fn)
         iterator = dataset.make_one_shot_iterator()
@@ -431,6 +432,7 @@ def Run5():
     c2 = train_input_fn2()
     
     d1,d2 = sess.run([c1,c2])
+    print(d1,d2)
 
 
 def argparse_test():
@@ -446,8 +448,10 @@ if __name__ == '__main__':
     
     #Run1()  # tf.estimator.LinearRegressor
     #Run2()
-    Run3()
+    #Run3()
 
     #Run4()
+    
+    Run5()
 
     print('Done')
