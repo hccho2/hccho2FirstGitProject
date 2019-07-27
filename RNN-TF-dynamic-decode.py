@@ -9,7 +9,11 @@ tf.reset_default_graph()
 
 class DynamicDecode():
     def __init__(self,batch_size,hidden_dim,output_dim,embedding_dim,seq_length=None,is_training=True):
-        
+        """
+        batch_size를 입력받는 것이 좋아 보이지 않는다.
+        inputs(tensor)가 있다면, batch_size = tf.shape(inputs)[0] <---- 이것도 tensor
+        Helper에 들어가는 이것도 np.array([seq_length]*batch_size)   --> tf.tile([seq_length],[batch_size]) 이런 식으로 대체할 수 있다.
+        """
         with tf.variable_scope('DynamicDecoder',reuse = tf.AUTO_REUSE) as scope:
             if not is_training:
                 seq_length = 1
