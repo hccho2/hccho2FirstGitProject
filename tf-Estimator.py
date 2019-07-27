@@ -367,7 +367,13 @@ def Run4():
         return tf.estimator.EstimatorSpec(mode, loss=loss, train_op=train_op,training_hooks = [logging_hook])
     
     params={'hidden_units': [10, 10],'n_classes': 10, 'model_dir': 'D:\\hccho\\RNN\\seq2seq\\Estimator-ckpt' }
-    my_config =tf.estimator.RunConfig(log_step_count_steps=500,save_summary_steps=500,save_checkpoints_steps=1000)   # INFO:tensorflow:global_step/sec: 317.864  <--- 출력회수 제어
+    
+	"""
+	log_step_count_steps: log 출력 주기, global_step 기준이 아니고, 이어서 시작한 step으로 부터
+	save_checkpoints_steps: checkpoint save 주기. 이 주기마다 저장 + 제일 마지막에도 저장.
+	
+	"""
+	my_config =tf.estimator.RunConfig(log_step_count_steps=500,save_summary_steps=500,save_checkpoints_steps=1000)   # INFO:tensorflow:global_step/sec: 317.864  <--- 출력회수 제어
     classifier = tf.estimator.Estimator(model_fn=hccho_model2,model_dir = params['model_dir'] ,params=params,config = my_config)
     
     
