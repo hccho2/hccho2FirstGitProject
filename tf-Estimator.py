@@ -330,7 +330,7 @@ def Run4():
     
     
     def hccho_model2(features, labels, mode, params):
-    
+        # 이 model 함수는 아래의 classifier.train, classifier.evaluate 실행될 때, 각각 불려진다.
         x = features['my_x']
         
     
@@ -368,22 +368,26 @@ def Run4():
     
     params={'hidden_units': [10, 10],'n_classes': 10, 'model_dir': 'D:\\hccho\\RNN\\seq2seq\\Estimator-ckpt' }
     
-	"""
-	log_step_count_steps: log 출력 주기, global_step 기준이 아니고, 이어서 시작한 step으로 부터
-	save_checkpoints_steps: checkpoint save 주기. 이 주기마다 저장 + 제일 마지막에도 저장.
-	
-	"""
-	my_config =tf.estimator.RunConfig(log_step_count_steps=500,save_summary_steps=500,save_checkpoints_steps=1000)   # INFO:tensorflow:global_step/sec: 317.864  <--- 출력회수 제어
+    
+    """
+    log_step_count_steps: log 출력 주기, global_step 기준이 아니고, 이어서 시작한 step으로 부터
+    save_checkpoints_steps: checkpoint save 주기. 이 주기마다 저장 + 제일 마지막에도 저장.
+    
+    """
+    
+    my_config =tf.estimator.RunConfig(log_step_count_steps=500,save_summary_steps=500,save_checkpoints_steps=1000) # INFO:tensorflow:global_step/sec: 317.864  <--- 출력회수 제어
     classifier = tf.estimator.Estimator(model_fn=hccho_model2,model_dir = params['model_dir'] ,params=params,config = my_config)
     
     
-    
+    # hooks를 통해. feed_fn이 input_fn_train에 있는 palceholder를 채워준다.
     classifier.train( input_fn=input_fn_train,hooks=[tf.train.FeedFnHook(feed_fn)],steps=1000)  # steps=train 회수
     print("---Evaluation---")
     classifier.evaluate( input_fn=input_fn_train,hooks=[tf.train.FeedFnHook(feed_fn)],steps=1)  
 
 def Run5():
     # input function을 tf.data.Dataset를 이용하여 구현
+    #
+    
     DATA_SIZE = 1000
     
     BATCH_SIZE = 3
@@ -403,6 +407,12 @@ def Run5():
         dataset = dataset.shuffle(buffer_size=50000)
         dataset = dataset.batch(BATCH_SIZE,drop_remainder=True) # BATCH_SIZE단위로 자르고, 남는 자투리 처리 여부
         dataset = dataset.repeat(count=NUM_EPOCHS)
+        
+        ### tf.data.Dataset.from_tensor_slices((A,B,C,D)) 와 같이 4개의 argument를 받는 다면,
+        ### 아래에 넣어주는 mapping_fn은 4개의 argument를 받는 함수여야 한다. return 값은 model_fn(features, labels, mode, params) 이 받는 
+        ### 4개 중에 처음 2개. 
+        ### 첫번째 features는 dict형. 두번째는 labels는 tensor 이다.
+        
         dataset = dataset.map(mapping_fn)
         iterator = dataset.make_one_shot_iterator()
         
@@ -456,8 +466,8 @@ if __name__ == '__main__':
     #Run2()
     #Run3()
 
-    #Run4()
+    Run4()
     
-    Run5()
+    #Run5()
 
     print('Done')
