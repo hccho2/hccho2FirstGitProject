@@ -251,10 +251,15 @@ plt.close()
 
 
 ##########################################################
-
-
-
-
+# box plot
+a = np.random.randn(50)*4
+b = np.random.rand(200)*7
+c = np.random.rand(100)*6
+plt.figure(figsize=(12, 5))
+plt.boxplot([a, b, c],labels=['aa', 'bb', 'cc'], showmeans=True)
+plt.show()
+plt.hist(a, bins=15, range=[-10,10], color='g', label='aa') # range 범위를 15개 구간으로
+plt.show()
 
 
 ##########################################################
