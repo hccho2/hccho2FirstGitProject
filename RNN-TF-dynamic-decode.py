@@ -144,6 +144,108 @@ def dynamic_decode_test():
             print("loss: {:20.6f}".format(sess.run(loss)))
             print("manual cal. loss: {:0.6f} ".format(np.average(-np.log(p[np.arange(y_data.size),y_data.flatten()]))) )
 
+def dynamic_decode_helpertest():
+
+    vocab_size = 6
+    SOS_token = 0
+    EOS_token = 5
+    
+    x_data = np.array([[SOS_token, 3, 1, 4, 3, 2],[SOS_token, 3, 4, 2, 3, 1],[SOS_token, 1, 3, 2, 2, 1]], dtype=np.int32)
+    y_data = np.array([[3, 1, 4, 3, 2,EOS_token],[3, 4, 2, 3, 1,EOS_token],[1, 3, 2, 2, 1,EOS_token]],dtype=np.int32)
+    print("data shape: ", x_data.shape)
+    sess = tf.InteractiveSession()
+    
+    output_dim = vocab_size
+    batch_size = len(x_data)
+    hidden_dim =7
+    num_layers = 2
+    seq_length = x_data.shape[1]
+    embedding_dim = 8
+    state_tuple_mode = True
+    init_state_flag = 0
+    init = np.arange(vocab_size*embedding_dim).reshape(vocab_size,-1)
+    
+    train_mode = True
+    with tf.variable_scope('test',reuse=tf.AUTO_REUSE) as scope:
+        # Make rnn
+        
+        method = 1
+        if method == 0:
+            cells = []
+            for _ in range(num_layers):
+                cell = tf.contrib.rnn.BasicRNNCell(num_units=hidden_dim)
+                #cell = tf.contrib.rnn.BasicLSTMCell(num_units=hidden_dim,state_is_tuple=state_tuple_mode)
+                #cell = tf.contrib.rnn.GRUCell(num_units=hidden_dim)
+                cells.append(cell)
+            cell = tf.contrib.rnn.MultiRNNCell(cells)    
+        else:
+            #cell = tf.contrib.rnn.BasicRNNCell(num_units=hidden_dim)
+            cell = tf.contrib.rnn.LSTMCell(num_units=hidden_dim,num_proj=7)
+    
+        embedding = tf.get_variable("embedding", initializer=init.astype(np.float32),dtype = tf.float32)
+        inputs = tf.nn.embedding_lookup(embedding, x_data) # batch_size  x seq_length x embedding_dim
+    
+        Y = tf.convert_to_tensor(y_data)
+    
+    
+        # tf.contrib.rnn.OutputProjectionWrapper  마지막에 FC layer를 하나 더 추가하는 효과. 아래에서 적용하는 Dense보다 앞에 적용된다. Dense가 있기 때문에 OutputProjectionWrapper 또는 Dense로 처리 가능함
+        # FC layer를 multiple로 적용하려면 OutputProjectionWrapper을 사용해야 함.
+        if False:
+            cell = tf.contrib.rnn.OutputProjectionWrapper(cell,13)
+            cell = tf.contrib.rnn.OutputProjectionWrapper(cell,17)
+    
+        if init_state_flag==0:
+             initial_state = cell.zero_state(batch_size, tf.float32) #(batch_size x hidden_dim) x layer 개수 
+        else:
+            if state_tuple_mode:
+                h0 = tf.random_normal([batch_size,hidden_dim]) #h0 = tf.cast(np.random.randn(batch_size,hidden_dim),tf.float32)
+                initial_state=(tf.contrib.rnn.LSTMStateTuple(tf.zeros_like(h0), h0),) + (tf.contrib.rnn.LSTMStateTuple(tf.zeros_like(h0), tf.zeros_like(h0)),)*(num_layers-1)
+                
+            else:
+                h0 = tf.random_normal([batch_size,hidden_dim]) #h0 = tf.cast(np.random.randn(batch_size,hidden_dim),tf.float32)
+                initial_state = (tf.concat((tf.zeros_like(h0),h0), axis=1),) + (tf.concat((tf.zeros_like(h0),tf.zeros_like(h0)), axis=1),) * (num_layers-1)
+        if train_mode:
+            #helper = tf.contrib.seq2seq.TrainingHelper(inputs, np.array([seq_length]*batch_size))
+            helper = tf.contrib.seq2seq.ScheduledEmbeddingTrainingHelper(inputs, np.array([seq_length]*batch_size),embedding,0.3)
+            #helper = tf.contrib.seq2seq.ScheduledOutputTrainingHelper(inputs, np.array([seq_length]*batch_size),0.3)   # output dim(embedding 전),input dim이 잘 맞아야 한다. 예에서 embedding_dim=vocab_size
+        else:
+            helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(embedding, start_tokens=tf.tile([SOS_token], [batch_size]), end_token=EOS_token)
+            #helper = tf.contrib.seq2seq.SampleEmbeddingHelper(embedding, start_tokens=tf.tile([SOS_token], [batch_size]), end_token=EOS_token)
+    
+        output_layer = Dense(output_dim, name='output_projection')
+        #output_layer = None
+        
+        
+        decoder = tf.contrib.seq2seq.BasicDecoder(cell=cell,helper=helper,initial_state=initial_state,output_layer=output_layer)    
+        # maximum_iterations를 설정하지 않으면, inference에서 EOS토큰을 만나지 못하면 무한 루프에 빠진다
+        # last_state는 num_layers 만큼 나온다.
+        outputs, last_state, last_sequence_lengths = tf.contrib.seq2seq.dynamic_decode(decoder=decoder,output_time_major=False,impute_finished=True,maximum_iterations=10)
+    
+        weights = tf.ones(shape=[batch_size,seq_length])
+        loss =   tf.contrib.seq2seq.sequence_loss(logits=outputs.rnn_output, targets=Y, weights=weights)
+    
+    
+        sess.run(tf.global_variables_initializer())
+        print("initial_state: ", sess.run(initial_state))
+        print("\n\noutputs: ",outputs)
+        
+        # SampleEmbeddingHelper: randomness가 있다.
+        o,o2 = sess.run([outputs.rnn_output,tf.argmax(outputs.rnn_output,axis=-1)])  #batch_size, seq_length, outputs
+        print("\n outputs---",o,o2) #batch_size, seq_length, outputs
+    
+        print("\n\nlast_state: ",last_state)
+        print(sess.run(last_state)) # batch_size, hidden_dim
+    
+        print("\n\nlast_sequence_lengths: ",last_sequence_lengths)
+        print(sess.run(last_sequence_lengths)) #  [seq_length]*batch_size    
+        if output_layer is not None:
+            print("kernel(weight)",sess.run(output_layer.trainable_weights[0]))  # kernel(weight)
+            print("bias",sess.run(output_layer.trainable_weights[1]))  # bias
+    
+        if train_mode:
+            p = sess.run(tf.nn.softmax(outputs.rnn_output)).reshape(-1,output_dim)   #(18,5) = (batch_size x seq_length, vocab_size)
+            print("loss: {:20.6f}".format(sess.run(loss)))
+            print("manual cal. loss: {:0.6f} ".format(np.average(-np.log(p[np.arange(y_data.size),y_data.flatten()]))) )
 
 def attention_test():
     # BasicRNNCell을 single로 쌓아 attention 적용
@@ -404,6 +506,9 @@ def dynamic_decode_class_test():
     print(result_all)
 
 
+
+
+
 def attention_keras_test():
     # tf.keras.layers.SimpleRNNCell를 이용하기
     vocab_size = 6
@@ -520,10 +625,15 @@ def attention_keras_test():
             print("loss: {:20.6f}".format(sess.run(loss)))
             print("manual cal. loss: {:0.6f} ".format(np.average(-np.log(p[np.arange(y_data.size),y_data.flatten()]))) )    
 
+
+
+
+          
 if __name__ == '__main__':
     #dynamic_decode_test()
+    dynamic_decode_helpertest()
     #dynamic_decode_class_test()
-    attention_test()
+    #attention_test()
     #attention_multicell_test()
     
     print('Done')
