@@ -13,6 +13,8 @@ from tensorflow.python.keras import backend as K
 model_dir에 checkpoint 파일이 저장되어 있으면 load하여 train을 이어간다.
 
 
+# TensorFlow에서는 5가지의 로깅 타입을 제공하고 있습니다. ( DEBUG, INFO, WARN, ERROR, FATAL ) INFO가 설정되면, 그 이하는 다 출력된다.
+tf.logging.set_verbosity(tf.logging.INFO) # 이게 있어야 train log가 출력된다.
 """
 
 
