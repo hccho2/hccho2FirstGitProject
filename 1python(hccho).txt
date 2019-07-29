@@ -1061,6 +1061,10 @@ numpy.array_equal
 =====================================================================================
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
+
+# tensorflow warning 
+import logging
+logging.getLogger('tensorflow').disabled = True
 =====================================================================================
 def sigmoid(x):
     "Numerically-stable sigmoid function."
