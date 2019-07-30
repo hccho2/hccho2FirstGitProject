@@ -1,6 +1,11 @@
 # remove warning
+# TensorFlow에서는 5가지의 로깅 타입을 제공하고 있습니다. ( DEBUG, INFO, WARN, ERROR, FATAL ) INFO가 설정되면, 그 이하는 다 출력된다.
 tf.logging.set_verbosity(tf.logging.ERROR)
 
+
+모두 출력하지 않게...
+import logging
+logging.getLogger('tensorflow').disabled = True
 ######################################################################
 np.sum([np.prod(v.get_shape().as_list()) for v in tf.trainable_variables()])
 ######################################################################
