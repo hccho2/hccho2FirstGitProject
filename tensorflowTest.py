@@ -1632,8 +1632,11 @@ x_= [1.0,-1.0]
 with tf.Session() as sess:
   y_ = sess.run(y, feed_dict={x: x_})
 print(x_, y_)
+=====
+# numpy 함수, argument 없이
+a = np.random.choice(2,size=(2,3),p=[0.5,0.5],replace=True)
 
-	
+A = tf.py_func(func=lambda: np.random.choice(2,size=(2,3),p=[0.5,0.5],replace=True),inp=[],Tout=tf.int64)
 	
 ###############################################
 # cpu에서는 'channels_first'가 작동하지 않는다.
