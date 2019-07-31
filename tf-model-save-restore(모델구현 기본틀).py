@@ -32,9 +32,7 @@ if load_path is None:
     os.makedirs(load_path)
 
 checkpoint_path = os.path.join(load_path, ckpt_file_name_preface)
-
-
-
+print("checkpoint_path: ", checkpoint_path) # hccho-ckpt\hccho-mm-2019-07-31_13-56-59\model.ckpt
 
 
 def get_most_recent_checkpoint(checkpoint_dir):
@@ -101,7 +99,7 @@ class SimpleNet():
         
     def add_optimizer(self,global_step):
         self.train_op = tf.train.AdamOptimizer(learning_rate=0.1).minimize(self.loss,global_step=global_step )
-
+        return self.train_op
 
 
 
@@ -113,7 +111,7 @@ def run_and_save_SimpleNet():
     simnet = SimpleNet(train_feeder)  
     
     global_step = tf.Variable(0, name='global_step', trainable=False)
-    simnet.add_optimizer(global_step)
+    train_op = simnet.add_optimizer(global_step)
     
     saver = tf.train.Saver(tf.global_variables())
     with tf.Session() as sess:
@@ -135,7 +133,7 @@ def run_and_save_SimpleNet():
             
             train_feeder.start_in_session(sess,start_step)  # 반드시 있어야됨
             while not coord.should_stop():
-                step, _ =sess.run([global_step,simnet.train_op])
+                step, _ =sess.run([global_step,train_op])
                  
                 if step%1000==0:
                     print("step ",step, ": loss = ", sess.run(simnet.loss))
@@ -221,13 +219,15 @@ class SimpleNet2():
     def build_model(self, inputs,outputs=None):
         
         L1 = tf.layers.dense(inputs,units=hp.layer_size[0], activation = tf.sigmoid,name='L1')
-        self.L2 = tf.layers.dense(L1,units=hp.layer_size[1], activation = tf.sigmoid,name='L2')
-        if self.train_mode:
-            self.loss = tf.reduce_mean( 0.5*tf.square(self.L2-outputs))
+        self.logits = tf.layers.dense(L1,units=hp.layer_size[1], activation = None,name='L2')
+        self.preditions = tf.sigmoid(self.logits)
+        if self.train_mode or outputs is not None:
+            self.loss = tf.reduce_mean( 0.5*tf.square(self.preditions-outputs))
     
     def add_optimizer(self,global_step):
         # optimizer에 global_step을 넘겨줘야, global_step이 자동으로 증가된다.
         self.train_op = tf.train.AdamOptimizer(learning_rate=self.hp.learning_rate).minimize(self.loss,global_step=global_step )
+        return self.train_op
 
 def run_and_save_SimpleNet2():
     # SimpleNet2 + DataFeeder   ----> train
@@ -243,6 +243,8 @@ def run_and_save_SimpleNet2():
     simnet.add_optimizer(global_step)
     
     saver = tf.train.Saver(tf.global_variables())
+    
+    # Ctrl + C로 stop
     with tf.Session() as sess:
         try:
             
@@ -266,8 +268,6 @@ def run_and_save_SimpleNet2():
                  
                 if step%1000==0:
                     print("step ",step, ": loss = ", sess.run(simnet.loss))
-                
-                
                 
                 if step%30000 ==0:
                     #print(tf.global_variables())
@@ -301,7 +301,7 @@ def model_restore_SimpleNet2():
         saver = tf.train.Saver(tf.global_variables())
         
         print(sess.run(tf.get_default_graph().get_tensor_by_name('L1/kernel:0')))
-        print('prediction before training = ', sess.run(simnet.L2,feed_dict={inputs: myDataX[:2] }))
+        print('prediction before training = ', sess.run(simnet.preditions,feed_dict={inputs: myDataX[:2] }))
         
         
         
@@ -312,12 +312,119 @@ def model_restore_SimpleNet2():
   
   
         print(sess.run(tf.get_default_graph().get_tensor_by_name('L1/kernel:0')))
-        print('prediction after training = ', sess.run(simnet.L2,feed_dict={inputs: myDataX[:2] }))
+        print('prediction after training = ', sess.run(simnet.preditions,feed_dict={inputs: myDataX[:2] }))
             
             
 
-      
+###########################################################################################
+###########################################################################################
+###########################################################################################
+###########################################################################################
+###########################################################################################
+###########################################################################################
+###########################################################################################
+"""
+DataFeeder class대신, tf.data.Dataset 을 이용하는 방식
+
+
+
+
+
+"""
+class DataFeeder2():
+    def __init__(self,train_input,train_target, eval_input=None,eval_target=None,batch_size=128,buffer_size=50000,drop_remainder=False,num_epoch=3):
+        self.train_input = train_input
+        self.train_target = train_target
+        self.eval_input = eval_input
+        self.eval_target = eval_target
         
+        self.buffer_size = buffer_size
+        self.num_epoch = num_epoch
+        self.batch_size = batch_size
+        self.drop_remainder = drop_remainder
+    
+    def mapping_fn(self,X, Y):
+        inputs, labels = {'x': X}, Y
+        return inputs, labels
+    
+    def train_input_fn(self):
+        dataset = tf.data.Dataset.from_tensor_slices((self.train_input, self.train_target))
+        dataset = dataset.shuffle(buffer_size=self.buffer_size)
+        dataset = dataset.batch(self.batch_size,drop_remainder=self.drop_remainder)
+        dataset = dataset.repeat(count=self.num_epoch)
+        dataset = dataset.map(self.mapping_fn)
+        iterator = dataset.make_one_shot_iterator()
+    
+        return iterator.get_next()
+
+
+    def eval_input_fn(self):
+        dataset = tf.data.Dataset.from_tensor_slices((self.eval_input, self.eval_target))
+        dataset = dataset.map(self.mapping_fn)
+        dataset = dataset.batch(1,drop_remainder=self.drop_remainder)
+        iterator = dataset.make_one_shot_iterator()
+        
+        return iterator.get_next()
+
+
+
+
+def model_fn(features, labels, mode):
+    TRAIN = mode == tf.estimator.ModeKeys.TRAIN
+    EVAL = mode == tf.estimator.ModeKeys.EVAL
+    PREDICT = mode == tf.estimator.ModeKeys.PREDICT
+    batch_size = tf.shape(features['x'])[0]
+    
+
+    simplenet = SimpleNet2(hp,train_mode=TRAIN)                 
+    simplenet.build_model(features['x'], labels)                 
+
+    if PREDICT:
+        predictions = {'predition': simplenet.predictions}
+        
+        return tf.estimator.EstimatorSpec(mode=mode,predictions=predictions)
+
+    loss = simplenet.loss
+    
+    if EVAL:
+        return tf.estimator.EstimatorSpec(mode, loss=loss)  # loss, eval_metric_ops른 넣었기 때문에 2개가 return
+    
+    if TRAIN:
+        global_step = tf.train.get_global_step()
+        train_op = simplenet.add_optimizer(global_step)
+        logging_hook = tf.train.LoggingTensorHook({"global seep: ": global_step, "loss----" : loss }, every_n_iter=1000)
+        return tf.estimator.EstimatorSpec(mode=mode,train_op=train_op,loss=loss,training_hooks = [logging_hook])
+
+def run_and_save_SimpleNet3():
+    # SimpleNet2 + DataFeeder2 + Estimator   ----> train
+  
+    # TensorFlow에서는 5가지의 로깅 타입을 제공하고 있습니다. ( DEBUG, INFO, WARN, ERROR, FATAL ) INFO가 설정되면, 그 이하는 다 출력된다.
+    tf.logging.set_verbosity(tf.logging.INFO)   # 이게 있어야 train log가 출력된다.
+    datfeeder = DataFeeder2(myDataX,myDataY,myDataX,myDataY,batch_size=2,num_epoch=2000)
+    
+
+    my_config =tf.estimator.RunConfig(log_step_count_steps=1000,save_summary_steps=10000,save_checkpoints_steps=3000)   # INFO:tensorflow:global_step/sec: 317.864  <--- 출력회수 제어
+    est = tf.estimator.Estimator(model_fn=model_fn,model_dir='hccho-ckpt\\model_ckpt',config = my_config) 
+
+
+
+#     print("="*10, "Train")
+#     est.train(datfeeder.train_input_fn)
+
+
+
+    print("="*10, "Evaluation")
+    eval_result = est.evaluate(input_fn = datfeeder.eval_input_fn,steps=2)  # steps는 최대 실행 횟수이다. data가 다 소진되면 steps를 다 채우지 못할 수도 있다.
+    print('\nTest set loss: {loss:0.3f}\n'.format(**eval_result))
+    
+    print("="*10, "Test")
+    predictions = est.predict(input_fn=datfeeder.eval_input_fn)   # user defined function이 아니면, lambda function으로 넘기면 안됨
+
+
+
+
+
+
 if __name__ == '__main__':
     #run_and_save_SimpleNet()    
     #model_restore_SimpleNet()
@@ -325,6 +432,12 @@ if __name__ == '__main__':
     ###########################
     ###########################
     #run_and_save_SimpleNet2()
-    model_restore_SimpleNet2()
+    #model_restore_SimpleNet2()
+    
+    ###########################
+    ###########################    
+
+
+    run_and_save_SimpleNet3()
     
     
