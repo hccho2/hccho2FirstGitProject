@@ -22,8 +22,8 @@ log_dir = "hccho-ckpt"    # 'logs-hccho'
 ckpt_file_name_preface = 'model.ckpt'   # 이 이름을 바꾸면, get_most_recent_checkpoint도 바꿔야 한다.
 
 
-load_path = None  # 새로운 training
-#load_path = 'hccho-ckpt\\hccho-mm-2019-07-18_09-01-19'
+#load_path = None  # 새로운 training
+load_path = 'hccho-ckpt\\hccho-mm-2019-07-31_13-56-59'
 #####
 
 
@@ -76,6 +76,7 @@ class DataFeeder(threading.Thread):
         self.start()
         
     def run(self):
+        # 여기서 mini batch를 만드는 op를 sess.run하면 된다.
         try:
             while not self.coord.should_stop():
                 data_length = len(myDataX)
@@ -205,27 +206,36 @@ SimpleNet의 init에서 datafeeder를 구조를 가지고 있다. train만 하�
 SimpleNet2로 개선
 
 """
+
+hp = tf.contrib.training.HParams(
+    learning_rate = 0.1,
+    layer_size = [4,1],
+)   
+
 class SimpleNet2():
     
-    def __init__(self,train_mode=False):
+    def __init__(self,hp,train_mode=False):
         self.train_mode=train_mode
+        self.hp = hp
 
     def build_model(self, inputs,outputs=None):
         
-        L1 = tf.layers.dense(inputs,units=4, activation = tf.sigmoid,name='L1')
-        self.L2 = tf.layers.dense(L1,units=1, activation = tf.sigmoid,name='L2')
+        L1 = tf.layers.dense(inputs,units=hp.layer_size[0], activation = tf.sigmoid,name='L1')
+        self.L2 = tf.layers.dense(L1,units=hp.layer_size[1], activation = tf.sigmoid,name='L2')
         if self.train_mode:
             self.loss = tf.reduce_mean( 0.5*tf.square(self.L2-outputs))
     
     def add_optimizer(self,global_step):
         # optimizer에 global_step을 넘겨줘야, global_step이 자동으로 증가된다.
-        self.train_op = tf.train.AdamOptimizer(learning_rate=0.1).minimize(self.loss,global_step=global_step )
+        self.train_op = tf.train.AdamOptimizer(learning_rate=self.hp.learning_rate).minimize(self.loss,global_step=global_step )
 
 def run_and_save_SimpleNet2():
+    # SimpleNet2 + DataFeeder   ----> train
+    
     
     coord = tf.train.Coordinator()
     train_feeder = DataFeeder(coord,batch_size=2)
-    simnet = SimpleNet2(train_mode=True)  
+    simnet = SimpleNet2(hp,train_mode=True)  
     simnet.build_model(train_feeder.x, train_feeder.y)
     
     
@@ -275,12 +285,12 @@ def run_and_save_SimpleNet2():
             
             
 def model_restore_SimpleNet2():
-    
+    # SimpleNet2 + DataFeeder   ----> train
 
     start_step = 0
     
     inputs = tf.placeholder(tf.float32, [None,3])
-    simnet = SimpleNet2(train_mode=False)  
+    simnet = SimpleNet2(hp,train_mode=False)  
     simnet.build_model(inputs)    
     
     with tf.Session() as sess:
@@ -314,5 +324,7 @@ if __name__ == '__main__':
     
     ###########################
     ###########################
-    run_and_save_SimpleNet2()
-    #model_restore_SimpleNet2()
+    #run_and_save_SimpleNet2()
+    model_restore_SimpleNet2()
+    
+    
