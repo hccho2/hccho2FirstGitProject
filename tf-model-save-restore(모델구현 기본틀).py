@@ -325,10 +325,8 @@ def model_restore_SimpleNet2():
 ###########################################################################################
 """
 DataFeeder class대신, tf.data.Dataset 을 이용하는 방식
-
-
-
-
+SimpleNet2
+위의 방식과 checkpoint 공유는 안된다. 별도로 선언한 global_step이 있어서..
 
 """
 class DataFeeder2():
