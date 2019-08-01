@@ -7,7 +7,7 @@ from tensorflow.python.keras.preprocessing.text import Tokenizer
 
 
 text_sequences = [[2,3,4],[1,5,6,8,9]]
-train_inputs = pad_sequences(text_sequences, maxlen=10, padding='post')
+train_inputs = pad_sequences(text_sequences, maxlen=10, padding='post')  # maxlen보다 길면 잘라 준다.
 """
 array([[2, 3, 4, 0, 0, 0, 0, 0, 0, 0],
        [1, 5, 6, 8, 9, 0, 0, 0, 0, 0]])
