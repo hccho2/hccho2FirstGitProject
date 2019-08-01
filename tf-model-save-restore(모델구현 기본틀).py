@@ -1,20 +1,17 @@
 # -*- coding: utf-8 -*-
-
 """
 run_and_save_SimpleNet() ---> DataFeeder(Queue) + Model class(SimpleNet) ---> 이 방식은 train만 고려 --> 좋지 못함.
 run_and_save_SimpleNet2() ---> DataFeeder(Queue) + Model class(SimpleNet2) --> train, inference 모두 고려 ----> 나의 표준 방식
 run_and_save_SimpleNet3() --->  DataFeeder2(tf.data) + Model class(SimpleNet2) + tf.estimator  ----> 이 방식도 좋음. 단 data전체가 아니라, mini-batch data의 조작이 불가.
 
+
 run_and_save_SimpleNet4()  ---> DataFeeder(Queue) + Model class  + tf.estimator  ---> 이게 가능한다. 
-tf.estimator는 Session이 숨겨져 있고, DataFeeder(Queue)는 Session이 필요하다.
+tf.estimator는 Session이 숨겨져 있고, DataFeeder(Queue)는 Session이 필요하다. 
+placeholder를 중간에 끼는 것으로  성공.  ----> 좀 느리다.
 
 
 
 """
-
-
-
-
 
 
 import numpy as np
@@ -225,7 +222,7 @@ SimpleNet2로 개선
 
 hp = tf.contrib.training.HParams(
     learning_rate = 0.1,
-    layer_size = [4,1],
+    layer_size = [3,1],
 )   
 
 class SimpleNet2():
@@ -424,8 +421,8 @@ def run_and_save_SimpleNet3():
 
 
 
-#     print("="*10, "Train")
-#     est.train(datfeeder.train_input_fn)
+    print("="*10, "Train")
+    est.train(datfeeder.train_input_fn)
 
 
 
@@ -437,6 +434,45 @@ def run_and_save_SimpleNet3():
     predictions = est.predict(input_fn=datfeeder.eval_input_fn)   # user defined function이 아니면, lambda function으로 넘기면 안됨
 
 
+###########################################################################################
+###########################################################################################
+###########################################################################################
+###########################################################################################
+###########################################################################################
+###########################################################################################
+###########################################################################################
+
+# run_and_save_SimpleNet4()  ---> DataFeeder(Queue) + Model class  + tf.estimator
+def run_and_save_SimpleNet4():
+    # SimpleNet2 + DataFeeder + Estimator   ----> train
+  
+    # TensorFlow에서는 5가지의 로깅 타입을 제공하고 있습니다. ( DEBUG, INFO, WARN, ERROR, FATAL ) INFO가 설정되면, 그 이하는 다 출력된다.
+    tf.logging.set_verbosity(tf.logging.INFO)   # 이게 있어야 train log가 출력된다.
+    
+    
+    
+    coord = tf.train.Coordinator()
+    train_feeder = DataFeeder(coord,batch_size=2)
+    sess = tf.Session()
+    train_feeder.start_in_session(sess,0)
+    
+        
+    def train_input_fn():
+        x = tf.placeholder(tf.float32, shape=[None, 3], name='x')
+        y = tf.placeholder(tf.float32, shape=[None, 1], name='y')
+        return {'x': x}, y    # targets를 사용하려면...
+    
+    def feed_fn():
+        batch_x, batch_y = sess.run([train_feeder.x,train_feeder.y])
+        return {'x:0': batch_x, 'y:0': batch_y }
+    
+    
+    my_config =tf.estimator.RunConfig(log_step_count_steps=1000,save_summary_steps=10000,save_checkpoints_steps=3000)   # INFO:tensorflow:global_step/sec: 317.864  <--- 출력회수 제어
+    est = tf.estimator.Estimator(model_fn=model_fn,model_dir='hccho-ckpt\\model_ckpt',config = my_config) 
+    
+
+    print("="*10, "Train")
+    est.train(train_input_fn,hooks=[tf.train.FeedFnHook(feed_fn)],steps=10000)
 
 
 
@@ -454,6 +490,10 @@ if __name__ == '__main__':
     ###########################    
 
 
-    run_and_save_SimpleNet3()
     
+    #run_and_save_SimpleNet3()
+    run_and_save_SimpleNet4()
+    
+    
+    print("Done")
     
