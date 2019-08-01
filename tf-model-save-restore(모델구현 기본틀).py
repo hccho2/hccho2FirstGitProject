@@ -1,4 +1,22 @@
 # -*- coding: utf-8 -*-
+
+"""
+run_and_save_SimpleNet() ---> DataFeeder(Queue) + Model class(SimpleNet) ---> 이 방식은 train만 고려 --> 좋지 못함.
+run_and_save_SimpleNet2() ---> DataFeeder(Queue) + Model class(SimpleNet2) --> train, inference 모두 고려 ----> 나의 표준 방식
+run_and_save_SimpleNet3() --->  DataFeeder2(tf.data) + Model class(SimpleNet2) + tf.estimator  ----> 이 방식도 좋음. 단 data전체가 아니라, mini-batch data의 조작이 불가.
+
+run_and_save_SimpleNet4()  ---> DataFeeder(Queue) + Model class  + tf.estimator  ---> 이게 가능한다. 
+tf.estimator는 Session이 숨겨져 있고, DataFeeder(Queue)는 Session이 필요하다.
+
+
+
+"""
+
+
+
+
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
