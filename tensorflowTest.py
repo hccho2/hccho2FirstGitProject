@@ -1637,6 +1637,20 @@ print(x_, y_)
 a = np.random.choice(2,size=(2,3),p=[0.5,0.5],replace=True)
 
 A = tf.py_func(func=lambda: np.random.choice(2,size=(2,3),p=[0.5,0.5],replace=True),inp=[],Tout=tf.int64)
+========
+# 함수로 처리. function return type에 민감함.
+drop_rate=0.2
+
+def word_mask(x,drop_rate):
+    size = x.get_shape().as_list()
+    mask = tf.py_func(func=lambda s: np.random.choice(2,size=s,p=[drop_rate,1-drop_rate],replace=True),inp=[size],Tout=tf.int64)
+    return mask*x
+
+input = np.array([[2,3,4],[2,1,0]],dtype=np.int64)
+x = tf.convert_to_tensor(input)
+
+
+masked_x = word_mask(x,drop_rate)
 	
 ###############################################
 # cpu에서는 'channels_first'가 작동하지 않는다.
