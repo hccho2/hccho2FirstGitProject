@@ -51,8 +51,8 @@ log = infolog.log
 myDataX = np.array([[0,0,1],[0,1,1],[1,0,1],[1,1,1],[0,0,1],[0,1,1],[1,0,1],[1,1,1],[0,0,1],[0,1,1],[1,0,1],[1,1,1]]).astype(np.float32)
 myDataY = np.array([[0,1,1,1,0,1,1,1,0,1,1,1]]).astype(np.float32).T
 
-load_path = None  # 새로운 training
-#load_path = 'hccho-ckpt\\hccho-mm-2019-08-02_13-15-21'
+#load_path = None  # 새로운 training
+load_path = 'hccho-ckpt\\hccho-mm-2019-08-03_08-35-43'
 #####
 
 
@@ -153,9 +153,8 @@ def run_and_save_SimpleNet():
             train_feeder.start_in_session(sess,start_step)  # 반드시 있어야됨
             while not coord.should_stop():
                 step, _ =sess.run([global_step,train_op])
-                 
                 if step%1000==0:
-                    log("step %6d : loss = " %(sess.run(step, simnet.loss)))
+                    log("step %6d : loss = %0.8f" %(step,sess.run(simnet.loss)))
                 
                 
                 
@@ -408,6 +407,8 @@ def model_fn(features, labels, mode):
         return tf.estimator.EstimatorSpec(mode=mode,train_op=train_op,loss=loss,training_hooks = [logging_hook])
 
 def run_and_save_SimpleNet3():
+    infolog.set_tf_log(load_path)  # Estimator에서의 log가 infolog로 나가지 않기 때문에 별도로 설정해 줌
+    
     # SimpleNet2 + DataFeeder2 + Estimator   ----> train
   
     # TensorFlow에서는 5가지의 로깅 타입을 제공하고 있습니다. ( DEBUG, INFO, WARN, ERROR, FATAL ) INFO가 설정되면, 그 이하는 다 출력된다.
@@ -482,7 +483,7 @@ if __name__ == '__main__':
     
     ###########################
     ###########################
-    run_and_save_SimpleNet2()
+    #run_and_save_SimpleNet2()
     #model_restore_SimpleNet2()
     
     ###########################
@@ -490,7 +491,7 @@ if __name__ == '__main__':
 
 
     
-    #run_and_save_SimpleNet3()
+    run_and_save_SimpleNet3()
     #run_and_save_SimpleNet4()
     
     
