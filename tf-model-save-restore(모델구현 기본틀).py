@@ -46,32 +46,7 @@ from glob import glob
 from datetime import datetime
 tf.reset_default_graph()
 
-def get_time():
-    return datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-
-
-myDataX = np.array([[0,0,1],[0,1,1],[1,0,1],[1,1,1],[0,0,1],[0,1,1],[1,0,1],[1,1,1],[0,0,1],[0,1,1],[1,0,1],[1,1,1]]).astype(np.float32)
-myDataY = np.array([[0,1,1,1,0,1,1,1,0,1,1,1]]).astype(np.float32).T
-
-
-##### project setting
-model_name = "hccho-mm"
-log_dir = "hccho-ckpt"    # 'logs-hccho'
-ckpt_file_name_preface = 'model.ckpt'   # 이 이름을 바꾸면, get_most_recent_checkpoint도 바꿔야 한다.
-
-
-#load_path = None  # 새로운 training
-load_path = 'hccho-ckpt\\hccho-mm-2019-08-02_10-06-34'
-#####
-
-
-if load_path is None:
-    load_path = os.path.join(log_dir, "{}-{}".format(model_name, get_time()))
-    os.makedirs(load_path)
-
-checkpoint_path = os.path.join(load_path, ckpt_file_name_preface)
-print("checkpoint_path: ", checkpoint_path) # hccho-ckpt\hccho-mm-2019-07-31_13-56-59\model.ckpt
-
+ 
 
 def get_most_recent_checkpoint(checkpoint_dir):
     checkpoint_paths = [path for path in glob("{}/*.ckpt-*.data-*".format(checkpoint_dir))]
@@ -87,6 +62,48 @@ def get_most_recent_checkpoint(checkpoint_dir):
     #latest_checkpoint=checkpoint_paths[0]
     print(" [*] Found lastest checkpoint: {}".format(lastest_checkpoint))
     return lastest_checkpoint
+
+def prepare_dirs(hp, load_path=None):
+    
+    def get_time():
+        return datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    
+    if load_path is None:
+        load_path = os.path.join(hp.log_dir, "{}-{}".format(hp.model_name, get_time()))
+        os.makedirs(load_path)
+        
+    checkpoint_path = os.path.join(load_path, hp.ckpt_file_name_preface)
+    restore_path = get_most_recent_checkpoint(load_path)
+    
+    return load_path,restore_path,checkpoint_path,
+
+myDataX = np.array([[0,0,1],[0,1,1],[1,0,1],[1,1,1],[0,0,1],[0,1,1],[1,0,1],[1,1,1],[0,0,1],[0,1,1],[1,0,1],[1,1,1]]).astype(np.float32)
+myDataY = np.array([[0,1,1,1,0,1,1,1,0,1,1,1]]).astype(np.float32).T
+
+
+
+
+hp = tf.contrib.training.HParams(
+    log_dir = "hccho-ckpt",
+    model_name = "hccho-mm",
+    ckpt_file_name_preface = 'model.ckpt',   # 이 이름을 바꾸면, get_most_recent_checkpoint도 바꿔야 한다.
+    
+    
+    learning_rate = 0.1,
+    layer_size = [3,1],
+)  
+
+#load_path = None  # 새로운 training
+load_path = 'hccho-ckpt\\hccho-mm-2019-08-02_11-00-23'
+#####
+
+
+load_path,restore_path,checkpoint_path = prepare_dirs(hp,load_path)
+print("checkpoint_path: ", checkpoint_path) # hccho-ckpt\hccho-mm-2019-07-31_13-56-59\model.ckpt
+
+
+
+
 class DataFeeder(threading.Thread):
     def __init__(self,coordinator,batch_size):
         super(DataFeeder, self).__init__()
@@ -158,7 +175,6 @@ def run_and_save_SimpleNet():
             sess.run(tf.global_variables_initializer())
             
             # 모델 restore
-            restore_path = get_most_recent_checkpoint(log_dir)
             if restore_path == '':
                 start_step=0
                 sess.run(tf.assign(global_step, 0))
@@ -211,7 +227,7 @@ def model_restore_SimpleNet():
                 print(sess.run(tf.get_default_graph().get_tensor_by_name('L1/kernel:0')))
                 print('Before restore loss = ', sess.run(simnet.loss))
                 
-                restore_path = get_most_recent_checkpoint(log_dir)
+                #restore_path = get_most_recent_checkpoint(log_dir)
                 saver.restore(sess, restore_path)
                 print('model restored!!!')
                 #sess.run(tf.global_variables_initializer())  # restore 후, 다시 initializer 하면 안됨.
@@ -225,6 +241,7 @@ def model_restore_SimpleNet():
             coord.request_stop(e)
 
         finally:
+            # 여기까지 왔으며, Error 메시지 보여도, 에러 아님.
             print('finally')
             coord.request_stop()        
 
@@ -243,15 +260,7 @@ SimpleNet2로 개선
 
 """
 
-hp = tf.contrib.training.HParams(
-    log_dir = "hccho-ckpt",
-    model_name = "hccho-mm",
-    ckpt_file_name_preface = 'model.ckpt',   # 이 이름을 바꾸면, get_most_recent_checkpoint도 바꿔야 한다.
-    
-    
-    learning_rate = 0.1,
-    layer_size = [3,1],
-)   
+
 
 class SimpleNet2():
     
@@ -294,7 +303,6 @@ def run_and_save_SimpleNet2():
             sess.run(tf.global_variables_initializer())
             
             # 모델 restore
-            restore_path = get_most_recent_checkpoint(load_path)
             if restore_path == '':
                 start_step=0
                 sess.run(tf.assign(global_step, 0))
@@ -347,9 +355,7 @@ def model_restore_SimpleNet2():
         print('prediction before training = ', sess.run(simnet.preditions,feed_dict={inputs: myDataX[:2] }))
         
         
-        
-        
-        restore_path = get_most_recent_checkpoint(load_path)
+    
         saver.restore(sess, restore_path)
         print('model restored!!!')
   
@@ -511,7 +517,7 @@ if __name__ == '__main__':
     
     ###########################
     ###########################
-    run_and_save_SimpleNet2()
+    #run_and_save_SimpleNet2()
     #model_restore_SimpleNet2()
     
     ###########################
@@ -519,7 +525,7 @@ if __name__ == '__main__':
 
 
     
-    #run_and_save_SimpleNet3()
+    run_and_save_SimpleNet3()
     #run_and_save_SimpleNet4()
     
     
