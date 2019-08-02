@@ -9,7 +9,7 @@ import logging
 logging.getLogger('tensorflow').disabled = True
 ######################################################################
 tf.shape(x) --> op
-x.get_shape().as_list()  --> list
+x.get_shape().as_list()  --> list. 이 경우는 [None,3] 이런 식으로 될 수도 있다.
 ######################################################################
 
 np.sum([np.prod(v.get_shape().as_list()) for v in tf.trainable_variables()])
