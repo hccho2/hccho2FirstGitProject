@@ -25,6 +25,9 @@ load_path = 'hccho-ckpt\\hccho-mm-2019-07-31_13-56-59'
 
 1. load_path 설명. None이거나 주어져 있거나(user가 설정해야 됨). None이면 log_dir를 이용해서 새로 만든다.
 2. lad_path(주어져 있거나, 새로 만들거나 뭔가 주어져 있다) --> restore_path = get_most_recent_checkpoint(log_dir)  e.g. restore_path = 'hccho-ckpt\\hccho-mm-2019-08-02_09-56-45\\model.ckpt-120000'
+3. checkpoint_path  ---> 'hccho-ckpt\\hccho-mm-2019-08-02_10-21-12\\model.ckpt'
+
+
 
 3. 참고로 estimator의 model_dir 는 load_path와 동등함.
 
@@ -58,7 +61,7 @@ ckpt_file_name_preface = 'model.ckpt'   # 이 이름을 바꾸면, get_most_rece
 
 
 #load_path = None  # 새로운 training
-load_path = 'hccho-ckpt\\hccho-mm-2019-08-02_10-09-07'
+load_path = 'hccho-ckpt\\hccho-mm-2019-08-02_10-06-34'
 #####
 
 
@@ -241,6 +244,11 @@ SimpleNet2로 개선
 """
 
 hp = tf.contrib.training.HParams(
+    log_dir = "hccho-ckpt",
+    model_name = "hccho-mm",
+    ckpt_file_name_preface = 'model.ckpt',   # 이 이름을 바꾸면, get_most_recent_checkpoint도 바꿔야 한다.
+    
+    
     learning_rate = 0.1,
     layer_size = [3,1],
 )   
@@ -503,7 +511,7 @@ if __name__ == '__main__':
     
     ###########################
     ###########################
-    #run_and_save_SimpleNet2()
+    run_and_save_SimpleNet2()
     #model_restore_SimpleNet2()
     
     ###########################
@@ -511,7 +519,7 @@ if __name__ == '__main__':
 
 
     
-    run_and_save_SimpleNet3()
+    #run_and_save_SimpleNet3()
     #run_and_save_SimpleNet4()
     
     
