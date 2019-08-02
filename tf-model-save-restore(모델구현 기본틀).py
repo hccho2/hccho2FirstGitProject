@@ -13,6 +13,26 @@ placeholder를 중간에 끼는 것으로  성공.  ----> 좀 느리다.
 
 """
 
+"""
+먼저, model_name, log_dir, ckpt_file_name_preface가 주어져 있어야 된다.
+model_name = "hccho-mm"
+log_dir = "hccho-ckpt"    # 'logs-hccho'
+ckpt_file_name_preface = 'model.ckpt'   # 이 이름을 바꾸면, get_most_recent_checkpoint도 바꿔야 한다.
+
+
+#load_path = None  # 새로운 training
+load_path = 'hccho-ckpt\\hccho-mm-2019-07-31_13-56-59'
+
+1. load_path 설명. None이거나 주어져 있거나(user가 설정해야 됨). None이면 log_dir를 이용해서 새로 만든다.
+2. lad_path(주어져 있거나, 새로 만들거나 뭔가 주어져 있다) --> restore_path = get_most_recent_checkpoint(log_dir)  e.g. restore_path = 'hccho-ckpt\\hccho-mm-2019-08-02_09-56-45\\model.ckpt-120000'
+
+3. 참고로 estimator의 model_dir 는 load_path와 동등함.
+
+
+"""
+
+
+
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -38,7 +58,7 @@ ckpt_file_name_preface = 'model.ckpt'   # 이 이름을 바꾸면, get_most_rece
 
 
 #load_path = None  # 새로운 training
-load_path = 'hccho-ckpt\\hccho-mm-2019-07-31_13-56-59'
+load_path = 'hccho-ckpt\\hccho-mm-2019-08-02_10-09-07'
 #####
 
 
@@ -417,7 +437,7 @@ def run_and_save_SimpleNet3():
     
 
     my_config =tf.estimator.RunConfig(log_step_count_steps=1000,save_summary_steps=10000,save_checkpoints_steps=3000)   # INFO:tensorflow:global_step/sec: 317.864  <--- 출력회수 제어
-    est = tf.estimator.Estimator(model_fn=model_fn,model_dir='hccho-ckpt\\model_ckpt',config = my_config) 
+    est = tf.estimator.Estimator(model_fn=model_fn,model_dir=load_path,config = my_config) 
 
 
 
@@ -491,8 +511,8 @@ if __name__ == '__main__':
 
 
     
-    #run_and_save_SimpleNet3()
-    run_and_save_SimpleNet4()
+    run_and_save_SimpleNet3()
+    #run_and_save_SimpleNet4()
     
     
     print("Done")
