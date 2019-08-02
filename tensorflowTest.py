@@ -8,6 +8,10 @@ tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 import logging
 logging.getLogger('tensorflow').disabled = True
 ######################################################################
+tf.shape(x) --> op
+x.get_shape().as_list()  --> list
+######################################################################
+
 np.sum([np.prod(v.get_shape().as_list()) for v in tf.trainable_variables()])
 ######################################################################
 # 아래의 api는 어떻게 사용하는지 한번 정리해야 겠다~~
