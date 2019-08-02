@@ -3,7 +3,7 @@ from datetime import datetime
 import json
 from threading import Thread
 from urllib.request import Request, urlopen
-
+import logging, os
 
 _format = '%Y-%m-%d %H:%M:%S.%f'
 _file = None
@@ -48,3 +48,20 @@ def _send_slack(msg):
 
 
 atexit.register(_close_logfile)
+
+
+
+def set_tf_log(load_path):
+    # Estimator에서의 log가 infolog로 나가지 않기 때문에 별도로 설정해 줌
+    # Estimator의 log도 format을 변경. 시간이 출력되도록...
+    logger = logging.getLogger('tensorflow')
+    log_path = os.path.join(load_path, 'train-tf.log')   # append mode로 열린다.
+    FileHandler = logging.FileHandler(log_path)
+    StreamHandler =  logging.StreamHandler()
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    StreamHandler.setFormatter(formatter)
+    FileHandler.setFormatter(formatter)
+    
+    
+    logger.addHandler(StreamHandler)
+    logger.addHandler(FileHandler)
