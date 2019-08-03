@@ -59,7 +59,7 @@ import pandas as pd
 x = np.arange(20).reshape(5,4)
 
 df = pd.DataFrame({'sex': ['male','female','female','male'],'age': [22, 23, 53, 13],'birth': [2018, 2001, 1985, 1971], 'from': ['seoul','pusan','seoul','jinju']})
-dg = pd.get_dummies(df)
+dg = pd.get_dummies(df)   # get_dummies:  Convert categorical variable into dummy/indicator variables.
 dg2 = pd.get_dummies(df['sex'])
 dg3 = pd.get_dummies(df,columns=['sex'])
 
