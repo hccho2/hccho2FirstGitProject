@@ -806,8 +806,10 @@ def Make_Batch():
             except tf.errors.OutOfRangeError:
                 break
 #############################################################
+# https://stackoverflow.com/questions/53938962/in-tensorflow-dataset-api-how-to-use-padded-batch-so-that-a-pads-with-a-specifi
 def padded_batch_test():
    # 위에서는 dataset.batch(BATCH_SIZE)를 사용했는데, 여기서는 ataset.padded_batch를 사용
+   # 길이가 일정하지 않아, 바로  tf.data로 넘어가지 않아, tfrecords에 저장했다가 다시 읽음.
     cells = np.array([[0,1,2,3], [2,3,4], [3,6,5,4,3], [3,9]])
     mells = np.array([[0], [2], [3], [9]])
     print(cells)
@@ -826,6 +828,9 @@ def padded_batch_test():
     filenames = ["test.tfrecords"]
     dataset = tf.data.TFRecordDataset(filenames)
     def _parse_function(example_proto):
+	# tf.VarLenFeature: Configuration for parsing a variable-length input feature.
+	# 참고로 FixedLenFeature도 있다.
+	
         keys_to_features = {'num_value':tf.VarLenFeature(tf.int64),
                             'list_value':tf.VarLenFeature(tf.int64)}
         parsed_features = tf.parse_single_example(example_proto, keys_to_features)
