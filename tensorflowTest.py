@@ -845,9 +845,9 @@ def padded_batch_test():
 	dataset = dataset.prefetch(20)  # buffer_size = 20
 
 	# Generate batches
-	dataset = dataset.padded_batch(2, padded_shapes=([None],[None]), 
-								   padding_values=(tf.constant(-99, dtype=tf.int64),
-												   tf.constant(-188, dtype=tf.int64)))
+	# padded_shapes: None이면 가장 큰 data 기준.
+	dataset = dataset.padded_batch(2, padded_shapes=([None],[8]), 
+		  padding_values=(tf.constant(-99, dtype=tf.int64), tf.constant(-188, dtype=tf.int64)))
 	# Create a one-shot iterator
 	iterator = dataset.make_one_shot_iterator()
 	i, data = iterator.get_next()
@@ -857,11 +857,12 @@ def padded_batch_test():
 		print(sess.run([i, data]))
 	
 출력 결과:
-[array([[0],[2]], dtype=int64), array([[ 0,  1,  2,  3],[ 2,  3,  4, -1]], dtype=int64)]
-[array([[3],[9]], dtype=int64), array([[ 3,  6,  5,  4,  3],[ 3,  9, -1, -1, -1]], dtype=int64)]
-[array([[  0,   1],[  2, -99]], dtype=int64), array([[   0,    1,    2,    3],[   2,    3,    4, -188]], dtype=int64)]
-[array([[  3,   2, -99],[  9,   1,   2]], dtype=int64), array([[   3,    6,    5,    4,    3],[   3,    9, -188, -188, -188]], dtype=int64)]
-#############################################################
+[array([[  0,   1],[  2, -99]], dtype=int64), 
+ array([[   0,    1,    2,    3, -188, -188, -188, -188],[   2,    3,    4, -188, -188, -188, -188, -188]], dtype=int64)]
+[array([[  3,   2, -99],[  9,   1,   2]], dtype=int64), 
+ array([[   3,    6,    5,    4,    3, -188, -188, -188],[   3,    9, -188, -188, -188, -188, -188, -188]], dtype=int64)]
+
+############################################################
 def expand_and_concat():
     tf.reset_default_graph()
     y = tf.placeholder(tf.float32, [100,200,30], 'y')
