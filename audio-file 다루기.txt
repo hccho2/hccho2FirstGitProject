@@ -1,0 +1,15 @@
+import scipy.io.wavfile as wav
+from python_speech_features import mfcc
+
+
+fs, audio = wav.read(wav_file)  # fs=16000, audio = array([-72, -86, -52, ..., -56, -63, -35], dtype=int16)
+
+features = mfcc(audio, samplerate=fs, numcep= num_features)
+
+
+==========
+tacotron에서 사용한 방식:
+librosa.load --> librosa.featrue.melspectrogram  --> librosa.feature.mfcc
+
+
+==========
