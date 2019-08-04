@@ -9,7 +9,8 @@ features = mfcc(audio, samplerate=fs, numcep= num_features)
 
 ==========
 tacotron에서 사용한 방식:
-librosa.load --> librosa.featrue.melspectrogram  --> librosa.feature.mfcc
+librosa.load --> librosa.stft  -->  librosa.featrue.melspectrogram                            
+                               또는 -->  librosa.filters.mel( mel basis만들기) --> 직접 곱한다. (반복이기 때문에 이게 더 빠르다)
 
-
+--> librosa.feature.mfcc
 ==========
