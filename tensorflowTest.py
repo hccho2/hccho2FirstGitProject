@@ -807,6 +807,7 @@ def Make_Batch():
                 break
 #############################################################
 # https://stackoverflow.com/questions/53938962/in-tensorflow-dataset-api-how-to-use-padded-batch-so-that-a-pads-with-a-specifi
+# http://cs230.stanford.edu/blog/datapipeline/
 def padded_batch_test():
    # 위에서는 dataset.batch(BATCH_SIZE)를 사용했는데, 여기서는 ataset.padded_batch를 사용
    # 길이가 일정하지 않아, 바로  tf.data로 넘어가지 않아, tfrecords에 저장했다가 다시 읽음.
