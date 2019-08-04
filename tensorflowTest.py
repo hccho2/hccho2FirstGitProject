@@ -810,55 +810,57 @@ def Make_Batch():
 def padded_batch_test():
    # 위에서는 dataset.batch(BATCH_SIZE)를 사용했는데, 여기서는 ataset.padded_batch를 사용
    # 길이가 일정하지 않아, 바로  tf.data로 넘어가지 않아, tfrecords에 저장했다가 다시 읽음.
-    cells = np.array([[0,1,2,3], [2,3,4], [3,6,5,4,3], [3,9]])
-    mells = np.array([[0], [2], [3], [9]])
-    print(cells)
-    
-    writer = tf.python_io.TFRecordWriter('test.tfrecords')
-    for index in range(mells.shape[0]):
-        example = tf.train.Example(features=tf.train.Features(feature={
-            'num_value':tf.train.Feature(int64_list=tf.train.Int64List(value=mells[index])),
-            'list_value':tf.train.Feature(int64_list=tf.train.Int64List(value=cells[index]))
-        }))
-        writer.write(example.SerializeToString())
-    writer.close()
-    
-    #Generate Samples with batch size of 2
-    
-    filenames = ["test.tfrecords"]
-    dataset = tf.data.TFRecordDataset(filenames)
-    def _parse_function(example_proto):
+	cells = np.array([[0,1,2,3], [2,3,4], [3,6,5,4,3], [3,9]])
+	mells = np.array([[0,1], [2], [3,2], [9,1,2]])
+	print(cells)
+
+	writer = tf.python_io.TFRecordWriter('test.tfrecords')
+	for index in range(mells.shape[0]):
+		example = tf.train.Example(features=tf.train.Features(feature={
+			'num_value':tf.train.Feature(int64_list=tf.train.Int64List(value=mells[index])),
+			'list_value':tf.train.Feature(int64_list=tf.train.Int64List(value=cells[index]))
+		}))
+		writer.write(example.SerializeToString())
+	writer.close()
+
+	#Generate Samples with batch size of 2
+
+	filenames = ["test.tfrecords"]
+	dataset = tf.data.TFRecordDataset(filenames)
+	def _parse_function(example_proto):
 	# tf.VarLenFeature: Configuration for parsing a variable-length input feature.
 	# 참고로 FixedLenFeature도 있다.
-	
-        keys_to_features = {'num_value':tf.VarLenFeature(tf.int64),
-                            'list_value':tf.VarLenFeature(tf.int64)}
-        parsed_features = tf.parse_single_example(example_proto, keys_to_features)
-        return tf.sparse.to_dense(parsed_features['num_value']), \
-               tf.sparse.to_dense(parsed_features['list_value'])
-    # Parse the record into tensors.
-    dataset = dataset.map(_parse_function)
-    # Shuffle the dataset
-    dataset = dataset.shuffle(buffer_size=1)
-    # Repeat the input indefinitly
-    dataset = dataset.repeat()  
-    dataset = dataset.prefetch(20)  # buffer_size = 20
 
-    # Generate batches
-    dataset = dataset.padded_batch(2, padded_shapes=([None],[None]), 
-                                   padding_values=(tf.constant(-1, dtype=tf.int64),
-                                                   tf.constant(-1, dtype=tf.int64)))
-    # Create a one-shot iterator
-    iterator = dataset.make_one_shot_iterator()
-    i, data = iterator.get_next()
-    
-    with tf.Session() as sess:
-        print(sess.run([i, data]))
-        print(sess.run([i, data]))
+		keys_to_features = {'num_value':tf.VarLenFeature(tf.int64),
+							'list_value':tf.VarLenFeature(tf.int64)}
+		parsed_features = tf.parse_single_example(example_proto, keys_to_features)
+		return tf.sparse.to_dense(parsed_features['num_value']), \
+			   tf.sparse.to_dense(parsed_features['list_value'])
+	# Parse the record into tensors.
+	dataset = dataset.map(_parse_function)
+	# Shuffle the dataset
+	dataset = dataset.shuffle(buffer_size=1)
+	# Repeat the input indefinitly
+	dataset = dataset.repeat()  
+	dataset = dataset.prefetch(20)  # buffer_size = 20
+
+	# Generate batches
+	dataset = dataset.padded_batch(2, padded_shapes=([None],[None]), 
+								   padding_values=(tf.constant(-99, dtype=tf.int64),
+												   tf.constant(-188, dtype=tf.int64)))
+	# Create a one-shot iterator
+	iterator = dataset.make_one_shot_iterator()
+	i, data = iterator.get_next()
+
+	with tf.Session() as sess:
+		print(sess.run([i, data]))
+		print(sess.run([i, data]))
 	
 출력 결과:
 [array([[0],[2]], dtype=int64), array([[ 0,  1,  2,  3],[ 2,  3,  4, -1]], dtype=int64)]
 [array([[3],[9]], dtype=int64), array([[ 3,  6,  5,  4,  3],[ 3,  9, -1, -1, -1]], dtype=int64)]
+[array([[  0,   1],[  2, -99]], dtype=int64), array([[   0,    1,    2,    3],[   2,    3,    4, -188]], dtype=int64)]
+[array([[  3,   2, -99],[  9,   1,   2]], dtype=int64), array([[   3,    6,    5,    4,    3],[   3,    9, -188, -188, -188]], dtype=int64)]
 #############################################################
 def expand_and_concat():
     tf.reset_default_graph()
