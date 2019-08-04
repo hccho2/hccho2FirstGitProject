@@ -1,3 +1,8 @@
+python 3.6설치
+
+https://repo.continuum.io/archive/index.html
+Anaconda3-5.2.0-Windows-x86_64.exe  ---> python 3.6
+=============================
 pydev 수동 설치:
 - features와 plugins 파일들을 위치에 복사한다.
 - java는 설치해도 되지만, eclipse아래에 jre디렉토리 만들고, 복사해도 
