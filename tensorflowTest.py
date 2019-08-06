@@ -806,6 +806,27 @@ def Make_Batch():
             except tf.errors.OutOfRangeError:
                 break
 #############################################################
+1. 작은 data
+tf.data.Dataset.from_tensor_slices((numpy array1, numpy array2, ...)) <------------- 1G 이하 data
+
+
+2. 큰 data
+filenames = ["/var/data/file1.tfrecord", "/var/data/file2.tfrecord"]  
+또는 filenames = tf.placeholder(tf.string, shape=[None]) <--- tain, valid data 구분이 있을 때는 이렇게 하는 것이 좋다.( feed function이 분리되어 있으면 위에 처럼 해도...)
+
+
+
+
+dataset = tf.data.TFRecordDataset(filenames)
+
+dataset = tf.data.TFRecordDataset(filenames)
+dataset = dataset.map(...)  # Parse the record into tensors.
+dataset = dataset.repeat()  # Repeat the input indefinitely.
+dataset = dataset.batch(32)
+iterator = dataset.make_initializable_iterator()
+
+
+#############################################################
 # https://stackoverflow.com/questions/53938962/in-tensorflow-dataset-api-how-to-use-padded-batch-so-that-a-pads-with-a-specifi
 # http://cs230.stanford.edu/blog/datapipeline/
 def padded_batch_test():
