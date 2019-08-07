@@ -810,7 +810,9 @@ def Make_Batch():
 tf.data.Dataset.from_tensor_slices((numpy array1, numpy array2, ...)) <------------- 1G 이하 data
 
 
-2. 큰 data
+2. 큰 data를 이용하기 위해서는 tfrecord 파일로 저장해야됨. npz는 잘 안됨
+# tf.data.TFRecordDataset이 seriialized file을 다루기 때문.
+# npz를 사용하려면, tf.data.Dataset.from_tensor_slices + mapping function을 정의해서 사용할 수 있음.
 filenames = ["/var/data/file1.tfrecord", "/var/data/file2.tfrecord"]  
 또는 filenames = tf.placeholder(tf.string, shape=[None]) <--- tain, valid data 구분이 있을 때는 이렇게 하는 것이 좋다.( feed function이 분리되어 있으면 위에 처럼 해도...)
 
