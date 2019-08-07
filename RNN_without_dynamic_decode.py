@@ -44,6 +44,7 @@ def test1():
     init_inputs = tf.placeholder(tf.float32, shape=(batch_size,input_dims))
     init_state = tf.zeros(shape=(batch_size,hidden_dim),dtype=tf.float32)
     
+    # RNNCell, FC, BN layer만 선언. 이후 data를 넣는 것은 다음 단계에서...
     cell = tf.contrib.rnn.BasicRNNCell(num_units=hidden_dim)
     output_layer = tf.layers.Dense(input_dims, name='output_projection')
     BN = tf.layers.BatchNormalization()
