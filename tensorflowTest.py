@@ -806,6 +806,39 @@ def Make_Batch():
             except tf.errors.OutOfRangeError:
                 break
 #############################################################
+def mapping_fn(a,b):
+	return -a, b
+
+X1 = np.random.randn(10,5,8)
+X2 = np.random.randn(10,4)
+
+dataset = tf.data.Dataset.from_tensor_slices((X1,X2))
+
+dataset = dataset.shuffle(buffer_size=10000)
+
+# dataset.map, dataset.batch의 순서가 중요하다. 
+# dataset.map, dataset.batch  순서이면 mapping_fn에는 batch로 묶이지 않은 data가 넘어 간다.
+# dataset.batch, dataset.map  순서이면 mapping_fn에는 batch로 묶인 data가 넘어간다.
+dataset = dataset.map(mapping_fn)
+dataset = dataset.batch(2)
+
+dataset = dataset.repeat()
+iterator = dataset.make_one_shot_iterator()
+
+
+i,j = iterator.get_next()
+
+
+with tf.Session() as sess:
+	
+	ii,jj = sess.run([i,j])
+	print(ii.shape,jj.shape)
+
+	ii,jj = sess.run([i,j])
+	print(ii.shape,jj.shape)
+
+
+##############################################################
 1. 작은 data
 tf.data.Dataset.from_tensor_slices((numpy array1, numpy array2, ...)) <------------- 1G 이하 data
 
