@@ -1882,6 +1882,10 @@ if is_training:
 image = tf.subtract(image, 0.5)
 image = tf.multiply(image, 2.0)
 
+# 참고로 audio는 
+from tensorflow.python.ops import io_ops
+audio_meta = io_ops.read_file(audio_path)  # sess.run 하면 binary data
+wav_decoder = contrib_audio.decode_wav(audio_meta, desired_channels=1,desired_samples = sr)
 	
 ###############################################	
 	
