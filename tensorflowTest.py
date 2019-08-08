@@ -1847,10 +1847,12 @@ saver.restore(디렉토리 + prefac + global_step)
 
 ###############################################
 tfrecord파일 만들기
+tf.train.Example  vs tf.train.SequenceExample 차이를 잘 모르겠다.
+
 writer = tf.python_io.TFRecordWriter(output_file)
 for 
-	example = tf.train.Example(features=tf.train.Features(feature={...}))  또는 tf.train.SequenceExample(context=tf.train.Features(...), feature_lists=tf.train.FeatureLists(...))
-	writer.write(example.SerializeToString())
+    example = tf.train.Example(features=tf.train.Features(feature={...}))  또는 tf.train.SequenceExample(context=tf.train.Features(...), feature_lists=tf.train.FeatureLists(...))
+    writer.write(example.SerializeToString())
 wirte.close()
 	
 ###############################################
