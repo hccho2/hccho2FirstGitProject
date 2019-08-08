@@ -568,6 +568,7 @@ def dense_test():
     
     xx = sess.run(x)
     w = sess.run(graph.get_tensor_by_name('dense/kernel:0'))
+    #w = sess.run('dense/kernel:0')   <----- 이렇게 해도된다. tensor이름만 으로도 된다.
     print(xx)
     print(w)
 
