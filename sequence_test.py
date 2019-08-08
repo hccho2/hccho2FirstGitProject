@@ -51,7 +51,7 @@ sentences_id = tokenizer.texts_to_sequences(sentences_merged) # [[1, 2, 3, 4, 5]
 import itertools
 import nltk
 x = ["This is a foobar-like sentence.","Good muffins cost $3.88\nin New York.  Please buy me\ntwo of them.\nThanks."]
-y= [nltk.word_tokenize(sent) for sent in x]
+y= [nltk.word_tokenize(sent) for sent in x]  # [['This', 'is', 'a', 'foobar-like', 'sentence', '.'], ['Good',  'muffins',  'cost',  '$',  '3.88',  'in',  'New',  'York',  '.',  'Please',  'buy',  'me',  'two',  'of',  'them',  '.',  'Thanks',  '.']]
 w = list(itertools.chain(*y))  # list 하나로 합치기
 z = nltk.FreqDist(w)    # zz=collections.Counter(w) 같은 결과
 vocab = z.most_common(5) # zz.most_common(5)
