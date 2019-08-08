@@ -1859,10 +1859,11 @@ wirte.close()
 ###############################################
 Tensorflow로 이미지 파일 읽기:
 filename = 'D:\\hccho\\PythonTest\\resource.jpg'
-with tf.io.gfile.GFile(filename, "rb") as f:
+with tf.io.gfile.GFile(filename, "rb") as f:     # tf.gfile.GFile
     encoded_image = f.read()  # binary data
 
 a=tf.image.decode_jpeg(encoded_image)  # <tf.Tensor 'Const:0' shape=() dtype=string>
+b = tf.image.convert_image_dtype(a, dtype=tf.float32) # float32 --> 0~1 사이 값으로 변환. dtype에 정수를 줄 수도 있다.
 sess = tf.Session()
 
 c = sess.run(a) --> uint8, (x,x,3)	
