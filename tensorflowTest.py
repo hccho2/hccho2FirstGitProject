@@ -1857,16 +1857,31 @@ for
 wirte.close()
 	
 ###############################################
-Tensorflow로 이미지 파일 읽기:
+Tensorflow로 이미지 파일 읽기:   -> inception3 모델의 input
 filename = 'D:\\hccho\\PythonTest\\resource.jpg'
 with tf.io.gfile.GFile(filename, "rb") as f:     # tf.gfile.GFile
     encoded_image = f.read()  # binary data
 
-a=tf.image.decode_jpeg(encoded_image)  # <tf.Tensor 'Const:0' shape=() dtype=string>
-b = tf.image.convert_image_dtype(a, dtype=tf.float32) # float32 --> 0~1 사이 값으로 변환. dtype에 정수를 줄 수도 있다.
-sess = tf.Session()
+image=tf.image.decode_jpeg(encoded_image)  # <tf.Tensor 'Const:0' shape=() dtype=string>  ---> sess.run하면 uint8
+image_float = tf.image.convert_image_dtype(image, dtype=tf.float32) # float32 --> 0~1 사이 값으로 변환. dtype에 정수를 줄 수도 있다.
 
-c = sess.run(a) --> uint8, (x,x,3)	
+image = tf.image.resize_images(image,size=[resize_height, resize_width],method=tf.image.ResizeMethod.BILINEAR)	
+	
+# Crop to final dimensions.
+if is_training:
+    image = tf.random_crop(image, [height, width, 3])
+else:
+# Central crop, assuming resize_height > height, resize_width > width.
+    image = tf.image.resize_image_with_crop_or_pad(image, height, width)
+
+# Randomly distort the image.
+if is_training:
+    image = distort_image(image, thread_id)
+
+# Rescale to [-1,1] instead of [0, 1]
+image = tf.subtract(image, 0.5)
+image = tf.multiply(image, 2.0)
+
 	
 ###############################################	
 	
