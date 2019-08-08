@@ -1847,7 +1847,7 @@ saver.restore(디렉토리 + prefac + global_step)
 
 ###############################################
 tfrecord파일 만들기
-tf.train.Example  vs tf.train.SequenceExample 차이를 잘 모르겠다.
+tf.train.Example(--> tf.parse_single_example 꺼낸다.)  vs tf.train.SequenceExample(--> tf.parse_single_sequence_example로 꺼낸다) 차이를 잘 모르겠다.
 
 writer = tf.python_io.TFRecordWriter(output_file)
 for 
