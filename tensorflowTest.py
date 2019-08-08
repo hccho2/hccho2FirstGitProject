@@ -1856,7 +1856,15 @@ for
 wirte.close()
 	
 ###############################################
-	
+Tensorflow로 이미지 파일 읽기:
+filename = 'D:\\hccho\\PythonTest\\resource.jpg'
+with tf.io.gfile.GFile(filename, "rb") as f:
+    encoded_image = f.read()  # binary data
+
+a=tf.image.decode_jpeg(encoded_image)  # <tf.Tensor 'Const:0' shape=() dtype=string>
+sess = tf.Session()
+
+c = sess.run(a) --> uint8, (x,x,3)	
 	
 ###############################################	
 	
