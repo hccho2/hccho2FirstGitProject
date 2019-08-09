@@ -30,17 +30,18 @@ sequence = [re.sub(CHANGE_FILTER, "", s) for s in sequence]  # re.sub는 1개씩
 # 영문 + tokenize
 ###############################################
 
-sentences= ['and twenty men could hold it with spears and arrows', 'but all my dreams violated this law']
+sentences= ['and twenty men could hold it with spears and arrows?', 'but, all my dreams violated this law']
 
-sentences_merged =[s.split(' ') for s in sentences]   # [['and', 'twenty','men','could','hold','it','with','spears','and','arrows'], ['but', 'all', 'my', 'dreams', 'violated', 'this', 'law']]
-#sentences_merged = [[c for c in x.strip().lower()] for x in sentences] # alphabet 단위. strip() 양 끝의 공백 제거.
-
-tokenizer = Tokenizer(lower=True)  # filter 기능 있음. ? , ... 등 제외
-tokenizer.fit_on_texts(sentences_merged)
+tokenizer = Tokenizer(lower=True,char_level=False)  # filter 기능 있음. ? , ... 등 제외
+tokenizer.fit_on_texts(sentences)
 print(tokenizer.word_index)  # {'안녕': 1, '어제는': 2, '뭐': 3, '했어': 4, '반가워': 5, '또': 6, '봐요': 7}
 
-sentences_id = tokenizer.texts_to_sequences(sentences_merged) #[[1, 2, 3, 4, 5, 6, 7, 8, 1, 9], [10, 11, 12, 13, 14, 15, 16]]
+sentences_id = tokenizer.texts_to_sequences(sentences) #[[1, 2, 3, 4, 5, 6, 7, 8, 1, 9], [10, 11, 12, 13, 14, 15, 16]]
 
+#####
+sentences_merged = [s.split(' ') for s in sentences]   # [['and', 'twenty','men','could','hold','it','with','spears','and','arrows'], ['but', 'all', 'my', 'dreams', 'violated', 'this', 'law']]
+sentences_merged = [[c for c in x.strip().lower()] for x in sentences] # alphabet 단위. strip() 양 끝의 공백 제거.
+####
 
 
 ###############################################
