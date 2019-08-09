@@ -63,7 +63,7 @@ print(tokenizer.word_index)  # {'안녕': 1, '어제는': 2, '뭐': 3, '했어':
 sentences_id = tokenizer.texts_to_sequences(sentences_merged) # [[1, 2, 3, 4, 5], [1, 6, 2, 7, 8]]
 
 ###############################################
-# 단어 빈도
+# 단어 빈도--> 일부를 unknown으로 처리하려면, nltk가 낫다.
 ###############################################
 
 import itertools
