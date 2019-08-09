@@ -34,8 +34,8 @@ sequence = [re.sub(CHANGE_FILTER, "", s) for s in sequence]  # re.sub는 1개씩
 
 sentences= ['안녕 어제는 뭐 했어?', '안녕, 반가워? 어제도 봤는데...']
 morph_analyzer = Okt()
-sentences = [morph_analyzer.morphs(s) for s in sentences] # 1개 문장씩 처리
-sentences_merged =[" ".join(s) for s in sentences] 
+sentences = [morph_analyzer.morphs(s) for s in sentences] # 1개 문장씩 처리. --> [['안녕', '어제', '는', '뭐', '했어', '?'], ['안녕', ',', '반가워', '?', '어제', '도', '봤는데', '...']]
+sentences_merged =[" ".join(s) for s in sentences]   # ['안녕 어제 는 뭐 했어 ?', '안녕 , 반가워 ? 어제 도 봤는데 ...']
 
 
 tokenizer = Tokenizer(lower=True)  # filter 기능 있음. ? , ... 등 제외
