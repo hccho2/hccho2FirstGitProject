@@ -1737,11 +1737,15 @@ print(y_)
 
 ###############################################
 from tensorflow.python.ops.parallel_for.gradients import jacobian
+	
+# tf.nn.ctc_loss: and the largest value (num_classes - 1) is reserved for the blank label
+#{a: 0, b: 1, c: 2, blank: 3}
+	
 def CTC_Loss():
     batch_size=2
     output_T=5
-    target_T=3
-    num_class = 4
+    target_T=3 # target의 길이. Model이 만들어 내는 out_T는 target보다 길다.
+    num_class = 4 # 0, 1, 2는 character이고, 마지막 3은 blank이다.
     
     x = np.arange(40).reshape(batch_size,output_T,num_class).astype(np.float32)
     x = np.random.randn(batch_size,output_T,num_class)
