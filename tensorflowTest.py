@@ -1736,6 +1736,7 @@ y_ = sess.run(y)
 print(y_)
 
 ###############################################
+from tensorflow.python.ops.parallel_for.gradients import jacobian
 def CTC_Loss():
     batch_size=2
     output_T=5
