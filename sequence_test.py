@@ -34,9 +34,10 @@ sentences= ['and twenty men could hold it with spears and arrows?', 'but, all my
 
 tokenizer = Tokenizer(lower=True,char_level=False)  # filter 기능 있음. ? , ... 등 제외
 tokenizer.fit_on_texts(sentences)
-print(tokenizer.word_index)  # {'안녕': 1, '어제는': 2, '뭐': 3, '했어': 4, '반가워': 5, '또': 6, '봐요': 7}
+print(tokenizer.word_index)  # {'and': 1, 'twenty': 2, 'men': 3, 'could': 4, 'hold': 5, 'it': 6, 'with': 7, 'spears': 8, 'arrows': 9, 'but': 10, 'all': 11, 'my': 12, 'dreams': 13, 'violated': 14, 'this': 15, 'law': 16}
 
 sentences_id = tokenizer.texts_to_sequences(sentences) #[[1, 2, 3, 4, 5, 6, 7, 8, 1, 9], [10, 11, 12, 13, 14, 15, 16]]
+
 
 #####
 sentences_merged = [s.split(' ') for s in sentences]   # [['and', 'twenty','men','could','hold','it','with','spears','and','arrows'], ['but', 'all', 'my', 'dreams', 'violated', 'this', 'law']]
