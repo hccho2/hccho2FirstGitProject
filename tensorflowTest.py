@@ -862,7 +862,8 @@ dataset = dataset.repeat()  # Repeat the input indefinitely.
 dataset = dataset.batch(32)
 iterator = dataset.make_initializable_iterator()
 
-
+3. data의 길이가 일정하지 않은 것은 npz로 묶어서 저장할 수 없다. npz에는 data 1개씩.
+   길이가 다른 data를 여러개 묶어 저장하려면, tfrecord로 저장해야 한다.
 #############################################################
 # https://stackoverflow.com/questions/53938962/in-tensorflow-dataset-api-how-to-use-padded-batch-so-that-a-pads-with-a-specifi
 # http://cs230.stanford.edu/blog/datapipeline/
