@@ -270,9 +270,9 @@ def Run3():
         if mode == tf.estimator.ModeKeys.EVAL:
             accuracy = tf.metrics.mean_absolute_error(labels=labels,predictions=logits)
             metrics = {'xxxx': accuracy}    
-            eval_logging_hook = tf.train.LoggingTensorHook({"eval-----my logits" : -logits, "eval2----my labels": labels}, every_n_iter=1)
-            return tf.estimator.EstimatorSpec(mode, loss=loss, eval_metric_ops=metrics,evaluation_hooks=[eval_logging_hook])
-   
+            metrics = {'xxxx': accuracy}    
+            eval_logging_hook = tf.train.LoggingTensorHook({"eval-----my logits" : -logits, "eval2----my labels": labels}, every_n_iter=1)  # 각 iteration에서 계산되는 값
+            return tf.estimator.EstimatorSpec(mode, loss=loss, eval_metric_ops=metrics,evaluation_hooks=[eval_logging_hook]) # 전체 iteration 평균값   
 
         #optimizer = tf.train.GradientDescentOptimizer(0.00001)   
         optimizer = tf.train.AdagradOptimizer(learning_rate=1.0)  # AdagradOptimizer는 lr이 좀 높아야 되네...
