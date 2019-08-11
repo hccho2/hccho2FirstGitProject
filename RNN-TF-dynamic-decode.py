@@ -107,6 +107,7 @@ def dynamic_decode_test():
                 initial_state = (tf.concat((tf.zeros_like(h0),h0), axis=1),) + (tf.concat((tf.zeros_like(h0),tf.zeros_like(h0)), axis=1),) * (num_layers-1)
         if train_mode:
             helper = tf.contrib.seq2seq.TrainingHelper(inputs, np.array([seq_length]*batch_size))
+            #helper = tf.contrib.seq2seq.TrainingHelper(inputs, np.array([[2],[4],[6]]).reshape(-1))
         else:
             helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(embedding, start_tokens=tf.tile([SOS_token], [batch_size]), end_token=EOS_token)
     
@@ -417,8 +418,9 @@ def attention_multicell_test():
         encoder_outputs = tf.ones([batch_size,20,30])
         input_lengths = [20]*batch_size
         # attention mechanism
+        attention_initial_state = cell.zero_state(batch_size, tf.float32)  # 다른 값을 줄수도 있다.
         attention_mechanism = tf.contrib.seq2seq.BahdanauAttention(num_units=11, memory=encoder_outputs,memory_sequence_length=input_lengths)
-        cell = tf.contrib.seq2seq.AttentionWrapper(cell, attention_mechanism, attention_layer_size=13)  # AttentionWrapperState를 return한다.
+        cell = tf.contrib.seq2seq.AttentionWrapper(cell, attention_mechanism,initial_cell_state=attention_initial_state, attention_layer_size=13)  # AttentionWrapperState를 return한다.
 
 
         initial_state = cell.zero_state(batch_size, tf.float32) #(batch_size x hidden_dim) x layer 개수   ==> AttentionWrapperState class object를 return한다.
