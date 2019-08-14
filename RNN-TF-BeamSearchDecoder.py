@@ -102,7 +102,7 @@ print(result_all)
 AttentionWrapper를 사용하는 경우는 많이 복잡해진다.
 
 class BeamDecode():
-    def __init__(self,batch_size,hidden_dim,output_dim,embedding_dim,seq_length=None,is_training=True):
+    def __init__(self,batch_size,hidden_dim,output_dim,embedding_dim,h0,seq_length=None,is_training=True):
         
         with tf.variable_scope('DynamicDecoder',reuse = tf.AUTO_REUSE) as scope:
             if not is_training:
@@ -121,7 +121,10 @@ class BeamDecode():
             encoder_outputs = tf.convert_to_tensor(np.random.normal(0,1,[batch_size,20,30]).astype(np.float32)) # 20: encoder sequence length, 30: encoder hidden dim
             encoder_state = tf.convert_to_tensor(np.random.normal(0,1,[batch_size,30]).astype(np.float32))
             input_lengths = tf.convert_to_tensor([20] * batch_size)
-            attention_initial_state = cell.zero_state(batch_size, tf.float32)
+            
+            # attention_initial_state를 일률적으로 0으로 주던지. encoder의 결과를 받아, batch data마다 다른 값을 같든지....여기서는 모든 batch에 대하여 실험적으로 0이아닌 같은 값을 갖게 해본다.
+            #attention_initial_state = cell.zero_state(batch_size, tf.float32)
+            attention_initial_state =  tf.tile(h0,[batch_size,1]) #   tf.convert_to_tensor(np.random.normal(0,1,size=(batch_size,output_dim)).astype(np.float32)) # 
             if not is_training:
                 beam_width = 3
                 encoder_outputs = tf.contrib.seq2seq.tile_batch(encoder_outputs, multiplier=beam_width)
@@ -142,6 +145,7 @@ class BeamDecode():
             
             if is_training:
                 initial_state = cell.zero_state(batch_size, tf.float32) #(batch_size x hidden_dim) 
+                self.x = initial_state
                 helper = tf.contrib.seq2seq.TrainingHelper(inputs, np.array([seq_length]*batch_size))
                 decoder = tf.contrib.seq2seq.BasicDecoder(cell=cell,helper=helper,initial_state=initial_state,output_layer=output_layer)
                 
@@ -156,8 +160,10 @@ class BeamDecode():
                 
                 SOS_token=0
                 EOS_token = output_dim-1
-                initial_state = tf.zeros([batch_size* beam_width,hidden_dim],tf.float32)
-                initial_state = cell.zero_state(batch_size * beam_width,tf.float32).clone(cell_state=initial_state)
+                
+                # 여기 초기 값을 위에서 정의된 값으로 잘 가져와야 된다.
+                initial_state = cell.zero_state(batch_size * beam_width,tf.float32).clone(cell_state=attention_initial_state)
+                self.x = initial_state
                 decoder = tf.contrib.seq2seq.BeamSearchDecoder(cell=cell,embedding=embedding,start_tokens=tf.tile([SOS_token], [batch_size]),
                                                                end_token=EOS_token,initial_state=initial_state,beam_width=beam_width,output_layer=output_layer)
                 self.outputs, self.last_state, self.last_sequence_lengths = tf.contrib.seq2seq.dynamic_decode(decoder=decoder,output_time_major=False,maximum_iterations=20)  # impute_finished=True ==> error occurs
@@ -187,8 +193,11 @@ hidden_dim =6
 seq_length = x_data.shape[1]
 embedding_dim = 8
 
-model = BeamDecode(batch_size=batch_size,hidden_dim=hidden_dim,output_dim=vocab_size,embedding_dim=embedding_dim,seq_length=seq_length,is_training=True)
-test_model = BeamDecode(batch_size=2,hidden_dim=hidden_dim,output_dim=vocab_size,embedding_dim=embedding_dim,is_training=False)
+
+
+h0 = tf.convert_to_tensor(np.random.normal(0,1,[1,output_dim]).astype(np.float32))
+model = BeamDecode(batch_size=batch_size,hidden_dim=hidden_dim,output_dim=vocab_size,embedding_dim=embedding_dim,h0=h0,seq_length=seq_length,is_training=True)
+test_model = BeamDecode(batch_size=2,hidden_dim=hidden_dim,output_dim=vocab_size,embedding_dim=embedding_dim,h0=h0,is_training=False)
 
 
 sess = tf.Session()
@@ -201,7 +210,7 @@ for i in range(2000):
         print(i, 'loss: {}'.format(loss))
 
 
-
+print(sess.run([model.x[0],model.x[0]]))  # 두 array 행의 값이 모두 같은 값임을 알 수 있다. BeamSearchDecoder의 init state값이 잘 전달된 것을 알 수 있다.
 
 result = sess.run(test_model.outputs.predicted_ids)
 print(result)
@@ -215,3 +224,99 @@ print(result_all)
 
 
 
+##################################################################################
+https://github.com/tensorflow/tensorflow/issues/11904
+
+import tensorflow as tf
+from tensorflow.python.layers.core import Dense
+
+
+BEAM_WIDTH = 5
+BATCH_SIZE = 128
+
+
+# INPUTS
+X = tf.placeholder(tf.int32, [BATCH_SIZE, None])
+Y = tf.placeholder(tf.int32, [BATCH_SIZE, None])
+X_seq_len = tf.placeholder(tf.int32, [BATCH_SIZE])
+Y_seq_len = tf.placeholder(tf.int32, [BATCH_SIZE])
+
+
+# ENCODER         
+encoder_out, encoder_state = tf.nn.dynamic_rnn(
+    cell = tf.nn.rnn_cell.BasicLSTMCell(128), 
+    inputs = tf.contrib.layers.embed_sequence(X, 10000, 128),
+    sequence_length = X_seq_len,
+    dtype = tf.float32)
+
+
+# DECODER COMPONENTS
+Y_vocab_size = 10000
+decoder_embedding = tf.Variable(tf.random_uniform([Y_vocab_size, 128], -1.0, 1.0))
+projection_layer = Dense(Y_vocab_size)
+
+
+# ATTENTION (TRAINING)
+attention_mechanism = tf.contrib.seq2seq.LuongAttention(
+    num_units = 128, 
+    memory = encoder_out,
+    memory_sequence_length = X_seq_len)
+
+decoder_cell = tf.contrib.seq2seq.AttentionWrapper(
+    cell = tf.nn.rnn_cell.BasicLSTMCell(128),
+    attention_mechanism = attention_mechanism,
+    attention_layer_size = 128)
+
+
+# DECODER (TRAINING)
+training_helper = tf.contrib.seq2seq.TrainingHelper(
+    inputs = tf.nn.embedding_lookup(decoder_embedding, Y),
+    sequence_length = Y_seq_len,
+    time_major = False)
+training_decoder = tf.contrib.seq2seq.BasicDecoder(
+    cell = decoder_cell,
+    helper = training_helper,
+    initial_state = decoder_cell.zero_state(BATCH_SIZE,tf.float32).clone(cell_state=encoder_state),
+    output_layer = projection_layer)
+training_decoder_output, _, _ = tf.contrib.seq2seq.dynamic_decode(
+    decoder = training_decoder,
+    impute_finished = True,
+    maximum_iterations = tf.reduce_max(Y_seq_len))
+training_logits = training_decoder_output.rnn_output
+
+
+# BEAM SEARCH TILE
+encoder_out = tf.contrib.seq2seq.tile_batch(encoder_out, multiplier=BEAM_WIDTH)
+X_seq_len = tf.contrib.seq2seq.tile_batch(X_seq_len, multiplier=BEAM_WIDTH)
+encoder_state = tf.contrib.seq2seq.tile_batch(encoder_state, multiplier=BEAM_WIDTH)
+
+
+# ATTENTION (PREDICTING)
+attention_mechanism = tf.contrib.seq2seq.LuongAttention(
+    num_units = 128, 
+    memory = encoder_out,
+    memory_sequence_length = X_seq_len)
+
+decoder_cell = tf.contrib.seq2seq.AttentionWrapper(
+    cell = tf.nn.rnn_cell.BasicLSTMCell(128),
+    attention_mechanism = attention_mechanism,
+    attention_layer_size = 128)
+
+
+# DECODER (PREDICTING)
+predicting_decoder = tf.contrib.seq2seq.BeamSearchDecoder(
+    cell = decoder_cell,
+    embedding = decoder_embedding,
+    start_tokens = tf.tile(tf.constant([1], dtype=tf.int32), [BATCH_SIZE]),
+    end_token = 2,
+    initial_state = decoder_cell.zero_state(BATCH_SIZE * BEAM_WIDTH,tf.float32).clone(cell_state=encoder_state),
+    beam_width = BEAM_WIDTH,
+    output_layer = projection_layer,
+    length_penalty_weight = 0.0)
+predicting_decoder_output, _, _ = tf.contrib.seq2seq.dynamic_decode(
+    decoder = predicting_decoder,
+    impute_finished = False,
+    maximum_iterations = 2 * tf.reduce_max(Y_seq_len))
+predicting_logits = predicting_decoder_output.predicted_ids[:, :, 0]
+
+print('successful')
