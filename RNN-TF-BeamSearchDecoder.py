@@ -130,7 +130,7 @@ class BeamDecode():
                 encoder_outputs = tf.contrib.seq2seq.tile_batch(encoder_outputs, multiplier=beam_width)
                 input_lengths = tf.contrib.seq2seq.tile_batch(input_lengths, multiplier=beam_width)
                 encoder_state = tf.contrib.seq2seq.tile_batch(encoder_state, multiplier=beam_width)      
-                attention_initial_state = tf.contrib.seq2seq.tile_batch(attention_initial_state, multiplier=beam_width)
+                attention_initial_state = tf.contrib.seq2seq.tile_batch(attention_initial_state, multiplier=beam_width)  # <tf.Tensor 'DynamicDecoder_1/Tile:0' shape=(2, 6) dtype=float32> ===> <tf.Tensor 'DynamicDecoder_1/tile_batch_3/Reshape:0' shape=(6, 6) dtype=float32>
             
                 
             
@@ -162,6 +162,9 @@ class BeamDecode():
                 EOS_token = output_dim-1
                 
                 # 여기 초기 값을 위에서 정의된 값으로 잘 가져와야 된다.
+                # attention_initial_state: <tf.Tensor 'DynamicDecoder_1/tile_batch_3/Reshape:0' shape=(6, 6) dtype=float32> 로 부터
+                # initial_state: AttentionWrapperState(cell_state=<tf.Tensor 'DynamicDecoder_1/tile_batch_3/Reshape:0' shape=(6, 6) dtype=float32>, attention=<tf.Tensor 'DynamicDecoder_1/AttentionWrapperZeroState/zeros_2:0' shape=(6, 13) dtype=float32>, time=<tf.Tensor 'DynamicDecoder_1/AttentionWrapperZeroState/zeros_1:0' shape=() dtype=int32>, alignments=<tf.Tensor 'DynamicDecoder_1/AttentionWrapperZeroState/zeros:0' shape=(6, 20) dtype=float32>, alignment_history=<tensorflow.python.ops.tensor_array_ops.TensorArray object at 0x00000183D039CCF8>, attention_state=<tf.Tensor 'DynamicDecoder_1/AttentionWrapperZeroState/zeros_3:0' shape=(6, 20) dtype=float32>)
+                # 정리하면, cell_state를 가지고, AttentinWrapperState를 만드는 것이다.
                 initial_state = cell.zero_state(batch_size * beam_width,tf.float32).clone(cell_state=attention_initial_state)
                 self.x = initial_state
                 decoder = tf.contrib.seq2seq.BeamSearchDecoder(cell=cell,embedding=embedding,start_tokens=tf.tile([SOS_token], [batch_size]),
@@ -220,8 +223,6 @@ print(result)
 result_all = [list(map(lambda a: index_to_char[a] ,x)) for x in result[0].T]
 
 print(result_all)
-
-
 
 
 ##################################################################################
