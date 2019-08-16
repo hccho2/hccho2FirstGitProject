@@ -1,6 +1,7 @@
 # coding: utf-8
 import tensorflow as tf
 import numpy as np
+from tensorflow.python.layers.core import Dense
 tf.reset_default_graph()
 
 #########################################
