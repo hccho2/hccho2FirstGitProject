@@ -125,7 +125,7 @@ class BeamDecode():
             
             # attention_initial_state를 일률적으로 0으로 주던지. encoder의 결과를 받아, batch data마다 다른 값을 같든지....여기서는 모든 batch에 대하여 실험적으로 0이아닌 같은 값을 갖게 해본다.
             #attention_initial_state = cell.zero_state(batch_size, tf.float32)
-            attention_initial_state =  tf.tile(h0,[batch_size,1]) #   tf.convert_to_tensor(np.random.normal(0,1,size=(batch_size,output_dim)).astype(np.float32)) # 
+            attention_initial_state =  h0 # tf.tile(h0,[batch_size,1]) #   tf.convert_to_tensor(np.random.normal(0,1,size=(batch_size,output_dim)).astype(np.float32)) # 
             if not is_training:
                 beam_width = 3
                 encoder_outputs = tf.contrib.seq2seq.tile_batch(encoder_outputs, multiplier=beam_width)
@@ -199,9 +199,12 @@ embedding_dim = 8
 
 
 
-h0 = tf.convert_to_tensor(np.random.normal(0,1,[1,output_dim]).astype(np.float32))
+h0 = tf.convert_to_tensor(np.random.normal(0,1,[batch_size,output_dim]).astype(np.float32))
 model = BeamDecode(batch_size=batch_size,hidden_dim=hidden_dim,output_dim=vocab_size,embedding_dim=embedding_dim,h0=h0,seq_length=seq_length,is_training=True)
-test_model = BeamDecode(batch_size=2,hidden_dim=hidden_dim,output_dim=vocab_size,embedding_dim=embedding_dim,h0=h0,is_training=False)
+
+# h0의 크기가 맞아야 한다.
+test_batch_size=2
+test_model = BeamDecode(batch_size=test_batch_size,hidden_dim=hidden_dim,output_dim=vocab_size,embedding_dim=embedding_dim,h0=h0[:test_batch_size],is_training=False)
 
 
 sess = tf.Session()
@@ -224,7 +227,6 @@ print(result)
 result_all = [list(map(lambda a: index_to_char[a] ,x)) for x in result[0].T]
 
 print(result_all)
-
 
 ##################################################################################
 https://github.com/tensorflow/tensorflow/issues/11904
