@@ -275,6 +275,7 @@ class BeamDecode():
             attention_initial_state =  (h0,h0+1) 
             if not is_training:
                 # 이 작업의 batch_size를 beam_width를 고려해서 더 많이 만들어주어야 하기 때문에 ...
+                # tf.contrib.seq2seq.tile_batch: tensor나 tuple은 뻥튀기 되는데, AttentionWrapperState는 안된다.
                 beam_width = 3
                 encoder_outputs = tf.contrib.seq2seq.tile_batch(encoder_outputs, multiplier=beam_width)
                 input_lengths = tf.contrib.seq2seq.tile_batch(input_lengths, multiplier=beam_width)
@@ -314,7 +315,7 @@ class BeamDecode():
                 # attention_initial_state: <tf.Tensor 'DynamicDecoder_1/tile_batch_3/Reshape:0' shape=(6, 6) dtype=float32> 로 부터  AttentionWrapperState를 만들어야 함.
                 # initial_state: AttentionWrapperState(cell_state=<tf.Tensor 'DynamicDecoder_1/tile_batch_3/Reshape:0' shape=(6, 6) dtype=float32>, attention=<tf.Tensor 'DynamicDecoder_1/AttentionWrapperZeroState/zeros_2:0' shape=(6, 13) dtype=float32>, time=<tf.Tensor 'DynamicDecoder_1/AttentionWrapperZeroState/zeros_1:0' shape=() dtype=int32>, alignments=<tf.Tensor 'DynamicDecoder_1/AttentionWrapperZeroState/zeros:0' shape=(6, 20) dtype=float32>, alignment_history=<tensorflow.python.ops.tensor_array_ops.TensorArray object at 0x00000183D039CCF8>, attention_state=<tf.Tensor 'DynamicDecoder_1/AttentionWrapperZeroState/zeros_3:0' shape=(6, 20) dtype=float32>)
                 # 정리하면, cell_state를 가지고, AttentinWrapperState를 만드는 것이다.
-                initial_state = cell.zero_state(batch_size * beam_width,tf.float32).clone(cell_state=attention_initial_state)
+                initial_state = cell.zero_state(batch_size * beam_width,tf.float32).clone(cell_state=attention_initial_state) #여기는 뻥튀기 기능 없음
                 self.x = initial_state
                 decoder = tf.contrib.seq2seq.BeamSearchDecoder(cell=cell,embedding=embedding,start_tokens=tf.tile([SOS_token], [batch_size]),
                                                                end_token=EOS_token,initial_state=initial_state,beam_width=beam_width,output_layer=output_layer)
