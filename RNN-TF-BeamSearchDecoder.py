@@ -217,7 +217,7 @@ for i in range(2000):
         print(i, 'loss: {}'.format(loss))
 
 
-print(sess.run([model.x[0],model.x[0]]))  # 두 array 행의 값이 모두 같은 값임을 알 수 있다. BeamSearchDecoder의 init state값이 잘 전달된 것을 알 수 있다.
+print(sess.run([model.x[0],test_model.x[0]]))  # 두 array 행의 값이 모두 같은 값임을 알 수 있다. BeamSearchDecoder의 init state값이 잘 전달된 것을 알 수 있다.
 
 result = sess.run(test_model.outputs.predicted_ids)
 print(result)
