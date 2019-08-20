@@ -1894,7 +1894,17 @@ audio_meta = io_ops.read_file(audio_path)  # sess.run 하면 binary data
 wav_decoder = contrib_audio.decode_wav(audio_meta, desired_channels=1,desired_samples = sr)
 	
 ###############################################	
-	
+# receptive field = 38
+inputs = tf.placeholder(tf.float32,shape=[1,38,38,1])
+
+L1= tf.layers.conv2d(inputs,filters=10,kernel_size=3,padding='valid',strides=1)  # 36
+L2= tf.layers.max_pooling2d(L1,pool_size=2,strides=2,padding='valid') # 18
+L3= tf.layers.conv2d(L2,filters=10,kernel_size=3,padding='valid',strides=1) # 16
+L4= tf.layers.max_pooling2d(L3,pool_size=2,strides=2,padding='valid') # 8
+
+L5= tf.layers.conv2d(L4,filters=10,kernel_size=3,padding='valid',strides=1) # 6
+L6= tf.layers.conv2d(L5,filters=10,kernel_size=3,padding='valid',strides=1) # 4
+L7= tf.layers.conv2d(L6,filters=10,kernel_size=4,padding='valid',strides=1) # 1
 ###############################################	
 	
 ###############################################	
