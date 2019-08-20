@@ -166,6 +166,8 @@ def read_tfrecords(filenames):
 		keys_to_features = {'features':tf.VarLenFeature(tf.float32),'targets':tf.VarLenFeature(tf.int64),
 						   'seq_len':tf.VarLenFeature(tf.int64),'original':tf.FixedLenFeature([], tf.string)}
 		parsed_features = tf.parse_single_example(example_proto, keys_to_features)
+		
+		# 여기서는 자유롭게 return하지만, tf.Estimator의 train, evaluation, predict에 넘기기 위해서는 featrues(dict), lables 2개로 묶어야 한다.
 		return tf.sparse.to_dense(parsed_features['features']), tf.sparse.to_dense(parsed_features['targets']), tf.sparse.to_dense(parsed_features['seq_len']) , parsed_features['original']
 	# Parse the record into tensors.
 	dataset = dataset.map(_parse_function)
@@ -221,7 +223,7 @@ def read_npz(filenames):
 		def get_data_from_npz(filename_):
 			# padded_batch에 들어가야 되므로, 1-dim array로 바뀌어야 한다.
 			data = np.load(filename_)
-			return data['audio'],data['mel'].reshape(-1) # ,data['tokens'],data['text']	
+			return data['audio'],data['mel'].reshape(-1) # ,data['tokens'],data['text']	  <------ 아래 read_npz2에 보면, 꼭 1차원으로 변형하지 않아도 된다.
 		
 		audio, mel = tf.py_func(get_data_from_npz, [filename], (tf.float32,tf.float32))
 		return audio,mel
@@ -253,7 +255,46 @@ def read_npz(filenames):
 		print(ii.shape,jj.shape)
 	
 	
+def read_npz2(filenames):
+	# tf.data.Dataset.from_generator()이용
+	# tfrecord 파일은 1차원으로 변형해야 하지만, npz는 형태를 보존하여 처리할 수 있다.
+	def _gen_data():
+		for f in filenames:
+			data = np.load(f)
+			#print(f,data['audio'].shape)
+			yield({"audio_x": data['audio'],"mel_x":data['mel'],"length_x": data['mel_frames']})
+			#yield({"audio_x": data['audio'],"mel_x":data['mel'],"length_x": [data['mel_frames']]})  # length_x 를 list로 묶으면 [] 아래의 tf.TensorShape([1])이 되어야 한다.
+			
 	
+	
+	output_types=({"audio_x": tf.float32, "mel_x": tf.float32,"length_x": tf.int32})
+	
+	# length_x에서는 tf.TensorShape([]) 이어야 한다. tf.TensorShape([None])이나 tf.TensorShape([1])은 안된다.
+	output_shapes=({"audio_x": tf.TensorShape([None]), "mel_x": tf.TensorShape([None,80]), "length_x": tf.TensorShape([])})
+	dataset = tf.data.Dataset.from_generator(_gen_data,output_types=output_types,output_shapes=output_shapes)
+	
+	
+	dataset = dataset.repeat(20)
+	#dataset = dataset.batch(1)
+	
+	padded_shapes=({"audio_x": tf.TensorShape([None]), "mel_x": tf.TensorShape([None, 80]), "length_x": tf.TensorShape([])})
+	dataset = dataset.padded_batch(2,padded_shapes=padded_shapes)
+	
+	dataset = dataset.prefetch(buffer_size=tf.contrib.data.AUTOTUNE)
+
+	iterator = dataset.make_one_shot_iterator()
+	i= iterator.get_next()
+
+
+	with tf.Session() as sess:
+		ii = sess.run(i)
+		print(ii['audio_x'].shape, ii['mel_x'].shape, ii['length_x'])
+
+		ii = sess.run(i)
+		print(ii['audio_x'].shape, ii['mel_x'].shape, ii['length_x'])
+
+		ii = sess.run(i)
+		print(ii['audio_x'].shape, ii['mel_x'].shape, ii['length_x'])
 
 if __name__ == '__main__':
 	
@@ -271,10 +312,15 @@ if __name__ == '__main__':
 	
 	
 	npz_filenames = glob("{}/*.npz".format('.\\data'))
-	print(npz_filenames)
-	read_npz(npz_filenames)
-
-	
+	#print(npz_filenames)
+	#read_npz(npz_filenames)
+ 	
+ 	
+ 	
+ 	
+ 	
+ 	
+	read_npz2(npz_filenames)
 	print('Done')
 	
 	
