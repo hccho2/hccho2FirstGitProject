@@ -1,16 +1,6 @@
 # coding: utf-8
 '''
-PV-20 #Create preprocessing sound clips 
-Creates training data by extracting the mfcc of data
-The extracted data is then formatted to fit the CTC loss function
 
-batched data = [[batch_size, max_length, 26], batch_targets, batch_seq_len]
-original_targets = [original text of transcript]
-
-Used With California Polythechnic University California, Pomona Voice Assitant Project
-Author: Jason Chang
-Project Manager: Gerry Fernando Patia
-Date: 8 July, 2018
 '''
 import os
 import numpy as np
@@ -253,7 +243,25 @@ def read_npz(filenames):
 
 		ii,jj = sess.run([i,j])
 		print(ii.shape,jj.shape)
+
+def gen_test():
 	
+	def gen():
+		for i in range(5):
+			yield(i)
+	
+	dataset = tf.data.Dataset.from_generator(gen,output_types=(tf.int32),output_shapes=tf.TensorShape([]))
+	dataset = dataset.batch(2,drop_remainder=True)
+	dataset = dataset.repeat(10)   # 여기서 repeat를  하든지, 아니면, gen()함수의 for loop를 while True:로 돌리든지 해야 한다.  repeat를 할 경우, repeate 회수가 끝나면 Error발생함.
+	
+	
+	iterator = dataset.make_one_shot_iterator()
+	x= iterator.get_next()
+	
+	sess = tf.Session()
+	
+	for i in range(100):
+		print(sess.run(x))
 	
 def read_npz2(filenames):
 	# tf.data.Dataset.from_generator()이용
@@ -316,12 +324,12 @@ if __name__ == '__main__':
 	#print(npz_filenames)
 	#read_npz(npz_filenames)
  	
- 	
- 	
- 	
- 	
- 	
-	read_npz2(npz_filenames)
+ 
+	#read_npz2(npz_filenames)
+	
+	
+	gen_test()
+	
 	print('Done')
 	
 	
