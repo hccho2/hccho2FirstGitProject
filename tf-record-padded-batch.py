@@ -277,6 +277,7 @@ def read_npz2(filenames):
 	dataset = dataset.repeat(20)
 	#dataset = dataset.batch(1)
 	
+	# batch를 만들기 전의 shape이다.
 	padded_shapes=({"audio_x": tf.TensorShape([None]), "mel_x": tf.TensorShape([None, 80]), "length_x": tf.TensorShape([])})
 	dataset = dataset.padded_batch(2,padded_shapes=padded_shapes)
 	
