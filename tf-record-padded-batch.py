@@ -248,11 +248,13 @@ def gen_test():
 	
 	def gen():
 		for i in range(5):
+			if i%2==0:
+				continue
 			yield(i)
 	
 	dataset = tf.data.Dataset.from_generator(gen,output_types=(tf.int32),output_shapes=tf.TensorShape([]))
 	dataset = dataset.batch(2,drop_remainder=True)
-	dataset = dataset.repeat(10)   # 여기서 repeat를  하든지, 아니면, gen()함수의 for loop를 while True:로 돌리든지 해야 한다.  repeat를 할 경우, repeate 회수가 끝나면 Error발생함.
+	dataset = dataset.repeat(100)   # 여기서 repeat를  하든지, 아니면, gen()함수의 for loop를 while True:로 돌리든지 해야 한다.  repeat를 할 경우, repeate 회수가 끝나면 Error발생함.
 	
 	
 	iterator = dataset.make_one_shot_iterator()
@@ -260,7 +262,7 @@ def gen_test():
 	
 	sess = tf.Session()
 	
-	for i in range(100):
+	for i in range(10):
 		print(sess.run(x))
 	
 def read_npz2(filenames):
