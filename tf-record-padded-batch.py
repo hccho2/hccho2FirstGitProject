@@ -307,6 +307,7 @@ def read_npz2(filenames):
 		ii = sess.run(i)
 		print(ii['audio_x'].shape, ii['mel_x'].shape, ii['length_x'])
 
+		
 if __name__ == '__main__':
 	
 	tfrecord_filename = './data/train_data_batched1.tfrecords'
