@@ -6,6 +6,16 @@ loss = tf.reduce_mean(z)
 
 train_op = tf.train.AdamOptimizer(0.001).minimize(loss)
 
+
+
+sess = tf.Session()
+sess.run(tf.global_variables_initializer())
+
+var_list = [v for v in tf.global_variables() if 'Adam' not in v.name ]
+
+saver = tf.train.Saver(var_list)
+saver.save(sess, 'c:\\a\\model.ckpt')
+
 ######################################################################
 
 
