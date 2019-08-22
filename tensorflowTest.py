@@ -1,30 +1,36 @@
-x = tf.placeholder(tf.float32,shape=[2,3])
-x = tf.convert_to_tensor(np.random.randn(2,3).astype(np.float32))
-x = tf.convert_to_tensor(np.array([[-0.6587036 ,  0.67638916, -0.07040939],[ 0.02193491, -0.13528223,  1.2818061 ]], dtype=np.float32))
+with tf.variable_scope('hccho1'):
 
-
-
-y = tf.layers.dense(x,units=10)
-z = tf.layers.batch_normalization(y)
+    x = tf.placeholder(tf.float32,shape=[2,3])
+    x = tf.convert_to_tensor(np.random.randn(2,3).astype(np.float32))
+    x = tf.convert_to_tensor(np.array([[-0.6587036 ,  0.67638916, -0.07040939],[ 0.02193491, -0.13528223,  1.2818061 ]], dtype=np.float32))
+    y = tf.layers.dense(x,units=10)    
+    
+with tf.variable_scope('hccho2'): 
+    z = tf.layers.batch_normalization(y)
 
 loss = tf.reduce_mean(z)
 
-train_op = tf.train.AdamOptimizer(0.001).minimize(loss)
+# optimization관련 op를 만들때도 scope가 있어야 한다. 그렇지 않으면,
+# optimization 관련 variable이 위에 있는 scope를 찾아가서 붙는다.
+with tf.variable_scope('hccho3'):   # optimization관련 op를 만들때도 scope가 있어야 한다. 
+    train_op = tf.train.AdamOptimizer(0.001).minimize(loss)
 
 
 
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
 
-var_list = [v for v in tf.global_variables() if 'Adam' not in v.name ]
+var_list = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='hccho1') +tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='hccho2')
 
 print(sess.run(z))
 
 saver = tf.train.Saver(var_list)
 saver.restore(sess,'c:\\a\\model.ckpt')
 print(sess.run(z))
+
+
 saver = tf.train.Saver(var_list)
-#saver.save(sess, 'c:\\a\\model.ckpt')
+saver.save(sess, 'c:\\a\\model.ckpt')
 
 ######################################################################
 
