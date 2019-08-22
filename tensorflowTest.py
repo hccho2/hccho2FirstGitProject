@@ -1,4 +1,9 @@
 x = tf.placeholder(tf.float32,shape=[2,3])
+x = tf.convert_to_tensor(np.random.randn(2,3).astype(np.float32))
+x = tf.convert_to_tensor(np.array([[-0.6587036 ,  0.67638916, -0.07040939],[ 0.02193491, -0.13528223,  1.2818061 ]], dtype=np.float32))
+
+
+
 y = tf.layers.dense(x,units=10)
 z = tf.layers.batch_normalization(y)
 
@@ -13,8 +18,13 @@ sess.run(tf.global_variables_initializer())
 
 var_list = [v for v in tf.global_variables() if 'Adam' not in v.name ]
 
+print(sess.run(z))
+
 saver = tf.train.Saver(var_list)
-saver.save(sess, 'c:\\a\\model.ckpt')
+saver.restore(sess,'c:\\a\\model.ckpt')
+print(sess.run(z))
+saver = tf.train.Saver(var_list)
+#saver.save(sess, 'c:\\a\\model.ckpt')
 
 ######################################################################
 
