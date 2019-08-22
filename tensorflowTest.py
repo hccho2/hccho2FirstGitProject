@@ -1,3 +1,14 @@
+x = tf.placeholder(tf.float32,shape=[2,3])
+y = tf.layers.dense(x,units=10)
+z = tf.layers.batch_normalization(y)
+
+loss = tf.reduce_mean(z)
+
+train_op = tf.train.AdamOptimizer(0.001).minimize(loss)
+
+######################################################################
+
+
 # remove warning
 # TensorFlow에서는 5가지의 로깅 타입을 제공하고 있습니다. ( DEBUG, INFO, WARN, ERROR, FATAL ) INFO가 설정되면, 그 이하는 다 출력된다.
 tf.logging.set_verbosity(tf.logging.ERROR)
