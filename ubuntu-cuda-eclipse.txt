@@ -1,0 +1,333 @@
+2019년 8월
+
+1. ubuntu 18.04 설치: https://jimnong.tistory.com/676
+
+2. cuda(10.0), cudnn(7.6.2), tensorflow-gpu
+
+- os에 맞게 cuda driver를 먼저 설치: https://www.linuxbabe.com/ubuntu/install-nvidia-driver-ubuntu-18-04
+
+===
+
+-cuda: Linux - x84_64 - Ubuntu 18.04 - deb(local)   ---> deb 파일은 다운받고, 
+cd Download
+sudo dpkg -i cuda-repo-ubuntu1804-10-0-local-10.0.130-410.48_1.0-1_amd64.deb
+sudo apt-key add /var/cuda-repo-10-0-local-10.0.130-410.48/7fa2af80.pub
+sudo apt-get update
+sudo apt-get install cuda-libraries-10-0    ---> sudo apt-get install cuda ---> 이렇게만 하면 error
+
+
+===
+- patch는 저장하지 않고, 다운받아 실행.
+
+===
+- 이제 환경 변수를 등록해야 하는데... 이게 참...  --> 결론은 ~/.bashrc 하고  ~/.profile 모두에 해 주어야 한다.
+- .profile에 해 주지 않으면, 나중에  ----> TensorFlow:  libcudnn.so.7: cannot open shared object file: No such file or directory  이런 error 발생  
+   ---> error는 나지만 gpu를 사용하지 않고, cpu에서 돌아는 감
+
+
+===
+- cudnn 설치하기.
+cudnn  --> archive cudnnn releases   ---> 버전 선택 --> "library for linux" 
+
+tar -xzvf cudnn-10.0-linux-x64-v7.6.2.24.tgz
+
+
+cudnn은 파일을 복사하기만 하면 되는데, 가고자 하는 곳의 디렉토리를 sudo mkdir include 이런 식으로 미리 만들어 두어야 한다.
+
+sudo cp cuda/include/cudnn.h /usr/local/cuda-10.0/include
+sudo cp cuda/lib64/libcudnn* /usr/local/cuda-10.0/lib64
+sudo chmod a+r /usr/local/cuda-10.0/include/cudnn.h /usr/local/cuda-10.0/lib64/libcudnn*
+
+
+
+
+===
+환경 변수 등록
+
+sudo nano ~/.bashrc
+export PATH=/usr/local/cuda-10.0/bin${PATH:+:$PATH}}
+export LD_LIBRARY_PATH=/usr/local/cuda-10.0/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+
+
+sudo nano ~/.profile     -----> bashrc는 terminal을 뜨우면 실행되는 것. profile은 로그인 할 때 실행. eclipse는 terminal에서 실행하는게 아니니까, 여기에 넣어주어야 한다.
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64
+export CUDA_HOME=/usr/local/cuda-10.0
+
+
+
+echo $LD_LIBRARY_PATH    echo $CUDA_HOME    ---> terminal에서 꼭 확인하자.
+
+
+===
+이제 anaconda 설치(anaconda 3.5.1이 python 3.6이다.)
+다운 받고,
+
+> bash Anaconda3-5.1.0-Linux-x86.sh
+
+> source ~/.bashrc
+
+- 가상환경 만들어서, tensorflow-gpu설치
+
+conda create -n tf14 python=3.6 anaconda               <--------------마지막 anaconda는 설치할 디렉토리. 없으면 알아서... ---> 어디에 설치되었는지 확인하자.
+source activate tf14
+pip install tensorflow-gpu==1.14   <---- conda, pip는 가상환경에만 설치. pip3는 전체에 설치?
+
+source activate tf14
+source deactivate
+conda remove -n name --all
+
+
+===
+eclipse 설치
+https://www.george-smart.co.uk/2018/07/installing-eclipse-ide-and-pydev-onto-ubuntu-18-04/
+https://www.youtube.com/watch?v=Vc3z48_Gx3E
+java가 설치되어 있는지 먼저 확인하자.
+
+openjdk를 설치하는 방법과 oracle java jdk를 설치하는 방법이 있다.
+
+
+
+---------------------------
+oracle java jdk를 설치하는 방법
+sudo add-apt-repository ppa:webupd8team/java
+sudo apt update
+sudo apt install oracle-java8-installer
+
+-----------------
+sudo add-apt-repository ppa:webupd8team/java
+sudo apt-get update
+sudo apt install oracle-java8-installer
+sudo apt install oracle-java8-set-default
+
+
+-----------------------
+openjdk를 설치
+sudo apt-get install openjdk-8-jdk
+----------------------
+
+javac -version
+
+eclipse 다운로드
+
+cd ~/Downloads/
+tar xvfz eclipse-inst-linux64.tar.gz(설치버전)    eclipse-dsl-2019-06-R-linux-gtk-x86_64.tar.gz(package버전)
+
+압축풀면, 디렉토리 생김. eclipse-inst 실행
+cd eclipse-installer
+
+./eclipse-inst
+
+
+바로가기 만들기
+sudo nano /usr/share/applications/eclipse.desktop
+
+===
+
+
+
+===
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+- 직접다운받지 않고, command 창에서 설치
+https://greenmon.dev/2019/06/21/ubuntu-cuda.html?fbclid=IwAR2noaNT4OQB7Xm4p-enOdhJCch8DF45AiezfVeq_2Qlqvxa1TnneyjFLRw
+
+
+https://www.youtube.com/watch?v=vxjbL5iN1XY
+
+
+
+
+cuda toolkit 10 다운로드
+https://developer.nvidia.com/cuda-10.0-download-archive?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu
+
+Linux - x84_64 - Ubuntu 18.04 - deb(local)
+
+- deb 파일은 다운받고, 
+cd Download
+sudo dpkg -i cuda-repo-ubuntu1804-10-0-local-10.0.130-410.48_1.0-1_amd64.deb
+sudo apt-key add /var/cuda-repo-10-0-local-10.0.130-410.48/7fa2af80.pub
+sudo apt-get update
+sudo apt-get install cuda-libraries-10-0
+
+
+patch는 저장하지 않고, 실행.
+
+
+
+open your .bashrc file with nano
+sudo nano ~/.bashrc
+go to the last line and add the following lines (this will set your PATH variable)
+export PATH=/usr/local/cuda-10.0/bin${PATH:+:$PATH}}
+export LD_LIBRARY_PATH=/usr/local/cuda-10.0/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+
+
+
+export PATH=/usr/local/cuda-10.0/bin${PATH:+:$PATH}}
+export LD_LIBRARY_PATH=/usr/local/cuda-10.0/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+
+
+gedit .profile
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64
+export CUDA_HOME=/usr/local/cuda-10.0
+
+
+
+echo $PATH
+
+cudnn  --> archive cudnnn releases   ---> 버전 선택 --> "library for linux"  ---> 아주 느리게 다운된다.
+
+tar -xzvf cudnn-10.0-linux-x64-v7.6.2.24.tgz
+
+sudo cp cuda/include/cudnn.h /usr/local/cuda-10.0/include
+sudo cp cuda/lib64/libcudnn* /usr/local/cuda-10.0/lib64
+sudo chmod a+r /usr/local/cuda-10.0/include/cudnn.h /usr/local/cuda-10.0/lib64/libcudnn*
+
+===========================================================
+anaconda설치
+https://myborn.tistory.com/7, https://ufris.tistory.com/5
+http://hansworld.co.kr/AII/1038
+
+
+
+> sha256sum Anaconda3-5.1.0-Linux-x86.sh
+
+cd ./home/anaconda3  <--- 설치 디렉토리
+
+> bash Anaconda3-5.1.0-Linux-x86.sh
+로그 아웃 후, 다시 들어가거나 , 
+> source ~/.bashrc
+
+
+
+가상환경 만들기 전에 확인 > conda search "^python$"
+
+conda create -n tf14 python=3.6 anaconda               <--------------마지막 anaconda는 설치할 디렉토리. 없으면 알아서...
+source activate tf14
+pip install tensorflow-gpu==1.14   <---- conda, pip는 가상환경에만 설치. pip3는 전체에 설치?
+
+source activate tf14
+source deactivate
+conda remove -n name --all
+
+
+
+
+
+
+=====================================================
+eclipse 설치
+https://www.george-smart.co.uk/2018/07/installing-eclipse-ide-and-pydev-onto-ubuntu-18-04/
+https://www.youtube.com/watch?v=Vc3z48_Gx3E
+java가 설치되어 있는지 먼저 확인하자.
+
+openjdk를 설치하는 방법과 oracle java jdk를 설치하는 방법이 있다.
+
+
+
+---------------------------
+oracle java jdk를 설치하는 방법
+sudo add-apt-repository ppa:webupd8team/java
+sudo apt update
+sudo apt install oracle-java8-installer
+
+-----------------
+sudo add-apt-repository ppa:webupd8team/java
+sudo apt-get update
+sudo apt install oracle-java8-installer
+sudo apt install oracle-java8-set-default
+
+
+-----------------------
+openjdk를 설치
+sudo apt-get install openjdk-8-jdk
+----------------------
+
+javac -version
+
+eclipse 다운로드
+
+cd ~/Downloads/
+tar xvfz eclipse-inst-linux64.tar.gz(설치버전)    eclipse-dsl-2019-06-R-linux-gtk-x86_64.tar.gz(package버전)
+
+압축풀면, 디렉토리 생김. eclipse-inst 실행
+cd eclipse-installer
+
+./eclipse-inst
+
+
+sudo nano /usr/share/applications/eclipse.desktop
+
+
+
+==============================
+echo $JAVA_HOME
+javac -version
+
+export JAVA_HOME=/usr/lib/jvm/java-8-oracle/bin/javac
+
+
+nvidia-smi -l 4   <------------4초마다 갱신
+watch -n 1 -d nvidia-smi   # 1초 마다 nvidia-smi 실행하면서 변화된 부분 하이라이트 표시
+
+
+
+pip install gpustat
+>gpustat -i
+
+
+cpu, 메모리 사용량 확인
+top 또는 htop
+
+============================
+notepad++ 설치
+https://www.tecrobust.com/install-notepad-plus-plus-linux-ubuntu/
+
+All Applications -> ubuntu software -->  notepad++ 검색
+
+
+===============================
+
+2019-08-30 06:46:40.961621: W tensorflow/compiler/jit/mark_for_compilation_pass.cc:1412] (One-time warning): Not using XLA:CPU for cluster because envvar TF_XLA_FLAGS=--tf_xla_cpu_global_jit was not set.  If you want XLA:CPU, either set that envvar, or use experimental_jit_scope to enable XLA:CPU.  To confirm that XLA is active, pass --vmodule=xla_compilation_cache=1 (as a proper command-line flag, not via TF_XLA_FLAGS) or set the envvar XLA_FLAGS=--xla_hlo_profile.
+
+
+https://github.com/tensorflow/tensorflow/issues/30308
