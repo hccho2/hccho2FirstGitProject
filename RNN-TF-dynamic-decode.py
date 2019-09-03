@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
 import numpy as np
 import tensorflow as tf
-
+import logging
+logging.getLogger('tensorflow').disabled = True
 
 from tensorflow.python.layers.core import Dense
 tf.reset_default_graph()
-
 class DynamicDecode():
     def __init__(self,batch_size,hidden_dim,output_dim,embedding_dim,seq_length=None,is_training=True):
         """
@@ -92,7 +94,7 @@ def dynamic_decode_test():
         # tf.contrib.rnn.OutputProjectionWrapper  마지막에 FC layer를 하나 더 추가하는 효과. 아래에서 적용하는 Dense보다 앞에 적용된다. Dense가 있기 때문에 OutputProjectionWrapper 또는 Dense로 처리 가능함
         # FC layer를 multiple로 적용하려면 OutputProjectionWrapper을 사용해야 함.
         if False:
-            cell = tf.contrib.rnn.OutputProjectionWrapper(cell,13)
+            cell = tf.contrib.rnn.OutputProjectionWrapper(cell,13,activation=tf.nn.relu)
             cell = tf.contrib.rnn.OutputProjectionWrapper(cell,17)
     
         if init_state_flag==0:
@@ -639,7 +641,6 @@ if __name__ == '__main__':
     #attention_multicell_test()
     
     print('Done')
-
 
 
 
