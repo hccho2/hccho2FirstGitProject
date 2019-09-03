@@ -1,4 +1,11 @@
 # coding: utf-8
+'''
+https://pytorch.org/tutorials/
+
+
+'''
+
+
 
 import torch
 from torch import nn,optim
@@ -8,33 +15,40 @@ import numpy as np
 import time
 from sklearn.datasets import load_digits
 import tqdm
+
 def test1():
     print(torch.__version__)
     
     # 중첩 list를 지정
     t = torch.tensor([[1, 2], [3, 4.]])
-    print(t)
+
     # device를 지정하면 GPU로 Tensor를 만들 수 있다
-    t = torch.tensor([[1, 2], [3, 4.]], device="cuda:0")
-    print(t)
+    #t = torch.tensor([[1, 2], [3, 4.]], device="cuda:0")
+
     # dtype을 사용해 데이터형을 지정해 Tensor를 만들 수 있다
     t = torch.tensor([[1, 2], [3, 4.]], dtype=torch.float64)
-    print(t)
+
     # 0부터 9까지의 수치로 초기화된 1차원 Tensor
     t = torch.arange(0, 10)
-    print(t)
+
     
     #모든 값이 0인 100 x 10 의 Tensor를
     #작성해서 to메서드로 GPU에 전송
-    t = torch.zeros(100, 10).to("cuda:0")
-    print(t.size())
-    
+    #t = torch.zeros(100, 10).to("cuda:0")
+
     
     # 정규 난수로 100 x 10의 Tensor를 작성
     t = torch.randn(100, 10)
     
     # Tensor의 shape은 size 메서드로 취득 가능
-    print(t.size())
+    print(t.size(),t.shape)  # size(), shape은 alias
+    
+    a = torch.empty(5, 7, dtype=torch.float)
+    a.fill_(3.5)
+    b = a.add(4.0)
+    
+    x = torch.ones(5, 5)
+    y = x.numpy()
 
 def model1():
     # 참의 계수
@@ -79,6 +93,7 @@ def model1():
     plt.show()
 
 def MultivariateRegression():
+    # Regression 직접 구현
     device =  'cpu'  #'cuda:0'
     s = time.time()
     lr = 0.00002
@@ -114,6 +129,7 @@ def MultivariateRegression():
     print('elapese: {} sec'.format(time.time()-s))
     
 def MultivariateRegression2():
+    # optim, nn.MSELoss() 이용
     device =  'cpu'  #'cuda:0'
     s = time.time()
     lr = 0.02
@@ -153,7 +169,7 @@ def MultivariateRegression2():
     
     
 def MultivariateRegression3():
-    # mini batch
+    # MultivariateRegression2 + mini batch
     device =  'cpu'  #'cuda:0'
     s = time.time()
     lr = 0.2
@@ -197,6 +213,7 @@ def MultivariateRegression3():
 
 
 def MNIST():
+    # Multi Layer 모델, nn.Sequential() 이용
     # shuffle되어 있지 않다.
     digits = load_digits()     # dict_keys(['data', 'target', 'target_names', 'images', 'DESCR']), (1797, 64), (1797,), array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]),(1797, 8, 8)
 
@@ -237,6 +254,7 @@ def MNIST():
 
 
 def MNIST2():
+    # Network을 class로 구현
     batch_size = 8
     num_epoch = 1000
     
@@ -302,6 +320,7 @@ def MNIST2():
     print('Done')
 
 def conv_test():
+    # pytorch는 convolution 연산후, image 크기 계산을 직접햐야 한다. tensorflow에서의 same padding이 없다.
     X = torch.randn(2, 3,100,100)
     # tensorflow의 same padding 같은 것은 업다.
     conv = nn.Conv2d(in_channels=3, out_channels=32, kernel_size=5, stride=1,padding=[2,2])  # paddig(H,W)
@@ -310,7 +329,9 @@ def conv_test():
     
     print(Y.shape)
 
+
 def MNIST_conv():
+    # Convolution 모델
     batch_size=128
     num_epoch=50
     
@@ -334,8 +355,6 @@ def MNIST_conv():
     class MyConvNet(nn.Module):
         def __init__(self):
             super().__init__()
-             
-            #self.net = nn.Sequential(nn.Linear(64,32),nn.ReLU(),nn.Dropout(0.3),nn.Linear(32,16),nn.BatchNorm1d(16),nn.ReLU(),nn.Linear(16,10))
             self.net = nn.Sequential()
             self.net.add_module("L1", nn.Conv2d(in_channels=1, out_channels=32, kernel_size=5, stride=1,padding=[2,2]))
             self.net.add_module("L2", nn.MaxPool2d(2))
@@ -393,12 +412,112 @@ def MNIST_conv():
     print('Done')
 
 
+def init_test():
+    vocab_size=6
+    embedding_dim = 8
+    x_data = np.array([[0, 3, 1, 4, 3, 2],[0, 3, 4, 2, 3, 1],[0, 1, 3, 2, 2, 1]], dtype=np.int32)
+
+    X = torch.tensor(x_data, dtype=torch.int64) #int64이어야 된다.
+    
+    emb = nn.Embedding(vocab_size, embedding_dim, padding_idx=0)
+    
+    
+    #z = np.random.randn(6,8).astype(np.float32)
+    z = np.arange(vocab_size*embedding_dim).reshape(-1,embedding_dim).astype(np.float32)
+    
+    emb.weight.data=torch.from_numpy(z)   # numpy array를 이용하여 초기화
+    
+
+    z = emb(X) # (3,6) -->(3,6,embedding_dim)
+    print(emb.weight)
+    print(z[0])
+def RNN_test():
+    vocab_size = 6
+    SOS_token = 0
+    EOS_token = 5
+    
+    embedding_dim = 8
+    hidden_dim =20
+    num_layers = 2
+    index_to_char = {SOS_token: '<S>', 1: 'h', 2: 'e', 3: 'l', 4: 'o', EOS_token: '<E>'}
+    x_data = np.array([[SOS_token, 1, 2, 3, 3, 4]], dtype=np.int32)
+    y_data = np.array([[1, 2, 3, 3, 4,EOS_token]],dtype=np.int32)
+
+    X = torch.tensor(x_data, dtype=torch.int64) #int64이어야 된다.
+    Y = torch.tensor(y_data, dtype=torch.int64)
+    
+    class MyRNN(nn.Module):
+        def __init__(self):
+            super().__init__()
+            
+            self.first_net=nn.Embedding(vocab_size, embedding_dim, padding_idx=0)
+            
+            
+            self.lstm = nn.LSTM(embedding_dim,hidden_dim, num_layers,batch_first=True, dropout=0.2)
+            
+            self.last_net = nn.Sequential()
+            self.last_net.add_module("L2", nn.Linear(hidden_dim,13))
+            self.last_net.add_module("L3", nn.ReLU()) 
+            self.last_net.add_module("L4", nn.Linear(13,vocab_size))
+        
+        def forward(self,x, h0=None):
+            x = self.first_net(x)
+            x,h = self.lstm(x,h0)
+            
+            x = self.last_net(x)
+            return x,h
+    
+    
+    net = MyRNN()
+     
+    loss_fn = nn.CrossEntropyLoss()  # 2dim에 대한 loss, seq loss는 안된다.
+    optimizer = optim.Adam(net.parameters(),lr=0.01)
+     
+    net.train()  # train mode
+
+    for epoch in range(500):
+        optimizer.zero_grad()
+        Y_hat,_ = net(X)
+        loss = loss_fn(input=Y_hat.view(-1,vocab_size),target = Y.view(vocab_size))
+        loss.backward()
+        optimizer.step()
+        
+        if epoch %10 ==0:
+            print('epoch: {}, loss = {:.4f}'.format(epoch,loss))
 
 
 
 
-
-
+    net.eval()
+    max_length = 20
+    h=None
+    input = np.array([[SOS_token]], dtype=np.int32)
+    input = torch.tensor(input, dtype=torch.int64)
+     
+    result = []
+    with torch.no_grad():
+        for i in range(max_length):
+            out,h=net(input,h)
+             
+            _,input = torch.max(out,2)
+             
+            ch = input.numpy()[0,0]
+            if ch == EOS_token: break
+            result.append(index_to_char[input.numpy()[0,0]])
+     
+     
+        print(result)
+ 
+    print(len(list(net.parameters())))
+    for a in net.named_parameters():
+        print(a[0], a[1].shape)
+  
+    for idx, m in enumerate(net.named_modules()):
+        print(idx, '->', m)
+    print('Done')
+    
+    
+    
     
     
 if __name__ == '__main__':
@@ -411,12 +530,13 @@ if __name__ == '__main__':
     #MNIST2()
     
     #conv_test()
-    MNIST_conv()
+    #MNIST_conv()
+    
+    #init_test()
+    RNN_test()
 
 
-
-
-
+    print('Done')
 
 
 
