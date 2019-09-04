@@ -432,12 +432,13 @@ def init_test():
     print(emb.weight)
     print(z[0])
 def RNN_test():
+    save_path = './saved_model/xxx.pt'
     vocab_size = 6
     SOS_token = 0
     EOS_token = 5
     
     embedding_dim = 8
-    hidden_dim =20
+    hidden_dim =7
     num_layers = 2
     index_to_char = {SOS_token: '<S>', 1: 'h', 2: 'e', 3: 'l', 4: 'o', EOS_token: '<E>'}
     x_data = np.array([[SOS_token, 1, 2, 3, 3, 4]], dtype=np.int32)
@@ -473,20 +474,22 @@ def RNN_test():
     loss_fn = nn.CrossEntropyLoss()  # 2dim에 대한 loss, seq loss는 안된다.
     optimizer = optim.Adam(net.parameters(),lr=0.01)
      
-    net.train()  # train mode
+    mode = 2 
+    if mode == 1: 
+        net.train()  # train mode
+        for epoch in range(500):
+            optimizer.zero_grad()
+            Y_hat,_ = net(X)
+            loss = loss_fn(input=Y_hat.view(-1,vocab_size),target = Y.view(vocab_size))
+            loss.backward()
+            optimizer.step()
+            
+            if epoch %10 ==0:
+                print('epoch: {}, loss = {:.4f}'.format(epoch,loss))
 
-    for epoch in range(500):
-        optimizer.zero_grad()
-        Y_hat,_ = net(X)
-        loss = loss_fn(input=Y_hat.view(-1,vocab_size),target = Y.view(vocab_size))
-        loss.backward()
-        optimizer.step()
-        
-        if epoch %10 ==0:
-            print('epoch: {}, loss = {:.4f}'.format(epoch,loss))
 
-
-
+    else:
+        net.load_state_dict(torch.load(save_path))
 
     net.eval()
     max_length = 20
@@ -507,8 +510,22 @@ def RNN_test():
      
      
         print(result)
+
+
+
+    # Print model's state_dict
+    print("Model's state_dict:")
+    for param_tensor in net.state_dict():
+        print(param_tensor, "\t", net.state_dict()[param_tensor].size())
+
+    # Print optimizer's state_dict
+    print("Optimizer's state_dict:")
+    for var_name in optimizer.state_dict():   # dict_keys(['state', 'param_groups'])
+        print(var_name, "\t", optimizer.state_dict()[var_name])
  
-    print(len(list(net.parameters())))
+    print("# of params: ", len(list(net.parameters())))
+    
+    
     for a in net.named_parameters():
         print(a[0], a[1].shape)
   
@@ -517,8 +534,8 @@ def RNN_test():
     print('Done')
     
     
-    
-    
+    # Save. 디렉토리를 미리 만들어야 한다.
+    torch.save(net.state_dict(), save_path)
     
 if __name__ == '__main__':
     #test1()
