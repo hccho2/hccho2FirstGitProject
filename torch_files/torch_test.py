@@ -618,7 +618,7 @@ def bidirectional_test():
     vocab_size = 20
     hidden_size = 3
     
-    input = torch.from_numpy(np.random.randint(0, vocab_size, size=(batch_size, T,embedding_dim)).astype(np.float32))
+    input = torch.from_numpy(np.random.randn(0, vocab_size, size=(batch_size, T,embedding_dim)).astype(np.float32))
     rnn = nn.RNN(input_size=embedding_dim, hidden_size=hidden_size, batch_first=True,bidirectional=True)
     
     out,h = rnn(input) # out에는 forward, backward가 concat되어 있다.
