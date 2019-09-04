@@ -567,7 +567,88 @@ def RNN_test():
     
     # Save. 디렉토리를 미리 만들어야 한다.
     torch.save(net.state_dict(), save_path)
+def PackedSeq_test():
+    '''
+    https://simonjisu.github.io/nlp/2018/07/05/packedsequence.html
+    pytorch의 rnn 모듈은 PackedSequence가 들어왔는지를 판단하여 처리한다.
+    '''
+    input_seq2idx= torch.tensor([[  1,  16,   7,  11,  13,   2],
+        [  1,  16,   6,  15,   8,   0],
+        [ 12,   9,   0,   0,   0,   0],
+        [  5,  14,   3,  17,   0,   0],
+        [ 10,   0,   0,   0,   0,   0]])
     
+    
+
+    input_lengths = torch.LongTensor([torch.max(input_seq2idx[i, :].data.nonzero())+1 for i in range(input_seq2idx.size(0))])
+    input_lengths, sorted_idx = input_lengths.sort(0, descending=True)
+    input_seq2idx = input_seq2idx[sorted_idx]
+    
+    
+    print(input_seq2idx)
+    
+    packed_input = torch.nn.utils.rnn.pack_padded_sequence(input_seq2idx, input_lengths.tolist(), batch_first=True)
+    print(packed_input)
+    
+    
+    print('='*20)
+    
+    ###################################
+    ###################################
+
+    embedding_dim = 3
+    hidden_size = 5
+    emb = nn.Embedding(50, embedding_dim, padding_idx=0)
+    rnn = nn.RNN(input_size=embedding_dim, hidden_size=hidden_size, batch_first=True)
+    
+    embed=emb(input_seq2idx)
+    packed_input = torch.nn.utils.rnn.pack_padded_sequence(embed, input_lengths.tolist(), batch_first=True)
+    
+    out,h=rnn(packed_input)  # h도 길이에 맞게 마지막 state가 들어있다.
+    out, output_lengths = torch.nn.utils.rnn.pad_packed_sequence(out, batch_first=True)
+    
+    out2,h2=rnn(embed)  # h2는 길이에 상관없이 제일 끝 hidden state가 들어가 있다.
+    print(out,output_lengths)  # padded 부분에 garbage가 없다.
+    print(out2)  # padded부분도 계산이되어, garbage가 들어 있다.
+    
+def bidirectional_test():
+    batch_size = 2
+    T = 5
+    embedding_dim = 4
+    vocab_size = 20
+    hidden_size = 3
+    
+    input = torch.from_numpy(np.random.randint(0, vocab_size, size=(batch_size, T,embedding_dim)).astype(np.float32))
+    rnn = nn.RNN(input_size=embedding_dim, hidden_size=hidden_size, batch_first=True,bidirectional=True)
+    
+    out,h = rnn(input) # out에는 forward, backward가 concat되어 있다.
+    
+    print(out.shape,h.shape) # out.shape = (batch_size,T,2*hidden_dim), 마지막 앞의 hidden_dim개는 forward, 뒤의 hidden_dim개는 backward
+    '''
+out([[[ 1.0000, -0.9972, -1.0000,  1.0000,  1.0000,  0.9347],
+         [ 1.0000, -1.0000,  0.9931,  1.0000, -0.9455, -1.0000],
+         [ 1.0000,  0.8011, -1.0000,  0.9968,  1.0000,  0.9996],
+         [ 1.0000, -0.9998, -0.7761,  1.0000,  0.9998, -0.5244],
+         [ 1.0000, -1.0000, -1.0000,  1.0000,  0.9515, -0.9956]],
+
+        [[ 1.0000, -1.0000, -0.9850,  1.0000,  1.0000,  0.9973],
+         [ 1.0000, -0.9974, -1.0000,  1.0000,  1.0000, -0.0949],
+         [ 1.0000, -1.0000, -0.9984,  1.0000,  0.6022, -0.2628],
+         [ 1.0000, -0.9973, -1.0000,  1.0000,  1.0000,  0.9879],
+         [ 1.0000, -0.9606, -0.9993,  0.9962,  1.0000,  0.9973]]],
+
+
+h([[[ 1.0000, -1.0000, -1.0000],
+         [ 1.0000, -0.9606, -0.9993]],
+
+        [[ 1.0000,  1.0000,  0.9347],
+         [ 1.0000,  1.0000,  0.9973]]]  
+    '''
+    
+    
+    
+    
+     
 if __name__ == '__main__':
     #test1()
     #model1()
@@ -580,9 +661,11 @@ if __name__ == '__main__':
     #conv_test()
     #MNIST_conv()
     
-    init_test()
+    #init_test()
     #RNN_test()
-
+    #PackedSeq_test()
+    
+    bidirectional_test()
 
     print('Done')
 
