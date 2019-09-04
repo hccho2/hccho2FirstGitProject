@@ -415,15 +415,15 @@ def MNIST_conv():
 def init_test():
     vocab_size=6
     embedding_dim = 8
-    x_data = np.array([[0, 3, 1, 4, 3, 2],[0, 3, 4, 2, 3, 1],[0, 1, 3, 2, 2, 1]], dtype=np.int32)
+    x_data = np.array([[0, 3, 1, 4, 3, 2],[0, 3, 4, 2, 3, 1],[0, 1, 3, 2, 2, 1],[2, 2, 2, 2, 2, 2]], dtype=np.int32)
 
     X = torch.tensor(x_data, dtype=torch.int64) #int64이어야 된다.
     
     emb = nn.Embedding(vocab_size, embedding_dim, padding_idx=0)
     
     
-    #z = np.random.randn(6,8).astype(np.float32)
-    z = np.arange(vocab_size*embedding_dim).reshape(-1,embedding_dim).astype(np.float32)
+    z = np.random.randn(6,8).astype(np.float32)
+    #z = np.arange(vocab_size*embedding_dim).reshape(-1,embedding_dim).astype(np.float32)
     
     emb.weight.data=torch.from_numpy(z)   # numpy array를 이용하여 초기화
     
@@ -431,7 +431,38 @@ def init_test():
     z = emb(X) # (3,6) -->(3,6,embedding_dim)
     print(emb.weight)
     print(z[0])
+    
+    
+    ##############################################
+    ##############################################
+    print('='*20)
+    hidden_size=5
+    
+    rnn = nn.RNN(input_size=embedding_dim, hidden_size=hidden_size,num_layers=1,bias=True,nonlinearity='tanh', batch_first=True, dropout=0, bidirectional=False)
+    
+    y,h = rnn(z)  # stateful
+    
+    
+    
+    print(y.shape,h.shape)
+    
+    
+    
+    
+    
+    
 def RNN_test():
+    USE_CUDA = torch.cuda.is_available()
+    if USE_CUDA:
+        DEVICE=torch.device('cuda:0') # or set to 'cpu'
+    else:
+        DEVICE=torch.device('cpu')
+    print("CUDA:", USE_CUDA)
+    print(DEVICE)
+        
+
+    
+    
     save_path = './saved_model/xxx.pt'
     vocab_size = 6
     SOS_token = 0
@@ -549,13 +580,11 @@ if __name__ == '__main__':
     #conv_test()
     #MNIST_conv()
     
-    #init_test()
-    RNN_test()
+    init_test()
+    #RNN_test()
 
 
     print('Done')
-
-
 
 
 
