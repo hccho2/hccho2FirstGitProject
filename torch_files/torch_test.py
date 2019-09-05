@@ -16,6 +16,12 @@ import time
 from sklearn.datasets import load_digits
 import tqdm
 
+def show_weights(net):
+    for idx, m in enumerate(net.named_modules()):
+        print(idx, '->', m)    
+    for a in net.named_parameters():
+        print(a[0], a[1].shape)
+
 def test1():
     print(torch.__version__)
     
@@ -646,9 +652,63 @@ h([[[ 1.0000, -1.0000, -1.0000],
     '''
     
     
+def Loss_test():
+    # NLLLoss: negative log likelihood loss
+    # CrossEntropyLoss  == (logit -> softmax -> log -> NLLLoss)
+    # NLLLoss는 넣어주는 값중에 lable에 해당하는 값에 마이너스 붙혀주는 역할.
+    with torch.no_grad(): 
+        loss1 = nn.NLLLoss()
+        loss2 = nn.CrossEntropyLoss()
+        
+        logit = torch.tensor([[1.0,2.0,1.5],[3.0,1.0,4.0]], requires_grad=True, dtype=torch.float)
+        
+        target = torch.tensor([2,1])   # target label  ---> one hot 2 == (0,0,1)
+        
+        # logit(N, n_class), target: N
+        loss1_ = loss1(logit, target)   # -torch.mean(logit[np.arange(2),target])
+        loss2_ = loss2(logit, target)   # cross entropy loss
+        
+        print(loss1_,loss2_)
+        
+        
+        softmax_val = torch.nn.functional.softmax(logit,1)
+        log_softmax_val = torch.log(softmax_val)
+        print("softmax: ", softmax_val)
+        print("log-softmax: ", log_softmax_val)
+        print("Cross Entropy loss: ", -torch.mean(log_softmax_val[np.arange(2),target]))
+        
+        print("Cross Entropy Loss by NLLLosss: ", loss1(log_softmax_val,target))
+        
+        print("NLLLost: ", -torch.mean(logit[np.arange(2),target]))
     
-    
-     
+def Loss_Mask_test():
+    # NLLLoss: negative log likelihood loss
+    # CrossEntropyLoss  == (logit -> softmax -> log -> NLLLoss)
+    # NLLLoss는 넣어주는 값중에 lable에 해당하는 값에 마이너스 붙혀주는 역할.
+    with torch.no_grad(): 
+        loss1 = nn.NLLLoss()
+        loss2 = nn.CrossEntropyLoss()
+        
+        logit = torch.tensor([[1.0,2.0,1.5],[3.0,1.0,4.0]], requires_grad=True, dtype=torch.float)
+        
+        target = torch.tensor([2,1])   # target label  ---> one hot 2 == (0,0,1)
+        
+        # logit(N, n_class), target: N
+        loss1_ = loss1(logit, target)   # -torch.mean(logit[np.arange(2),target])
+        loss2_ = loss2(logit, target)   # cross entropy loss
+        
+        print(loss1_,loss2_)
+        
+        
+        softmax_val = torch.nn.functional.softmax(logit,1)
+        log_softmax_val = torch.log(softmax_val)
+        print("softmax: ", softmax_val)
+        print("log-softmax: ", log_softmax_val)
+        print("Cross Entropy loss: ", -torch.mean(log_softmax_val[np.arange(2),target]))
+        
+        print("Cross Entropy Loss by NLLLosss: ", loss1(log_softmax_val,target))
+        
+        print("NLLLost: ", -torch.mean(logit[np.arange(2),target]))     
 if __name__ == '__main__':
     #test1()
     #model1()
@@ -665,7 +725,12 @@ if __name__ == '__main__':
     #RNN_test()
     #PackedSeq_test()
     
-    bidirectional_test()
+    #bidirectional_test()
+
+
+    #Loss_test()
+    Loss_Mask_test()
+
 
     print('Done')
 

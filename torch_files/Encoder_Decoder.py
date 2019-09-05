@@ -27,6 +27,14 @@ else:
 print("CUDA:", USE_CUDA)
 print(DEVICE)
 
+def show_weights(net):
+    for idx, m in enumerate(net.named_modules()):
+        print(idx, '->', m)    
+    for a in net.named_parameters():
+        print(a[0], a[1].shape)
+
+
+
 class EncoderDecoder(nn.Module):
     """
     A standard Encoder-Decoder architecture. Base for this and many 
@@ -42,8 +50,8 @@ class EncoderDecoder(nn.Module):
         
     def forward(self, src, trg, src_mask, trg_mask, src_lengths, trg_lengths):
         """Take in and process masked src and target sequences."""
-        encoder_hidden, encoder_final = self.encode(src, src_mask, src_lengths)
-        return self.decode(encoder_hidden, encoder_final, src_mask, trg, trg_mask)
+        encoder_hidden, encoder_final = self.encode(src, src_mask, src_lengths)   # encoder_hidden(32, 9, 128), encoder_final(1, 32, 128)
+        return self.decode(encoder_hidden, encoder_final, src_mask, trg, trg_mask)  #src_mask(32, 1, 9), trg_mask(32, 9), trg(32, 9)
     
     def encode(self, src, src_mask, src_lengths):
         return self.encoder(self.src_embed(src), src_mask, src_lengths)
@@ -66,8 +74,7 @@ class Encoder(nn.Module):
     def __init__(self, input_size, hidden_size, num_layers=1, dropout=0.):
         super(Encoder, self).__init__()
         self.num_layers = num_layers
-        self.rnn = nn.GRU(input_size, hidden_size, num_layers, 
-                          batch_first=True, bidirectional=True, dropout=dropout)
+        self.rnn = nn.GRU(input_size, hidden_size, num_layers, batch_first=True, bidirectional=True, dropout=dropout)
         
     def forward(self, x, mask, lengths):
         """
@@ -76,7 +83,7 @@ class Encoder(nn.Module):
         x should have dimensions [batch, time, dim].
         """
         packed = pack_padded_sequence(x, lengths, batch_first=True)
-        output, final = self.rnn(packed)
+        output, final = self.rnn(packed)   # output(), final(2, 32, 64)
         output, _ = pad_packed_sequence(output, batch_first=True)
 
         # we need to manually concatenate the final states for both directions 
@@ -84,7 +91,7 @@ class Encoder(nn.Module):
         bwd_final = final[1:final.size(0):2]  #  final[1:2]
         final = torch.cat([fwd_final, bwd_final], dim=2)  # [num_layers, batch, 2*dim]
 
-        return output, final
+        return output, final    #output(32, 9, 128), final(1, 32, 128)
 
 
 class Decoder(nn.Module):
@@ -98,40 +105,39 @@ class Decoder(nn.Module):
         self.num_layers = num_layers
         self.attention = attention
         self.dropout = dropout
-                 
-        self.rnn = nn.GRU(emb_size + 2*hidden_size, hidden_size, num_layers,
-                          batch_first=True, dropout=dropout)
+        
+        # attention이 들어가기 위해, input dim에 2*hidden_size가더해져 있다.          
+        self.rnn = nn.GRU(emb_size + 2*hidden_size, hidden_size, num_layers, batch_first=True, dropout=dropout)
                  
         # to initialize from the final encoder state
         self.bridge = nn.Linear(2*hidden_size, hidden_size, bias=True) if bridge else None
 
         self.dropout_layer = nn.Dropout(p=dropout)
-        self.pre_output_layer = nn.Linear(hidden_size + 2*hidden_size + emb_size,
-                                          hidden_size, bias=False)
+        self.pre_output_layer = nn.Linear(hidden_size + 2*hidden_size + emb_size,hidden_size, bias=False)
         
     def forward_step(self, prev_embed, encoder_hidden, src_mask, proj_key, hidden):
         """Perform a single decoder step (1 word)"""
-
+        # prev_embed(32,1,32), hidden: h_{t-1}, (1, 32, 64)
         # compute context vector using attention mechanism
-        query = hidden[-1].unsqueeze(1)  # [#layers, B, D] -> [B, 1, D]
-        context, attn_probs = self.attention(
-            query=query, proj_key=proj_key,
-            value=encoder_hidden, mask=src_mask)
+        query = hidden[-1].unsqueeze(1)  # [1, N, D] -> [B, 1, D]
+        context, attn_probs = self.attention(query=query, proj_key=proj_key,value=encoder_hidden, mask=src_mask)   # context(N,1,64), attn_probs(N,1,T)
 
         # update rnn hidden state
         rnn_input = torch.cat([prev_embed, context], dim=2)
         output, hidden = self.rnn(rnn_input, hidden)
         
-        pre_output = torch.cat([prev_embed, output, context], dim=2)
+        pre_output = torch.cat([prev_embed, output, context], dim=2)   # 모두 모아서, FC에 넣음. 이건 일반적인 방법은 아님.
         pre_output = self.dropout_layer(pre_output)
         pre_output = self.pre_output_layer(pre_output)
 
         return output, hidden, pre_output
     
-    def forward(self, trg_embed, encoder_hidden, encoder_final, 
-                src_mask, trg_mask, hidden=None, max_len=None):
+    def forward(self, trg_embed, encoder_hidden, encoder_final, src_mask, trg_mask, hidden=None, max_len=None):
         """Unroll the decoder one step at a time."""
-                                         
+        
+        # trg_embed(32, 9, 32),encoder_hidden(32, 9, 128),encoder_final(1, 32, 128),src_mask(32, 1, 9),trg_mask(32, 9])
+        
+                                     
         # the maximum number of steps to unroll the RNN
         if max_len is None:
             max_len = trg_mask.size(-1)
@@ -143,7 +149,7 @@ class Decoder(nn.Module):
         # pre-compute projected encoder hidden states
         # (the "keys" for the attention mechanism)
         # this is only done for efficiency
-        proj_key = self.attention.key_layer(encoder_hidden)
+        proj_key = self.attention.key_layer(encoder_hidden)  # key = memory.   encoder_hidden(32, 9, 128) --> proj_key(32, 9, 64)
         
         # here we store all intermediate hidden states and pre-output vectors
         decoder_states = []
@@ -151,15 +157,14 @@ class Decoder(nn.Module):
         
         # unroll the decoder RNN for max_len steps
         for i in range(max_len):
-            prev_embed = trg_embed[:, i].unsqueeze(1)
-            output, hidden, pre_output = self.forward_step(
-              prev_embed, encoder_hidden, src_mask, proj_key, hidden)
+            prev_embed = trg_embed[:, i].unsqueeze(1) #  (32, 32) --> (32,1,32)
+            output, hidden, pre_output = self.forward_step(prev_embed, encoder_hidden, src_mask, proj_key, hidden)
             decoder_states.append(output)
             pre_output_vectors.append(pre_output)
 
-        decoder_states = torch.cat(decoder_states, dim=1)
+        decoder_states = torch.cat(decoder_states, dim=1)   # 각 time의 output(32, 1, 64)  --> concat (32, T, 64)
         pre_output_vectors = torch.cat(pre_output_vectors, dim=1)
-        return decoder_states, hidden, pre_output_vectors  # [B, N, D]
+        return decoder_states, hidden, pre_output_vectors  # [B, N, D] 각 time의 output(32, 1, 64)  --> concat (32, T, 64)
 
     def init_hidden(self, encoder_final):
         """Returns the initial decoder state,
@@ -168,7 +173,7 @@ class Decoder(nn.Module):
         if encoder_final is None:
             return None  # start with zeros
 
-        return torch.tanh(self.bridge(encoder_final))  
+        return torch.tanh(self.bridge(encoder_final))  # ---> (1, 32, 64)
 
 class BahdanauAttention(nn.Module):
     """Implements Bahdanau (MLP) attention"""
@@ -192,11 +197,11 @@ class BahdanauAttention(nn.Module):
 
         # We first project the query (the decoder state).
         # The projected keys (the encoder states) were already pre-computated.
-        query = self.query_layer(query)
+        query = self.query_layer(query)  # (32, 1, 64) ---> (32, 1, 64)
         
         # Calculate scores.
-        scores = self.energy_layer(torch.tanh(query + proj_key))
-        scores = scores.squeeze(2).unsqueeze(1)
+        scores = self.energy_layer(torch.tanh(query + proj_key))  # (32, 1, 64) + (32, 9, 64) <---- broadcasting
+        scores = scores.squeeze(2).unsqueeze(1)   # (32, 1, 9)
         
         # Mask out invalid positions.
         # The mask marks valid positions so we invert it using `mask & 0`.
@@ -204,10 +209,10 @@ class BahdanauAttention(nn.Module):
         
         # Turn scores to probabilities.
         alphas = F.softmax(scores, dim=-1)
-        self.alphas = alphas        
+        self.alphas = alphas        #  (32, 1, 9)
         
         # The context vector is the weighted sum of the values.
-        context = torch.bmm(alphas, value)
+        context = torch.bmm(alphas, value)   # alpha(32, 1, 9), value(32, 9, 128)  -->  (32, 1, 128)
         
         # context shape: [B, 1, 2D], alphas shape: [B, 1, M]
         return context, alphas
@@ -241,7 +246,7 @@ class Batch:
         self.src = src
         self.src_lengths = src_lengths
         self.src_mask = (src != pad_index).unsqueeze(-2)  #shape change (1,T) ==>(1,1,T)
-        self.nseqs = src.size(0)
+        self.nseqs = src.size(0)   # batch_size
         
         self.trg = None
         self.trg_y = None
@@ -280,15 +285,14 @@ def run_epoch(data_iter, model, loss_compute, print_every=50):
         out, _, pre_output = model.forward(batch.src, batch.trg,
                                            batch.src_mask, batch.trg_mask,
                                            batch.src_lengths, batch.trg_lengths)
-        loss = loss_compute(pre_output, batch.trg_y, batch.nseqs)
+        loss = loss_compute(pre_output, batch.trg_y, batch.nseqs)   # pre_output(32, 9, 64),batch.trg_y(32, 9) batch.nseqs = batch_size
         total_loss += loss
         total_tokens += batch.ntokens
         print_tokens += batch.ntokens
         
         if model.training and i % print_every == 0:
             elapsed = time.time() - start
-            print("Epoch Step: %d Loss: %f Tokens per Sec: %f" %
-                    (i, loss / batch.nseqs, print_tokens / elapsed))
+            print("Epoch Step: %d Loss: %f Tokens per Sec: %f" % (i, loss / batch.nseqs, print_tokens / elapsed))
             start = time.time()
             print_tokens = 0
 
@@ -316,9 +320,11 @@ class SimpleLossCompute:
         self.opt = opt
 
     def __call__(self, x, y, norm):
-        x = self.generator(x)
-        loss = self.criterion(x.contiguous().view(-1, x.size(-1)),
-                              y.contiguous().view(-1))
+        # x: model output, y: target
+        # x(32, 9, 64), y(32, 9), norm = batch_size
+        
+        x = self.generator(x)  # 마지막 FC + log-sotfmax
+        loss = self.criterion(x.contiguous().view(-1, x.size(-1)), y.contiguous().view(-1))   # decoder input에서 mask된 부분을 고려해서 계산해야 되는거 아닌가???
         loss = loss / norm
 
         if self.opt is not None:
@@ -326,7 +332,7 @@ class SimpleLossCompute:
             self.opt.step()
             self.opt.zero_grad()
 
-        return loss.data.item() * norm
+        return loss.data.item() * norm  # not tensor, scalar 값 return
 
 
 def greedy_decode(model, src, src_mask, src_lengths, max_len=100, sos_index=1, eos_index=None):
@@ -422,8 +428,15 @@ def print_examples(example_iter, model, n=2, max_len=100,
 def train_copy_task():
     """Train the simple copy task."""
     num_words = 11
+    emb_size = 32
+    hidden_size=64
+    num_layers=1
+    dropout=0.1
+    
+    
+
     criterion = nn.NLLLoss(reduction="sum", ignore_index=0)
-    model = make_model(num_words, num_words, emb_size=32, hidden_size=64)   # ---->EncoderDecoder
+    model = make_model(num_words, num_words, emb_size=emb_size, hidden_size=hidden_size,num_layers=num_layers,dropout=dropout)   # ---->EncoderDecoder
     optim = torch.optim.Adam(model.parameters(), lr=0.0003)
     
     # batch_size 만큼의 mini_batch를 num_batches만큼 만든다. 이게 1 epoch이 된다.
@@ -446,8 +459,7 @@ def train_copy_task():
         # evaluate
         model.eval()
         with torch.no_grad(): 
-            perplexity = run_epoch(eval_data, model,
-                                   SimpleLossCompute(model.generator, criterion, None))
+            perplexity = run_epoch(eval_data, model, SimpleLossCompute(model.generator, criterion, None))
             print("Evaluation perplexity: %f" % perplexity)
             dev_perplexities.append(perplexity)
             print_examples(eval_data, model, n=2, max_len=9)
