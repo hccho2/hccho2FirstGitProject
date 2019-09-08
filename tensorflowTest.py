@@ -1022,6 +1022,32 @@ def FC_vs_Conv2d():
         z2 = np.squeeze(z2)
         z3 = np.squeeze(z3)
     print(z1,z2,z3) 
+
+
+
+def FC_vs_Conv2d_2():
+	# (3,3,5)이미지를 [flatten 후, FC(eg 45->4)를 거치는 것]과 [kernel_size=3, out_channel = 4로 conv2d]
+
+	x0 = np.random.randn(2,3,3,5)
+	x = tf.convert_to_tensor(x0)
+	xx = tf.layers.flatten(x)
+	w = np.random.randn(3,3,3,4)
+	ww = w.reshape(-1,4)
+	z1=tf.layers.conv2d(x,filters=4,kernel_size=3,kernel_initializer=tf.constant_initializer(w), use_bias=False,padding='valid')
+	z2 =tf.layers.dense(xx,units=4,kernel_initializer=tf.constant_initializer(ww),use_bias=False)
+
+
+
+	sess = tf.Session()
+	sess.run(tf.global_variables_initializer())
+	print(sess.run(z1))
+	print(sess.run(z2))
+
+
+
+
+
+
 ###############################################
 # kernel_size=1, strides=1 인 경우에는 valid padding 과 same padding은 동일한 결과를 준다.
 
