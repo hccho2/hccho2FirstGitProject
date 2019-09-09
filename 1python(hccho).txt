@@ -261,7 +261,7 @@ mydatapd = pd.DataFrame(mydata,columns=['A','B','C'])
 mydatapd = mydatapd.pivot(index ='A',columns='B',values='C')
 
 =====================================================================================
-import pickle
+import pickle  # from six.moves import cPickle as pickle 도 가능
 var1 = xxx
 var2 = xxx
 var3 = xx
