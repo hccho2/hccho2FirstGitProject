@@ -27,6 +27,11 @@ tfcpu      C:\Anaconda\hccho-virtual\tfcpu\Scripts\python.exe
 =====================================================================
 > pip download 
 =====================================================================
+import skimage.io as io   --- error --- pip install로는 안되고,
+pip install --upgrade scikit-image
+=====================================================================
+
+
 import sys
 sys.path.append("../")   <--- 코드내에 추가
 sys.path.append("D:\\hccho\\im2txt\\im2txt")
