@@ -264,8 +264,18 @@ plt.show()
 
 ##########################################################
 
+# 1 by 4로 이미지 배치
+plt.subplot(1,4,1)
+img1 = xxxdfdfd
+plt.imshow(img1)
+plt.title('GT')
 
 
+
+plt.subplot(1,4,2)
+img2 = ...
+plt.imshow(img2)
+plt.title('proposal_boxes')
 
 
 
