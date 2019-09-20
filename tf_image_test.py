@@ -8,6 +8,16 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import tensorflow as tf
 
+def check_font():
+    import matplotlib.font_manager as fm
+    font_list = fm.findSystemFonts(fontpaths=None, fontext='ttf')  # 1172 ['C:\\Windows\\Fonts\\kartikab.ttf', 'C:\\Windows\\Fonts\\LSANSD.TTF', ...]
+    
+    A = [(f.name, f.fname) for f in fm.fontManager.ttflist if 'Nanum' in f.name]  # [('NanumGothic', 'c:\\windows\\fonts\\nanumgothicbold.ttf'), ('NanumBarunGothic', 'c:\\windows\\fonts\\nanumbarungothic.ttf'), ...]
+    
+    print('현재 설정된  font:', plt.rcParams["font.family"])
+    
+
+
 def show_batch_images(batch_image):
     plt.figure()  # multi plt windows
     n = len(batch_image)
@@ -16,7 +26,7 @@ def show_batch_images(batch_image):
         plt.imshow(batch_image[i-1])
         plt.title('image{}'.format(i))
 
-
+check_font()
 img_filename1 = 'D:/hccho/CommonDataset/VOCdevkit/VOC2007/JPEGImages/000019.jpg'
 img_filename2 = 'D:/hccho/CommonDataset/VOCdevkit/VOC2007/JPEGImages/000020.jpg'
 
@@ -43,9 +53,12 @@ img11 = img11.resize((300,300),Image.BICUBIC)
 img22 = Image.open(img_filename2)  # (375, 500, 3)
 img22 = img22.resize((300,300),Image.BICUBIC)
 
+
+
+plt.rcParams["font.family"] = 'NanumGothic'
 plt.subplot(1,2,1)
 plt.imshow(img11)
-plt.title('image1')
+plt.title('image1 한글')
 
 plt.subplot(1,2,2)
 plt.imshow(img22)
