@@ -30,7 +30,9 @@ tfcpu      C:\Anaconda\hccho-virtual\tfcpu\Scripts\python.exe
 import skimage.io as io   --- error --- pip install로는 안되고,
 pip install --upgrade scikit-image
 =====================================================================
+Eclipse에 이미 만들어져 있는 project 추가: New -> Project -> General -> Project --> 폴더 선택 & 이름 입력
 
+=============================
 
 import sys
 sys.path.append("../")   <--- 코드내에 추가
