@@ -1917,7 +1917,33 @@ saver.save(sess,디렉토리 + prefacee)
 tf.train.get_checkpoint_state(디렉토리) <--- checkpoint 파일 단순 파싱, 이것만으로는 부족.
 
 saver.restore(디렉토리 + preface + global_step)
+###############################################
+def get_most_recent_checkpoint(checkpoint_dir):
+    checkpoint_paths = [path for path in glob("{}/*.ckpt-*.data-*".format(checkpoint_dir))]
+    
+    if checkpoint_paths == []: 
+        return ''
+    
+    idxes = [int(os.path.basename(path).split('-')[1].split('.')[0]) for path in checkpoint_paths]
 
+    max_idx = max(idxes)
+    lastest_checkpoint = os.path.join(checkpoint_dir, "model.ckpt-{}".format(max_idx))
+
+    #latest_checkpoint=checkpoint_paths[0]
+    print(" [*] Found lastest checkpoint: {}".format(lastest_checkpoint))
+    return lastest_checkpoint	
+	
+	
+load_path와 checkpoint_path를  직접  define하고,             load_path = './ckpt'               checkpoint_path = './ckpt/model.ckpt'
+
+restore_path = get_most_recent_checkpoint(load_path)
+saver.restore(sess,restore_path)
+save.save(sess,checkpoint_path,global_step = 100)
+	
+	
+	
+	
+	
 ###############################################
 tfrecord파일 만들기
 tf.train.Example(--> tf.parse_single_example 꺼낸다.)  vs tf.train.SequenceExample(--> tf.parse_single_sequence_example로 꺼낸다) 차이를 잘 모르겠다.
