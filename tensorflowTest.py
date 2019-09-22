@@ -1912,11 +1912,11 @@ data_set = tf.keras.utils.get_file(fname="D:\hccho\\CommonDataset\\imdb.tar.gz",
 ###############################################
 saver=tf.train.Saver(var_list, max_to_keep=5,keep_checkpoint_every_n_hours=10000.0)
 
-saver.save(디렉토리 + preface)
+saver.save(sess,디렉토리 + prefacee)
 
 tf.train.get_checkpoint_state(디렉토리) <--- checkpoint 파일 단순 파싱, 이것만으로는 부족.
 
-saver.restore(디렉토리 + prefac + global_step)
+saver.restore(디렉토리 + preface + global_step)
 
 ###############################################
 tfrecord파일 만들기
