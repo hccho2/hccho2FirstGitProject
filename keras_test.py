@@ -1,85 +1,91 @@
-# coding: utf-8
-
-import matplotlib.pyplot as plt
+# -*- coding: utf-8 -*-
 import numpy as np
 import tensorflow as tf
-from tensorflow import keras
+from keras.models import Model,Sequential
+from keras.layers import Input
+from keras.layers.core import Dense
+from keras.datasets import mnist
+from keras.utils import np_utils
+from keras import backend as K
 
-def keras_layer_test():
+def simple_ex():
+    # mnist.load_data(): path를 지정하지 않으면, C:\Users\Administrator\.keras\datasets 에 받는다.  상대 path말고, 절대 path로 지정해야 됨
+    
+    (x_train, y_train), (x_test, y_test) = mnist.load_data(path='D:/hccho/keras-test/mnist.npz')
+    x_train = x_train.reshape(60000, 784).astype('float32') / 255.0
+    x_test = x_test.reshape(10000, 784).astype('float32') / 255.0
+    y_train = np_utils.to_categorical(y_train)
+    y_test = np_utils.to_categorical(y_test)
+    
+    # 2. 모델 구성하기
+    model = Sequential()
+    model.add(Dense(units=64, input_dim=28*28, activation='relu'))
+    model.add(Dense(units=10, activation='softmax'))
+    
+    # 3. 모델 학습과정 설정하기
+    model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
+    
+    # 4. 모델 학습시키기
+    hist = model.fit(x_train, y_train, epochs=5, batch_size=32)
+    
+    # 5. 학습과정 살펴보기
+    print('## training loss and acc ##')
+    print(hist.history['loss'])
+    print(hist.history['acc'])
+    
+    # 6. 모델 평가하기
+    loss_and_metrics = model.evaluate(x_test, y_test, batch_size=32)
+    print('## evaluation loss and_metrics ##')
+    print(loss_and_metrics)
+    
+    # 7. 모델 사용하기
+    xhat = x_test[0:1]
+    yhat = model.predict(xhat)
+    print('## yhat ##')
+    print(yhat)
 
-    VOCAB_SIZE =20
-    BATCH_SIZE = 3
-    T = 10
-    EMB_SIZE = 8
-    
-    x = np.random.randint(VOCAB_SIZE,size=(BATCH_SIZE,T))
-    xx = tf.convert_to_tensor(x)
-    embedding_layer = keras.layers.Embedding(VOCAB_SIZE,EMB_SIZE)(xx)
-    
-    conv1 = keras.layers.Conv1D(filters=128,kernel_size=3,padding='valid',activation=tf.nn.relu)(embedding_layer)
-    
-    pool1 = keras.layers.GlobalMaxPool1D()(conv1)# (3,128)
-    
-    pool2 = tf.keras.layers.MaxPool1D(conv1.shape.as_list()[1],1)(conv1) #(3,1,128)  
-    
-    
-    sess = tf.Session()
-    sess.run(tf.global_variables_initializer())
-    a1,a2 = sess.run([pool1,pool2])
-    print(np.allclose(a1,np.squeeze(a2)))
-    
-  
 
-def keras_test2():
-    """
-    keras는 class object를 먼저 만들고, 다음 단계로 input을 집어 넎는 방식
-    
-    """
-    L1 = tf.keras.layers.Dense(units=39,activation=tf.nn.relu)
-    
-    
-    
-    init_inputs = tf.placeholder(tf.float32, shape=(3,4))
-    y = L1(init_inputs)
-    
-    print(y)
 
-def keras_rnn():
-    tf.set_random_seed(123)
+def simple2():
+    model = Sequential([Dense(1, input_shape=(3,), activation='relu')])
+    model.compile(loss='mean_squared_error', optimizer='sgd')
     
-    batch_size = 2
-    hidden_dim = 3
-    input_dim = 2
-    output_dim = 7
-    T = 6
-    inputs = tf.placeholder(tf.float32, shape=(batch_size,T,input_dim))
-    h0 = tf.zeros(shape=(batch_size,hidden_dim),dtype=tf.float32)
-    
-    """
-    return_sequences=True --> 전체 output.
-    return_state=True -> 전체 output, last state가 출력
-    
-    SimpleRNN 내부에서 SimpleRNNCell을 사용하는 구조. SimpleRNNCell은 1 time step을 처리하는 class
-    """
-    cell = tf.keras.layers.SimpleRNN(units=hidden_dim,return_sequences=True,stateful=True,return_state=False)  
-    output_layer = tf.keras.layers.Dense(output_dim, name='output_projection')
-    BN = tf.keras.layers.BatchNormalization()
+    a = np.random.randn(5,3)
+    b = np.random.randn(5,1)
     
     
+    result = model.fit(a, b, epochs=5, batch_size=1)
+
+
+def simple2():
+    # 이 방식은 tensorflow 방식과 유사하다.. keras.layers.Input이 placeholder와 유사하다.
+    a = np.random.randn(5,3)
+    b = np.random.randn(5,1)
     
-    a = cell(inputs,initial_state=h0)
-    out = output_layer(a)
-    out = BN(out)
+    
+    X = Input(shape=(3,))
+    my_layers = Sequential([Dense(100, input_shape=(3,), activation='relu'), Dense(1,)])
+    L1 = my_layers.layers[0](X)
+    Y = my_layers.layers[1](L1)
     
     
-    print(out)
-    print(tf.trainable_variables())
+    model = Model(X,Y)
+    model.compile(loss='mean_squared_error', optimizer='adam')
+    model.summary()
+    print(model.input, model.output)
     
+    model.fit(a, b, epochs=50, batch_size=6,verbose=1)
     
-    x = np.arange(batch_size*T*input_dim).reshape(batch_size,T,input_dim)
-    
-    sess = tf.Session()
-    sess.run(tf.global_variables_initializer())
-    
-    y = sess.run(out,feed_dict={inputs: x})
-    print(y)
+    sess = K.get_session()
+    print(sess.run(model.output,feed_dict= {model.input: a}))  # sess.run(Y,feed_dict= {model.input: a})
+    print(sess.run(Y,feed_dict= {X: a}))
+
+simple2()
+
+
+
+
+
+
+
+
