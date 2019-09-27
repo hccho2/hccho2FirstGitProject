@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import skimage.io
+from imageio import imread
 import PIL
 import numpy as np
 import io
@@ -31,7 +32,7 @@ img_filename1 = 'D:/hccho/CommonDataset/VOCdevkit/VOC2007/JPEGImages/000019.jpg'
 img_filename2 = 'D:/hccho/CommonDataset/VOCdevkit/VOC2007/JPEGImages/000020.jpg'
 
 # 방법 1
-img1 = skimage.io.imread(img_filename1)  # (375, 500, 3)
+img1 = skimage.io.imread(img_filename1)  # (375, 500, 3)  numpy array uint8
 img2 = skimage.io.imread(img_filename2)  # (500, 375, 3)
 
 
@@ -44,6 +45,12 @@ data = np.fromstring(data, dtype='uint8')  # binary --> int data(1d)
 data2 = Image.open(io.BytesIO(data))  # <class 'PIL.JpegImagePlugin.JpegImageFile'>
 print(data2.width, data2.height)
 data3 = np.array(data2)  # (375, 500, 3)
+print(np.allclose(img1, data3))
+
+
+# 또 다른 방법
+data4 = imread(img_filename1)
+print(np.allclose(img1, data4))
 
 
 #방법 3.
