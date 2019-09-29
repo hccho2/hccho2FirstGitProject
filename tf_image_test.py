@@ -8,10 +8,11 @@ import io
 from PIL import Image
 import matplotlib.pyplot as plt
 import tensorflow as tf
-
+import cv2
 def check_font():
     import matplotlib.font_manager as fm
     font_list = fm.findSystemFonts(fontpaths=None, fontext='ttf')  # 1172 ['C:\\Windows\\Fonts\\kartikab.ttf', 'C:\\Windows\\Fonts\\LSANSD.TTF', ...]
+    font_list = fm.findSystemFonts(fontpaths=None, fontext='otf')  # 1172 ['C:\\Windows\\Fonts\\kartikab.ttf', 'C:\\Windows\\Fonts\\LSANSD.TTF', ...]
     
     A = [(f.name, f.fname) for f in fm.fontManager.ttflist if 'Nanum' in f.name]  # [('NanumGothic', 'c:\\windows\\fonts\\nanumgothicbold.ttf'), ('NanumBarunGothic', 'c:\\windows\\fonts\\nanumbarungothic.ttf'), ...]
     
@@ -26,6 +27,16 @@ def show_batch_images(batch_image):
         plt.subplot(1,n,i)
         plt.imshow(batch_image[i-1])
         plt.title('image{}'.format(i))
+
+
+
+def cv2_rectangle_test():
+    
+    img1 = skimage.io.imread(img_filename1)
+    cv2.rectangle(img1,(0,50),(50,60),color=(255, 255, 0), thickness=2) # (x1,y1),(x2,y2)
+    plt.imshow(img1)
+    plt.show()
+
 
 check_font()
 img_filename1 = 'D:/hccho/CommonDataset/VOCdevkit/VOC2007/JPEGImages/000019.jpg'
