@@ -1998,7 +1998,28 @@ L5= tf.layers.conv2d(L4,filters=10,kernel_size=3,padding='valid',strides=1) # 6
 L6= tf.layers.conv2d(L5,filters=10,kernel_size=3,padding='valid',strides=1) # 4
 L7= tf.layers.conv2d(L6,filters=10,kernel_size=4,padding='valid',strides=1) # 1
 ###############################################	
-	
+#Regularization Loss
+
+def my_layer(x,training,name=None):
+    with tf.variable_scope(name):
+        regularizer = tf.contrib.layers.l2_regularizer(scale=0.0005)
+        L1 = tf.layers.conv1d(x,filters=10,kernel_size=2,kernel_regularizer=regularizer,name='L1')
+        L2 = tf.layers.batch_normalization(L1,training=training)
+        L3 = tf.nn.relu(L2)
+    return L3
+
+x = tf.convert_to_tensor(np.random.randn(2,10,3).astype(np.float32))
+x1 = tf.convert_to_tensor(np.random.randn(2,20,3).astype(np.float32))
+y = my_layer(x,True,"a")
+y1 = my_layer(x1,False,"b")
+
+#reg_loss = tf.losses.get_regularization_loss()
+reg_loss = tf.compat.v1.losses.get_regularization_loss()
+
+sess = tf.Session()
+sess.run(tf.global_variables_initializer())
+
+print(sess.run(reg_loss))
 ###############################################	
 	
 ###############################################	
