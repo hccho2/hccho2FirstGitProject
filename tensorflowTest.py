@@ -554,7 +554,10 @@ def init_from_checkpoint():
     ww,kk = sess.run([w,graph.get_tensor_by_name('hccho/kernel:0')])
     print(np.allclose(ww,vv))
     print(np.allclose(kk,vv2))
-
+=======================
+참고: 
+saver = tf.train.Saver(tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope="resnet_v2_50"))
+variables_in_checkpoint = tf.train.list_variables('.\\ckpt\\resnet_v2_50.ckpt')
 
 =======================
 Bahdanau attention weight
