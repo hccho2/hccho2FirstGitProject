@@ -52,11 +52,43 @@ myDataX = np.array([[0,0,1],[0,1,1],[1,0,1],[1,1,1],[0,0,1],[0,1,1],[1,0,1],[1,1
 myDataY = np.array([[0,1,1,1,0,1,1,1,0,1,1,1]]).astype(np.float32).T
 
 #load_path = None  # 새로운 training
-load_path = 'hccho-ckpt\\hccho-mm-2019-08-03_08-35-43'
+load_path = 'hccho-ckpt\\hccho-mm-2019-10-09_08-14-59'
 #####
 
 
 load_path,restore_path,checkpoint_path = prepare_dirs(hp,load_path)
+'''
+hparams.py에 다음과 같이 지정되어 있다고 하자.
+log_dir = "hccho-ckpt",
+model_name = "hccho-mm",
+ckpt_file_name_preface = 'model.ckpt', 
+
+===> 
+load_path = None인 경우
+    load_path: 'hccho-ckpt\\hccho-mm-2019-09-22_15-58-08'
+    restore_path: ''
+    checkpoint_path: 'hccho-ckpt\\hccho-mm-2019-09-22_15-58-08\\model.ckpt'
+    
+load_path = 'hccho-ckpt\\hccho-mm-2019-09-22_15-58-08' 인 경우:
+    load_path: 'hccho-ckpt\\hccho-mm-2019-09-22_15-58-08'
+    restore_path: 'hccho-ckpt\\hccho-mm-2019-09-22_15-58-08\\model.ckpt-60000'
+    checkpoint_path: 'hccho-ckpt\\hccho-mm-2019-09-22_15-58-08\\model.ckpt'
+
+
+참고 1. get_most_recent_checkpoint()는 load_path를 넣으면, restore_path를 return해 준다.
+    get_most_recent_checkpoint(load_path)  ---> 'hccho-ckpt\\hccho-mm-2019-09-22_15-58-08\\model.ckpt-60000'   또는 ''
+    
+    
+참고 2.  saver.save(sess, checkpoint_path, global_step=step)
+       saver.restore(sess, restore_path)
+       
+    따라서, load_path와 checkpoint_path를  직접  define하고,             load_path = ''./ckpt'               checkpoint_path = './ckpt/model.ckpt'
+        restore_path = get_most_recent_checkpoint(load_path)
+        saver.restore(sess,restore_path)
+        save.save(sess,checkpoint_path,global_step = 100)
+        
+'''
+
 
 
 #### log 파일 작성
@@ -251,9 +283,16 @@ def run_and_save_SimpleNet2():
     
     coord = tf.train.Coordinator()
     train_feeder = DataFeeder(coord,batch_size=2)
-    simnet = SimpleNet2(hp,train_mode=True)  
-    simnet.build_model(train_feeder.x, train_feeder.y)
     
+    # variable_scope를 사용해야, 모델을 중복해서 만들 수 있다.
+    with tf.variable_scope('my_model'):  # variable_scope를 사용해야, train/infer 용 2개 모델을 만들 수 있다.
+        simnet = SimpleNet2(hp,train_mode=True)  
+        simnet.build_model(train_feeder.x, train_feeder.y)
+    
+    with tf.variable_scope('my_model', reuse=True):
+        inputs = tf.placeholder(tf.float32, [None,3])
+        simnet2 = SimpleNet2(hp,train_mode=False)  
+        simnet2.build_model(inputs)    
     
     global_step = tf.Variable(0, name='global_step', trainable=False)
     simnet.add_optimizer(global_step)
@@ -305,8 +344,9 @@ def model_restore_SimpleNet2():
     start_step = 0
     
     inputs = tf.placeholder(tf.float32, [None,3])
-    simnet = SimpleNet2(hp,train_mode=False)  
-    simnet.build_model(inputs)    
+    with tf.variable_scope('my_model'):   # 모델을 저장할 때, 'my_model'이라는 이름을 사용하였으므로, restore하려면 같은 이름을 사용해야 한다.
+        simnet = SimpleNet2(hp,train_mode=False)  
+        simnet.build_model(inputs)    
     
     with tf.Session() as sess:
 
@@ -315,7 +355,7 @@ def model_restore_SimpleNet2():
 
         saver = tf.train.Saver(tf.global_variables())
         
-        print(sess.run(tf.get_default_graph().get_tensor_by_name('L1/kernel:0')))
+        print(sess.run(tf.get_default_graph().get_tensor_by_name('my_model/L1/kernel:0')))
         print('prediction before training = ', sess.run(simnet.preditions,feed_dict={inputs: myDataX[:2] }))
         
         
@@ -324,8 +364,9 @@ def model_restore_SimpleNet2():
         log('model restored!!!')
   
   
-        print(sess.run(tf.get_default_graph().get_tensor_by_name('L1/kernel:0')))
+        print(sess.run(tf.get_default_graph().get_tensor_by_name('my_model/L1/kernel:0')))
         print('prediction after training = ', sess.run(simnet.preditions,feed_dict={inputs: myDataX[:2] }))
+        print('targel values:', myDataY[:2])
             
             
 
@@ -483,7 +524,7 @@ if __name__ == '__main__':
     
     ###########################
     ###########################
-    #run_and_save_SimpleNet2()
+    run_and_save_SimpleNet2()
     #model_restore_SimpleNet2()
     
     ###########################
@@ -491,7 +532,7 @@ if __name__ == '__main__':
 
 
     
-    run_and_save_SimpleNet3()
+    #run_and_save_SimpleNet3()
     #run_and_save_SimpleNet4()
     
     
