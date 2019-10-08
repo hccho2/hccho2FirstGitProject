@@ -116,7 +116,7 @@ def resize_test():
         # Use `convert_image_dtype` to convert to floats in the [0,1] range.
         img = tf.image.convert_image_dtype(img, tf.float32)
         # resize the image to the desired size.
-        return tf.image.resize(img, [IMG_WIDTH, IMG_HEIGHT])
+        return tf.image.resize(img, [IMG_HEIGHT, IMG_WIDTH])
     
     
     img = tf.io.read_file(img_filename1)
