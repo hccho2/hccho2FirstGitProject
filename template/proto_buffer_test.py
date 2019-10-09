@@ -46,7 +46,7 @@ def freeze():
     input_graph = './model_pb/my_graph.pbtxt'
     input_checkpoint = './model_pb/model.ckpt'
     output_graph = './model_pb/my_graph.pb'  # 저장할 파일 이름
-    output_node_names = 'L2/Relu'   # 어디까지 내 보낼지 
+    output_node_names = 'L2/Sigmoid'   # 어디까지 내 보낼지 
 
     freeze_graph.freeze_graph(input_graph,"", False,input_checkpoint,output_node_names,None,None,output_graph,True,None)
     
@@ -60,7 +60,10 @@ def load_pb():
         with tf.gfile.GFile(pb_path, 'rb') as fid:
             serialized_graph = fid.read()
             od_graph_def.ParseFromString(serialized_graph)
-            tf.import_graph_def(od_graph_def, name='')
+            
+            #return_elements = None
+            return_elements = ['L1/Relu:0','L2/Sigmoid:0']  # return_elements을 통해 tensor를 뽑아낼 수도 있고, get_tensor_by_name()을 통해서 할 수도 있다.
+            a = tf.import_graph_def(od_graph_def, name='',return_elements=return_elements)
             
     print([n.name for n in my_graph.as_graph_def().node])  # 15개
 
