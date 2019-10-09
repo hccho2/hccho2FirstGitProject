@@ -3,6 +3,7 @@
 1. pbtxt 파일을 만들어, 모델 구조를 저장한다.
 2. freeze_graph()를 이용하여, weight와 모델 구조가 모두 저장되는 pb파일을 만든다.
 
+또는 graph_util.convert_variables_to_constants를 이용해서, weight값과 구조가 모두 저장되는 pb파일을 한번에 만들 수도 있다.
 
 '''
 import tensorflow as tf
@@ -32,17 +33,32 @@ def make_pb():
     saver = tf.train.Saver()
     saver.save(sess,'./model_pb/model.ckpt')
     
-    # 모델 구조만 나간다.
+    
+    # 어떤 tensor가 있는지 확인
+    all_tensor =[n.name for n in sess.graph.as_graph_def().node]
+    print(all_tensor)
+    
+    # 모델 구조만 나간다. ---> freeze과정을 추가로 거쳐야 한다.
     tf.train.write_graph( sess.graph, "./model_pb", "my_graph.pbtxt", as_text=True )  # text 파일이므로, 읽을 수는 있지만, 파일 사이즈가 크다.
 
 
+
+    ##
+    from tensorflow.python.framework import graph_util
+    output_graph_def = graph_util.convert_variables_to_constants(sess, sess.graph.as_graph_def(), ['L2/Sigmoid'])
+    with  tf.gfile.GFile("./model_pb/my_graph2.pb", 'wb') as f:
+        f.write(output_graph_def.SerializeToString())
+
+
+def freeze():
     '''
+    cmd창에서도 할 수 있다.
     > python freeze_graph.py 
     --input_graph = ./model_pb/my_graph.pbtxt --input_checkpoint = ./model_pb/model.ckpt --output_graph=./model_pb/my_graph.pb
     
+    '''    
+
     
-    '''
-def freeze():
     input_graph = './model_pb/my_graph.pbtxt'
     input_checkpoint = './model_pb/model.ckpt'
     output_graph = './model_pb/my_graph.pb'  # 저장할 파일 이름
@@ -50,9 +66,14 @@ def freeze():
 
     freeze_graph.freeze_graph(input_graph,"", False,input_checkpoint,output_node_names,None,None,output_graph,True,None)
     
-    
+
+
+
+
+
 def load_pb():
-    pb_path = "./model_pb/my_graph.pb"
+    #pb_path = "./model_pb/my_graph.pb"
+    pb_path = "./model_pb/my_graph2.pb"
     
     my_graph = tf.Graph()
     with my_graph.as_default():
@@ -76,8 +97,8 @@ def load_pb():
         
         with tf.Session(graph=my_graph) as sess:
 
-            print(sess.run(out_tensor, feed_dict={in_tensor: X}))
-            print(sess.run(w))
+            print('target: ',Y, 'prediction: ', sess.run(out_tensor, feed_dict={in_tensor: X}))
+            print('w: ',sess.run(w))
 
 
     with my_graph.as_default():
@@ -86,10 +107,10 @@ def load_pb():
         
         with tf.Session(graph=my_graph) as sess:
             m =sess.run(middle_tensor, feed_dict={in_tensor: X})
-            print(m)
+            print('L1: ', m)
             
             y = sess.run(out_tensor, feed_dict={middle_tensor: m})
-            print(y)
+            print('prediction: ', y)
     
     
     with my_graph.as_default():
