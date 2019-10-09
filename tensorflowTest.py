@@ -2024,7 +2024,24 @@ sess.run(tf.global_variables_initializer())
 
 print(sess.run(reg_loss))
 ###############################################	
-	
+# placeholder가 아니어도 feeding 할 수 있다.
+
+X = np.array([[0,0,1],[0,1,1],[1,0,1],[1,1,1]])
+Y = np.array([[0,1,1,1]]).T
+x = tf.placeholder(tf.float32, [None,3])
+y = tf.placeholder(tf.float32, [None,1])
+L1 = tf.layers.dense(x,units=4, activation = tf.nn.relu,name='L1')
+L2 = tf.layers.dense(L1,units=1, activation = tf.sigmoid,name='L2')
+train = tf.train.AdamOptimizer(learning_rate=0.01).minimize( tf.reduce_mean( 0.5*tf.square(L2-y)))
+
+graph = tf.get_default_graph()
+
+sess = tf.Session()
+sess.run(tf.global_variables_initializer())
+z = sess.run(L1,feed_dict={x:X})
+
+print(sess.run(L2,feed_dict={x:X}))
+print(sess.run(L2,feed_dict={L1:z}))  # L1 tensor에 feeding
 ###############################################	
 	
 ###############################################	
