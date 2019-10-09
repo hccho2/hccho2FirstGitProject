@@ -79,7 +79,30 @@ def load_pb():
             print(sess.run(out_tensor, feed_dict={in_tensor: X}))
             print(sess.run(w))
 
+
+    with my_graph.as_default():
+        # graph로 부터 뽑아낸 tensor른 placeholder 역할을 할 수도 있다.  <----- 이는 특별한 것이 아니고, 원래 placeholder가 아니어도 되는 것이다.
+        middle_tensor = my_graph.get_tensor_by_name('L1/Relu:0')
+        
+        with tf.Session(graph=my_graph) as sess:
+            m =sess.run(middle_tensor, feed_dict={in_tensor: X})
+            print(m)
+            
+            y = sess.run(out_tensor, feed_dict={middle_tensor: m})
+            print(y)
+    
+    
+    with my_graph.as_default():
+        all_tensor =[my_graph.get_tensor_by_name(n.name+':0') for n in my_graph.as_graph_def().node]
+        print(all_tensor)
+        for t in all_tensor:
+            print(t, my_graph.is_feedable(t)) # 모든 tensor가 feedable하다.
+
     print('Done')
+    
+    
+    
+    
 
 
 
