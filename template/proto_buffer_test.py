@@ -72,6 +72,7 @@ def freeze():
 
 
 def load_pb():
+    # my_graph.pb, my_graph2.pb 두개 모두 가능.
     #pb_path = "./model_pb/my_graph.pb"
     pb_path = "./model_pb/my_graph2.pb"
     
@@ -96,6 +97,8 @@ def load_pb():
         w = my_graph.get_tensor_by_name('L2/kernel:0')
         
         with tf.Session(graph=my_graph) as sess:
+            print('tf.trainable_variables()', tf.trainable_variables())
+            sess.run(tf.global_variables_initializer())  # pb파일로 부터 생성된 tensor는 trainable이 아니다.
 
             print('target: ',Y, 'prediction: ', sess.run(out_tensor, feed_dict={in_tensor: X}))
             print('w: ',sess.run(w))
