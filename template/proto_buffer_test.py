@@ -45,7 +45,7 @@ def make_pb():
 def freeze():
     input_graph = './model_pb/my_graph.pbtxt'
     input_checkpoint = './model_pb/model.ckpt'
-    output_graph = './model_pb/my_graph.pb'
+    output_graph = './model_pb/my_graph.pb'  # 저장할 파일 이름
     output_node_names = 'L2/Relu'   # 어디까지 내 보낼지 
 
     freeze_graph.freeze_graph(input_graph,"", False,input_checkpoint,output_node_names,None,None,output_graph,True,None)
