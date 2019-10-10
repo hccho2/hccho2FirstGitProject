@@ -129,8 +129,24 @@ def resize_test():
     result = sess.run(img)  
     plt.imshow(result)
     plt.show()
+
+def cv2_test():
+    import cv2
+    img_filename1 = 'D:/hccho/CommonDataset/VOCdevkit/VOC2007/train/JPEGImages/000019.jpg'
+
+    img1 = skimage.io.imread(img_filename1)  # (375, 500, 3)  numpy array uint8  
+    img2 = cv2.imread(img_filename1)  # RGB가 아니고, BGR로 읽는다. 3번째 channel에서 R <--> B가 바뀌어 있다.
+    
+    print(img1.shape,img2.shape)
+    show_batch_images([img1,img2])
+    plt.show()
+    
+    print(np.allclose(img1,img2))  # 
+    
+
 if __name__ == '__main__':
     #main_test()
-    resize_test()
+    #resize_test()
+    cv2_test()
 
     print('Done')
