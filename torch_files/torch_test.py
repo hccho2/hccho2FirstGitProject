@@ -131,7 +131,7 @@ def MultivariateRegression():
         if step % 50 == 0:
             print('step: {}, loss = {:4f}'.format(step,loss))
         
-    print(w,b,y)
+    print("w,b,y",w,b,y)
     print('elapese: {} sec'.format(time.time()-s))
     
 def MultivariateRegression2():
@@ -201,8 +201,8 @@ def MultivariateRegression3():
     net.to(device)
     for step in range(2000):
         choice = np.random.choice(nData,batch_size)
-        x = torch.tensor(A[choice],dtype=torch.float32)
-        y = torch.tensor(B[choice],dtype=torch.float32)
+        x = torch.tensor(A[choice],dtype=torch.float32).to(device)
+        y = torch.tensor(B[choice],dtype=torch.float32).to(device)
         
         
         optimizer.zero_grad()
@@ -255,6 +255,7 @@ def MNIST():
     for a in net.named_parameters():
         print(a[0], a[1].shape)
 
+    print("Net: ",net)
     print('Done')
     
 
@@ -458,17 +459,17 @@ def init_test():
     
     
 def RNN_test():
-    USE_CUDA = torch.cuda.is_available()
-    if USE_CUDA:
-        DEVICE=torch.device('cuda:0') # or set to 'cpu'
-    else:
-        DEVICE=torch.device('cpu')
-    print("CUDA:", USE_CUDA)
-    print(DEVICE)
-        
+#     USE_CUDA = torch.cuda.is_available()
+#     if USE_CUDA:
+#         DEVICE=torch.device('cuda:0') # or set to 'cpu'
+#     else:
+#         DEVICE=torch.device('cpu')
+#     print("CUDA:", USE_CUDA)
+#     print(DEVICE)
+    
+    
+    DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-    
-    
     save_path = './saved_model/xxx.pt'
     vocab_size = 6
     SOS_token = 0
@@ -499,26 +500,43 @@ def RNN_test():
             self.last_net.add_module("L4", nn.Linear(13,vocab_size))
         
         def forward(self,x, h0=None):
-            x = self.first_net(x)
-            x,h = self.lstm(x,h0)
+            x1 = self.first_net(x)
+            x2,h = self.lstm(x1,h0)  # dropout이 있어, 같은 input에 대하여 값이 달라질 수 있다.
             
-            x = self.last_net(x)
-            return x,h
+            #loop를 이용한 계산
+            if False:
+                max_len = x.size(1)
+                lstm_output = []
+                hh=h0
+                for i in range(max_len):
+                    tmp,hh = self.lstm(x1[:,i:i+1,:],hh)
+                    lstm_output.append(tmp)
+                    
+                x22 = torch.cat(lstm_output,dim=1)  # x2와 numerical한 차이만 있다.
+            #######################
+            
+            
+            x3 = self.last_net(x2)
+            return x3,h
     
     
     net = MyRNN()
      
-    loss_fn = nn.CrossEntropyLoss()  # 2dim에 대한 loss, seq loss는 안된다.
+    loss_fn = nn.CrossEntropyLoss()  # 2dim에 대한 loss, seq loss는 안된다.  --->된다. 아래에 loss2
     optimizer = optim.Adam(net.parameters(),lr=0.01)
      
-    mode = 2 
+    mode = 1 
     if mode == 1: 
         net.train()  # train mode
         for epoch in range(500):
             optimizer.zero_grad()
             Y_hat,_ = net(X)
             loss = loss_fn(input=Y_hat.view(-1,vocab_size),target = Y.view(vocab_size))
-            loss.backward()
+            loss2 = loss_fn(input=torch.transpose(Y_hat,1,2),target = Y)
+            
+            assert np.abs(loss.item() - loss2.item()) < 0.000001
+            
+            loss.backward()  # loss2.backward()
             optimizer.step()
             
             if epoch %10 ==0:
@@ -556,9 +574,9 @@ def RNN_test():
         print(param_tensor, "\t", net.state_dict()[param_tensor].size())
 
     # Print optimizer's state_dict
-    print("Optimizer's state_dict:")
-    for var_name in optimizer.state_dict():   # dict_keys(['state', 'param_groups'])
-        print(var_name, "\t", optimizer.state_dict()[var_name])
+#     print("Optimizer's state_dict:")
+#     for var_name in optimizer.state_dict():   # dict_keys(['state', 'param_groups'])
+#         print(var_name, "\t", optimizer.state_dict()[var_name])
  
     print("# of params: ", len(list(net.parameters())))
     
@@ -681,34 +699,48 @@ def Loss_test():
         
         print("NLLLost: ", -torch.mean(logit[np.arange(2),target]))
     
-def Loss_Mask_test():
-    # NLLLoss: negative log likelihood loss
-    # CrossEntropyLoss  == (logit -> softmax -> log -> NLLLoss)
-    # NLLLoss는 넣어주는 값중에 lable에 해당하는 값에 마이너스 붙혀주는 역할.
+def Loss_Seq_test():
+    # sequence loss를 구하기 위해서는, (N,T,n_class)가 아닌, (N,n_class,T)형태로 logit에 넣어 주어야 한다. target(N,T)
     with torch.no_grad(): 
         loss1 = nn.NLLLoss()
         loss2 = nn.CrossEntropyLoss()
         
-        logit = torch.tensor([[1.0,2.0,1.5],[3.0,1.0,4.0]], requires_grad=True, dtype=torch.float)
+        logit = torch.tensor([[[1.0,2.0,1.5],[3.0,1.0,4.0]],[[1.0,2.0,1.5],[2.0,1.0,1.0]]], dtype=torch.float)
         
-        target = torch.tensor([2,1])   # target label  ---> one hot 2 == (0,0,1)
+        target = torch.tensor([[2,1],[1,0]])   # target label  ---> one hot 2 == (0,0,1)
         
         # logit(N, n_class), target: N
-        loss1_ = loss1(logit, target)   # -torch.mean(logit[np.arange(2),target])
-        loss2_ = loss2(logit, target)   # cross entropy loss
+        loss1_ = loss1(torch.transpose(logit,1,2), target)   # 
+        loss2_ = loss2(torch.transpose(logit,1,2), target)   # cross entropy loss
         
         print(loss1_,loss2_)
         
+def Loss_Mask_test():
+    with torch.no_grad(): 
+        # sequence loss를 구하기 위해서는, (N,T,n_class)가 아닌, (N,n_class,T)형태로 logit에 넣어 주어야 한다. target(N,T)
+
+        loss2 = nn.CrossEntropyLoss(reduction = 'none')  # keep dim
+        # (N,T,n_class)= (2,3,3)
+        logit = torch.tensor([[[1.0,2.0,1.5],[3.0,1.0,4.0],[1.0,1.2,1.5]],[[1.0,2.0,1.5],[3.0,1.0,2.5],[2.0,1.0,1.0]]], dtype=torch.float)
         
-        softmax_val = torch.nn.functional.softmax(logit,1)
-        log_softmax_val = torch.log(softmax_val)
-        print("softmax: ", softmax_val)
-        print("log-softmax: ", log_softmax_val)
-        print("Cross Entropy loss: ", -torch.mean(log_softmax_val[np.arange(2),target]))
+        target = torch.tensor([[0,1,0],[1,0,2]])   # target label  ---> one hot 2 == (0,0,1)
         
-        print("Cross Entropy Loss by NLLLosss: ", loss1(log_softmax_val,target))
+        # logit(N, n_class), target: N
+        loss2_ = loss2(torch.transpose(logit,1,2), target)   # cross entropy loss
+         
+        print(loss2_)
         
-        print("NLLLost: ", -torch.mean(logit[np.arange(2),target]))     
+        length = torch.tensor([3,2])
+        maxlen = logit.size(1)
+        mask = torch.arange(maxlen)[None, :] < length[:, None]
+        
+        print("mask: ",mask)
+        mask= mask.type(torch.float)
+        loss = torch.sum(loss2_*mask)/torch.sum(mask)
+        print(loss)
+        
+        
+        
 if __name__ == '__main__':
     #test1()
     #model1()
@@ -722,14 +754,15 @@ if __name__ == '__main__':
     #MNIST_conv()
     
     #init_test()
-    #RNN_test()
+    RNN_test()
     #PackedSeq_test()
     
     #bidirectional_test()
 
 
     #Loss_test()
-    Loss_Mask_test()
+    #Loss_Seq_test()
+    #Loss_Mask_test()
 
 
     print('Done')
