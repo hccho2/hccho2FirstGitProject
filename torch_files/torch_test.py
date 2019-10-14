@@ -325,6 +325,80 @@ def MNIST2():
         print(idx, '->', m)
 
     print('Done')
+def MNIST3():
+    # nn.ModuleList를 이용하여, network을 구분.
+    batch_size = 8
+    num_epoch = 1000
+    
+    # shuffle되어 있지 않다.
+    digits = load_digits()     # dict_keys(['data', 'target', 'target_names', 'images', 'DESCR']), (1797, 64), (1797,), array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]),(1797, 8, 8)
+    X = torch.tensor(digits.data, dtype=torch.float32)
+    Y = torch.tensor(digits.target, dtype=torch.int64)
+    
+    
+    ds = TensorDataset(X,Y)  # tensor가 들어가야 한다.
+    loader = DataLoader(ds, batch_size=64, shuffle=True)
+    
+    
+    
+    class MyNet(nn.Module):
+        def __init__(self):
+            super().__init__()
+            
+            #self.net = nn.Sequential(nn.Linear(64,32),nn.ReLU(),nn.Dropout(0.3),nn.Linear(32,16),nn.BatchNorm1d(16),nn.ReLU(),nn.Linear(16,10))
+            self.net1 = nn.Sequential()
+            self.net1.add_module("L1", nn.Linear(64,32))
+            self.net1.add_module("L2", nn.ReLU())
+            self.net1.add_module("L3", nn.Dropout(0.3))
+            
+            self.net2 = nn.Sequential()
+            self.net2.add_module("L4", nn.Linear(32,16))
+            self.net2.add_module("L5", nn.BatchNorm1d(16))
+            self.net2.add_module("L6", nn.ReLU())
+            self.net2.add_module("L7", nn.Linear(16,10))
+            
+            self.net = nn.ModuleList([self.net1,self.net2])
+        def forward(self,x):
+            for l in self.net:
+                x = l(x)
+            
+            return x
+    
+    
+    
+    net = MyNet()
+    
+    loss_fn = nn.CrossEntropyLoss()
+    optimizer = optim.Adam(net.parameters())
+    
+    net.train()  # train mode
+    for epoch in range(num_epoch):
+        for xx,yy in loader:
+            optimizer.zero_grad()
+            yy_hat = net(xx)
+            loss = loss_fn(yy_hat,yy)
+            loss.backward()
+            optimizer.step()
+        if epoch % 50 ==0:
+            print('epoch: {}, loss = {:4f}'.format(epoch,loss))    
+    
+    net.eval()  # eval mode
+    
+    
+    
+    Y_hat = net(X)
+    _, pred_ = torch.max(Y_hat,1)
+    print(pred_[:15],'\n', Y[:15])
+    print(len(list(net.parameters())))
+    for a in net.named_parameters():
+        print(a[0], a[1].shape)
+    
+    for idx, m in enumerate(net.named_modules()):
+        print(idx, '->', m)
+    
+    print('Done')
+
+
 
 def conv_test():
     # pytorch는 convolution 연산후, image 크기 계산을 직접햐야 한다. tensorflow에서의 same padding이 없다.
@@ -766,7 +840,6 @@ if __name__ == '__main__':
 
 
     print('Done')
-
 
 
 
