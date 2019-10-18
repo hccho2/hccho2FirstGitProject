@@ -13,7 +13,9 @@ import os,glob,cv2
 import threading,queue
 from torch.multiprocessing import Process, Queue, Pool
 import traceback
-from torch.utils.data import TensorDataset,DataLoader,Dataset
+from torch.utils.data import TensorDataset,DataLoader,Dataset,Subset
+import time
+
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 def prefetch_data(queue, batch_size,num_features):
     print("start prefetching data...")
@@ -89,7 +91,7 @@ def train():
     
     
     ds = TensorDataset(x_train1,x_train2,y_train)  # tensor를 넘겨야 한다.
-    loader = DataLoader(ds,batch_size = 8, shuffle=True,drop_last=True,num_workers=4)
+    loader = DataLoader(ds,batch_size = 8, shuffle=True,drop_last=True,num_workers=4) # num_workers가 주어지면 훨씬 빨라진다.
     
     for epoch in range(1):
         for x1,x2,y in loader:  # enumerate(loader)
@@ -109,31 +111,53 @@ class myDataset(Dataset):
     '''
     __len__, __getitem__이 반드시 정의되어야 한다.
     '''
-    def __init__(self, dir_path,size=(255,255)):
+    def __init__(self, dir_path,imsize=(255,255)):
         self.image_filenames = glob.glob(os.path.join(dir_path, "*.jpg"))
-        self.size = size
+        self.imsize = imsize
     def __len__(self):
         return len(self.image_filenames)
     def __getitem__(self,idx):
         image = cv2.imread(self.image_filenames[idx])
-        image = cv2.resize(image, self.size)  # resize하지 않으면, batch로 묶일 수 없어, error!!!
+        image = cv2.resize(image, self.imsize)  # resize하지 않으면, batch로 묶일 수 없어, error!!!
         return image # tensor로 변환하지 않아도 내부적으로 변환된다.
     
+    @property
+    def size(self):
+        return len(self.image_filenames)
     
 def train_with_Dataset():
-        ds = myDataset('/media/hccho/hccho/hccho/CommonDataset/coco/images/val2017')
+        ds = myDataset('d:/hccho/CommonDataset/coco/images/val2017')
+        print(ds.size)
         
         
-        loader = DataLoader(ds,batch_size = 2, shuffle=True)
+        train_size = int(ds.size*0.9)
+        test_size = ds.size - train_size
+        train_ds, test_ds = torch.utils.data.random_split(ds, (train_size, test_size))   # 전제 dataset ds를 train, test로 분리
+        #print(len(train_size))
+        #print(len(test_ds))
         
-        for img in loader:
-            print(img.shape)
+        
+        #loader = DataLoader(ds,batch_size = 8, shuffle=True,num_workers=8,drop_last=True,)  # num_workers가 주어지면 훨씬 빨라진다. 없을 땐 116초, num_workers=8이면, 8초
+        
+        train_loader = DataLoader(train_ds,batch_size = 8, shuffle=True,num_workers=8,drop_last=True,)
+        test_loader = DataLoader(test_ds,batch_size = 8, shuffle=True,num_workers=8,drop_last=True,)
+
+
+
+
+        for i, img in enumerate(train_loader):
+            print(i, img.shape)
+            
+            
+        
+            
+            
 if __name__ == '__main__':
+    s = time.time()
     #train_by_queue()
 
-    train()  # 모든 data를 메모리에 ....
+    #train()  # 모든 data를 메모리에 ....
 
-    #train_with_Dataset()
+    train_with_Dataset()
 
-
-
+    print(time.time() -s , "sec elapsed")
