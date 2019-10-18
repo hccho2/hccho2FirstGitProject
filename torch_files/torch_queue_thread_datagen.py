@@ -79,9 +79,9 @@ def train_by_queue():
     training_tasks.terminate()
 def train():
     # 간단한 data는 Dataset class를 만들지 않고 처리
-    x_train1 = np.random.randn(1000,3)
-    x_train2 = np.random.randn(1000,4)
-    y_train = np.random.randn(1000,1)
+    x_train1 = np.random.randn(100,3)
+    x_train2 = np.random.randn(100,4)
+    y_train = np.random.randn(100,1)
     
     x_train1 = torch.from_numpy(x_train1)
     x_train2 = torch.from_numpy(x_train2)
@@ -89,7 +89,7 @@ def train():
     
     
     ds = TensorDataset(x_train1,x_train2,y_train)  # tensor를 넘겨야 한다.
-    loader = DataLoader(ds,batch_size = 8, shuffle=True)
+    loader = DataLoader(ds,batch_size = 8, shuffle=True,drop_last=True,num_workers=4)
     
     for epoch in range(1):
         for x1,x2,y in loader:  # enumerate(loader)
@@ -131,9 +131,9 @@ def train_with_Dataset():
 if __name__ == '__main__':
     #train_by_queue()
 
-    #train()  # 모든 data를 메모리에 ....
+    train()  # 모든 data를 메모리에 ....
 
-    train_with_Dataset()
+    #train_with_Dataset()
 
 
 
