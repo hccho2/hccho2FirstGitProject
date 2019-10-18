@@ -104,7 +104,7 @@ def train():
     print('Done')
 
 
-# 
+# data를 메모리에 올리지 못하는 경우, Dataset을 상속받아, class를 정의한다.
 class myDataset(Dataset):
     '''
     __len__, __getitem__이 반드시 정의되어야 한다.
