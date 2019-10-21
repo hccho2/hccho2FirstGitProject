@@ -299,6 +299,20 @@ def MNIST2():
     loss_fn = nn.CrossEntropyLoss()
     optimizer = optim.Adam(net.parameters())
     
+    # net.parameters() ---> train 가능한 weight가 들어있다. requires_grad을 False로 만들 수 있다.
+    # net.state_dict() ---> bn의 moving mean 같은 것들도 들어 있다.
+    
+    for t in net.state_dict():
+        print(t)
+        
+        
+    for name, param in net.named_parameters():
+        print (name, param.requires_grad, param.data)
+    
+    for t in net.parameters():
+        t.requires_grad = False
+    
+    
     net.train()  # train mode
     for epoch in range(num_epoch):
         for xx,yy in loader:
@@ -822,13 +836,13 @@ if __name__ == '__main__':
     #MultivariateRegression2()
     #MultivariateRegression3()
     #MNIST()
-    #MNIST2()
+    MNIST2()
     
     #conv_test()
     #MNIST_conv()
     
     #init_test()
-    RNN_test()
+    #RNN_test()
     #PackedSeq_test()
     
     #bidirectional_test()
@@ -840,7 +854,6 @@ if __name__ == '__main__':
 
 
     print('Done')
-
 
 
 
