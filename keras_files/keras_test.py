@@ -1,4 +1,13 @@
 # -*- coding: utf-8 -*-
+
+'''
+checkpoint = ModelCheckpoint("model_data/trained_stage_3_best.h5", monitor='val_loss', save_weights_only=True, save_best_only=True)
+
+
+'''
+
+
+
 import numpy as np
 import tensorflow as tf
 from keras.models import Model,Sequential
