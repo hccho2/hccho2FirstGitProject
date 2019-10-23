@@ -812,9 +812,8 @@ def data_gen():
             #b = np.random.randint(10, size=(batch_size,1))
             b = a.astype(np.int32)
             yield a,b
-    
     #dataset = tf.data.Dataset.from_generator(g, (tf.float32, tf.int32))
-    dataset = tf.data.Dataset.from_generator(g, (tf.float32, tf.int32), (tf.TensorShape([None,3]), tf.TensorShape([None,1])))
+    dataset = tf.data.Dataset.from_generator(g, (tf.float32, tf.int32), (tf.TensorShape([None,3]), tf.TensorShape([None,3])))
     iterator = dataset.make_one_shot_iterator()
     
     X,Y = iterator.get_next()
