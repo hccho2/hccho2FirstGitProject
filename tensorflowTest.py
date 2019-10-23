@@ -804,6 +804,28 @@ def shuffle_batch():
     
     print('Done')
 #############################################################
+def data_gen():
+    batch_size = 2
+    def g():
+        while True:
+            a = np.random.randn(batch_size,3).astype(np.float32)
+            #b = np.random.randint(10, size=(batch_size,1))
+            b = a.astype(np.int32)
+            yield a,b
+    
+    #dataset = tf.data.Dataset.from_generator(g, (tf.float32, tf.int32))
+    dataset = tf.data.Dataset.from_generator(g, (tf.float32, tf.int32), (tf.TensorShape([None,3]), tf.TensorShape([None,1])))
+    iterator = dataset.make_one_shot_iterator()
+    
+    X,Y = iterator.get_next()
+    
+    sess = tf.Session()
+    
+    for i in range(5):
+        x,y = sess.run([X,Y])
+        print(i, x,y)
+#############################################################
+
 def Make_Batch():
     # 이 example도 data가 simple할 때는 가능하지만, mini batch별로 조작을 어떻게 해야하는지???
     from tensorflow.keras import preprocessing
