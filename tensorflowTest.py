@@ -872,6 +872,7 @@ def Make_Batch():
                 break
 #############################################################
 def mapping_fn(a,b):
+	# a,b는 tensor이다.
 	return -a, b
 
 X1 = np.random.randn(10,5,8)
