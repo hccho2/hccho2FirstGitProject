@@ -872,9 +872,13 @@ def Make_Batch():
                 break
 #############################################################
 def mapping_fn(a,b):
-	# a,b는 tensor이다.
-	return -a, b
-
+    # a,b는 tensor이다.
+    print('----',a,b)
+    return -a, b
+def mapping_fn2(a,b,c):
+    # a,b는 tensor이다.
+    print('----',a,b,c)
+    return -a, b
 X1 = np.random.randn(10,5,8)
 X2 = np.random.randn(10,4)
 
@@ -885,7 +889,9 @@ dataset = dataset.shuffle(buffer_size=10000)
 # dataset.map, dataset.batch의 순서가 중요하다. 
 # dataset.map, dataset.batch  순서이면 mapping_fn에는 batch로 묶이지 않은 data가 넘어 간다.
 # dataset.batch, dataset.map  순서이면 mapping_fn에는 batch로 묶인 data가 넘어간다.
+
 dataset = dataset.map(mapping_fn)
+#dataset = dataset.map(lambda x,y: mapping_fn(x,y,0.5))
 dataset = dataset.batch(2)
 
 dataset = dataset.repeat()
