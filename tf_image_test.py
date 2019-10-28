@@ -136,9 +136,9 @@ def cv2_test():
 
     img1 = skimage.io.imread(img_filename1)  # (375, 500, 3)  numpy array uint8  
     img2 = cv2.imread(img_filename1)  # RGB가 아니고, BGR로 읽는다. 3번째 channel에서 R <--> B가 바뀌어 있다. 값도 좀 다르다.
-    
-    print(img1.shape,img2.shape)
-    show_batch_images([img1,img2])
+    img3 = cv2.resize(img2,(250,250))  # uint8
+    print(img1.shape,img2.shape,img3.shape)
+    show_batch_images([img1,img2,img3])
     plt.show()
     
     print(np.allclose(img1,img2))  # 
