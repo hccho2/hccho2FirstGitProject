@@ -6,9 +6,11 @@ import PIL
 import numpy as np
 import io
 from PIL import Image
+import matplotlib
 import matplotlib.pyplot as plt
 import tensorflow as tf
-import cv2
+import cv2,json
+
 def check_font():
     import matplotlib.font_manager as fm
     font_list = fm.findSystemFonts(fontpaths=None, fontext='ttf')  # 1172 ['C:\\Windows\\Fonts\\kartikab.ttf', 'C:\\Windows\\Fonts\\LSANSD.TTF', ...]
@@ -20,14 +22,24 @@ def check_font():
     
 
 
-def show_batch_images(batch_image):
-    plt.figure()  # multi plt windows
+def show_batch_images(batch_image,multi_flag=False):
+    f = plt.figure()  # multi plt windows
     n = len(batch_image)
     for i in range(1,n+1):
         plt.subplot(1,n,i)
         plt.imshow(batch_image[i-1])
-        plt.title('image{}'.format(i))
-
+        plt.title('image{}'.format(i))   # plt.savefig('fig1.png', dpi=300)
+    
+    if multi_flag:
+        plt.close(f)
+        
+        f.canvas.draw()
+        image_from_plot = np.frombuffer(f.canvas.tostring_rgb(), dtype=np.uint8)
+        image_from_plot = image_from_plot.reshape(f.canvas.get_width_height()[::-1] + (3,))
+        
+        return image_from_plot
+    else:
+        return
 
 
 def cv2_rectangle_test():
@@ -149,9 +161,76 @@ def cv2_test():
     
     print(np.allclose(img1,img2))  #     
 
+
+def crop_test():
+    import sys
+    sys.path.append('D:/ObjectDetection/face-detection-ssd-hccho')
+    
+    import tf_extended as tfe
+    def box_normalize(boxes,h,w):
+        boxes_ = np.array(boxes)
+        boxes_[:,:3:2] /= w
+        boxes_[:,1:4:2] /= h
+        
+        boxes_.T[[0,1,2,3]] =  boxes_.T[[1,0,3,2]]
+        
+        return np.clip(boxes_,0.0,1.0)  # SSD 모델은 1보다 크면 error 난다.
+    immage_filename = 'D:/hccho/CommonDataset/FDDB/images/2002_07_23_big_img_301.jpg'
+    annotation_filename = 'D:/hccho/CommonDataset/FDDB/annotations/2002_07_23_big_img_301.json'
+    
+    image_originX = imread(immage_filename)
+    image_originX = np.array(image_originX)
+    h,w = image_originX.shape[:2]
+    
+    with open(annotation_filename, 'r') as f:
+        anno = json.load(f)   
+    for cls_name, boxes in anno.items():
+        boxes = box_normalize(boxes,h,w)
+    print('boxes: ', boxes)
+    
+    image = tf.convert_to_tensor(image_originX.astype(np.float32)/255.0)
+    bboxes = tf.convert_to_tensor(boxes.astype(np.float32))
+    
+    bbox_begin, bbox_size, distort_bbox = tf.image.sample_distorted_bounding_box(
+            tf.shape(image),
+            bounding_boxes=tf.expand_dims(bboxes, 0),
+            min_object_covered=1,
+            aspect_ratio_range=(0.6, 1.67),
+            area_range=(0.1, 1.0),
+            max_attempts=100,
+            use_image_if_no_bounding_boxes=False)
+
+    # distort_bbox: 원본 이미지에서 crop해낸 부분
+    image_with_box = tf.image.draw_bounding_boxes(tf.expand_dims(image, 0),distort_bbox)
+    distorted_image = tf.slice(image, bbox_begin, bbox_size)
+    bboxes = tfe.bboxes_resize(distort_bbox[0, 0], bboxes)
+    
+    sess=tf.Session()
+    
+    multi_mode = False
+    
+    if multi_mode:
+        matplotlib.use('agg')
+        for i in range(100):
+            img1,img2 = sess.run([image_with_box[0],distorted_image])
+            result = show_batch_images([image_originX,img1,img2], multi_flag=True)
+            plt.imsave("./result2/"+str(i)+".jpg",result)
+
+    else:
+        img1,img2 = sess.run([image_with_box[0],distorted_image])
+        
+        show_batch_images([image_originX,img1,img2])   
+
+        plt.show()
+    
+    
+    
+    print('Done')
+
 if __name__ == '__main__':
     #main_test()
     #resize_test()
-    cv2_test()
+    #cv2_test()
+    crop_test()
 
     print('Done')
