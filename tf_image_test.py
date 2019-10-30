@@ -191,6 +191,7 @@ def crop_test():
     image = tf.convert_to_tensor(image_originX.astype(np.float32)/255.0)
     bboxes = tf.convert_to_tensor(boxes.astype(np.float32))
     
+    # min_object_covered = 1로 하면 bounding box중 100% 이상 포함되는 것이 있다. 0.5이면 어떤 bounding box는 50%이상 포함된다.
     bbox_begin, bbox_size, distort_bbox = tf.image.sample_distorted_bounding_box(
             tf.shape(image),
             bounding_boxes=tf.expand_dims(bboxes, 0),
