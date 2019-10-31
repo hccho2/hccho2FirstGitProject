@@ -72,7 +72,7 @@ def simple3():
     
     
     model = Model(X,Y)
-    model.compile(loss='mean_squared_error', optimizer='adam')
+    model.compile(loss='mean_squared_error', optimizer=optimizers.Adam(lr=0.001))
     model.summary()
     print("model.input, model.output: ", model.input, model.output)
     
@@ -111,12 +111,12 @@ def simple4():
     
     model = Model([X,Y_true],model_loss)
     
-    #  lmabda lambda y_true, y_pred: y_pred 이 형식이 중요함.
+    #  lmabda y_true, y_pred: y_pred 이 형식이 중요함.
     model.compile(loss={'hccho_loss': lambda y_true, y_pred: y_pred}, optimizer=optimizers.Adam(lr=0.001))   # model_loss의 [Y,Y_true] ~ lambda y_true, y_pred: y_pred형식상이지만, 순서 중요. 미분이 되게...)
     model.summary()
     print("model.input, model.output: ", model.input, model.output)
     
-    model.fit([a,b], np.zeros(len(a)), epochs=50, batch_size=1,verbose=1)
+    model.fit([a,b], np.zeros(len(a)), epochs=50, batch_size=6,verbose=1)
     
     
     ############# inference ###########################
