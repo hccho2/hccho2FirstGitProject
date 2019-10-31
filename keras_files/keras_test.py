@@ -2,12 +2,12 @@
 import numpy as np
 import tensorflow as tf
 from keras.models import Model,Sequential
-from keras.layers import Input
+from keras.layers import Input, Lambda
 from keras.layers.core import Dense
 from keras.datasets import mnist
 from keras.utils import np_utils
 from keras import backend as K
-
+from keras import optimizers
 def simple1():
     # mnist.load_data(): path를 지정하지 않으면, C:\Users\Administrator\.keras\datasets 에 받는다.  상대 path말고, 절대 path로 지정해야 됨
     
@@ -81,12 +81,57 @@ def simple3():
     sess = K.get_session()
     print(sess.run(model.output,feed_dict= {model.input: a}))  # sess.run(Y,feed_dict= {model.input: a})
     print(sess.run(Y,feed_dict= {X: a}))
+def simple4():
 
+    def K_loss(args, weight):
+        
+        y_true, y_pred = args
+        loss = weight * K.mean(K.square(y_pred-y_true))
+        return loss
+
+    
+    
+    
+    # 이 방식은 tensorflow 방식과 유사하다.. keras.layers.Input이 placeholder와 유사하다.
+    a = np.random.randn(5,3)
+    b = np.random.randn(5,1)
+    
+    
+    X = Input(shape=(3,))
+    Y_true = Input(shape=(1,))
+    my_layers = Sequential([Dense(100, input_shape=(3,), activation='relu'), Dense(1,)])
+    L1 = my_layers.layers[0](X)
+    Y = my_layers.layers[1](L1)
+    
+    
+    
+    
+    
+    model_loss = Lambda(K_loss, output_shape=(1, ),name='hccho_loss', arguments={'weight': 1.0})([Y_true,Y])  # [tensor, tensor, ...]
+    
+    model = Model([X,Y_true],model_loss)
+    
+    #  lmabda lambda y_true, y_pred: y_pred 이 형식이 중요함.
+    model.compile(loss={'hccho_loss': lambda y_true, y_pred: y_pred}, optimizer=optimizers.Adam(lr=0.001))   # model_loss의 [Y,Y_true] ~ lambda y_true, y_pred: y_pred형식상이지만, 순서 중요. 미분이 되게...)
+    model.summary()
+    print("model.input, model.output: ", model.input, model.output)
+    
+    model.fit([a,b], np.zeros(len(a)), epochs=50, batch_size=1,verbose=1)
+    
+    
+    ############# inference ###########################
+    sess = K.get_session()
+    # model.output은 model_loss 값이다.
+    print(sess.run(model.output,feed_dict= {model.input[0]: a,model.input[1]: b}))  # sess.run(Y,feed_dict= {model.input: a})
+    
+    print('target: ', b)
+    print('prediction: ',sess.run(Y,feed_dict= {X: a}))
 if __name__ == '__main__':
 
     #simple1()
     #simple2()
-    simple3()
+    #simple3()
+    simple4()
 
 
 
