@@ -1,13 +1,4 @@
 # -*- coding: utf-8 -*-
-
-'''
-checkpoint = ModelCheckpoint("model_data/trained_stage_3_best.h5", monitor='val_loss', save_weights_only=True, save_best_only=True)
-
-
-'''
-
-
-
 import numpy as np
 import tensorflow as tf
 from keras.models import Model,Sequential
@@ -17,7 +8,7 @@ from keras.datasets import mnist
 from keras.utils import np_utils
 from keras import backend as K
 
-def simple_ex():
+def simple1():
     # mnist.load_data(): path를 지정하지 않으면, C:\Users\Administrator\.keras\datasets 에 받는다.  상대 path말고, 절대 path로 지정해야 됨
     
     (x_train, y_train), (x_test, y_test) = mnist.load_data(path='D:/hccho/keras-test/mnist.npz')
@@ -33,7 +24,7 @@ def simple_ex():
     
     # 3. 모델 학습과정 설정하기
     model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
-    
+    model.summary()
     # 4. 모델 학습시키기
     hist = model.fit(x_train, y_train, epochs=5, batch_size=32)
     
@@ -58,6 +49,8 @@ def simple_ex():
 def simple2():
     model = Sequential([Dense(1, input_shape=(3,), activation='relu')])
     model.compile(loss='mean_squared_error', optimizer='sgd')
+    model.summary()
+    
     
     a = np.random.randn(5,3)
     b = np.random.randn(5,1)
@@ -66,7 +59,7 @@ def simple2():
     result = model.fit(a, b, epochs=5, batch_size=1)
 
 
-def simple2():
+def simple3():
     # 이 방식은 tensorflow 방식과 유사하다.. keras.layers.Input이 placeholder와 유사하다.
     a = np.random.randn(5,3)
     b = np.random.randn(5,1)
@@ -81,7 +74,7 @@ def simple2():
     model = Model(X,Y)
     model.compile(loss='mean_squared_error', optimizer='adam')
     model.summary()
-    print(model.input, model.output)
+    print("model.input, model.output: ", model.input, model.output)
     
     model.fit(a, b, epochs=50, batch_size=6,verbose=1)
     
@@ -89,7 +82,11 @@ def simple2():
     print(sess.run(model.output,feed_dict= {model.input: a}))  # sess.run(Y,feed_dict= {model.input: a})
     print(sess.run(Y,feed_dict= {X: a}))
 
-simple2()
+if __name__ == '__main__':
+
+    #simple1()
+    #simple2()
+    simple3()
 
 
 
