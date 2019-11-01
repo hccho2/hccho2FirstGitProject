@@ -2,7 +2,8 @@
 '''
 https://pytorch.org/tutorials/
 
-
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+model.load_state_dict(torch.load('xxx.pth', map_location = device))
 '''
 
 
