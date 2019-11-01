@@ -105,7 +105,47 @@ def train():
             
     print('Done')
 
-
+def train_collate_fn():
+    
+    def my_collate(batch):
+        # batch로 묶어 있는 data에 추가적인 작업을 해 줄 수 있다.
+        # batch: batch_size 길이의 list
+        # batch[0]: 길이 3짜리(x_train1, x_train2,y_train)
+        x1 = [item[0] for item in batch]
+        x2 = [(100*item[1]).int() for item in batch]
+        y = [item[2] for item in batch]
+        
+        x1 = torch.stack(x1)
+        x2 = torch.stack(x2)
+        y = torch.stack(y)
+        return x2,y
+    
+    
+    
+    # 간단한 data는 Dataset class를 만들지 않고 처리
+    x_train1 = np.random.randn(100,3)
+    x_train2 = np.random.randn(100,4)
+    y_train = np.random.randn(100,1)
+    
+    x_train1 = torch.from_numpy(x_train1)
+    x_train2 = torch.from_numpy(x_train2)
+    y_train = torch.from_numpy(y_train)
+    
+    
+    ds = TensorDataset(x_train1,x_train2,y_train)  # tensor를 넘겨야 한다.
+    loader = DataLoader(ds,batch_size = 8, shuffle=True,drop_last=True,num_workers=0,collate_fn=my_collate) # num_workers가 주어지면 훨씬 빨라진다.
+    
+    for epoch in range(1):
+        for x2,y in loader:  # enumerate(loader)
+            x2 = x2.to(DEVICE)
+            y = y.to(DEVICE)
+            
+            print(x2)
+            
+            del [x2,y]
+            
+            
+    print('Done')
 # data를 메모리에 올리지 못하는 경우, Dataset을 상속받아, class를 정의한다.
 class myDataset(Dataset):
     '''
@@ -157,7 +197,10 @@ if __name__ == '__main__':
     #train_by_queue()
 
     #train()  # 모든 data를 메모리에 ....
-
-    train_with_Dataset()
+    
+    train_collate_fn()  # collate_fn
+    
+    
+    #train_with_Dataset()
 
     print(time.time() -s , "sec elapsed")
