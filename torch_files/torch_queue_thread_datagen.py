@@ -122,6 +122,7 @@ def train_collate_fn():
         x1 = torch.stack(x1)
         x2 = torch.stack(x2)
         y = torch.stack(y)
+        print('---'*20)
         return x2,y
     
     
