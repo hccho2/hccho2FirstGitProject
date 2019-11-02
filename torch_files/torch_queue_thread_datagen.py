@@ -111,9 +111,13 @@ def train_collate_fn():
         # batch로 묶어 있는 data에 추가적인 작업을 해 줄 수 있다.
         # batch: batch_size 길이의 list
         # batch[0]: 길이 3짜리(x_train1, x_train2,y_train)
-        x1 = [item[0] for item in batch]
-        x2 = [(100*item[1]).int() for item in batch]
-        y = [item[2] for item in batch]
+        
+#         x1 = [item[0] for item in batch]
+#         x2 = [(100*item[1]).int() for item in batch]
+#         y = [item[2] for item in batch]
+
+        x1,x2,y = zip(*batch)
+        x2 = [(100*item).int() for item in x2 ]
         
         x1 = torch.stack(x1)
         x2 = torch.stack(x2)
