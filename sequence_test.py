@@ -96,9 +96,9 @@ def test6():
     print(len(kor_dic_char), kor_dic_char[:100])
     print(kor_dic_char[-100:])
     
-    FILTERS = "[#&()-~]"  # [  ]로 묶여야 한다.
+    FILTERS = "[#&()-.~]"  # [  ]로 묶여야 한다.
     CHANGE_FILTER = re.compile(FILTERS)
-    words2 =  [re.sub(FILTERS, '', s) for s in words]
+    words2 =  [re.sub(CHANGE_FILTER, '', s) for s in words]
     tokenizer2 = Tokenizer(lower=True,char_level=True)  # filter 기능 있음. ? , ... 등 제외
     tokenizer2.fit_on_texts(words2)
     
