@@ -5,16 +5,7 @@ import re
 from konlpy.tag import Okt
 from tensorflow.python.keras.preprocessing.text import Tokenizer
 
-'''
-X = [['sa','zz'],['aa','bb']]
-np.savetxt('aa.txt', X, delimiter=",", fmt="%s") 
--->
-sa,zz
-aa,bb
 
-
-
-'''
 
 def test1():
 
@@ -30,14 +21,15 @@ def test1():
 ###############################################
 ###############################################
 def test2():
-    FILTERS = "([~.,!?\"':;)(])"
+    FILTERS = "([~.,!?\"':;)(])"  # [  ]로 묶여야 한다.
     CHANGE_FILTER = re.compile(FILTERS)
     
     sequence = ['안녕? 뭐 먹을까?', '반가워~ 또 봐요?']
     sequence = [re.sub(CHANGE_FILTER, "", s) for s in sequence]  # re.sub는 1개씩만 처리
+    print(sequence)
     """
     ['안녕 뭐 먹을까', '반가워 또 봐요']
-"""
+    """
 
 
 ###############################################
@@ -92,15 +84,29 @@ def test5():
 
 
 def test6():
-    filename = 'D:/OCR/ocr_kor-master/data/generator/TextRecognitionDataGenerator/dicts/ko.txt'
+    #filename = 'D:/OCR/ocr_kor-master/data/generator/TextRecognitionDataGenerator/dicts/ko.txt'
+    #filename = 'D:/OCR/ocr_kor-master/data/generator/TextRecognitionDataGenerator/dicts/wordslistUnique.txt'
+    filename = 'D:/OCR/ocr_kor-master/data/generator/TextRecognitionDataGenerator/dicts/newsgroup.txt'
     ko_dic = open(filename, encoding='utf-8')
     words = ko_dic.readlines()  # list: ['가게\n', '가격\n', '가구\n', ....]
 
     tokenizer = Tokenizer(lower=True,char_level=True)  # filter 기능 있음. ? , ... 등 제외
     tokenizer.fit_on_texts(words)
     kor_dic_char = ''.join(sorted(tokenizer.word_index.keys()))
-    print(len(kor_dic_char), kor_dic_char[:10])
+    print(len(kor_dic_char), kor_dic_char[:100])
+    print(kor_dic_char[-100:])
     
+    FILTERS = "[#&()-~]"  # [  ]로 묶여야 한다.
+    CHANGE_FILTER = re.compile(FILTERS)
+    words2 =  [re.sub(FILTERS, '', s) for s in words]
+    tokenizer2 = Tokenizer(lower=True,char_level=True)  # filter 기능 있음. ? , ... 등 제외
+    tokenizer2.fit_on_texts(words2)
+    
+    
+    
+    kor_dic_char2 = ''.join(sorted(tokenizer2.word_index.keys()))
+    print(len(kor_dic_char2), kor_dic_char2[:100])
+    print(kor_dic_char2[-100:])    
     print('Done')
     
 if __name__ == '__main__':
