@@ -6,8 +6,14 @@ from konlpy.tag import Okt
 from tensorflow.python.keras.preprocessing.text import Tokenizer
 
 '''
-X = ['sa','bb']
-np.savetxt('aa.txt', X, delimiter=" ", fmt="%s") 
+X = [['sa','zz'],['aa','bb']]
+np.savetxt('aa.txt', X, delimiter=",", fmt="%s") 
+-->
+sa,zz
+aa,bb
+
+
+
 '''
 
 def test1():
