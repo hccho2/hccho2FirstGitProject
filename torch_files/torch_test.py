@@ -16,7 +16,7 @@ import numpy as np
 import time
 from sklearn.datasets import load_digits
 import tqdm
-
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 def show_weights(net):
     for idx, m in enumerate(net.named_modules()):
         print(idx, '->', m)    
@@ -413,8 +413,25 @@ def MNIST3():
     
     print('Done')
 
-
-
+def MNIST4():
+    # data download
+    
+    from torchvision import datasets, transforms
+    datasets.MNIST(root='.', train=True, download=True,
+                   transform=transforms.Compose([ transforms.ToTensor(),transforms.Normalize((0.1307,), (0.3081,))]))
+    
+    train_loader  = torch.utils.data.DataLoader(
+        datasets.MNIST(root='.', train=False, transform=transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize((0.1307,), (0.3081,))
+        ])), batch_size=2, shuffle=True, num_workers=4)
+    
+    
+    for batch_idx, (data, target) in enumerate(train_loader):
+        data, target = data.to(device), target.to(device)
+    
+    
+    print('-----')
 def conv_test():
     # pytorch는 convolution 연산후, image 크기 계산을 직접햐야 한다. tensorflow에서의 same padding이 없다.
     X = torch.randn(2, 3,100,100)
@@ -837,8 +854,8 @@ if __name__ == '__main__':
     #MultivariateRegression2()
     #MultivariateRegression3()
     #MNIST()
-    MNIST2()
-    
+    #MNIST2()
+    MNIST4()
     #conv_test()
     #MNIST_conv()
     
@@ -855,7 +872,6 @@ if __name__ == '__main__':
 
 
     print('Done')
-
 
 
 
