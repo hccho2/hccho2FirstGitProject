@@ -5,7 +5,10 @@ import re
 from konlpy.tag import Okt
 from tensorflow.python.keras.preprocessing.text import Tokenizer
 
-
+'''
+X = ['sa','bb']
+np.savetxt('aa.txt', X, delimiter=" ", fmt="%s") 
+'''
 
 def test1():
 
