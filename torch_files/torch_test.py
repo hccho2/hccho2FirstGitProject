@@ -4,6 +4,10 @@ https://pytorch.org/tutorials/
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model.load_state_dict(torch.load('xxx.pth', map_location = device))
+
+
+PyTorch에서는 모델을 저장할 때 .pt 또는 .pth 확장자를 사용하는 것이 일반적인 규칙입니다.  ---> pt, pth는 차이가 나지는 않고, 선택의 문제임.
+
 '''
 
 
@@ -872,7 +876,6 @@ if __name__ == '__main__':
 
 
     print('Done')
-
 
 
 
