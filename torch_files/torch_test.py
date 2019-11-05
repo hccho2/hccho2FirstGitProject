@@ -438,14 +438,27 @@ def MNIST4():
     print('-----')
 def conv_test():
     # pytorch는 convolution 연산후, image 크기 계산을 직접햐야 한다. tensorflow에서의 same padding이 없다.
-    X = torch.randn(2, 3,100,100)
+    X = torch.randn(2, 3,100,100)  # pytorch는 channel_frist 방식
     # tensorflow의 same padding 같은 것은 업다.
     conv = nn.Conv2d(in_channels=3, out_channels=32, kernel_size=5, stride=1,padding=[2,2])  # paddig(H,W)
     
     Y = conv(X)
     
     print(Y.shape)
-
+    
+    
+    # Adaptive Pooling: output size로 설정되고, output 크기에 따라, kernel_size가 내부적으로 결정된다.
+    m1 = nn.AdaptiveAvgPool1d(2)
+    m2 = nn.AdaptiveAvgPool2d((None,7)) # None이면 크기가 변하지 않는다.
+    input1 = torch.randn(1, 64, 8)
+    output1 = m1(input1)
+    
+    
+    input2 = torch.randn(1, 64, 20,20)
+    input3 = torch.randn(1, 64, 10,10)
+    output2 = m2(input2)
+    output3 = m2(input3)
+    print(output1.size(),output2.size(),output3.size())
 
 def MNIST_conv():
     # Convolution 모델
@@ -859,8 +872,8 @@ if __name__ == '__main__':
     #MultivariateRegression3()
     #MNIST()
     #MNIST2()
-    MNIST4()
-    #conv_test()
+    #MNIST4()
+    conv_test()
     #MNIST_conv()
     
     #init_test()
