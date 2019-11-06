@@ -1,38 +1,44 @@
-2019³â 8¿ù
+https://www.facebook.com/groups/TensorFlowKR/permalink/1029526057388452/
+ì¿ ë‹¤ëŠ” ë”°ë¡œ ì„¤ì¹˜í•˜ëŠ” ê²ƒë³´ë‹¤
+conda install -c conda-forge tensorflow-gpu
+ë¡œ ì„¤ì¹˜í•˜ëŠ” ê²Œ ë” í¸í•©ë‹ˆë‹¤.
 
-1. ubuntu 18.04 ¼³Ä¡: https://jimnong.tistory.com/676
+==============================================
+2019ë…„ 8ì›”
+
+1. ubuntu 18.04 ì„¤ì¹˜: https://jimnong.tistory.com/676
 
 2. cuda(10.0), cudnn(7.6.2), tensorflow-gpu
 
-- os¿¡ ¸Â°Ô cuda driver¸¦ ¸ÕÀú ¼³Ä¡: https://www.linuxbabe.com/ubuntu/install-nvidia-driver-ubuntu-18-04
+- osì— ë§ê²Œ cuda driverë¥¼ ë¨¼ì € ì„¤ì¹˜: https://www.linuxbabe.com/ubuntu/install-nvidia-driver-ubuntu-18-04
 
 ===
 
--cuda: Linux - x84_64 - Ubuntu 18.04 - deb(local)   ---> deb ÆÄÀÏÀº ´Ù¿î¹Ş°í, 
+-cuda: Linux - x84_64 - Ubuntu 18.04 - deb(local)   ---> deb íŒŒì¼ì€ ë‹¤ìš´ë°›ê³ , 
 cd Download
 sudo dpkg -i cuda-repo-ubuntu1804-10-0-local-10.0.130-410.48_1.0-1_amd64.deb
 sudo apt-key add /var/cuda-repo-10-0-local-10.0.130-410.48/7fa2af80.pub
 sudo apt-get update
-sudo apt-get install cuda-libraries-10-0    ---> sudo apt-get install cuda ---> ÀÌ·¸°Ô¸¸ ÇÏ¸é error
+sudo apt-get install cuda-libraries-10-0    ---> sudo apt-get install cuda ---> ì´ë ‡ê²Œë§Œ í•˜ë©´ error
 
 
 ===
-- patch´Â ÀúÀåÇÏÁö ¾Ê°í, ´Ù¿î¹Ş¾Æ ½ÇÇà.
+- patchëŠ” ì €ì¥í•˜ì§€ ì•Šê³ , ë‹¤ìš´ë°›ì•„ ì‹¤í–‰.
 
 ===
-- ÀÌÁ¦ È¯°æ º¯¼ö¸¦ µî·ÏÇØ¾ß ÇÏ´Âµ¥... ÀÌ°Ô Âü...  --> °á·ĞÀº ~/.bashrc ÇÏ°í  ~/.profile ¸ğµÎ¿¡ ÇØ ÁÖ¾î¾ß ÇÑ´Ù.
-- .profile¿¡ ÇØ ÁÖÁö ¾ÊÀ¸¸é, ³ªÁß¿¡  ----> TensorFlow:  libcudnn.so.7: cannot open shared object file: No such file or directory  ÀÌ·± error ¹ß»ı  
-   ---> error´Â ³ªÁö¸¸ gpu¸¦ »ç¿ëÇÏÁö ¾Ê°í, cpu¿¡¼­ µ¹¾Æ´Â °¨
+- ì´ì œ í™˜ê²½ ë³€ìˆ˜ë¥¼ ë“±ë¡í•´ì•¼ í•˜ëŠ”ë°... ì´ê²Œ ì°¸...  --> ê²°ë¡ ì€ ~/.bashrc í•˜ê³   ~/.profile ëª¨ë‘ì— í•´ ì£¼ì–´ì•¼ í•œë‹¤.
+- .profileì— í•´ ì£¼ì§€ ì•Šìœ¼ë©´, ë‚˜ì¤‘ì—  ----> TensorFlow:  libcudnn.so.7: cannot open shared object file: No such file or directory  ì´ëŸ° error ë°œìƒ  
+   ---> errorëŠ” ë‚˜ì§€ë§Œ gpuë¥¼ ì‚¬ìš©í•˜ì§€ ì•Šê³ , cpuì—ì„œ ëŒì•„ëŠ” ê°
 
 
 ===
-- cudnn ¼³Ä¡ÇÏ±â.
-cudnn  --> archive cudnnn releases   ---> ¹öÀü ¼±ÅÃ --> "library for linux" 
+- cudnn ì„¤ì¹˜í•˜ê¸°.
+cudnn  --> archive cudnnn releases   ---> ë²„ì „ ì„ íƒ --> "library for linux" 
 
 tar -xzvf cudnn-10.0-linux-x64-v7.6.2.24.tgz
 
 
-cudnnÀº ÆÄÀÏÀ» º¹»çÇÏ±â¸¸ ÇÏ¸é µÇ´Âµ¥, °¡°íÀÚ ÇÏ´Â °÷ÀÇ µğ·ºÅä¸®¸¦ sudo mkdir include ÀÌ·± ½ÄÀ¸·Î ¹Ì¸® ¸¸µé¾î µÎ¾î¾ß ÇÑ´Ù.
+cudnnì€ íŒŒì¼ì„ ë³µì‚¬í•˜ê¸°ë§Œ í•˜ë©´ ë˜ëŠ”ë°, ê°€ê³ ì í•˜ëŠ” ê³³ì˜ ë””ë ‰í† ë¦¬ë¥¼ sudo mkdir include ì´ëŸ° ì‹ìœ¼ë¡œ ë¯¸ë¦¬ ë§Œë“¤ì–´ ë‘ì–´ì•¼ í•œë‹¤.
 
 sudo cp cuda/include/cudnn.h /usr/local/cuda-10.0/include
 sudo cp cuda/lib64/libcudnn* /usr/local/cuda-10.0/lib64
@@ -42,7 +48,7 @@ sudo chmod a+r /usr/local/cuda-10.0/include/cudnn.h /usr/local/cuda-10.0/lib64/l
 
 
 ===
-È¯°æ º¯¼ö µî·Ï
+í™˜ê²½ ë³€ìˆ˜ ë“±ë¡
 
 sudo nano ~/.bashrc
 export PATH=/usr/local/cuda-10.0/bin${PATH:+:$PATH}}
@@ -50,28 +56,28 @@ export LD_LIBRARY_PATH=/usr/local/cuda-10.0/lib64${LD_LIBRARY_PATH:+:${LD_LIBRAR
 export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
 
 
-sudo nano ~/.profile     -----> bashrc´Â terminalÀ» ¶ß¿ì¸é ½ÇÇàµÇ´Â °Í. profileÀº ·Î±×ÀÎ ÇÒ ¶§ ½ÇÇà. eclipse´Â terminal¿¡¼­ ½ÇÇàÇÏ´Â°Ô ¾Æ´Ï´Ï±î, ¿©±â¿¡ ³Ö¾îÁÖ¾î¾ß ÇÑ´Ù.
+sudo nano ~/.profile     -----> bashrcëŠ” terminalì„ ëœ¨ìš°ë©´ ì‹¤í–‰ë˜ëŠ” ê²ƒ. profileì€ ë¡œê·¸ì¸ í•  ë•Œ ì‹¤í–‰. eclipseëŠ” terminalì—ì„œ ì‹¤í–‰í•˜ëŠ”ê²Œ ì•„ë‹ˆë‹ˆê¹Œ, ì—¬ê¸°ì— ë„£ì–´ì£¼ì–´ì•¼ í•œë‹¤.
 export LD_LIBRARY_PATH=/usr/local/cuda/lib64
 export CUDA_HOME=/usr/local/cuda-10.0
 
 
 
-echo $LD_LIBRARY_PATH    echo $CUDA_HOME    ---> terminal¿¡¼­ ²À È®ÀÎÇÏÀÚ.
+echo $LD_LIBRARY_PATH    echo $CUDA_HOME    ---> terminalì—ì„œ ê¼­ í™•ì¸í•˜ì.
 
 
 ===
-ÀÌÁ¦ anaconda ¼³Ä¡(anaconda 3.5.1ÀÌ python 3.6ÀÌ´Ù.)
-´Ù¿î ¹Ş°í,
+ì´ì œ anaconda ì„¤ì¹˜(anaconda 3.5.1ì´ python 3.6ì´ë‹¤.)
+ë‹¤ìš´ ë°›ê³ ,
 
 > bash Anaconda3-5.1.0-Linux-x86.sh
 
 > source ~/.bashrc
 
-- °¡»óÈ¯°æ ¸¸µé¾î¼­, tensorflow-gpu¼³Ä¡
+- ê°€ìƒí™˜ê²½ ë§Œë“¤ì–´ì„œ, tensorflow-gpuì„¤ì¹˜
 
-conda create -n tf14 python=3.6 anaconda               <--------------¸¶Áö¸· anaconda´Â ¼³Ä¡ÇÒ µğ·ºÅä¸®. ¾øÀ¸¸é ¾Ë¾Æ¼­... ---> ¾îµğ¿¡ ¼³Ä¡µÇ¾ú´ÂÁö È®ÀÎÇÏÀÚ.
+conda create -n tf14 python=3.6 anaconda               <--------------ë§ˆì§€ë§‰ anacondaëŠ” ì„¤ì¹˜í•  ë””ë ‰í† ë¦¬. ì—†ìœ¼ë©´ ì•Œì•„ì„œ... ---> ì–´ë””ì— ì„¤ì¹˜ë˜ì—ˆëŠ”ì§€ í™•ì¸í•˜ì.
 source activate tf14
-pip install tensorflow-gpu==1.14   <---- conda, pip´Â °¡»óÈ¯°æ¿¡¸¸ ¼³Ä¡. pip3´Â ÀüÃ¼¿¡ ¼³Ä¡?
+pip install tensorflow-gpu==1.14   <---- conda, pipëŠ” ê°€ìƒí™˜ê²½ì—ë§Œ ì„¤ì¹˜. pip3ëŠ” ì „ì²´ì— ì„¤ì¹˜?
 
 source activate tf14
 source deactivate
@@ -79,17 +85,17 @@ conda remove -n name --all
 
 
 ===
-eclipse ¼³Ä¡
+eclipse ì„¤ì¹˜
 https://www.george-smart.co.uk/2018/07/installing-eclipse-ide-and-pydev-onto-ubuntu-18-04/
 https://www.youtube.com/watch?v=Vc3z48_Gx3E
-java°¡ ¼³Ä¡µÇ¾î ÀÖ´ÂÁö ¸ÕÀú È®ÀÎÇÏÀÚ.
+javaê°€ ì„¤ì¹˜ë˜ì–´ ìˆëŠ”ì§€ ë¨¼ì € í™•ì¸í•˜ì.
 
-openjdk¸¦ ¼³Ä¡ÇÏ´Â ¹æ¹ı°ú oracle java jdk¸¦ ¼³Ä¡ÇÏ´Â ¹æ¹ıÀÌ ÀÖ´Ù.
+openjdkë¥¼ ì„¤ì¹˜í•˜ëŠ” ë°©ë²•ê³¼ oracle java jdkë¥¼ ì„¤ì¹˜í•˜ëŠ” ë°©ë²•ì´ ìˆë‹¤.
 
 
 
 ---------------------------
-oracle java jdk¸¦ ¼³Ä¡ÇÏ´Â ¹æ¹ı
+oracle java jdkë¥¼ ì„¤ì¹˜í•˜ëŠ” ë°©ë²•
 sudo add-apt-repository ppa:webupd8team/java
 sudo apt update
 sudo apt install oracle-java8-installer
@@ -102,24 +108,24 @@ sudo apt install oracle-java8-set-default
 
 
 -----------------------
-openjdk¸¦ ¼³Ä¡
+openjdkë¥¼ ì„¤ì¹˜
 sudo apt-get install openjdk-8-jdk
 ----------------------
 
 javac -version
 
-eclipse ´Ù¿î·Îµå
+eclipse ë‹¤ìš´ë¡œë“œ
 
 cd ~/Downloads/
-tar xvfz eclipse-inst-linux64.tar.gz(¼³Ä¡¹öÀü)    eclipse-dsl-2019-06-R-linux-gtk-x86_64.tar.gz(package¹öÀü)
+tar xvfz eclipse-inst-linux64.tar.gz(ì„¤ì¹˜ë²„ì „)    eclipse-dsl-2019-06-R-linux-gtk-x86_64.tar.gz(packageë²„ì „)
 
-¾ĞÃàÇ®¸é, µğ·ºÅä¸® »ı±è. eclipse-inst ½ÇÇà
+ì••ì¶•í’€ë©´, ë””ë ‰í† ë¦¬ ìƒê¹€. eclipse-inst ì‹¤í–‰
 cd eclipse-installer
 
 ./eclipse-inst
 
 
-¹Ù·Î°¡±â ¸¸µé±â
+ë°”ë¡œê°€ê¸° ë§Œë“¤ê¸°
 sudo nano /usr/share/applications/eclipse.desktop
 
 ===
@@ -167,7 +173,7 @@ sudo nano /usr/share/applications/eclipse.desktop
 
 
 
-- Á÷Á¢´Ù¿î¹ŞÁö ¾Ê°í, command Ã¢¿¡¼­ ¼³Ä¡
+- ì§ì ‘ë‹¤ìš´ë°›ì§€ ì•Šê³ , command ì°½ì—ì„œ ì„¤ì¹˜
 https://greenmon.dev/2019/06/21/ubuntu-cuda.html?fbclid=IwAR2noaNT4OQB7Xm4p-enOdhJCch8DF45AiezfVeq_2Qlqvxa1TnneyjFLRw
 
 
@@ -176,12 +182,12 @@ https://www.youtube.com/watch?v=vxjbL5iN1XY
 
 
 
-cuda toolkit 10 ´Ù¿î·Îµå
+cuda toolkit 10 ë‹¤ìš´ë¡œë“œ
 https://developer.nvidia.com/cuda-10.0-download-archive?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu
 
 Linux - x84_64 - Ubuntu 18.04 - deb(local)
 
-- deb ÆÄÀÏÀº ´Ù¿î¹Ş°í, 
+- deb íŒŒì¼ì€ ë‹¤ìš´ë°›ê³ , 
 cd Download
 sudo dpkg -i cuda-repo-ubuntu1804-10-0-local-10.0.130-410.48_1.0-1_amd64.deb
 sudo apt-key add /var/cuda-repo-10-0-local-10.0.130-410.48/7fa2af80.pub
@@ -189,7 +195,7 @@ sudo apt-get update
 sudo apt-get install cuda-libraries-10-0
 
 
-patch´Â ÀúÀåÇÏÁö ¾Ê°í, ½ÇÇà.
+patchëŠ” ì €ì¥í•˜ì§€ ì•Šê³ , ì‹¤í–‰.
 
 
 
@@ -214,7 +220,7 @@ export CUDA_HOME=/usr/local/cuda-10.0
 
 echo $PATH
 
-cudnn  --> archive cudnnn releases   ---> ¹öÀü ¼±ÅÃ --> "library for linux"  ---> ¾ÆÁÖ ´À¸®°Ô ´Ù¿îµÈ´Ù.
+cudnn  --> archive cudnnn releases   ---> ë²„ì „ ì„ íƒ --> "library for linux"  ---> ì•„ì£¼ ëŠë¦¬ê²Œ ë‹¤ìš´ëœë‹¤.
 
 tar -xzvf cudnn-10.0-linux-x64-v7.6.2.24.tgz
 
@@ -223,7 +229,7 @@ sudo cp cuda/lib64/libcudnn* /usr/local/cuda-10.0/lib64
 sudo chmod a+r /usr/local/cuda-10.0/include/cudnn.h /usr/local/cuda-10.0/lib64/libcudnn*
 
 ===========================================================
-anaconda¼³Ä¡
+anacondaì„¤ì¹˜
 https://myborn.tistory.com/7, https://ufris.tistory.com/5
 http://hansworld.co.kr/AII/1038
 
@@ -231,19 +237,19 @@ http://hansworld.co.kr/AII/1038
 
 > sha256sum Anaconda3-5.1.0-Linux-x86.sh
 
-cd ./home/anaconda3  <--- ¼³Ä¡ µğ·ºÅä¸®
+cd ./home/anaconda3  <--- ì„¤ì¹˜ ë””ë ‰í† ë¦¬
 
 > bash Anaconda3-5.1.0-Linux-x86.sh
-·Î±× ¾Æ¿ô ÈÄ, ´Ù½Ã µé¾î°¡°Å³ª , 
+ë¡œê·¸ ì•„ì›ƒ í›„, ë‹¤ì‹œ ë“¤ì–´ê°€ê±°ë‚˜ , 
 > source ~/.bashrc
 
 
 
-°¡»óÈ¯°æ ¸¸µé±â Àü¿¡ È®ÀÎ > conda search "^python$"
+ê°€ìƒí™˜ê²½ ë§Œë“¤ê¸° ì „ì— í™•ì¸ > conda search "^python$"
 
-conda create -n tf14 python=3.6 anaconda               <--------------¸¶Áö¸· anaconda´Â ¼³Ä¡ÇÒ µğ·ºÅä¸®. ¾øÀ¸¸é ¾Ë¾Æ¼­...
+conda create -n tf14 python=3.6 anaconda               <--------------ë§ˆì§€ë§‰ anacondaëŠ” ì„¤ì¹˜í•  ë””ë ‰í† ë¦¬. ì—†ìœ¼ë©´ ì•Œì•„ì„œ...
 source activate tf14
-pip install tensorflow-gpu==1.14   <---- conda, pip´Â °¡»óÈ¯°æ¿¡¸¸ ¼³Ä¡. pip3´Â ÀüÃ¼¿¡ ¼³Ä¡?
+pip install tensorflow-gpu==1.14   <---- conda, pipëŠ” ê°€ìƒí™˜ê²½ì—ë§Œ ì„¤ì¹˜. pip3ëŠ” ì „ì²´ì— ì„¤ì¹˜?
 
 source activate tf14
 source deactivate
@@ -255,17 +261,17 @@ conda remove -n name --all
 
 
 =====================================================
-eclipse ¼³Ä¡
+eclipse ì„¤ì¹˜
 https://www.george-smart.co.uk/2018/07/installing-eclipse-ide-and-pydev-onto-ubuntu-18-04/
 https://www.youtube.com/watch?v=Vc3z48_Gx3E
-java°¡ ¼³Ä¡µÇ¾î ÀÖ´ÂÁö ¸ÕÀú È®ÀÎÇÏÀÚ.
+javaê°€ ì„¤ì¹˜ë˜ì–´ ìˆëŠ”ì§€ ë¨¼ì € í™•ì¸í•˜ì.
 
-openjdk¸¦ ¼³Ä¡ÇÏ´Â ¹æ¹ı°ú oracle java jdk¸¦ ¼³Ä¡ÇÏ´Â ¹æ¹ıÀÌ ÀÖ´Ù.
+openjdkë¥¼ ì„¤ì¹˜í•˜ëŠ” ë°©ë²•ê³¼ oracle java jdkë¥¼ ì„¤ì¹˜í•˜ëŠ” ë°©ë²•ì´ ìˆë‹¤.
 
 
 
 ---------------------------
-oracle java jdk¸¦ ¼³Ä¡ÇÏ´Â ¹æ¹ı
+oracle java jdkë¥¼ ì„¤ì¹˜í•˜ëŠ” ë°©ë²•
 sudo add-apt-repository ppa:webupd8team/java
 sudo apt update
 sudo apt install oracle-java8-installer
@@ -278,18 +284,18 @@ sudo apt install oracle-java8-set-default
 
 
 -----------------------
-openjdk¸¦ ¼³Ä¡
+openjdkë¥¼ ì„¤ì¹˜
 sudo apt-get install openjdk-8-jdk
 ----------------------
 
 javac -version
 
-eclipse ´Ù¿î·Îµå
+eclipse ë‹¤ìš´ë¡œë“œ
 
 cd ~/Downloads/
-tar xvfz eclipse-inst-linux64.tar.gz(¼³Ä¡¹öÀü)    eclipse-dsl-2019-06-R-linux-gtk-x86_64.tar.gz(package¹öÀü)
+tar xvfz eclipse-inst-linux64.tar.gz(ì„¤ì¹˜ë²„ì „)    eclipse-dsl-2019-06-R-linux-gtk-x86_64.tar.gz(packageë²„ì „)
 
-¾ĞÃàÇ®¸é, µğ·ºÅä¸® »ı±è. eclipse-inst ½ÇÇà
+ì••ì¶•í’€ë©´, ë””ë ‰í† ë¦¬ ìƒê¹€. eclipse-inst ì‹¤í–‰
 cd eclipse-installer
 
 ./eclipse-inst
@@ -306,8 +312,8 @@ javac -version
 export JAVA_HOME=/usr/lib/jvm/java-8-oracle/bin/javac
 
 
-nvidia-smi -l 4   <------------4ÃÊ¸¶´Ù °»½Å
-watch -n 1 -d nvidia-smi   # 1ÃÊ ¸¶´Ù nvidia-smi ½ÇÇàÇÏ¸é¼­ º¯È­µÈ ºÎºĞ ÇÏÀÌ¶óÀÌÆ® Ç¥½Ã
+nvidia-smi -l 4   <------------4ì´ˆë§ˆë‹¤ ê°±ì‹ 
+watch -n 1 -d nvidia-smi   # 1ì´ˆ ë§ˆë‹¤ nvidia-smi ì‹¤í–‰í•˜ë©´ì„œ ë³€í™”ëœ ë¶€ë¶„ í•˜ì´ë¼ì´íŠ¸ í‘œì‹œ
 
 
 
@@ -315,14 +321,14 @@ pip install gpustat
 >gpustat -i
 
 
-cpu, ¸Ş¸ğ¸® »ç¿ë·® È®ÀÎ
-top ¶Ç´Â htop
+cpu, ë©”ëª¨ë¦¬ ì‚¬ìš©ëŸ‰ í™•ì¸
+top ë˜ëŠ” htop
 
 ============================
-notepad++ ¼³Ä¡
+notepad++ ì„¤ì¹˜
 https://www.tecrobust.com/install-notepad-plus-plus-linux-ubuntu/
 
-All Applications -> ubuntu software -->  notepad++ °Ë»ö
+All Applications -> ubuntu software -->  notepad++ ê²€ìƒ‰
 
 
 ===============================
