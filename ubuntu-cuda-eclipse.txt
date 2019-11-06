@@ -3,6 +3,14 @@ https://www.facebook.com/groups/TensorFlowKR/permalink/1029526057388452/
 conda install -c conda-forge tensorflow-gpu
 로 설치하는 게 더 편합니다.
 
+-------
+
+https://mc.ai/tensorflow-gpu-installation-made-easy-use-conda-instead-of-pip/
+conda create --name tf_gpu tensorflow-gpu 
+
+This command will create an environment first named with ‘tf_gpu’ and will install all the packages required by tensorflow-gpu including the cuda and cuDNN compatible verisons.
+
+
 ==============================================
 2019년 8월
 
