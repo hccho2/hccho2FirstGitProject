@@ -8,6 +8,10 @@ model.load_state_dict(torch.load('xxx.pth', map_location = device))
 
 PyTorch에서는 모델을 저장할 때 .pt 또는 .pth 확장자를 사용하는 것이 일반적인 규칙입니다.  ---> pt, pth는 차이가 나지는 않고, 선택의 문제임.
 
+
+
+Attention Mask
+http://juditacs.github.io/2018/12/27/masked-attention.html
 '''
 
 
@@ -552,13 +556,13 @@ def init_test():
     emb = nn.Embedding(vocab_size, embedding_dim, padding_idx=0)
     
     
-    z = np.random.randn(6,8).astype(np.float32)
+    z = np.random.randn(vocab_size,embedding_dim).astype(np.float32)
     #z = np.arange(vocab_size*embedding_dim).reshape(-1,embedding_dim).astype(np.float32)
     
     emb.weight.data=torch.from_numpy(z)   # numpy array를 이용하여 초기화
     
 
-    z = emb(X) # (3,6) -->(3,6,embedding_dim)
+    z = emb(X) # (batch_size,T) -->(batch_size,T,embedding_dim)
     print(emb.weight)
     print(z[0])
     
@@ -851,11 +855,11 @@ def Loss_Mask_test():
         # logit(N, n_class), target: N
         loss2_ = loss2(torch.transpose(logit,1,2), target)   # cross entropy loss
          
-        print(loss2_)
+        print('loss2: ', loss2_)
         
         length = torch.tensor([3,2])
         maxlen = logit.size(1)
-        mask = torch.arange(maxlen)[None, :] < length[:, None]
+        mask = torch.arange(maxlen)[None, :] < length[:, None]   # tensor([[ True,  True,  True],[ True,  True, False]])
         
         print("mask: ",mask)
         mask= mask.type(torch.float)
@@ -873,7 +877,7 @@ if __name__ == '__main__':
     #MNIST()
     #MNIST2()
     #MNIST4()
-    conv_test()
+    #conv_test()
     #MNIST_conv()
     
     #init_test()
@@ -885,7 +889,7 @@ if __name__ == '__main__':
 
     #Loss_test()
     #Loss_Seq_test()
-    #Loss_Mask_test()
+    Loss_Mask_test()
 
 
     print('Done')
