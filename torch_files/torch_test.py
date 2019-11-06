@@ -866,8 +866,42 @@ def Loss_Mask_test():
         loss = torch.sum(loss2_*mask)/torch.sum(mask)
         print(loss)
         
-        
-        
+def Attention_Mask():
+    X = torch.arange(12).view(4, 3)
+    mask = torch.zeros((4, 3), dtype=torch.uint8)  # or dtype=torch.ByteTensor
+    mask[0, 0] = 1
+    mask[1, 1] = 1
+    mask[3, 2] = 1
+    X[mask] = 100
+    print(X)   
+
+
+    X = torch.arange(12).view(4, 3)
+    X[~mask] = 100
+    print(X)
+
+
+    # generating the actual toy example
+    print('='*10)
+    np.random.seed(1)
+    X = np.random.random((4,6))
+    X = torch.from_numpy(X)
+    X_len = torch.LongTensor([4, 1, 6, 3])  # length of each sequence
+
+
+    maxlen = X.size(1)
+    mask = torch.arange(maxlen)[None, :] < X_len[:, None]
+    
+    print(mask)
+    print('Bofore X: ', X)
+    X[~mask] = float('-inf')
+    print('After X: ', X)
+    
+    softmax_val = torch.nn.functional.softmax(X,1)
+    print('masked softmax: ', softmax_val)
+    
+
+      
 if __name__ == '__main__':
     #test1()
     #model1()
@@ -889,8 +923,8 @@ if __name__ == '__main__':
 
     #Loss_test()
     #Loss_Seq_test()
-    Loss_Mask_test()
-
+    #Loss_Mask_test()
+    Attention_Mask()
 
     print('Done')
 
