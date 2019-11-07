@@ -9,6 +9,11 @@ pydev 수동 설치:
 - eclipse 실행 후, windows-preferences-PyDev-Interpreters-Python Interpreter - QuickAuto-Config
 
 ===========================================================================
+conda info   ---> cache 디렉토리 확인
+
+conda clean --all
+
+===========================================================================
 venv로 가상환경 만들기
 
 1. 가상환경을 만들 디렉토리를 만들어 이동한다.
