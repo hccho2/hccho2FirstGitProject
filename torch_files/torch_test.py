@@ -423,6 +423,7 @@ def MNIST3():
 
 def MNIST4():
     # data download
+    # root로 지정한 디렉토리 아래에, MNIST\processed, MNIST\raw가 만들어진다.
     
     from torchvision import datasets, transforms
     datasets.MNIST(root='.', train=True, download=True,
