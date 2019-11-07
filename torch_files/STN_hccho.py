@@ -58,7 +58,7 @@ class Net(nn.Module):
 
     def forward(self, x):
         # transform the input
-        x = self.stn(x)
+        x = self.stn(x)  # torch.Size([64, 1, 28, 28]) ---> torch.Size([64, 1, 28, 28])
 
         # Perform the usual forward pass
         x = F.relu(F.max_pool2d(self.conv1(x), 2))
@@ -143,12 +143,7 @@ def visualize_stn(model,test_loader):
 
 
 
-
-
-
-
-
-def STN():
+def STN_test():
 
 
     # Training dataset
@@ -186,7 +181,7 @@ def STN():
     print('done')
 
 if __name__ == '__main__':
-    STN()
+    STN_test()
     print('Done')
 
 
