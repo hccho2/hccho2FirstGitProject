@@ -87,8 +87,7 @@ def test6():
     #filename = 'D:/OCR/ocr_kor-master/data/generator/TextRecognitionDataGenerator/dicts/ko.txt'
     #filename = 'D:/OCR/ocr_kor-master/data/generator/TextRecognitionDataGenerator/dicts/wordslistUnique.txt'
     filename = 'D:/OCR/ocr_kor-master/data/generator/TextRecognitionDataGenerator/dicts/newsgroup.txt'
-    ko_dic = open(filename, encoding='utf-8')
-    words = ko_dic.readlines()  # list: ['가게\n', '가격\n', '가구\n', ....]
+    words = open(filename, encoding='utf-8').read().splitlines()  # list ['가게', '가격', '가구', '가구',...]
 
     tokenizer = Tokenizer(lower=True,char_level=True)  # filter 기능 있음. ? , ... 등 제외
     tokenizer.fit_on_texts(words)
@@ -96,9 +95,12 @@ def test6():
     print(len(kor_dic_char), kor_dic_char[:100])
     print(kor_dic_char[-100:])
     
+    
+    
+    # 특수 문자 제거하기.
     FILTERS = "[#&()-.~]"  # [  ]로 묶여야 한다.
-    CHANGE_FILTER = re.compile(FILTERS)
-    words2 =  [re.sub(CHANGE_FILTER, '', s) for s in words]
+    #CHANGE_FILTER = re.compile(FILTERS)
+    words2 =  [re.sub(FILTERS, '', s) for s in words]
     tokenizer2 = Tokenizer(lower=True,char_level=True)  # filter 기능 있음. ? , ... 등 제외
     tokenizer2.fit_on_texts(words2)
     
@@ -108,9 +110,20 @@ def test6():
     print(len(kor_dic_char2), kor_dic_char2[:100])
     print(kor_dic_char2[-100:])    
     print('Done')
-    
+def test7():
+    # 빈도 check
+    import itertools
+    import nltk
+    filename = 'D:/OCR/ocr_kor-master/data/generator/TextRecognitionDataGenerator/dicts/newsgroup.txt'
+    words = open(filename, encoding='utf-8').read().splitlines()
+    words = [[c for c in w] for w in words]  # 677759
+
+    words = list(itertools.chain(*words))
+    z = nltk.FreqDist(words)
+    print(z.most_common())   # '뵘', '착' 은 깨짐.
+    print('Done')
 if __name__ == '__main__':
-    test6()
+    test7()
 
 
 
