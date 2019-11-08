@@ -1,0 +1,16 @@
+jobs
+kill -9 %1
+
+--- 
+디렉토리 삭제 > rm -r 디렉토리명
+디렉토리 복사 > cp -r dir1  /home/xxx/
+cp -r /home/datasets/st_ko/v1_64  /home/hccho2/datasets
+
+
+
+----
+디렉토리 파일 갯수 세기: > ls 디렉토리명 | wc -l 
+
+-----
+파일 이동
+> mv filename 디렉토리명/
