@@ -20,7 +20,12 @@ def check_font():
     
     print('현재 설정된  font:', plt.rcParams["font.family"])
     
-
+    # 폰트 바꾸기
+    fm.get_fontconfig_fonts()
+    #font_name = fm.FontProperties(fname='/home/datasets/font/SynthText_kr/NanumGothic.ttf').get_name()
+    font_name = fm.FontProperties(fname='/usr/share/fonts/truetype/tlwg/TlwgTypo-Bold.ttf').get_name()
+    matplotlib.rc('font', family=font_name)
+    print('현재 설정된  font:', plt.rcParams["font.family"])
 
 def show_batch_images(batch_image,multi_flag=False):
     f = plt.figure()  # multi plt windows
