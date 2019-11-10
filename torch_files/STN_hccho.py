@@ -1,6 +1,16 @@
 # coding: utf-8
 '''
 https://pytorch.org/tutorials/intermediate/spatial_transformer_tutorial.html
+
+1.
+torchvision.transforms.ToTensor: 
+Converts a PIL Image or numpy.ndarray (H x W x C) in the range [0, 255] to a torch.FloatTensor of shape (C x H x W) 
+in the range [0.0, 1.0] if the PIL Image belongs to one of the modes (L, LA, P, I, F, RGB, YCbCr, RGBA, CMYK, 1) or 
+if the numpy.ndarray has dtype = np.uint8
+
+
+2. 각 channel에 대하여, mean, std. 아래예는 3channel 이미지.
+transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
 '''
 from __future__ import print_function
 import torch
@@ -46,12 +56,12 @@ class Net(nn.Module):
 
     # Spatial transformer network forward function
     def stn(self, x):
-        xs = self.localization(x)
+        xs = self.localization(x)  # torch.Size([64, 1, 28, 28]) ---> torch.Size([64, 10, 3, 3])
         xs = xs.view(-1, 10 * 3 * 3)
-        theta = self.fc_loc(xs)
+        theta = self.fc_loc(xs)  # xs: torch.Size([64, 90])  ---> theta: torch.Size([64, 6])
         theta = theta.view(-1, 2, 3)
 
-        grid = F.affine_grid(theta, x.size())
+        grid = F.affine_grid(theta, x.size())   # grid: torch.Size([64, 28, 28, 2])
         x = F.grid_sample(x, grid)
 
         return x
@@ -144,7 +154,7 @@ def visualize_stn(model,test_loader):
 
 
 def STN_test():
-
+    num_epoch = 10
 
     # Training dataset
     train_loader = torch.utils.data.DataLoader(
@@ -167,7 +177,7 @@ def STN_test():
     optimizer = optim.SGD(model.parameters(), lr=0.01)
 
 
-    for epoch in range(1, 1 + 1):
+    for epoch in range(1, 1 + num_epoch):
         train(model,train_loader,optimizer, epoch)
         test(model,test_loader)
 
@@ -180,9 +190,15 @@ def STN_test():
 
     print('done')
 
+def affine_grid_test():
+    x = np.array([[[-1.1195248 , -1.03991212],
+                   [ 0.83826792, -0.37799479]]])
+    
+    
+
+
 if __name__ == '__main__':
     STN_test()
     print('Done')
-
 
 
