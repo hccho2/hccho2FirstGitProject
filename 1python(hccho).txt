@@ -307,6 +307,10 @@ np.savetxt("foo.txt", X1, delimiter=",")
 
 ====
 a  = [['a','b'], ['cc','dd']]
+np.savetxt(f, a, delimiter="\t", fmt="%s") 
+=====
+# append모드
+a  = [['a','b'], ['cc','dd']]
 with open("aa.txt", "a") as f:
     np.savetxt(f, [datetime.datetime.now().strftime("%Y%m%d-%H-%M-%S")], delimiter="\t", fmt="%s") 
     np.savetxt(f, a, delimiter="\t", fmt="%s") 
