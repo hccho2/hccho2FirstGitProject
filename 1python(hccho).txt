@@ -751,8 +751,13 @@ plt.subplot(2,1,2)
 plt.imshow(img)
 
 plt.show()
+=====================================================================================
+import matplotlib.pyplot as plt
+from PIL import Image
 
-
+img = Image.open('/home/hccho2/datasets/mj_evaluation/000000-완고스레.jpg')
+plt.imshow(img)
+plt.show()
 =====================================================================================
 def change_image_format():
     import os, glob
