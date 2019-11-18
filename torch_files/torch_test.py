@@ -897,7 +897,7 @@ def Attention_Mask():
     # generating the actual toy example
     print('='*10)
     np.random.seed(1)
-    X = np.random.random((4,6))
+    X = np.random.random((4,6))  # (batch_size, max_sequence_length). attention score
     X = torch.from_numpy(X)
     X_len = torch.LongTensor([4, 1, 6, 3])  # length of each sequence
 
@@ -910,7 +910,7 @@ def Attention_Mask():
     X[~mask] = float('-inf')
     print('After X: ', X)
     
-    softmax_val = torch.nn.functional.softmax(X,1)
+    softmax_val = torch.nn.functional.softmax(X,1)  # score -> alignment
     print('masked softmax: ', softmax_val)
     
 
