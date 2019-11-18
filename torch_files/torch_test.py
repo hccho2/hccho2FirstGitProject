@@ -182,6 +182,9 @@ def MultivariateRegression2():
     print(net.weight,net.bias)
     print(list(net.parameters()))
     
+    params_num = sum([np.prod(p.size()) for p in net.parameters()])
+    print('params_num: ', params_num)
+    
     
 def MultivariateRegression3():
     # MultivariateRegression2 + mini batch
@@ -317,9 +320,14 @@ def MNIST2():
         
     for name, param in net.named_parameters():
         print (name, param.requires_grad, param.data)
+        
+        
+    params_num = sum([np.prod(p.size()) for p in net.parameters()])
+    print('params_num: ', params_num) 
+        
     
-    for t in net.parameters():
-        t.requires_grad = False
+#     for t in net.parameters():
+#         t.requires_grad = False
     
     
     net.train()  # train mode
@@ -346,6 +354,10 @@ def MNIST2():
 
     for idx, m in enumerate(net.named_modules()):
         print(idx, '->', m)
+
+
+    
+
 
     print('Done')
 def MNIST3():
@@ -868,17 +880,17 @@ def Loss_Mask_test():
         print(loss)
         
 def Attention_Mask():
+    # mask test 1.
     X = torch.arange(12).view(4, 3)
     mask = torch.zeros((4, 3), dtype=torch.uint8)  # or dtype=torch.ByteTensor
-    mask[0, 0] = 1
-    mask[1, 1] = 1
-    mask[3, 2] = 1
+    mask[0, 0] = 1; mask[1, 1] = 1; mask[3, 2] = 1;  # masking할 곳 지정하기.
     X[mask] = 100
     print(X)   
 
-
+    # mask test 2. 
+    mask = mask.bool() # bool 형식으로 변환해야 ~mask가 제대로 작동한다.
     X = torch.arange(12).view(4, 3)
-    X[~mask] = 100
+    X[~mask] = -100
     print(X)
 
 
