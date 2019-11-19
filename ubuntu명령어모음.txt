@@ -2,15 +2,49 @@ jobs
 kill -9 %1
 
 --- 
-µğ·ºÅä¸® »èÁ¦ > rm -r µğ·ºÅä¸®¸í
-µğ·ºÅä¸® º¹»ç > cp -r dir1  /home/xxx/
+ë””ë ‰í† ë¦¬ ì‚­ì œ > rm -r ë””ë ‰í† ë¦¬ëª…
+ë””ë ‰í† ë¦¬ ë³µì‚¬ > cp -r dir1  /home/xxx/
 cp -r /home/datasets/st_ko/v1_64  /home/hccho2/datasets
 
 
 
 ----
-µğ·ºÅä¸® ÆÄÀÏ °¹¼ö ¼¼±â: > ls µğ·ºÅä¸®¸í | wc -l 
+ë””ë ‰í† ë¦¬ íŒŒì¼ ê°¯ìˆ˜ ì„¸ê¸°: > ls ë””ë ‰í† ë¦¬ëª… | wc -l 
 
 -----
-ÆÄÀÏ ÀÌµ¿
-> mv filename µğ·ºÅä¸®¸í/
+íŒŒì¼ ì´ë™
+> mv filename ë””ë ‰í† ë¦¬ëª…/
+
+----
+
+watch -n 1 -d nvidia-smi
+
+
+cd /media/hccho/hccho
+/media/hccho/hccho/hccho/CommonDataset
+
+
+apt --installed list
+apt remove íŒ¨í‚¤ì§€ì´ë¦„
+
+
+df -h   <---- ë””ìŠ¤í¬ ìš©ëŸ‰ í™•ì¸
+
+
+
+í™ˆ ë””ë ‰í† ë¦¬: /home/hccho
+
+.bashrcì— ì¶”ê°€:
+alias tf='source activate tf14'
+alias torch='source activate torch12'
+alias da='source deactivate'
+alias jn='jupyter notebook'
+alias wn='watch -n 1 -d nvidia-smi'
+alias cls='clear'
+
+
+
+
+
+sshë¡œ ë‹¤ë¥¸ ì„œë²„ ì ‘ì†í•˜ê¸°
+> ssh -X id@domoin.com
