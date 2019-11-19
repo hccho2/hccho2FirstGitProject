@@ -1865,6 +1865,7 @@ def CTC_Loss():
     
     yy = np.random.randint(0,num_class-1,size=(batch_size,target_T))  # low=0, high=3 ==> 0,1,2
     yy = np.array([[1, 2, 2],[1, 0, 1]]).astype(np.int32)
+    yy = np.array([[1, 2, 2,0,0,0],[1, 0, 1,0,0,0]]).astype(np.int32)  # 끝에 붙은 0은 pad로 간주한다. 중간에 있는 0은 character로 간주
     
     zero = tf.constant(0, dtype=tf.int32)
     where = tf.not_equal(yy, zero)
