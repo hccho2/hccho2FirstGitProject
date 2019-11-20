@@ -830,7 +830,7 @@ def Loss_test():
         
         
         softmax_val = torch.nn.functional.softmax(logit,1)
-        log_softmax_val = torch.log(softmax_val)
+        log_softmax_val = torch.log(softmax_val)  # logit.log_softmax(1) 값과 같다.
         print("softmax: ", softmax_val)
         print("log-softmax: ", log_softmax_val)
         print("Cross Entropy loss: ", -torch.mean(log_softmax_val[np.arange(2),target]))
