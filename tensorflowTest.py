@@ -1840,6 +1840,13 @@ from tensorflow.python.ops.parallel_for.gradients import jacobian
 #{a: 0, b: 1, c: 2, blank: 3}
 	
 def CTC_Loss():
+    # ctc_loss v1에서는 sparse matrix가 들어가기 때문에, gt(label)에 0번 character가 포함되어 있으면, 0번에 대한 loss를 계산못한다.
+    # v2에서도 sparse를 넣어주면 같은 결과가 나온다. 
+    # 이는 0번을 padding으로 인식하는 문제가 있기 때문이다.
+    # 따라서, 0번에는 의미 있는 charcter를 부여하면 안된다.
+    # v2에서 label에 sparse가 아닌, dense를 넣어주어야 한다.
+    
+    
     batch_size=2
     output_T=5
     target_T=3 # target의 길이. Model이 만들어 내는 out_T는 target보다 길다.
@@ -1865,7 +1872,7 @@ def CTC_Loss():
     
     yy = np.random.randint(0,num_class-1,size=(batch_size,target_T))  # low=0, high=3 ==> 0,1,2
     yy = np.array([[1, 2, 2],[1, 0, 1]]).astype(np.int32)
-    yy = np.array([[1, 2, 2,0,0,0],[1, 0, 1,0,0,0]]).astype(np.int32)  # 끝에 붙은 0은 pad로 간주한다. 중간에 있는 0은 character로 간주
+    #yy = np.array([[1, 2, 2,0,0,0],[1,0,2,0,0,0]]).astype(np.int32)  # 끝에 붙은 0은 pad로 간주한다. 중간에 있는 0은 character로 간주
     
     zero = tf.constant(0, dtype=tf.int32)
     where = tf.not_equal(yy, zero)
@@ -1873,10 +1880,23 @@ def CTC_Loss():
     values = tf.gather_nd(yy, indices)
     targets = tf.SparseTensor(indices, values, yy.shape)
     
-    loss = tf.nn.ctc_loss(labels=targets,inputs=logits,sequence_length=[output_T]*batch_size)
+    
+    # preprocess_collapse_repeated=False  ---> label은 반복되는 character가 있을 수 있으니, 당연히 False
+    # ctc_merge_repeated=False  ---> 모델이 예측한 반복된 character를 merge하지 않는다. 이것은 ctc loss의 취지와 다르다.
+    loss0 = tf.nn.ctc_loss(labels=targets,inputs=logits,sequence_length=[output_T]*batch_size,ctc_merge_repeated=False) 
+    # 이 loss0는 의미 없음.
+    
+    loss1 = tf.nn.ctc_loss(labels=targets,inputs=logits,sequence_length=[output_T]*batch_size)
+    loss2 = tf.nn.ctc_loss_v2(labels=yy,logits=logits,label_length =[target_T]*batch_size,
+                              logit_length=[output_T]*batch_size,logits_time_major=True,blank_index=num_class-1)
+    
+    
+    # lables에 sparse tensor를 넣으면, v1과 결과가 같다. 
+    loss3 = tf.nn.ctc_loss_v2(labels=targets,logits=logits,label_length =[3,3],
+                              logit_length=[output_T]*batch_size,logits_time_major=True,blank_index=num_class-1)
     
     optimizer = tf.train.GradientDescentOptimizer(learning_rate=1)
-    gradient = optimizer.compute_gradients(loss)
+    gradient = optimizer.compute_gradients(loss1)
     
     
     prob = tf.nn.softmax(xx,axis=-1)
@@ -1892,7 +1912,11 @@ def CTC_Loss():
     
     sess = tf.Session()
     sess.run(tf.global_variables_initializer())
-    l = sess.run(loss)
+    l0 = sess.run(loss0)
+    l1 = sess.run(loss1)
+    l2 = sess.run(loss2)
+    l3 = sess.run(loss3)
+    print('loss: ',l0, l1,l2,l3)
     g = sess.run(gradient[0][0])
     p = sess.run(prob)
     gg = sess.run(grad)
