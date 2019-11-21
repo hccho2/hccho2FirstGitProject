@@ -253,6 +253,14 @@ def MNIST():
     for step in range(1000):
         optimizer.zero_grad()
         Y_hat = net(X)
+        
+        '''
+        network을 loop로 통과시킬 수도 있다
+        xx = X
+        for l in net:
+            xx= net(xx)
+        '''
+        
         loss = loss_fn(Y_hat,Y)
         loss.backward()
         optimizer.step()
@@ -921,7 +929,7 @@ if __name__ == '__main__':
     #MultivariateRegression()
     #MultivariateRegression2()
     #MultivariateRegression3()
-    #MNIST()
+    MNIST()
     #MNIST2()
     #MNIST4()
     #conv_test()
@@ -937,7 +945,7 @@ if __name__ == '__main__':
     #Loss_test()
     #Loss_Seq_test()
     #Loss_Mask_test()
-    Attention_Mask()
+    #Attention_Mask()
 
     print('Done')
 
