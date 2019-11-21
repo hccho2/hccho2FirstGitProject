@@ -1,5 +1,5 @@
 ## pytorch image load
-'''
+```
 import torchvision.models as models
 import torchvision.transforms as transforms
 import os
@@ -15,4 +15,4 @@ imgs = torch.unsqueeze(img,0)
 
 feature = vgg16(imgs)  # ---> (N,1000)
 
-'''
+```
