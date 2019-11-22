@@ -35,11 +35,11 @@ class Net(nn.Module):
 
         # Spatial transformer localization-network
         self.localization = nn.Sequential(
-            nn.Conv2d(1, 8, kernel_size=7),
-            nn.MaxPool2d(2, stride=2),
+            nn.Conv2d(1, 8, kernel_size=7),  # --> (N,8,22,22)
+            nn.MaxPool2d(2, stride=2),       # --> (N,8,11,11)
             nn.ReLU(True),
-            nn.Conv2d(8, 10, kernel_size=5),
-            nn.MaxPool2d(2, stride=2),
+            nn.Conv2d(8, 10, kernel_size=5),  # --> (N,10,7,7)
+            nn.MaxPool2d(2, stride=2),        # --> (N,10,3,3)
             nn.ReLU(True)
         )
 
@@ -200,5 +200,4 @@ def affine_grid_test():
 if __name__ == '__main__':
     STN_test()
     print('Done')
-
 
