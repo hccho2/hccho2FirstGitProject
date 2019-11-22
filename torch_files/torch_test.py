@@ -627,8 +627,12 @@ def RNN_test():
     hidden_dim =7
     num_layers = 2
     index_to_char = {SOS_token: '<S>', 1: 'h', 2: 'e', 3: 'l', 4: 'o', EOS_token: '<E>'}
-    x_data = np.array([[SOS_token, 1, 2, 3, 3, 4]], dtype=np.int32)
-    y_data = np.array([[1, 2, 3, 3, 4,EOS_token]],dtype=np.int32)
+    x_data = np.array([[SOS_token, 3, 1, 4, 3, 2],[SOS_token, 3, 4, 2, 3, 1],[SOS_token, 1, 3, 2, 2, 1]], dtype=np.int32)
+    y_data = np.array([[3, 1, 4, 3, 2,EOS_token],[3, 4, 2, 3, 1,EOS_token],[1, 3, 2, 2, 1,EOS_token]],dtype=np.int32)
+
+#     x_data = np.array([[SOS_token, 1, 2, 3, 3, 4]], dtype=np.int32)
+#     y_data = np.array([[1, 2, 3, 3, 4,EOS_token]],dtype=np.int32)
+
 
     X = torch.tensor(x_data, dtype=torch.int64) #int64이어야 된다.
     Y = torch.tensor(y_data, dtype=torch.int64)
@@ -648,7 +652,7 @@ def RNN_test():
             self.last_net.add_module("L4", nn.Linear(13,vocab_size))
         
         def forward(self,x, h0=None):
-            x1 = self.first_net(x)
+            x1 = self.first_net(x)  # x:(N,T), x1:(N,T,embedding_dim)
             x2,h = self.lstm(x1,h0)  # dropout이 있어, 같은 input에 대하여 값이 달라질 수 있다.
             
             #loop를 이용한 계산
@@ -679,7 +683,7 @@ def RNN_test():
         for epoch in range(500):
             optimizer.zero_grad()
             Y_hat,_ = net(X)
-            loss = loss_fn(input=Y_hat.view(-1,vocab_size),target = Y.view(vocab_size))
+            loss = loss_fn(input=Y_hat.view(-1,vocab_size),target = Y.view(-1))
             loss2 = loss_fn(input=torch.transpose(Y_hat,1,2),target = Y)
             
             assert np.abs(loss.item() - loss2.item()) < 0.000001
@@ -929,14 +933,14 @@ if __name__ == '__main__':
     #MultivariateRegression()
     #MultivariateRegression2()
     #MultivariateRegression3()
-    MNIST()
+    #MNIST()
     #MNIST2()
     #MNIST4()
     #conv_test()
     #MNIST_conv()
     
     #init_test()
-    #RNN_test()
+    RNN_test()
     #PackedSeq_test()
     
     #bidirectional_test()
