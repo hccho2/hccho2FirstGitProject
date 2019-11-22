@@ -10,6 +10,7 @@ C:\Anaconda3\Lib\site-packages\torchvision\models   ---> 이곳에서 모델 구
 import torch
 import numpy as np
 import torchvision.models as models
+import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 from torch import nn
 import os
@@ -38,6 +39,7 @@ class MyVGG(nn.Module):
         x = self.features(x)
         return x  
 def test2():
+    # 책 "파이토치 첫걸음" pp 75
     os.environ['TORCH_HOME'] = './pretrained'
     vgg16 = models.vgg16(pretrained=True, progress=True)  # 540M
  
@@ -70,11 +72,21 @@ def test3():
     
     
     print('Done')
-
+def test4():
+    # 책 "파이토치 첫걸음" pp 74
+    # TensorDataset: numpy array로 부터 dataset 생성
+    # Dataset: 상속하여 class로 작성. __len__(), __getitem__() 필수 
+    mydataset = datasets.ImageFolder('D:/hccho/CommonDataset/VOCdevkit/VOC2007')   # 이 디렉토리안에 sub-directory로 분류되어 있어야 한다.
+    print(mydataset.classes)
+    print(mydataset.class_to_idx)
+    
+    dataloader = torch.utils.data.DataLoader(mydataset, batch_size=2,shuffle=True,num_workers=2)    
+    
 if __name__ == '__main__':
     #test1()
     #test2()
-    test3()
+    #test3()
+    test4()
     
     
     print('Done')
