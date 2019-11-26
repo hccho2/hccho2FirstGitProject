@@ -1305,6 +1305,17 @@ okt=Okt()
 a3 = okt.morphs(a1, stem=True)
 print(a3)
 =====================================================================================
+# 지정한 character 앞에 공백 삽입
+# method1
+marks = re.compile('([?!\(\)\[\]])')
+s= '[안녕? 너는 왜!'
+ss = re.sub(marks, r' \1',s)  # ' [안녕 ? 너는 왜 !'
+
+# method2
+x = '?![]()'
+marks2 = re.compile(f'([{re.escape(x)}])')
+ss2 = re.sub(marks2, r' \1',s)
+=====================================================================================
 #  numpy array --> pandas DataFrame
 data = np.array([[2,3,4.5],[3,4,2]])
 df = pd.DataFrame(data,columns=['A','AA','B'])  
