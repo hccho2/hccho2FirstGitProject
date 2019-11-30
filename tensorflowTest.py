@@ -1974,6 +1974,8 @@ tf.train.get_checkpoint_state(디렉토리) <--- checkpoint 파일 단순 파싱
 
 saver.restore(디렉토리 + preface + global_step)
 ###############################################
+# tf.train.latest_checkpoint(save_dir) ---> 이거 사용하면, 아래의 get_most_recent_checkpoint()이 필요없네~~
+
 def get_most_recent_checkpoint(checkpoint_dir):
     checkpoint_paths = [path for path in glob("{}/*.ckpt-*.data-*".format(checkpoint_dir))]
     
