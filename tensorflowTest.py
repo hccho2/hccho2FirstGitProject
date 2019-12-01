@@ -51,6 +51,12 @@ x.get_shape().as_list()  --> list. 이 경우는 [None,3] 이런 식으로 될 �
 
 np.sum([np.prod(v.get_shape().as_list()) for v in tf.trainable_variables()])
 ######################################################################
+def print_variable_summary():
+    import pprint
+    variables = sorted([[v.name, v.get_shape()] for v in tf.global_variables()])
+    pprint.pprint(variables)
+
+######################################################################
 # 아래의 api는 어떻게 사용하는지 한번 정리해야 겠다~~
 
 tf.scatter_update
