@@ -797,7 +797,7 @@ def bidirectional_test():
     input = torch.from_numpy(np.random.randn(0, vocab_size, size=(batch_size, T,embedding_dim)).astype(np.float32))
     rnn = nn.RNN(input_size=embedding_dim, hidden_size=hidden_size, batch_first=True,bidirectional=True)
     
-    out,h = rnn(input) # out에는 forward, backward가 concat되어 있다.
+    out,h = rnn(input) # out에는 forward, backward가 concat되어 있다. h: (2,batch_size,hidden_dim)
     
     print(out.shape,h.shape) # out.shape = (batch_size,T,2*hidden_dim), 마지막 앞의 hidden_dim개는 forward, 뒤의 hidden_dim개는 backward
     '''
