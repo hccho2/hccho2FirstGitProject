@@ -2104,7 +2104,19 @@ z = sess.run(L1,feed_dict={x:X})
 print(sess.run(L2,feed_dict={x:X}))
 print(sess.run(L2,feed_dict={L1:z}))  # L1 tensor에 feeding
 ###############################################	
-	
+# layer_norm
+a = np.random.randn(2,2,3,4)
+X = tf.placeholder(tf.float32,shape=[2,2,3,4])
+
+# begin_norm_axis=1 --> (N,H,W,C)에서 (H,W,C)크기의 tensor L2 norm값이 1이 된다.
+# begin_norm_axis=3 --> (N,H,W,C)에서 마지막 (C)크기의 tesor L2 norm값이 1이 된다.
+
+# begin_params_axis=3 이면, 마지막 차원 즉 C개의 beta,gamma변수가 생성된다.
+Y = tf.contrib.layers.layer_norm(X,begin_norm_axis=1,begin_params_axis=3)
+
+sess = tf.Session()
+sess.run(tf.global_variables_initializer())
+a,b,c,d = sess.run([X,Y,'LayerNorm/beta:0','LayerNorm/gamma:0'],feed_dict={X:a})
 ###############################################	
 	
 ###############################################	
