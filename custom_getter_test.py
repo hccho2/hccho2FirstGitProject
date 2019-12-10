@@ -48,7 +48,7 @@ with tf.variable_scope('hccho2',):
     L3 = tf.layers.dense(L2,units=1, activation = tf.sigmoid,name='L3')
 train = tf.train.AdamOptimizer(learning_rate=1).minimize( tf.reduce_mean( 0.5*tf.square(L3-y)))
 with tf.Session() as sess:
-    sess.run(tf.global_variables_initializer())
+    sess.run(tf.global_variables_initializer())  # custom_getter에 해당하는 변수도 이 때, initialization된다.
     print(sess.run('hccho2/L3/kernel:0'))
     print(sess.run('hccho/L1/kernel:0'))
     
