@@ -2119,7 +2119,14 @@ z = sess.run(L1,feed_dict={x:X})
 print(sess.run(L2,feed_dict={x:X}))
 print(sess.run(L2,feed_dict={L1:z}))  # L1 tensor에 feeding
 ###############################################	
+# collection을 이용해서, debugging이 수월해진다.
+	
+tf.add_to_collection('hccho_debug', [L1,L2])
+또는 tf.add_to_collections(['hccho_collection','hccho_collection2'], [L1,L2])	
 
+---> 
+tf.get_collection('hccho_debug')	
+	
 ###############################################	
 	
 ###############################################	
