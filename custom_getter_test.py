@@ -43,6 +43,8 @@ with tf.variable_scope('hccho',custom_getter=custom_getter):
     y = tf.placeholder(tf.float32, [None,1])
     L1 = tf.layers.dense(x,units=4, activation = tf.sigmoid,name='L1')
     L2 = tf.layers.dense(L1,units=1, activation = tf.sigmoid,name='L2')
+    
+    tf.add_to_collection('hccho_collection', [L1,L2])
 
 with tf.variable_scope('hccho2',):
     L3 = tf.layers.dense(L2,units=1, activation = tf.sigmoid,name='L3')
@@ -61,3 +63,5 @@ with tf.Session() as sess:
 
 print('trainable_variables: ', tf.trainable_variables())
 print('global_variables: ', tf.global_variables())
+print('-'*10)
+print('tf.hccho_collection', tf.get_collection('hccho_collection') )
