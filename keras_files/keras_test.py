@@ -126,6 +126,25 @@ def simple4():
     
     print('target: ', b)
     print('prediction: ',sess.run(Y,feed_dict= {X: a}))
+
+    
+ def K_function_test():
+    x1 = K.placeholder(shape=[None, 3])
+    x2 = K.placeholder(shape=[None, 3])
+    y = x1+x2
+    
+    train = K.function([x1,x2], [y])
+    
+    data1 = np.random.randn(2,3)
+    data2 = np.random.randn(2,3)
+    zz = train([data1,data2])
+    
+    print('data1: ', data1 )
+    print('data2: ', data2 )
+    print('zz: ', zz )   
+    
+    
+    
 if __name__ == '__main__':
 
     #simple1()
