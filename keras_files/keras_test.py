@@ -143,7 +143,38 @@ def simple4():
     print('data2: ', data2 )
     print('zz: ', zz )   
     
+def K_function_train():
+    from keras import backend as K
+    from keras.layers.core import Dense
+    from keras.models import Sequential
+    from keras.optimizers import Adam
+    y =  K.placeholder(shape=[None, 1])
+    model = Sequential()
+    model.add(Dense(24, input_dim=3, activation='relu'))
+    model.add(Dense(1))
+    loss = K.mean( K.square(model.output - y))
     
+    optimizer = Adam(lr=0.001)
+    updates = optimizer.get_updates(model.trainable_weights,[],loss)
+    
+    
+    train = K.function([model.input,y], [model.output,loss],updates = updates)
+    
+    
+    # train 해보기
+    data = np.random.randn(2,3)
+    target = np.random.randn(2,1)
+    output = model.predict(data)
+    
+    for i in range(1000):
+        temp = train([data,target])
+        if i%100 == 0:
+            print(i,temp)
+    
+    # 결과 확인
+    print('data', data)
+    print('target', target)
+    print('predict', model.predict(data))
     
 if __name__ == '__main__':
 
