@@ -133,7 +133,7 @@ def simple4():
     x2 = K.placeholder(shape=[None, 3])
     y = x1+x2
     
-    train = K.function([x1,x2], [y])
+    train = K.function([x1,x2], [y])  # tensor x1,x2,y의 관계를 만들어 놓으면, x1,x2 자리에 data를 넣으면, y값이 계산된다.
     
     data1 = np.random.randn(2,3)
     data2 = np.random.randn(2,3)
@@ -144,6 +144,7 @@ def simple4():
     print('zz: ', zz )   
     
 def K_function_train():
+    # K.function을 이용해서, training을 할 수 있다.
     from keras import backend as K
     from keras.layers.core import Dense
     from keras.models import Sequential
