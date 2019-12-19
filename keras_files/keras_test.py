@@ -44,7 +44,8 @@ def simple1():
     print('## yhat ##')
     print(yhat)
 
-
+    # 8. weights 보기
+    print(model.get_weights())  # model.set_weights( weights ) 로 weight update도 가능
 
 def simple2():
     model = Sequential([Dense(1, input_shape=(3,), activation='relu')])
