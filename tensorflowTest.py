@@ -2128,7 +2128,44 @@ tf.add_to_collection('hccho_debug', [L1,L2])
 tf.get_collection('hccho_debug')	
 	
 ###############################################	
-	
+def Model():
+    x = tf.placeholder(tf.float32, [None,3])
+    y = tf.placeholder(tf.float32, [None,1])
+    L1 = tf.layers.dense(x,units=4, activation = tf.sigmoid,name='L1')
+    L2 = tf.layers.dense(L1,units=1, activation = tf.sigmoid,name='L2')
+    train = tf.train.AdamOptimizer(learning_rate=1).minimize( tf.reduce_mean( 0.5*tf.square(L2-y)))
+    return x,y,L1,L2,train
+
+
+with tf.variable_scope('model1'):
+    A = Model()
+with tf.variable_scope('model2'):
+    B = Model()
+
+sess = tf.Session()
+sess.run(tf.global_variables_initializer())
+    
+data = np.random.randn(2,3)
+
+
+print('Before assing:')
+print(sess.run(A[3],feed_dict={A[0]:data}))
+print(sess.run(B[3],feed_dict={B[0]:data}))
+
+
+update_weights = [tf.assign(v_to, v_from) for (v_to, v_from) in 
+   zip(tf.trainable_variables('model1'), tf.trainable_variables('model2'))]
+        
+sess.run(update_weights)
+print('After assing:')
+print(sess.run(A[3],feed_dict={A[0]:data}))
+print(sess.run(B[3],feed_dict={B[0]:data}))
+
+print('numpy array로 직접 assing:')
+v1 = tf.get_default_graph().get_tensor_by_name('model1/L1/kernel:0')
+sess.run(tf.assign(v1,np.random.randn(3,4)))
+print(sess.run(A[3],feed_dict={A[0]:data}))
+print(sess.run(B[3],feed_dict={B[0]:data}))
 ###############################################	
 	
 ###############################################	
