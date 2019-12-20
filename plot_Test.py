@@ -4,11 +4,11 @@ import matplotlib.pyplot as plt
 from PIL import Image
 import numpy as np
 
-# Simple data to display in various forms
+# Simple data to display in various forms  <---- 원하는 함수의 그래프를 그래볼 수 있다.
 x = np.linspace(0, 2 * np.pi, 400)
 y1 = np.sin(x ** 2)
 y2= np.cos(x ** 2)
-
+plt.plot(x,y1)
 
 #####################################################
 # scatter
