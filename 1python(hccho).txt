@@ -1133,7 +1133,29 @@ def test4():
         result.append(que.get())
     print(result)
 
-
+def test5():
+	# parallel이  소극적으로 이루어지는 것 같다~~
+	import queue
+    que = deque(maxlen=N)
+    class Agent(threading.Thread):
+        def __init__(self,id):
+            super(Agent,self).__init__()
+            self.id = id
+        def run(self):
+            global n
+            while n<N:
+                que.append([self.id,n,isPrime2(np.random.randint(100000,1000000))])
+                n=n+1
+    
+    agents = [Agent(i) for i in range(num_thread)]
+    
+    for agent in agents:
+        agent.start()
+        
+    for agent in agents:
+        agent.join()
+    
+    print(que)
 if __name__ == '__main__':
     s = time.time()
     test()
