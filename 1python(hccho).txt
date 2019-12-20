@@ -1112,6 +1112,28 @@ def test3():
     n_frames = [future.result() for future in tqdm(futures)]
     n_frames = [n_frame for n_frame in n_frames if n_frame is not None]
     print(n_frames)
+
+def test4():
+    # threading.Trhead는 병렬처리를 하는 것은 아닌다.
+    # https://www.quantstart.com/articles/parallelising-python-with-threading-and-multiprocessing/
+    import queue
+    que = queue.Queue()
+    threads = []
+    for i in range(len(items)):
+        #thread = threading.Thread(target=isPrime2,args=(items[i],))
+        thread = threading.Thread(target = lambda q,arg1: q.put(isPrime2(arg1)),args=(que,items[i],))
+        thread.start()
+        threads.append(thread)
+    # 종료할 때까지 대기
+    for thread in threads:
+        thread.join()
+
+    result = []
+    for i in range(len(items)):  # q.qsize()
+        result.append(que.get())
+    print(result)
+
+
 if __name__ == '__main__':
     s = time.time()
     test()
