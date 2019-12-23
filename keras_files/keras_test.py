@@ -1,3 +1,11 @@
+'''
+optimizer: SGD(lr=0.01), SGD(lr=0.01, momentum=0.9), RMSprop(lr=0.001), Adam(lr=0.001)
+
+
+
+'''
+
+
 # -*- coding: utf-8 -*-
 import numpy as np
 import tensorflow as tf
