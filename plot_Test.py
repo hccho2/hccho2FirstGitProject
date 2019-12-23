@@ -73,6 +73,14 @@ plt.plot(x, y1, label='sin')
 plt.plot(x, y2, label='cos', linestyle='--')
 plt.show()
 plt.close()
+####################################################
+# 2개 같이 그리기
+plt.plot([0,1,2,3,4], [2,3,1,4,5], label='A',marker='o')
+plt.plot([1,2,3], [4,4,1], label='B', linestyle='--',marker='P')
+plt.show()
+plt.close()
+
+####################################################
 
 # 2개 같이 그리기
 bb, = plt.plot(y1,label='raw')
