@@ -1416,7 +1416,10 @@ def train_minibatch(DQN: dqn.DQN, train_batch: list) -> float:
 
 
 =====================================================================================
-
+import random
+random.randint(a,b) ===> a<= x <=b
+random.randrange(a,b+1) ===> a<= x <=b
+np.random.randint(a,b+1) ==> a<= x <=b 
 
 
 =====================================================================================
