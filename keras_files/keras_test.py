@@ -129,7 +129,7 @@ def model_save_load_advanced():
         method = 2
         if method==1:
             logging = TensorBoard()
-            checkpoint = ModelCheckpoint("my_keras_model.h5", monitor='loss', save_weights_only=False, save_best_only=False) #monitor = 'val_loss'
+            checkpoint = ModelCheckpoint("my_keras_model_{epoch:04d}.h5", monitor='loss', save_weights_only=False, save_best_only=True,period=10) #monitor = 'val_loss'
             early_stopping = EarlyStopping(monitor='loss', min_delta=0, patience=15, verbose=1, mode='auto')
 
 
