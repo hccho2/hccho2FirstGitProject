@@ -65,9 +65,55 @@ def simple2():
     b = np.random.randn(5,1)
     
     
-    result = model.fit(a, b, epochs=5, batch_size=1)
+    result = model.fit(a, b, epochs=5, batch_size=1)  # result.history
+
+def model_save_load():
+    def train():
+        model = Sequential([Dense(1, input_shape=(3,), activation='relu')])
+        model.compile(loss='mean_squared_error', optimizer='sgd')
+        model.summary()
 
 
+        a = np.random.randn(5,3)
+        b = np.random.randn(5,1)
+
+
+        result = model.fit(a, b, epochs=5, batch_size=1)  # result.history
+
+
+
+        model.save_weights('my_keras_model.h5')
+
+        model_json = model.to_json()
+        with open("my_keras_model.json", "w") as json_file : 
+            json.dump(model_json, json_file)
+
+
+
+    def infer():
+        method=1
+        if method ==2:
+            model = Sequential([Dense(1, input_shape=(3,), activation='relu')])
+            model.load_weights('my_keras_model.h5')
+        else:
+            with open('my_keras_model.json','r') as f:
+                model_json = json.load(f)
+            model = model_from_json(model_json)
+
+
+        model.load_weights('my_keras_model.h5')
+
+
+        a = np.array([[-0.24941969, -1.05335905, -1.84161028],
+                       [-0.53400826, -0.07559009,  1.03925354],
+                       [ 0.28233044, -0.53535825, -1.2506007 ],
+                       [-0.96030663,  0.50624464, -0.086618  ],
+                       [ 0.06110731,  0.99453469, -0.34139146]])
+        print(model.predict(a))
+    
+    #train()
+    infer()
+    
 def simple3():
     # 이 방식은 tensorflow 방식과 유사하다.. keras.layers.Input이 placeholder와 유사하다.
     a = np.random.randn(5,3)
