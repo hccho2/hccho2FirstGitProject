@@ -68,6 +68,7 @@ def simple2():
     result = model.fit(a, b, epochs=5, batch_size=1)  # result.history
 
 def model_save_load():
+    # 모델 구조, weights를 각각 저장
     def train():
         model = Sequential([Dense(1, input_shape=(3,), activation='relu')])
         model.compile(loss='mean_squared_error', optimizer='sgd')
@@ -113,7 +114,48 @@ def model_save_load():
     
     #train()
     infer()
-    
+
+def model_save_load_advanced():
+    # 모델 구조까지 h5파일에 모두 저장
+    def train():
+        model = Sequential([Dense(1, input_shape=(3,), activation='relu')])
+        model.compile(loss='mean_squared_error', optimizer='sgd')
+        model.summary()
+
+
+        a = np.random.randn(10,3)
+        b = np.random.randn(10,1)
+
+        method = 2
+        if method==1:
+            logging = TensorBoard()
+            checkpoint = ModelCheckpoint("my_keras_model.h5", monitor='loss', save_weights_only=False, save_best_only=False) #monitor = 'val_loss'
+            early_stopping = EarlyStopping(monitor='loss', min_delta=0, patience=15, verbose=1, mode='auto')
+
+
+            result = model.fit(a, b, epochs=100, batch_size=1,callbacks=[logging, checkpoint, early_stopping])  # result.history        
+        else:
+            logging = TensorBoard()
+            checkpoint = ModelCheckpoint("my_keras_model.h5", monitor='val_loss', save_weights_only=False, save_best_only=False)
+            early_stopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=15, verbose=1, mode='auto')
+
+            result = model.fit(a, b, epochs=100, batch_size=2,validation_split=0.1,callbacks=[logging, checkpoint, early_stopping])  # result.history
+
+
+    def infer():
+
+        model= load_model('my_keras_model.h5')
+
+
+        a = np.array([[-0.24941969, -1.05335905, -1.84161028],
+                       [-0.53400826, -0.07559009,  1.03925354],
+                       [ 0.28233044, -0.53535825, -1.2506007 ],
+                       [-0.96030663,  0.50624464, -0.086618  ],
+                       [ 0.06110731,  0.99453469, -0.34139146]])
+        print(model.predict(a))
+
+
+    infer()
 def simple3():
     # 이 방식은 tensorflow 방식과 유사하다.. keras.layers.Input이 placeholder와 유사하다.
     a = np.random.randn(5,3)
