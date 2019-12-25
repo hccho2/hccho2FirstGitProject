@@ -56,16 +56,17 @@ def simple1():
     print(model.get_weights())  # model.set_weights( weights ) 로 weight update도 가능
 
 def simple2():
-    model = Sequential([Dense(1, input_shape=(3,), activation='relu')])
-    model.compile(loss='mean_squared_error', optimizer='sgd')
-    model.summary()
-    
-    
-    a = np.random.randn(5,3)
-    b = np.random.randn(5,1)
-    
-    
-    result = model.fit(a, b, epochs=5, batch_size=1)  # result.history
+    with K.tf.device('/gpu:0'):  # with K.tf.device('/cpu:0')
+        model = Sequential([Dense(1, input_shape=(3,), activation='relu')])
+        model.compile(loss='mean_squared_error', optimizer='sgd')
+        model.summary()
+
+
+        a = np.random.randn(5,3)
+        b = np.random.randn(5,1)
+
+
+        result = model.fit(a, b, epochs=5, batch_size=1)  # result.history
 
 def model_save_load():
     # 모델 구조, weights를 각각 저장
