@@ -13,9 +13,11 @@ from keras.models import Model,Sequential
 from keras.layers import Input, Lambda
 from keras.layers.core import Dense
 from keras.datasets import mnist
-from keras.utils import np_utils
+from keras.utils import np_utils,plot_model
 from keras import backend as K
 from keras import optimizers
+
+
 def simple1():
     # mnist.load_data(): path를 지정하지 않으면, C:\Users\Administrator\.keras\datasets 에 받는다.  상대 path말고, 절대 path로 지정해야 됨
     
@@ -33,6 +35,11 @@ def simple1():
     # 3. 모델 학습과정 설정하기
     model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
     model.summary()
+    
+    # 모델을 그림으로 출력
+    plot_model(model, to_file='keras_model2.png', show_shapes = True)  # show_shapes=False --> shape 없이...
+    
+    
     # 4. 모델 학습시키기
     hist = model.fit(x_train, y_train, epochs=5, batch_size=32)
     
@@ -54,6 +61,7 @@ def simple1():
 
     # 8. weights 보기
     print(model.get_weights())  # model.set_weights( weights ) 로 weight update도 가능
+    
 
 def simple2():
     with K.tf.device('/gpu:0'):  # with K.tf.device('/cpu:0')
@@ -226,7 +234,7 @@ def simple4():
     print('prediction: ',sess.run(Y,feed_dict= {X: a}))
 
     
- def K_function_test():
+def K_function_test():
     x1 = K.placeholder(shape=[None, 3])
     x2 = K.placeholder(shape=[None, 3])
     y = x1+x2
@@ -277,11 +285,10 @@ def K_function_train():
     
 if __name__ == '__main__':
 
-    #simple1()
+    simple1()
     #simple2()
     #simple3()
-    simple4()
-
+    #simple4()
 
 
 
