@@ -33,6 +33,7 @@ def simple1():
     model.add(Dense(units=10, activation='softmax'))  # model.add(Dense(units=10,input_dim=28*28, activation='softmax')) <--- input_dim이 잘못 들어가면 무시함.
     
     # 3. 모델 학습과정 설정하기
+    # 참고: loss가 2개의 합으로 되어 있을 경우도 처리하는 방법이 있다.
     model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
     model.summary()
     
