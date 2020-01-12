@@ -77,6 +77,25 @@ def simple2():
 
         result = model.fit(a, b, epochs=5, batch_size=1)  # result.history
 
+        
+def simple3():
+    # user-defined loss function
+    def my_loss(y_true, y_pred):
+        return tf.reduce_sum(tf.square(y_true-y_pred),axis=-1)  # batch에 대한 평균까지 계산할 필요가 없다.return shape: (batch_size,)
+
+    model = Sequential([Dense(1, input_shape=(3,), activation='relu')])
+    #model.compile(loss='mean_squared_error', optimizer='sgd')
+    model.compile(loss=my_loss, optimizer='sgd')
+    model.summary()
+
+
+    a = np.random.randn(5,3)
+    b = np.random.randn(5,1)
+
+
+    result = model.fit(a, b, epochs=10, batch_size=1,verbose=1)  # result.history
+    print(np.sum(np.square(model.predict(a)-b))/5)
+        
 def model_save_load():
     # 모델 구조, weights를 각각 저장
     def train():
