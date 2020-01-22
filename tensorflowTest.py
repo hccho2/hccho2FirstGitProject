@@ -1749,6 +1749,18 @@ z = tf.gather_nd(x,y)
 with tf.Session() as sess:
     w = sess.run(z,feed_dict={x:[ [1.1, 2.2, 3.3] ,[4.4, 5.5, 6.6], [7.7, 8.8, 9.9] ], y:[[0,1],[1,2]]})
 
+########
+X = np.array([0,2,4,6])
+a=np.array([1,2,1,2,0])
+X[a] # ---> array([2, 4, 2, 4, 0])
+
+Y = tf.convert_to_tensor(X)
+b = tf.convert_to_tensor(a,dtype=tf.int32)
+c = tf.gather(Y,b)
+sess = tf.Session()
+sess.run(c) # array([2, 4, 2, 4, 0])
+
+
 ###############################################
 Tensorflow matmul: shape(N,m,n)과 shape(N,n,k) ==> (N,m,k)
 shape(N,m,n)과 (
