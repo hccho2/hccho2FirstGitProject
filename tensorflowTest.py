@@ -1766,13 +1766,18 @@ x = np.array([[0.49593696, 0.504063  ],
               [0.48871803, 0.51128197],
               [0.48469874, 0.5153013 ],
               [0.4801116 , 0.5198884 ]])
-a = np.array([0,0,1,1,0])
+a = np.array([0,0,1,1,0]).astype(np.int32)
 
 X = tf.convert_to_tensor(x)
 A = tf.convert_to_tensor(a)
 
-w = tf.stack([tf.range(5),A],axis=-1)
-z = tf.gather_nd(X,w)   # tf.gather로는 안됨.  ---> array([0.49593696, 0.4912244 , 0.51128197, 0.5153013 , 0.4801116 ])
+w = tf.stack([tf.range(tf.shape(X)[0]),A],axis=-1)  # tf.shape(X)[0] <--- batch_size. 여기서는 5
+z = tf.gather_nd(X,w)  # ---> array([0.49593696, 0.4912244 , 0.51128197, 0.5153013 , 0.4801116 ]
+
+# 다른 방법
+ww = tf.range(0, tf.shape(X)[0]) * tf.shape(X)[1] + A
+# [0,1,2,3,4]  --> [0,2,4,6,8] --> [0,2,5,7,8]
+zz = tf.gather(tf.reshape(X, [-1]), ww)  # ---> array([0.49593696, 0.4912244 , 0.51128197, 0.5153013 , 0.4801116 ]
 
 
 
