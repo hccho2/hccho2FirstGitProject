@@ -1760,6 +1760,21 @@ c = tf.gather(Y,b)
 sess = tf.Session()
 sess.run(c) # array([2, 4, 2, 4, 0])
 
+########
+x = np.array([[0.49593696, 0.504063  ],
+              [0.4912244 , 0.50877565],
+              [0.48871803, 0.51128197],
+              [0.48469874, 0.5153013 ],
+              [0.4801116 , 0.5198884 ]])
+a = np.array([0,0,1,1,0])
+
+X = tf.convert_to_tensor(x)
+A = tf.convert_to_tensor(a)
+
+w = tf.stack([tf.range(5),A],axis=-1)
+z = tf.gather_nd(X,w)   # tf.gather로는 안됨.  ---> array([0.49593696, 0.4912244 , 0.51128197, 0.5153013 , 0.4801116 ])
+
+
 
 ###############################################
 Tensorflow matmul: shape(N,m,n)과 shape(N,n,k) ==> (N,m,k)
