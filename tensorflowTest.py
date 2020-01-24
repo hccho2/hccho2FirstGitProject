@@ -2199,7 +2199,27 @@ sess.run(tf.assign(v1,np.random.randn(3,4)))
 print(sess.run(A[3],feed_dict={A[0]:data}))
 print(sess.run(B[3],feed_dict={B[0]:data}))
 ###############################################	
+# cross entropy loss: 정확한 one-hot이 아니라, 강화학습에서의 advantage형태
 	
+x = np.random.randn(3,4)
+p = tf.nn.softmax(x)
+
+action = np.array([1,2,0])
+reward_ = np.array([1.1,-2,-3]).astype(np.float32)
+
+reward = tf.convert_to_tensor(reward_)
+action_onehot = tf.one_hot(action,4)
+target = action_onehot*tf.reshape(reward,[3,-1])
+
+loss = tf.nn.softmax_cross_entropy_with_logits_v2(labels=target,logits=x)
+sess = tf.Session()
+print(sess.run(loss))
+
+##
+
+pp = sess.run(p)
+loss2 = - np.log(pp[np.arange(3),action])*np.array([1.1,-2,-3])
+print(loss2)
 ###############################################	
 	
 ###############################################	
