@@ -671,13 +671,13 @@ Examples = collections.namedtuple("Examples", "paths, inputs, targets, count, st
 image 읽기
 
 img = skimage.io.imread(path)  ==> 정수 data
-resized_img = skimage.transform.resize(crop_img, (img_size, img_size))  #정수 data image가 넘어와도 float로. preserve_range=True(정수형태지만, type은 float)
+resized_img = skimage.transform.resize(crop_img, (img_size, img_size))  #정수 data image가 넘어와도 float로. preserve_range=True(정수형태지만, type은 float), order로 변환방법 설정. 0: Nearest-neighbor 1: Bi-linear (default) 2: Bi-quadratic 3: Bi-cubic 4: Bi-quartic 5: Bi-quintic
 
 skimage.io.imshow(img)
 plt.show()
 ======
 im = scipy.misc.imread   ==> 정수 data
-im = scipy.misc.imresize(im, self.resize)
+im = scipy.misc.imresize(im, self.resize)  #정수값이 return.  ----> deprecated in Scipy 1.14.3 ---> skimage.transform.resize를 사용해야 된다.
 
 scipy.misc.imsave(save_path, im)
 =====================================================================================
