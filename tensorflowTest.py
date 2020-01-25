@@ -1779,7 +1779,9 @@ ww = tf.range(0, tf.shape(X)[0]) * tf.shape(X)[1] + A
 # [0,1,2,3,4]  --> [0,2,4,6,8] --> [0,2,5,7,8]
 zz = tf.gather(tf.reshape(X, [-1]), ww)  # ---> array([0.49593696, 0.4912244 , 0.51128197, 0.5153013 , 0.4801116 ]
 
-
+# 다른 방법2
+one_hot_A = tf.one_hot(A,tf.shape(X)[1])
+zzz = tf.reduce_sum(x*one_hot_A,axis=-1) # ---> array([0.49593696, 0.4912244 , 0.51128197, 0.5153013 , 0.4801116 ]
 
 ###############################################
 Tensorflow matmul: shape(N,m,n)과 shape(N,n,k) ==> (N,m,k)
