@@ -2031,7 +2031,7 @@ saver.restore(디렉토리 + preface + global_step)
 ###############################################
 # tf.train.latest_checkpoint(save_dir) ---> get_most_recent_checkpoint()과 차이 없음. checkpoint 파일 파싱.
 
-def get_most_recent_checkpoint(checkpoint_dir):
+def get_most_recent_checkpoint(checkpoint_dir):  # preface = 'model.ckpt'
     checkpoint_paths = [path for path in glob("{}/*.ckpt-*.data-*".format(checkpoint_dir))]
     
     if checkpoint_paths == []: 
@@ -2045,6 +2045,23 @@ def get_most_recent_checkpoint(checkpoint_dir):
     #latest_checkpoint=checkpoint_paths[0]
     print(" [*] Found lastest checkpoint: {}".format(lastest_checkpoint))
     return lastest_checkpoint	
+
+def get_most_recent_checkpoint2(checkpoint_dir,preface = 'model.ckpt'):  # preface도 입력
+    checkpoint_paths = [path for path in glob("{}/{}-*.data-*".format(checkpoint_dir,preface))]
+    
+    if checkpoint_paths == []: 
+        print('No checkpoint')
+        return ''
+    
+    idxes = [int(os.path.basename(path).split('-')[1].split('.')[0]) for path in checkpoint_paths]
+    
+    max_idx = max(idxes)
+    lastest_checkpoint = os.path.join(checkpoint_dir, "{}-{}".format(preface,max_idx))
+    
+    #latest_checkpoint=checkpoint_paths[0]
+    print(" [*] Found lastest checkpoint: {}".format(lastest_checkpoint))
+    return lastest_checkpoint
+	
 	
 	
 load_path와 checkpoint_path를  직접  define하고,             load_path = './ckpt'               checkpoint_path = './ckpt/model.ckpt'
