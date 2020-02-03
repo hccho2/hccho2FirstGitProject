@@ -1,3 +1,7 @@
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'   # CPU Only Mode
+
+
+
 with tf.variable_scope('hccho1'):
 
     x = tf.placeholder(tf.float32,shape=[2,3])
