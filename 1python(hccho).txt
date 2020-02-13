@@ -2,6 +2,8 @@ python 3.6설치
 
 https://repo.continuum.io/archive/index.html
 Anaconda3-5.2.0-Windows-x86_64.exe  ---> python 3.6
+
+python 버전 upgrade: > conda install python==3.6.8  (<--- 3.6.4에서 upgrade 된다)
 =============================
 pydev 수동 설치:
 - features와 plugins 파일들을 위치에 복사한다.
