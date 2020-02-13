@@ -1141,6 +1141,41 @@ def test4():
         result.append(que.get())
     print(result)
 
+
+def test4_1()   # tensorflow의 coord = tf.train.Coordinator()를 이용하여 안정적으로 종료시키기. request_stop(), coord.should_stop()
+	N = 100000
+	num_thread = 4
+	n = 0
+
+	# parallel이  소극적으로 이루어지는 것 같다~~
+
+	class Agent(threading.Thread):
+		def __init__(self,id,coord):
+			super(Agent,self).__init__()
+			self.id = id
+			self.coord = coord
+		def run(self):
+			global n
+			while not self.coord.should_stop():
+				print('id: ', self.id, '====== ', n)
+				n=n+1
+
+				if n > N:
+					self.coord.request_stop()
+
+
+	coord = tf.train.Coordinator()
+
+	agents = [Agent(i,coord) for i in range(num_thread)]
+
+	for agent in agents:
+		agent.start()
+
+	for agent in agents:
+		agent.join()
+
+
+
 def test5():
 	# parallel이  소극적으로 이루어지는 것 같다~~
 	import queue
