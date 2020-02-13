@@ -1120,6 +1120,7 @@ def test3():
     n_frames = [n_frame for n_frame in n_frames if n_frame is not None]
     print(n_frames)
 
+# 다음의 test4, test5는 threading.Thread를 상속받아서 처리하거나 직접 이용하는 차이가 있다.
 def test4():
     # threading.Trhead는 병렬처리를 하는 것은 아닌다.
     # https://www.quantstart.com/articles/parallelising-python-with-threading-and-multiprocessing/
