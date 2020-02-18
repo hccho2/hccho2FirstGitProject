@@ -2244,7 +2244,17 @@ pp = sess.run(p)
 loss2 = - np.log(pp[np.arange(3),action])*np.array([1.1,-2,-3])
 print(loss2)
 ###############################################	
-	
+x = np.array([[2.1,3.1],[1.0,2.0]])
+y = np.array([[2.3,4.5],[1.0,3.2]])
+
+X = tf.convert_to_tensor(x)
+Y = tf.convert_to_tensor(y)
+
+z = tf.losses.mean_squared_error(X,Y)
+
+sess = tf.Session()
+
+sess.run(z)   # np.mean(np.square(x-y)), 모든 원소의 제급 평균(axis 상관없이)
 ###############################################	
 	
 ###############################################	
