@@ -1186,8 +1186,11 @@ def test4_1()   # tensorflow의 coord = tf.train.Coordinator()를 이용하여 �
 		if method ==1:
 			for agent in agents:
 				agent.join()
-		else:
+		elif method==2:
 			coord.join(agents)
+		else:
+			coord.wait_for_stop()    # 이건 완전히 기다리지 못하네....
+			
 
 	print('Done')
 
