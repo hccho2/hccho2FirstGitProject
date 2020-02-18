@@ -735,6 +735,12 @@ images = [Image.open(f) for f in image_files]
 gif = images[0]
 gif.save(fp="./output.gif", format='gif', save_all=True, append_images=images[1:])
 print(Image.open("./output.gif").n_frames)
+
+
+###  동영상 gif로 변환
+from moviepy.editor import *
+VideoFileClip('D:/hccho/RL/ReinforcementZeroToAll-master/movie/openaigym.video.0.11248.video000000.mp4').speedx(4).write_gif('out.gif')
+
 =====================================================================================
 import skimage.io
 from tensorflow.examples.tutorials.mnist import input_data
