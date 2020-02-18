@@ -1187,9 +1187,9 @@ def test4_1()   # tensorflow의 coord = tf.train.Coordinator()를 이용하여 �
 			for agent in agents:
 				agent.join()
 		elif method==2:
-			coord.join(agents)
+			coord.join(agents)  # Wait for threads to terminate.
 		else:
-			coord.wait_for_stop()    # 이건 완전히 기다리지 못하네....
+			coord.wait_for_stop()    # Wait till the Coordinator is told to stop.      이건 완전히 기다리지 못하네....
 			
 
 	print('Done')
