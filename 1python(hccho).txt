@@ -1178,10 +1178,18 @@ def test4_1()   # tensorflow의 coord = tf.train.Coordinator()를 이용하여 �
 	for agent in agents:
 		agent.start()
 
-	for agent in agents:
-		agent.join()
 
+	waiting = True  # waiting == True이면 join의 효과를 thread들이 끝날때 까지 기다린다. False이면, 그 다음 라인을 실행한다.
+	if waiting == True:
 
+		method = 1
+		if method ==1:
+			for agent in agents:
+				agent.join()
+		else:
+			coord.join(agents)
+
+	print('Done')
 
 def test5():
 	# parallel이  소극적으로 이루어지는 것 같다~~
