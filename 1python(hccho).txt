@@ -1092,6 +1092,9 @@ from multiprocessing import Pool
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 import threading
+import tensorflow as tf
+from collections import deque
+import numpy as np
 def isPrime2(n):
     if n==2 or n==3: return True
     if n%2==0 or n<2: return False
@@ -1129,7 +1132,7 @@ def test3():
 
 # 다음의 test4, test5는 threading.Thread를 상속받아서 처리하거나 직접 이용하는 차이가 있다.
 def test4():
-    # threading.Trhead는 병렬처리를 하는 것은 아닌다.
+    # threading.Trhead는 병렬처리를 하는 것은 아니다.
     # https://www.quantstart.com/articles/parallelising-python-with-threading-and-multiprocessing/
     import queue
     que = queue.Queue()
@@ -1148,11 +1151,10 @@ def test4():
         result.append(que.get())
     print(result)
 
-
-def test4_1()   # tensorflow의 coord = tf.train.Coordinator()를 이용하여 안정적으로 종료시키기. request_stop(), coord.should_stop()
+n=0
+def test4_1():   # tensorflow의 coord = tf.train.Coordinator()를 이용하여 안정적으로 종료시키기. request_stop(), coord.should_stop()
 	N = 100000
 	num_thread = 4
-	n = 0
 
 	# parallel이  소극적으로 이루어지는 것 같다~~
 
@@ -1193,10 +1195,13 @@ def test4_1()   # tensorflow의 coord = tf.train.Coordinator()를 이용하여 �
 			
 
 	print('Done')
-
+n=0
 def test5():
 	# parallel이  소극적으로 이루어지는 것 같다~~
-	import queue
+    import queue
+    num_thread = 4
+    N = len(items)
+    n=0
     que = deque(maxlen=N)
     class Agent(threading.Thread):
         def __init__(self,id):
@@ -1205,7 +1210,8 @@ def test5():
         def run(self):
             global n
             while n<N:
-                que.append([self.id,n,isPrime2(np.random.randint(100000,1000000))])
+                #que.append([self.id,n,isPrime2(np.random.randint(100000,1000000))])
+                que.append([self.id,n,isPrime2(items[n])])
                 n=n+1
     
     agents = [Agent(i) for i in range(num_thread)]
@@ -1222,12 +1228,25 @@ if __name__ == '__main__':
     test()
     print(time.time()-s," sec")
 
+    print('serial 처리')
     s = time.time()
     test2()
     print(time.time()-s," sec")
 
+    print('test3')
     s = time.time()
     test3()
+    print(time.time()-s," sec")
+
+    print('test4')
+    s = time.time()
+    test4()
+    print(time.time()-s," sec")
+
+
+    print('test5')
+    s = time.time()
+    test5()
     print(time.time()-s," sec")
 =====================================================================================
 from multiprocessing import Process, Queue
