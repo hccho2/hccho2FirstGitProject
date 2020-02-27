@@ -739,7 +739,11 @@ print(Image.open("./output.gif").n_frames)
 
 ###  동영상 gif로 변환
 from moviepy.editor import *
+from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 VideoFileClip('D:/hccho/RL/ReinforcementZeroToAll-master/movie/openaigym.video.0.11248.video000000.mp4').speedx(4).write_gif('out.gif')
+
+# VideoFileClip(filename).write_videofile("xxx.mp4")  # save as
+#ffmpeg_extract_subclip(filename, 0, 60*2+20, targetname="xxx.mp4")  # 초 단위 추출-- 부분 추출
 
 =====================================================================================
 import skimage.io
