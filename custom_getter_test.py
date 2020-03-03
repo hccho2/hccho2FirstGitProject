@@ -6,7 +6,7 @@ logging.getLogger('tensorflow').disabled = True
 
 '''
 def pretrained_initializer(varname, weight_file, embedding_weight_file=None):
-    
+    # elmo 모델에서 활용. bilm/model.py에 있는 코드
     weight = .........
     
     
