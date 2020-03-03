@@ -41,8 +41,8 @@ with tf.variable_scope('hccho',custom_getter=custom_getter):
 
     x = tf.placeholder(tf.float32, [None,3])
     y = tf.placeholder(tf.float32, [None,1])
-    L1 = tf.layers.dense(x,units=4, activation = tf.sigmoid,name='L1')
-    L2 = tf.layers.dense(L1,units=1, activation = tf.sigmoid,name='L2')
+    L1 = tf.layers.dense(x,units=4, activation = tf.sigmoid,name='L1')  # hccho/L1/kernel, hccho/L1/bias 2개가 있으므로, custom_getter가 2번 
+    L2 = tf.layers.dense(L1,units=1, activation = tf.sigmoid,name='L2') # hccho/L2/kernel, hccho/L2/bias 2개가 있으므로, custom_getter가 2번 
     
     tf.add_to_collection('hccho_collection', [L1,L2])
 
