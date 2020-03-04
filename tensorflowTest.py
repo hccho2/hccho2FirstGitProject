@@ -1737,9 +1737,9 @@ def TF_Variables_Update():
 ###############################################
 x = tf.placeholder(tf.int32)
 y = tf.placeholder(tf.int32)
-assert_op = tf.assert_equal(x,y,data=[x,y])
+assert_op = tf.assert_equal(x,y,data=[x,y])   # data는 assert_equal이 false일 때, 메시지로 출력할 값
 with tf.control_dependencies([assert_op]):
-    c = x+y
+    c = x+y  # 연산을 하기 전에 control_dependencies를 먼저 연산한다.
 
 with tf.Session() as sess:
     print(sess.run(c,feed_dict={x:3,y:4}))
