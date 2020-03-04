@@ -1745,7 +1745,7 @@ with tf.Session() as sess:
     print(sess.run(c,feed_dict={x:3,y:4}))
 
 ###############################################
-
+#http://ruishu.io/2017/11/22/ema/
 
 ema = tf.train.ExponentialMovingAverage(decay=0.9)
 
