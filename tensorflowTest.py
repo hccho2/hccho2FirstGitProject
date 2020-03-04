@@ -1745,6 +1745,46 @@ with tf.Session() as sess:
     print(sess.run(c,feed_dict={x:3,y:4}))
 
 ###############################################
+
+
+ema = tf.train.ExponentialMovingAverage(decay=0.9)
+
+
+data =np.random.randn(2,3)
+target = np.random.randn(2,1)
+
+s = tf.placeholder(tf.float32, [None, 3], 's')
+t = tf.placeholder(tf.float32, [None, 1], 't')
+with tf.variable_scope('Actor'):
+    net = tf.layers.dense(s, 30, activation=tf.nn.relu, name='l1')
+    a = tf.layers.dense(net, 1, activation=tf.nn.tanh, name='a')
+
+loss = tf.losses.mean_squared_error(a,target)
+train_op = tf.train.AdamOptimizer(0.001).minimize(loss)
+
+with tf.control_dependencies([train_op]):
+    # shadow variables을 생성한다. sess.run(x1) 할 때, shadow variable이 update된다.
+    x1 = ema.apply(tf.trainable_variables())  
+x2 = ema.average(tf.trainable_variables()[0])  # ema.aveage로 shaow varialble에 접근할 수 있다.
+
+sess= tf.Session()
+sess.run(tf.global_variables_initializer())
+
+print(sess.run(tf.global_variables()[:4]))
+print('--'*10)
+print(sess.run(tf.global_variables()[-4:]))
+sess.run(x1, feed_dict={s: data, t: target})
+print('=='*10)
+print(sess.run(tf.global_variables()[:4]))
+print('--'*10)
+print(sess.run(tf.global_variables()[-4:]))
+print('**'*10)
+print(sess.run(x2))
+
+
+
+
+###############################################
 # array의 특정 index 추출. gather, gather_nd
 x = tf.placeholder(tf.float32,shape=[3,3])
 y = tf.placeholder(tf.int32,shape=[None,2])
