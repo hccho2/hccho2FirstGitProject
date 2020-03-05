@@ -65,3 +65,28 @@ print('trainable_variables: ', tf.trainable_variables())
 print('global_variables: ', tf.global_variables())
 print('-'*10)
 print('tf.hccho_collection', tf.get_collection('hccho_collection') )
+
+
+############################################################################################
+############################################################################################
+############################################################################################
+
+def custom_getter(getter, name, *args, **kwargs):
+    g_0 = getter("%s/0" % name, *args, **kwargs)
+    g_1 = getter("%s/1" % name, *args, **kwargs)
+    with tf.name_scope("custom_getter"):
+        return g_0 + g_1  # or g_0 * const / ||g_0|| or anything you want
+
+
+
+with tf.variable_scope("scope", custom_getter=custom_getter):
+    v = tf.get_variable("v", [1, 2, 3])   # 내부적으로 2개의 variable이 생성된다.
+
+
+
+sess = tf.Session()
+
+sess.run(tf.global_variables_initializer())
+
+sess.run(v)
+tf.trainable_variables()
