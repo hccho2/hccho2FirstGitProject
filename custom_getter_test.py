@@ -90,3 +90,78 @@ sess.run(tf.global_variables_initializer())
 
 sess.run(v)
 tf.trainable_variables()
+
+
+############################################################################################
+############################################################################################
+############################################################################################
+
+
+ema = tf.train.ExponentialMovingAverage(decay=0.9)
+
+def ema_getter(getter, name, *args, **kwargs):
+    return ema.average(getter(name, *args, **kwargs))  # shadow variable에 접근
+
+def build_net(s,reuse=None, custom_getter=None):
+    trainable = True if reuse is None else False
+    with tf.variable_scope('MyNet', reuse=reuse, custom_getter=custom_getter):
+        out = tf.layers.dense(s,units=1,trainable=trainable)
+        return out
+    
+x1 = tf.placeholder(tf.float32,shape=[None,2])
+target = tf.placeholder(tf.float32,shape=[None,1])
+y1 = build_net(x1)
+a_params = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='MyNet')
+target_update = [ema.apply(a_params)]  # trainable weight로 부터 shadow weight를 만든다.
+
+
+x2 = tf.placeholder(tf.float32,shape=[None,2])
+# network의 trainable weight에 대한 exponential moving average를 weight로 가지는 network을 만든다.
+# weight 자체는 trainable하지 않다.
+y2 = build_net(x2, reuse=True, custom_getter=ema_getter)
+
+
+loss = tf.losses.mean_squared_error(y1,target)
+with tf.control_dependencies(target_update):
+    train_op = tf.train.AdamOptimizer(0.01).minimize(loss)  # train_op가 계산되기 전에 target_update가 먼저 계산된다.
+
+sess = tf.Session()
+sess.run(tf.global_variables_initializer())
+
+
+shadow_variables= [ema.average(tf.trainable_variables()[0]),ema.average(tf.trainable_variables()[1])]
+shadow_variables = [ema.average(a_params[0]),ema.average(a_params[1])]
+
+print('Before:')
+print(sess.run(tf.trainable_variables()))
+
+
+
+data_x = np.random.randn(2,2)
+data_y = np.array([[1.0],[1.5]])
+
+for i in range(100):
+    _,l_= sess.run([train_op,loss],feed_dict={x1: data_x, target:data_y })
+    if i%100:
+        print(i,l_)
+
+print('After:')
+print(sess.run(tf.global_variables()))
+print('=='*10)
+print('trainable variables:')
+A = sess.run(tf.trainable_variables())
+print(A)
+print('-'*10)
+print('shadow variables:')
+B = sess.run(shadow_variables)
+print(B)
+
+print('===='*10)
+print('two network results')
+print(sess.run([y1,y2],feed_dict={x1: data_x, x2:data_x }))
+print('===='*10)
+print('check')
+print(data_x.dot(A[0])+A[1])   # y1과 동일
+print(data_x.dot(B[0])+B[1])   # y2와 동일
+
+
