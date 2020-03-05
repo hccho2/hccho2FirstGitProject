@@ -95,7 +95,8 @@ tf.trainable_variables()
 ############################################################################################
 ############################################################################################
 ############################################################################################
-
+# RL에서 main, target network이 있을 때, soft update를 exponential weighted average로 할 때
+# explicit한 update를 하지 않고, tf.train.ExponentialMovingAverage를 활용.
 
 ema = tf.train.ExponentialMovingAverage(decay=0.9)
 
