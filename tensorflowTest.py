@@ -1227,9 +1227,9 @@ optimize = optimizer.apply_gradients(zip(clipped_gradients, variables),global_st
 또는 
 
 optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.001)
-gradients_variables = optimizer.compute_gradients(loss)) 
+gradients_variables = optimizer.compute_gradients(loss)
 
-optimize = optimizer.apply_gradients(gradients_variables),global_step=global_step)
+optimize = optimizer.apply_gradients(gradients_variables,global_step=global_step)
 
 
 
