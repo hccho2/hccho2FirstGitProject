@@ -1,14 +1,16 @@
 # coding: utf-8
 '''
 https://pytorch.org/tutorials/
-
+----
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model.load_state_dict(torch.load('xxx.pth', map_location = device))
-
-
+-----
+network weights copy
+net1.load_state_dict(net2.state_dict())
+-----
 PyTorch에서는 모델을 저장할 때 .pt 또는 .pth 확장자를 사용하는 것이 일반적인 규칙입니다.  ---> pt, pth는 차이가 나지는 않고, 선택의 문제임.
 
-
+-----
 
 Attention Mask
 http://juditacs.github.io/2018/12/27/masked-attention.html
@@ -434,8 +436,8 @@ def MNIST3():
     print(pred_[:15],'\n', Y[:15])
     print(len(list(net.parameters())))
     for a in net.named_parameters():
-        print(a[0], a[1].shape)
-    
+        print(a[0], a[1].shape)  # a[1].data (Tensor)  --> a[1].data.numpy() --> (numpy array)
+    print('=='*10)
     for idx, m in enumerate(net.named_modules()):
         print(idx, '->', m)
     
@@ -568,6 +570,7 @@ def MNIST_conv():
 
 
 def init_test():
+    # weight initialization from numpy array
     vocab_size=6
     embedding_dim = 8
     x_data = np.array([[0, 3, 1, 4, 3, 2],[0, 3, 4, 2, 3, 1],[0, 1, 3, 2, 2, 1],[2, 2, 2, 2, 2, 2]], dtype=np.int32)
@@ -797,7 +800,7 @@ def bidirectional_test():
     input = torch.from_numpy(np.random.randn(0, vocab_size, size=(batch_size, T,embedding_dim)).astype(np.float32))
     rnn = nn.RNN(input_size=embedding_dim, hidden_size=hidden_size, batch_first=True,bidirectional=True)
     
-    out,h = rnn(input) # out에는 forward, backward가 concat되어 있다. h: (2,batch_size,hidden_dim)
+    out,h = rnn(input) # out에는 forward, backward가 concat되어 있다.
     
     print(out.shape,h.shape) # out.shape = (batch_size,T,2*hidden_dim), 마지막 앞의 hidden_dim개는 forward, 뒤의 hidden_dim개는 backward
     '''
@@ -935,12 +938,13 @@ if __name__ == '__main__':
     #MultivariateRegression3()
     #MNIST()
     #MNIST2()
+    MNIST3()
     #MNIST4()
     #conv_test()
     #MNIST_conv()
     
     #init_test()
-    RNN_test()
+    #RNN_test()
     #PackedSeq_test()
     
     #bidirectional_test()
