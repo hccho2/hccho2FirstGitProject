@@ -3,8 +3,15 @@
 https://pytorch.org/tutorials/
 ----
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+
+-----
+# restore
 model.load_state_dict(torch.load('xxx.pth', map_location = device))
 -----
+# save
+torch.save(model.state_dict(), os.path.join(model_dir, 'epoch-{}.pth'.format(epoch)))
+----
 network weights copy
 net1.load_state_dict(net2.state_dict())
 -----
@@ -604,8 +611,53 @@ def init_test():
     
     print(y.shape,h.shape)
     
+
+def init_test2():
     
     
+    net = nn.Linear(in_features=3,out_features=1,bias=True)
+    print(net.state_dict())
+    
+
+
+    #torch.nn.init.xavier_uniform(net.weight)
+    #torch.nn.init.xavier_normal_(net.weight)
+    torch.nn.init.normal_(net.weight, mean=0.0, std=1.0)
+    torch.nn.init.zeros_(net.bias)
+    
+    
+    print(net.state_dict())
+    
+    
+    print('Done')
+    
+    
+def init_test3():  
+    # weight initialization
+    class MyNet(nn.Module):
+        def __init__(self):
+            super().__init__()
+            #self.net = nn.Linear(in_features=3,out_features=1,bias=True)
+            
+            self.net = nn.Sequential(nn.Linear(2,3),nn.ReLU(),nn.Linear(3,2))
+            
+        def forward(self,x):
+            return self.net(x)
+    
+    def weights_init(m):
+        if type(m) == nn.Linear:
+            torch.nn.init.xavier_normal_(m.weight)
+            torch.nn.init.zeros_(m.bias)  # m.bias.data.fill_(0.)  
+        elif isinstance(m, nn.Conv2d):
+            torch.nn.init.xavier_uniform_(m.weight)
+            torch.nn.init.zeros_(m.bias) 
+    model = MyNet()
+    print(model.state_dict())
+    
+    
+    
+    model.apply(weights_init)  # apply는 nn.Module로 부터 상속.
+    print(model.state_dict())
     
     
     
@@ -938,12 +990,14 @@ if __name__ == '__main__':
     #MultivariateRegression3()
     #MNIST()
     #MNIST2()
-    MNIST3()
+    #MNIST3()
     #MNIST4()
     #conv_test()
     #MNIST_conv()
     
     #init_test()
+    #init_test2()
+    init_test3()
     #RNN_test()
     #PackedSeq_test()
     
