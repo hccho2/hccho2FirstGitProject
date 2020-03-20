@@ -913,6 +913,14 @@ chars, _ = zip(*y) # alphabet 만
 vocab = { ch:i for i,ch in enumerate(chars) } # alphabet에 숫자에 대응 부여
 tensor = np.array(list(map(vocab.get, data))) # data를 숫자로 변환
 =====================================================================================
+# natural sorting
+from natsort import natsorted
+a = ['./saved_model\\model-1000.pth', './saved_model\\model-2000.pth', './saved_model\\model-500.pth']
+
+natsorted(a) # ['./saved_model\\model-500.pth', './saved_model\\model-1000.pth', './saved_model\\model-2000.pth']
+
+
+=========================================
 # dict 정렬
 vocab = {'a': 3,'b':7, 'c': 1}
 X =sorted(vocab, key=vocab.get, reverse=True)  #내림차순 list
