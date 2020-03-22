@@ -74,6 +74,26 @@ def test1():
     x = torch.ones(5, 5)
     y = x.numpy()
 
+
+def test2():
+    x = torch.Tensor(2,3)  # garbage로 초기화된 주어진 크기의 tensor를 만든다.  shape(2,3)
+    print(x,x.shape)
+
+    
+    # 방법 1
+    x.uniform_(5,7)  #5~7 사이의 uniform random값으로 최기화
+    print(x)
+
+    nn.init.normal_(x,0,1) # N(0,1)로 x를 초기화
+    print(x)
+    
+    # x.data는 할당도 가능하다.
+    print(x.data, x.numpy())  # x.item() x가 scalar인 경우에만
+
+    print('\n.data -------------')
+    x.data = torch.Tensor(1,2)
+    print(x,x.shape)
+
 def model1():
     # 참의 계수
     w_true = torch.Tensor([1, 2, 3])
@@ -276,7 +296,12 @@ def MNIST():
         if step % 50 == 0:
             print('step: {}, loss = {:4f}'.format(step,loss))    
     
-    _, pred_ = torch.max(Y_hat,1)
+    
+    
+    with torch.no_grad():
+        _, pred_ = torch.max(Y_hat,1)
+    
+    
     print(pred_[:15], Y[:15])
     print(len(list(net.parameters())))
     for a in net.parameters():
@@ -659,8 +684,22 @@ def init_test3():
     model.apply(weights_init)  # apply는 nn.Module로 부터 상속.
     print(model.state_dict())
     
+def RNN_test0(): 
+    batch_size = 2
+    input_size=3 # embedding dim
+    hidden_size = 4 # hidden size
+    num_layers = 7 # LSTM을 몇단으로 쌓을 지...
+    T= 5 # seq length
     
+    h0 = torch.randn(num_layers,batch_size,hidden_size)
+    c0 = torch.randn(num_layers,batch_size,hidden_size)
+    rnn = nn.LSTM(input_size=input_size, hidden_size=hidden_size, num_layers=num_layers,batch_first=True )
     
+    input = torch.randn(batch_size, T, input_size)
+    
+    output, (hn, cn) = rnn(input, (h0, c0))  # (batch_size,T,hidden_dim), h(num_layers,batch_size,hidden_dim), c(num_layers,batch_size,hidden_dim)
+    
+    print(output.shape, hn.shape,cn.shape)  
 def RNN_test():
 #     USE_CUDA = torch.cuda.is_available()
 #     if USE_CUDA:
@@ -689,8 +728,8 @@ def RNN_test():
 #     y_data = np.array([[1, 2, 3, 3, 4,EOS_token]],dtype=np.int32)
 
 
-    X = torch.tensor(x_data, dtype=torch.int64) #int64이어야 된다.
-    Y = torch.tensor(y_data, dtype=torch.int64)
+    X = torch.tensor(x_data, dtype=torch.int64) #int64이어야 된다.  (N,T): embedding 전
+    Y = torch.tensor(y_data, dtype=torch.int64)  # (N,T)
     
     class MyRNN(nn.Module):
         def __init__(self):
@@ -984,6 +1023,7 @@ def Attention_Mask():
       
 if __name__ == '__main__':
     #test1()
+    test2() # tensor 생성과 초기화
     #model1()
     #MultivariateRegression()
     #MultivariateRegression2()
@@ -997,7 +1037,8 @@ if __name__ == '__main__':
     
     #init_test()
     #init_test2()
-    init_test3()
+    #init_test3()
+    #RNN_test0()
     #RNN_test()
     #PackedSeq_test()
     
@@ -1010,7 +1051,6 @@ if __name__ == '__main__':
     #Attention_Mask()
 
     print('Done')
-
 
 
 
