@@ -1,5 +1,5 @@
 ## pytorch tips
-https://pytorch.org/tutorials/
+* https://pytorch.org/tutorials/
 * device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 * restore
 ```
