@@ -97,6 +97,7 @@ tf.trainable_variables()
 ############################################################################################
 # RL에서 main, target network이 있을 때, soft update를 exponential weighted average로 할 때
 # explicit한 update를 하지 않고, tf.train.ExponentialMovingAverage를 활용.
+# 하나의 network과 동일한 구조지만, shadow variable을 weight로 가지는 network을 만든다.
 
 ema = tf.train.ExponentialMovingAverage(decay=0.9)
 
@@ -112,14 +113,20 @@ def build_net(s,reuse=None, custom_getter=None):
 x1 = tf.placeholder(tf.float32,shape=[None,2])
 target = tf.placeholder(tf.float32,shape=[None,1])
 y1 = build_net(x1)
-a_params = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='MyNet')
-target_update = [ema.apply(a_params)]  # trainable weight로 부터 shadow weight를 만든다.
+a_params = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='MyNet')  # trainable_variables() 2개
+target_update = [ema.apply(a_params)]  # trainable weight로 부터 shadow weight를 만든다. trainable은 아니지만, 2개 더 만들어 진다.
+
+# shadow variable 확인
+# ema.average(orginal_variable) ---> 해당 shadow variable
+shadow_variables= [ema.average(tf.trainable_variables()[0]),ema.average(tf.trainable_variables()[1])]
+shadow_variables = [ema.average(a_params[0]),ema.average(a_params[1])]
+print('shadow variables:', shadow_variables)
 
 
-x2 = tf.placeholder(tf.float32,shape=[None,2])
+
 # network의 trainable weight에 대한 exponential moving average를 weight로 가지는 network을 만든다.
 # weight 자체는 trainable하지 않다.
-y2 = build_net(x2, reuse=True, custom_getter=ema_getter)
+y2 = build_net(x1, reuse=True, custom_getter=ema_getter)  # target_update에서 만들어진, non trainable_variable 2개로 newtwork이 만들어진다.
 
 
 loss = tf.losses.mean_squared_error(y1,target)
@@ -130,8 +137,7 @@ sess = tf.Session()
 sess.run(tf.global_variables_initializer())
 
 
-shadow_variables= [ema.average(tf.trainable_variables()[0]),ema.average(tf.trainable_variables()[1])]
-shadow_variables = [ema.average(a_params[0]),ema.average(a_params[1])]
+
 
 print('Before:')
 print(sess.run(tf.trainable_variables()))
@@ -159,7 +165,7 @@ print(B)
 
 print('===='*10)
 print('two network results')
-print(sess.run([y1,y2],feed_dict={x1: data_x, x2:data_x }))
+print(sess.run([y1,y2],feed_dict={x1: data_x }))
 print('===='*10)
 print('check')
 print(data_x.dot(A[0])+A[1])   # y1과 동일
