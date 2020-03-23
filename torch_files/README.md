@@ -18,6 +18,13 @@ net1.load_state_dict(net2.state_dict())
 torch.nn.utils.clip_grad_norm_(model.parameters(), clip_value)
 torch.nn.utils.clip_grad_value_(parameters, clip_value)
 ```
+* learning rate 변경
+```
+def adjust_learning_rate(optimizer, lr):
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
+```
+
 
 * Attention Mask: http://juditacs.github.io/2018/12/27/masked-attention.html
 
