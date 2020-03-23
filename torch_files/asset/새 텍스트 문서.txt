@@ -2,7 +2,7 @@ https://lilianweng.github.io/lil-log/2017/08/20/from-GAN-to-WGAN.html
 
 
 
-attention ±¸ÇöÇÑ notebook  ==> dynetÀÌ¶ó´Â °É·Î ÇØ¼­ ÂÍ....
+attention êµ¬í˜„í•œ notebook  ==> dynetì´ë¼ëŠ” ê±¸ë¡œ í•´ì„œ ì«Œ....
 https://talbaumel.github.io/blog/attention/
 
 
