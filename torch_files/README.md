@@ -1,15 +1,12 @@
 ## pytorch tips
 * https://pytorch.org/tutorials/
 * device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-* restore
-```
-model.load_state_dict(torch.load('xxx.pth', map_location = device))
-```
-* save
+*  save & restore
 ```
 torch.save(model.state_dict(), os.path.join(model_dir, 'epoch-{}.pth'.format(epoch)))
-```
 
+model.load_state_dict(torch.load('xxx.pth', map_location = device))
+```
 * network weights copy
 ```
 net1.load_state_dict(net2.state_dict())
