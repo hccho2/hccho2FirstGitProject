@@ -1,0 +1,23 @@
+https://lilianweng.github.io/lil-log/2017/08/20/from-GAN-to-WGAN.html
+
+
+
+attention 구현한 notebook  ==> dynet이라는 걸로 해서 쫌....
+https://talbaumel.github.io/blog/attention/
+
+
+
+
+
+
+https://github.com/TanYufei/bahdanau-attention-tf-impl/blob/master/seq2seq-with-bahdanau-attention.ipynb
+
+
+
+
+SSD  issue
+https://github.com/balancap/SSD-Tensorflow/issues/64
+
+
+hard negative mining ---> stop_gradient
+https://github.com/HiKapok/SSD.TensorFlow/blob/master/train_ssd.py
