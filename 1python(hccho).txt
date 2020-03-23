@@ -631,7 +631,10 @@ parser.add_argument("--max_epochs", type=int, default=100, help="number of train
 args=parser.parse_args()
 print(args)
 print(vars(args))  # 내장함수 vars를 이용하여 dict형으로 변환
-
+==========================================================
+아래 2가지 모두 가능.
+>python xxx.py --batch_size=32
+>python xxx.py --batch_size 32
 
 =====================================================================================
 parser = argparse.ArgumentParser()
