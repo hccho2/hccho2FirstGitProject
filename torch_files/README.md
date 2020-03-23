@@ -1,3 +1,32 @@
+## pytorch tips
+https://pytorch.org/tutorials/
+* device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+* restore
+```
+model.load_state_dict(torch.load('xxx.pth', map_location = device))
+```
+* save
+```
+torch.save(model.state_dict(), os.path.join(model_dir, 'epoch-{}.pth'.format(epoch)))
+```
+
+* network weights copy
+```
+net1.load_state_dict(net2.state_dict())
+```
+* PyTorch에서는 모델을 저장할 때 .pt 또는 .pth 확장자를 사용하는 것이 일반적인 규칙입니다.  ---> pt, pth는 차이가 나지는 않고, 선택의 문제임.
+
+* gradient cliping: https://pytorch.org/docs/stable/nn.html#clip-grad-norm
+```
+torch.nn.utils.clip_grad_norm_(model.parameters(), clip_value)
+torch.nn.utils.clip_grad_value_(parameters, clip_value)
+```
+
+* Attention Mask: http://juditacs.github.io/2018/12/27/masked-attention.html
+
+
+
+
 ## pytorch image load
 ```
 import torchvision.models as models
