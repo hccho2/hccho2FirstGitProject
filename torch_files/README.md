@@ -24,7 +24,8 @@ def adjust_learning_rate(optimizer, lr):
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
 ```
-
+* torch.gather
+<p align="center"><img src="asset/pytorch_gather.png" />  </p>
 
 * Attention Mask: http://juditacs.github.io/2018/12/27/masked-attention.html
 
