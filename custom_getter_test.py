@@ -131,6 +131,7 @@ y2 = build_net(x1, reuse=True, custom_getter=ema_getter)  # target_update에서 
 
 loss = tf.losses.mean_squared_error(y1,target)
 with tf.control_dependencies(target_update):
+    # 여기서 만들어지는 op는 control_dependencies(xxx)에 있는 op가 먼저 계산된 후, 연산된다.
     train_op = tf.train.AdamOptimizer(0.01).minimize(loss)  # train_op가 계산되기 전에 target_update가 먼저 계산된다.
 
 sess = tf.Session()
