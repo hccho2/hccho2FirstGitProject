@@ -11,7 +11,7 @@ model.load_state_dict(torch.load('xxx.pth', map_location = device))
 ```
 net1.load_state_dict(net2.state_dict())
 ```
-* PyTorch에서는 모델을 저장할 때 .pt 또는 .pth 확장자를 사용하는 것이 일반적인 규칙입니다.  ---> pt, pth는 차이가 나지는 않고, 선택의 문제임.
+* PyTorch에서는 모델을 저장할 때 .pt 또는 .pth 확장자를 사용하는 것이 일반적인 규칙입니다.  ---> pt, pth는 차이 없고, 선택의 문제임.
 
 * gradient cliping: https://pytorch.org/docs/stable/nn.html#clip-grad-norm
 ```
