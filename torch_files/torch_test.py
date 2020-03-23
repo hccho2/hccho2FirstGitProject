@@ -264,7 +264,10 @@ def MNIST():
     # shuffle되어 있지 않다.
     digits = load_digits()     # dict_keys(['data', 'target', 'target_names', 'images', 'DESCR']), (1797, 64), (1797,), array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]),(1797, 8, 8)
 
-    shffule = np.random.choice(len(digits.data),len(digits.data))
+    #shffule = np.random.choice(len(digits.data),len(digits.data))
+    shffle = np.arange(len(digits.data))
+    np.random.shuffle(shffle)
+    
     X = digits.data[shffule]
     Y = digits.target[shffule]
     
