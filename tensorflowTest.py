@@ -2296,7 +2296,14 @@ sess = tf.Session()
 
 sess.run(z)   # np.mean(np.square(x-y)), 모든 원소의 제급 평균(axis 상관없이)
 ###############################################	
-	
+x = np.arange(30).reshape(2,3,5).astype(np.float32)
+
+X = tf.convert_to_tensor(x)
+Y = tf.reshape(X,(-1,5))
+
+
+a = tf.nn.moments(X,axes=[0,1])  # 지정된 axes가 없어진다.
+b = tf.nn.moments(Y,axes=[0])  # a,b 결과는 동일
 ###############################################	
 	
 ###############################################	
