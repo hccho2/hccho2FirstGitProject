@@ -8,20 +8,56 @@ from matplotlib import pyplot as plt
 from tensorflow.python.layers.core import Dense
 tf.reset_default_graph()
 
-def f(a,b):
-    return a*a+3*b
+def test1():
+    def f(a,b):
+        return a*a+3*b
 
-x = tf.Variable(4.0,dtype=tf.double)
-y = tf.placeholder(tf.double,None)
-L = tf.square(x - y*y-3*x)
-#L2 = tf.square(x-tf.py_func(f,[y,x],Tout=tf.double))
-L2 = tf.square(x-tf.py_func(f,[y,x],Tout=tf.double))  #py_func으로 들어간 부분은 constant 취급된다.
+    x = tf.Variable(4.0,dtype=tf.double)
+    y = tf.placeholder(tf.double,None)
+    L = tf.square(x - y*y-3*x)
+    #L2 = tf.square(x-tf.py_func(f,[y,x],Tout=tf.double))
+    L2 = tf.square(x-tf.py_func(f,[y,x],Tout=tf.double))  #py_func으로 들어간 부분은 constant 취급된다.
 
 
-g = tf.gradients(L,x)
-g2 = tf.gradients(L2,x)
-sess = tf.Session()
-sess.run(tf.global_variables_initializer())
-print(sess.run([L,L2],feed_dict={y:np.array(2.0).astype(np.double)}))  # (4-2*2-3*4)^2 = (-12)^2 = 144
-print(sess.run([g,g2],feed_dict={y:np.array(2.0).astype(np.double)}))
-print(sess.run([g,g2],feed_dict={y:np.array(2.0).astype(np.double)}))
+    g = tf.gradients(L,x)
+    g2 = tf.gradients(L2,x)
+    sess = tf.Session()
+    sess.run(tf.global_variables_initializer())
+    print(sess.run([L,L2],feed_dict={y:np.array(2.0).astype(np.double)}))  # (4-2*2-3*4)^2 = (-12)^2 = 144
+    print(sess.run([g,g2],feed_dict={y:np.array(2.0).astype(np.double)}))
+    print(sess.run([g,g2],feed_dict={y:np.array(2.0).astype(np.double)}))
+
+    
+    
+def test2():
+    x_train = [1,2,3]
+    y_train = [5,4,3]
+
+    W = tf.Variable(tf.random_normal([1]),name='Weight')
+    b = tf.Variable(tf.random_normal([1]),name='bias')
+
+    y1 = x_train * W + b
+    y2 = x_train * W + b
+
+    hypothesis = 2*y1 + y2
+
+    cost = tf.reduce_mean(tf.square(hypothesis - y_train))
+
+    optimizer = tf.train.GradientDescentOptimizer(learning_rate = 0.01)
+    train = optimizer.minimize(cost)
+
+
+    grad = tf.gradients(cost,[W,b])
+    grad1 = tf.gradients(cost,[y1,y2])  # ---> shape: (2,3) = (변수 갯수, batch_size)
+    grad2 = tf.gradients([y1,y2],[W,b],grad1)  # grad와 같은 값.
+
+
+    xxxx = tf.gradients([y1,y2],[W,b])
+    sess = tf.Session()
+    sess.run(tf.global_variables_initializer())
+
+    for i in range(4000):
+        sess.run(train)
+
+        if i%100 ==0:
+            print(i,sess.run(cost), sess.run(W), sess.run(b))
