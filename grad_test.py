@@ -22,6 +22,6 @@ g = tf.gradients(L,x)
 g2 = tf.gradients(L2,x)
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
-print(sess.run([L,L2],feed_dict={y:np.array(2.0).astype(np.double)}))
+print(sess.run([L,L2],feed_dict={y:np.array(2.0).astype(np.double)}))  # (4-2*2-3*4)^2 = (-12)^2 = 144
 print(sess.run([g,g2],feed_dict={y:np.array(2.0).astype(np.double)}))
 print(sess.run([g,g2],feed_dict={y:np.array(2.0).astype(np.double)}))
