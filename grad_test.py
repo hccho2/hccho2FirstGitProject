@@ -27,43 +27,7 @@ def test1():
     print(sess.run([g,g2],feed_dict={y:np.array(2.0).astype(np.double)}))
     print(sess.run([g,g2],feed_dict={y:np.array(2.0).astype(np.double)}))
 
-    
-    
-def test2():
-    x_train = [1,2,3]
-    y_train = [5,4,3]
-
-    W = tf.Variable(tf.random_normal([1]),name='Weight')
-    b = tf.Variable(tf.random_normal([1]),name='bias')
-
-    y1 = x_train * W + b
-    y2 = x_train * W + b
-
-    hypothesis = 2*y1 + y2
-
-    cost = tf.reduce_mean(tf.square(hypothesis - y_train))
-
-    optimizer = tf.train.GradientDescentOptimizer(learning_rate = 0.01)
-    train = optimizer.minimize(cost)
-
-
-    grad = tf.gradients(cost,[W,b])
-    grad1 = tf.gradients(cost,[y1,y2])  # ---> shape: (2,3) = (변수 갯수, batch_size)
-    grad2 = tf.gradients([y1,y2],[W,b],grad1)  # grad와 같은 값.
-
-
-    xxxx = tf.gradients([y1,y2],[W,b])
-    sess = tf.Session()
-    sess.run(tf.global_variables_initializer())
-
-    for i in range(4000):
-        sess.run(train)
-
-        if i%100 ==0:
-            print(i,sess.run(cost), sess.run(W), sess.run(b))
-
-            
-def test3():
+def test2():  # 선형. 행렬곱(중간변수 1개)
     batch_size = 2
     x_train = np.array([[1,2,3],[1,2,3]]).astype(np.float32)
     y_train = np.array([[5],[6]]).astype(np.float32)
@@ -96,3 +60,48 @@ def test3():
         if i%100 ==0:
             print(i,sess.run(cost), sess.run(W))
     
+    
+def test3():  # 중간 변수가 2개(y1,y2)
+    x_train = np.array([1,2,3]).reshape(3,-1).astype(np.float32)
+    y_train = np.array([5,4,3]).reshape(3,-1).astype(np.float32)
+
+    W = tf.Variable(tf.random_normal([1,1]),name='Weight')
+    b = tf.Variable(tf.random_normal([1]),name='bias')
+
+    y1 = tf.matmul(x_train,W) + b
+    y2 = tf.matmul(x_train,W) + b
+
+    hypothesis = 6*y1 + y2
+
+    cost = tf.reduce_mean(tf.square(hypothesis - y_train))
+
+    optimizer = tf.train.GradientDescentOptimizer(learning_rate = 0.001)
+    train = optimizer.minimize(cost)
+
+
+    grad = tf.gradients(cost,[W,b])
+    grad1 = tf.gradients(cost,[y1,y2])  # ---> y1,y2 두개이므로, 길이 2짜리 list가 생성. [y1 shape, y2 shape]. y1 shape은 (N,1)
+    grad2 = tf.gradients([y1,y2],[W,b],grad1)  # grad와 같은 값.
+
+    manual_grad = tf.matmul(x_train.T, grad1)
+
+    sess = tf.Session()
+    sess.run(tf.global_variables_initializer())
+
+    for i in range(400):
+        sess.run(train)
+
+        if i%100 ==0:
+            print(i,sess.run(cost), sess.run(W), sess.run(b))
+
+
+    print('-'*10)
+    print('grad:', sess.run(grad))
+    print('='*10)
+    print('grad2:', sess.run(grad2))
+
+    print('manual_grad for W:', np.sum(sess.run(manual_grad)))
+    print('manual_grad for b:', np.sum(sess.run(grad1)))
+
+            
+
