@@ -61,3 +61,38 @@ def test2():
 
         if i%100 ==0:
             print(i,sess.run(cost), sess.run(W), sess.run(b))
+
+            
+def test3():
+    batch_size = 2
+    x_train = np.array([[1,2,3],[1,2,3]]).astype(np.float32)
+    y_train = np.array([[5],[6]]).astype(np.float32)
+
+    W = tf.Variable(tf.random_normal([3,4]),name='Weight')
+
+
+    y = tf.matmul(x_train , W)
+    hypothesis = tf.reduce_sum(y,axis=-1)
+
+    cost = tf.reduce_mean(tf.square(hypothesis - y_train))
+
+    optimizer = tf.train.GradientDescentOptimizer(learning_rate = 0.01)
+    train = optimizer.minimize(cost)
+
+
+    grad = tf.gradients(cost,[W])
+
+
+    grad1 = tf.gradients(cost,[y])  # ---> list: 길이는 변수 갯수. [w에 관한 미분, b에 관한 미분]
+    grad2 = tf.gradients(y,[W],grad1)  # grad와 같은 값.
+
+    manual_grad = tf.matmul(x_train.T,grad1)
+    sess = tf.Session()
+    sess.run(tf.global_variables_initializer())
+
+    for i in range(2):
+        sess.run(train)
+
+        if i%100 ==0:
+            print(i,sess.run(cost), sess.run(W))
+    
