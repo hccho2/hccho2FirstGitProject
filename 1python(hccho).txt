@@ -360,21 +360,6 @@ datetime.date(2017,7,17)+datetime.timedelta(days=4)
 datetime.datetime.now().strftime("%Y%m%d-%H-%M-%S")  # ---> '20191112-10-44-55'
 
 =====================================================================================
-# list, numpy 모두 그냥 할당하면 같은 곳 참조, copy를 해야
-
-a = np.array([2,3,4])
-b=a  # b=a.copy()
-b[0] = 10
-
-print(a,b)  #[10  3  4] [10  3  4]
-
-
-a = [2,3,4]
-b=a   # b=a.copy()
-b[0] = 10
-
-print(a,b)  #[10  3  4] [10  3  4]
-=====================================================================================
 from IPython.display import display, Math, Latex
 display(Math(r'F(k) = \int_{-\infty}^{\infty} f(x) e^{2\pi i k} dx'))
 =====================================================================================
@@ -1388,6 +1373,23 @@ def softmax(x):
     x = x - np.max(x,axis=-1,keepdims=True) 
     return np.exp(x) / np.sum(np.exp(x),axis=-1,keepdims=True)
 =====================================================================================
+
+# list, numpy 모두 그냥 할당하면 같은 곳 참조, copy를 해야
+
+a = np.array([2,3,4])
+b=a  # b=a.copy()
+b[0] = 10
+
+print(a,b)  #[10  3  4] [10  3  4]
+
+
+a = [2,3,4]
+b=a   # b=a.copy()
+b[0] = 10
+
+print(a,b)  #[10  3  4] [10  3  4]
+
+=====================================================================================
 #deep copy
 def f(params):
     X = params[:] # 얕은 복사
@@ -1404,7 +1406,7 @@ def copy_test():
     
     deep_copy=False
     if deep_copy:
-        c[...] = a  # deep copy(c가 미리 선언되어 있어야 한다.  c = np.zeros_like(a)  )  
+        c[...] = a  # deep copy(c가 미리 선언되어 있어야 한다.  c = np.zeros_like(a)  )  <=========== 기억해 둘 것.
     else: c = a[:]   # c =a 와 동일
     b[1] = [3.6,5.6]  # a 값이 바뀐다. c는 별개 
     c[1] = [3.9,5.9]  # a,b와는 별개
@@ -1426,6 +1428,33 @@ def copy_test2():
 copy_test()
 print('='*10)
 copy_test2()
+=====================================================================================
+a = np.zeros(3)
+
+a[1] = 5
+
+b = np.zeros(3)
+c = np.zeros(3)
+d = np.zeros(3)
+e = np.zeros(4)
+
+
+b[:]=a  # value만 복사    <----------------------------기억해 둘 것.
+c = a.copy()
+
+
+d = a[:]  # referenc 복사
+e = a # refernce 복사
+
+a[0] = 7
+a[1] = -7
+
+print(a)  # array([ 7., -7.,  0.]
+print(b)  # array([0., 5., 0.])
+print(c)  # array([0., 5., 0.])
+print(d)  # array([ 7., -7.,  0.]
+print(e)  # array([ 7., -7.,  0.]
+
 
 =====================================================================================
 import itertools
