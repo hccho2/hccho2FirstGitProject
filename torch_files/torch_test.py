@@ -524,8 +524,9 @@ def conv_test():
 
 def MNIST_conv():
     # Convolution 모델
+    
     batch_size=128
-    num_epoch=50
+    num_epoch=100
     
     # shuffle되어 있지 않다.
     digits = load_digits()     # dict_keys(['data', 'target', 'target_names', 'images', 'DESCR']), (1797, 64), (1797,), array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]),(1797, 8, 8)
@@ -538,7 +539,7 @@ def MNIST_conv():
     
     
     ds = TensorDataset(X,Y)  # tensor가 들어가야 한다.
-    loader = DataLoader(ds, batch_size=64, shuffle=True)
+    loader = DataLoader(ds, batch_size=512, shuffle=True)
     
     class FlattenLayer(nn.Module):
         def forward(self, x):
@@ -568,7 +569,7 @@ def MNIST_conv():
      
      
      
-    net = MyConvNet()
+    net = MyConvNet().to(device)
      
     loss_fn = nn.CrossEntropyLoss()
     optimizer = optim.Adam(net.parameters())
@@ -580,7 +581,8 @@ def MNIST_conv():
     for epoch in tqdm.tqdm(range(num_epoch)):
          
         for i,(xx,yy) in enumerate(loader):
- 
+            xx = xx.to(device)
+            yy = yy.to(device)
             optimizer.zero_grad()
             Y_hat = net(xx)
             loss = loss_fn(Y_hat,yy)
@@ -591,7 +593,7 @@ def MNIST_conv():
 
 
     net.eval()  # eval mode
-    Y_hat = net(X)
+    Y_hat = net(X.to(device))
     _, pred_ = torch.max(Y_hat,1)
     print(pred_[:15],'\n', Y[:15])
     print(len(list(net.parameters())))
