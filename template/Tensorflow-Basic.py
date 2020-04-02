@@ -207,12 +207,12 @@ def LogisticRegressionTF4():
     
     
 def sin_fitting():
-    
+    # x(1 dim) --> y(1 dim) 예측
     X = np.linspace(0, 15, 301)
     Y =  np.sin(2*X - 0.1)+ np.random.normal(size=len(X), scale=0.2)
     X = X.reshape(-1,1)
     Y= Y.reshape(-1,1)
-    plt.plot(X,Y)
+    p1, =plt.plot(X,Y, label='origin')
     
     x = tf.placeholder(tf.float32, [None,1])
     y = tf.placeholder(tf.float32, [None,1])
@@ -231,7 +231,8 @@ def sin_fitting():
                 print("{}: loss = {}".format(j,loss_ ))
     
         Y_ = sess.run(L3,feed_dict={x:X})
-        plt.plot(X,Y_)
+        p2, =plt.plot(X,Y_,label='prediction')
+        plt.legend(handles=[p1,p2])
 
 def sin_fitting_rnn():
     # 결과가 좋지 않다. sine 값은 위로 올라가는 0과 아래오 내려가는 0이 섞여 있는데, 다음 값을 예측하는 것이 되지 않는다.
