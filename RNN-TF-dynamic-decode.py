@@ -102,6 +102,7 @@ def dynamic_decode_test():
         else:
             if state_tuple_mode:
                 h0 = tf.random_normal([batch_size,hidden_dim]) #h0 = tf.cast(np.random.randn(batch_size,hidden_dim),tf.float32)
+                # 첫번째 layer의 c=0, h=h0, 두번째 layer의 c=0, h=0, ....
                 initial_state=(tf.contrib.rnn.LSTMStateTuple(tf.zeros_like(h0), h0),) + (tf.contrib.rnn.LSTMStateTuple(tf.zeros_like(h0), tf.zeros_like(h0)),)*(num_layers-1)
                 
             else:
