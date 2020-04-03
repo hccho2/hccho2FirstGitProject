@@ -307,7 +307,39 @@ def sin_fitting_rnn():
     
     plt.plot(test_output)    
         
-        
+    # 출발점을 잘 설정해 보자.  ==> 이렇게 해도 안됨. 원래 예측한 sequence와 동일.
+    # 초기 입력값을 seq_length만큼 주는 것라면, 처음부터 n to 1 모델로 갔어야지....
+    seq_length = 5
+    initial_state = cell.zero_state(batch_size_test, tf.float32)
+
+    batch_size = 1
+    helper = tf.contrib.seq2seq.TrainingHelper(X, np.array([seq_length]*batch_size))
+    decoder3 = tf.contrib.seq2seq.BasicDecoder(cell=cell,helper=helper,initial_state=initial_state,output_layer=output_layer)
+    outputs, last_state, last_sequence_lengths = tf.contrib.seq2seq.dynamic_decode(decoder=decoder3,output_time_major=False,impute_finished=True,maximum_iterations=seq_length)
+
+    idx = np.random.randint(0,len(XX)-seq_length-1)
+    input_data = [YY[idx:idx+seq_length]]
+    h0 = sess.run(last_state, feed_dict={X: input_data})
+
+
+
+    helper = tf.contrib.seq2seq.InferenceHelper(
+        sample_fn=_sample_fn,
+        sample_shape=[1],
+        sample_dtype=tf.float32,
+        start_inputs=[list(YY[idx+seq_length])], # input_data의 다음 값
+        end_fn=_end_fn,
+    )
+
+    initial_state = h0
+    decoder4 = tf.contrib.seq2seq.BasicDecoder(cell=cell,helper=helper,initial_state=initial_state,output_layer=output_layer)
+    outputs, last_state, last_sequence_lengths = tf.contrib.seq2seq.dynamic_decode(decoder=decoder4,output_time_major=False,impute_finished=True,maximum_iterations=200)
+
+    test_output2 =  sess.run(outputs.rnn_output)
+    test_output2 = np.squeeze(test_output2,axis=0)
+    print(test_output.shape)
+
+    plt.plot(test_output2) 
         
 if __name__ == "__main__":
     MultivariateRegressionTF()
