@@ -236,6 +236,8 @@ def sin_fitting():
 
 def sin_fitting_rnn():
     # 결과가 좋지 않다. sine 값은 위로 올라가는 0과 아래오 내려가는 0이 섞여 있는데, 다음 값을 예측하는 것이 되지 않는다.
+    # 결과가 좋아지려면, data을 생성할 때, noise를 작게 주어야 한다. scale = 0.02 또는 0.01. 
+    # 그리고, 아래에서 출발점을 0.0으로 주면, 구분이 되지 않는다. 출발점을 1.0로 주면 sine curve가 예측된다.
     # tf.contrib.seq2seq.InferenceHelper 의 사용법
     from tensorflow.python.layers.core import Dense
     XX = np.linspace(0, 15, 301)   # data를 생성하는데만 사용
