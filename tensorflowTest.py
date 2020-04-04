@@ -2309,7 +2309,9 @@ Y = tf.reshape(X,(-1,5))
 a = tf.nn.moments(X,axes=[0,1])  # 지정된 axes가 없어진다.
 b = tf.nn.moments(Y,axes=[0])  # a,b 결과는 동일
 ###############################################	
-	
+allow_soft_placement=True   ---> 가능하면 할당해라.
+
+log_device_placement=True   ---> 무조건 할당해라. with tf.device('/gpu:0')
 ###############################################	
 	
 ###############################################	
