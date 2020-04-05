@@ -294,7 +294,7 @@ plt.title('proposal_boxes')
 
 
 ##########################################################
-# 계산 중 graph 
+# 계산 중 graph ---> spyder에서는 안됨.
 
 import matplotlib.pyplot as plt
 import time
