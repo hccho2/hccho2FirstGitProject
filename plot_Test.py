@@ -318,8 +318,8 @@ for i in range(100):
     line.set_xdata(xdata)
     line.set_ydata(ydata)
     plt.draw()
-    plt.pause(1e-17)
-    time.sleep(0.1)
+    plt.pause(1e-17) # 반드시 있어야 됨.
+    time.sleep(0.1)  # sleep은 업어도 됨
 
 
 
