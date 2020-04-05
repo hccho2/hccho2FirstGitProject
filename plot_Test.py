@@ -294,7 +294,7 @@ plt.title('proposal_boxes')
 
 
 ##########################################################
-# 계산 중 graph ---> spyder에서는 안됨.
+# 계산 중 graph ---> spyder, jupyte notebook에서는 안됨.
 
 import matplotlib.pyplot as plt
 import time
@@ -326,7 +326,7 @@ for i in range(100):
 
 
 ##########################################################
-# 계산 중 graph  2개 배치
+# 계산 중 graph  2개 배치---> spyder, jupyte notebook에서는 안됨.
 import matplotlib.pyplot as plt
 import time
 import random
@@ -374,6 +374,62 @@ for i in range(100):
 
 plt.show()   # add this if you don't want the window to disappear at the end  ---> 없으면 자동으로 닫힘.
 
+
+======================
+# 계산 중 graph  --- jupyter notebook OK. spyder에서는 안됨
+import matplotlib.pyplot as plt
+import time
+import random
+from IPython.display import clear_output
+ysample = random.sample(range(-50, 50), 100)
+ 
+xdata = []
+ydata = []
+ 
+plt.show()
+
+for i in range(100):
+    clear_output(True)
+    plt.figure(figsize=(30, 5))
+    xdata.append(i)
+    ydata.append(ysample[i])
+
+    plt.plot(xdata,ydata)
+    plt.pause(1e-17)
+    plt.show()
+    time.sleep(0.1)
+
+======================
+# 계산 중 graph 2개  --- jupyter notebook OK. spyder에서는 안됨
+import matplotlib.pyplot as plt
+import time
+import random
+import numpy as np
+from IPython.display import clear_output
+ysample = random.sample(range(-50, 50), 100)
+ 
+xdata = []
+ydata1 = []
+ydata2 = []
+ 
+plt.show()
+ 
+for i in range(100):
+    clear_output(True)
+    plt.figure(figsize=(30, 5))
+    xdata.append(i)
+    ydata1.append(ysample[i])
+    ydata2.append(ysample[-i])
+    
+    
+    plt.subplot(121)
+    plt.plot(xdata,ydata1)
+    
+    plt.subplot(122)
+    plt.plot(xdata,ydata2)    
+    plt.pause(1e-17)
+    plt.show()
+    time.sleep(0.1)
 
 ##########################################################
 """
