@@ -326,7 +326,53 @@ for i in range(100):
 
 
 ##########################################################
+# 계산 중 graph  2개 배치
+import matplotlib.pyplot as plt
+import time
+import random
+ 
+ysample = random.sample(range(-50, 50), 100)
+ 
+xdata = []
+ydata = []
+ 
+plt.show()
 
+fig = plt.figure()
+
+
+axes1 = fig.add_subplot(121)
+axes1.set_xlim(0, 100)
+axes1.set_ylim(-50, +50)
+line1, = axes1.plot(xdata, ydata, 'r-')
+axes1.set_ylabel('volts')
+axes1.set_title('a sine wave')
+axes1.set_xlabel('time (s)')
+
+axes2 = fig.add_subplot(122)
+axes2.set_xlim(0, 100)
+axes2.set_ylim(-50, +50)
+line2, = axes2.plot(xdata, ydata, 'b-')
+axes2.set_ylabel('test')
+axes2.set_title('reward')
+
+
+for i in range(100):
+    xdata.append(i)
+    ydata.append(ysample[i])
+    line1.set_xdata(xdata)
+    line1.set_ydata(ydata)
+    
+    if i %5 ==0:
+        line2.set_xdata(xdata[::5])
+        line2.set_ydata(ydata[::5])       
+    
+    plt.draw()
+    plt.pause(1e-17)
+    time.sleep(0.1)
+ 
+
+plt.show()   # add this if you don't want the window to disappear at the end  ---> 없으면 자동으로 닫힘.
 
 
 ##########################################################
