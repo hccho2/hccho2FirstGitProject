@@ -1,7 +1,7 @@
 ## pytorch cononical form
 
 ```
-train_op = optimizer = tf.train.AdamOptimizer(learning_rate=0.01).minimize(loss)   # tensorflow
+train_op = tf.train.AdamOptimizer(learning_rate=0.01).minimize(loss)   # tensorflow
 
 net = Net()
 optimizer = optim.Adam(net.parameters(), lr = 0.01)
