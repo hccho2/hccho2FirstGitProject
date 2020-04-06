@@ -1,3 +1,23 @@
+## pytorch cononical form
+
+```
+train_op = optimizer = tf.train.AdamOptimizer(learning_rate=0.01).minimize(loss)   # tensorflow
+
+net = Net()
+optimizer = optim.Adam(net.parameters(), lr = 0.01)
+loss_fn = nn.MSELoss()
+
+while True:
+    optimizer.zero_grad()
+    y = net(x)
+    loss = loss_fn(y,target)
+    loss.backward()
+    optimizer.step()
+
+```
+
+
+
 ## pytorch tips
 * https://pytorch.org/tutorials/
 * device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
