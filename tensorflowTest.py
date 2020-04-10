@@ -2313,7 +2313,11 @@ allow_soft_placement=True   ---> 가능하면 할당해라.
 
 log_device_placement=True   ---> 무조건 할당해라. with tf.device('/gpu:0')
 ###############################################	
-	
+dist =tf.distributions.Normal(loc=1.2, scale=1.2 )
+
+a =dist.sample(3)  # 원하는 sample 갯수, loc, scale의 shape의 data가 sample 갯수만큼 만들어진다.
+p = dist.prob(a)   # scale= 1.0e-35 ==> nan, inf가 나온다.
+p2 = dist.log_prob(a)
 ###############################################	
 	
 ###############################################	
