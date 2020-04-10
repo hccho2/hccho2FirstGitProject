@@ -37,6 +37,11 @@ tfcpu      C:\Anaconda\hccho-virtual\tfcpu\Scripts\python.exe
 import skimage.io as io   --- error --- pip install로는 안되고,
 pip install --upgrade scikit-image
 =====================================================================
+python package 관리자 권한 설치
+>pip install box2d-py   -----> Consider using the `--user` option or check the permissions.
+>python -m pip install --user box2d-py
+
+=====================================================================
 Eclipse에 이미 만들어져 있는 project 추가: New -> Project -> General -> Project --> 폴더 선택 & 이름 입력
 
 =============================
