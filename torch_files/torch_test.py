@@ -705,18 +705,13 @@ def RNN_test0():
     output, (hn, cn) = rnn(input, (h0, c0))  # (batch_size,T,hidden_dim), h(num_layers,batch_size,hidden_dim), c(num_layers,batch_size,hidden_dim)
     
     print(output.shape, hn.shape,cn.shape)  
-def RNN_test():
-#     USE_CUDA = torch.cuda.is_available()
-#     if USE_CUDA:
-#         DEVICE=torch.device('cuda:0') # or set to 'cpu'
-#     else:
-#         DEVICE=torch.device('cpu')
-#     print("CUDA:", USE_CUDA)
-#     print(DEVICE)
-    
-    
-    DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
+    
+def RNN_test():
+    mode = 0 #   1---> train mode, 0 ---> infer mode
+    
+    if mode==0:
+        device = torch.device('cpu')
     save_path = './saved_model/xxx.pt'
     vocab_size = 6
     SOS_token = 0
@@ -726,15 +721,15 @@ def RNN_test():
     hidden_dim =7
     num_layers = 2
     index_to_char = {SOS_token: '<S>', 1: 'h', 2: 'e', 3: 'l', 4: 'o', EOS_token: '<E>'}
-    x_data = np.array([[SOS_token, 3, 1, 4, 3, 2],[SOS_token, 3, 4, 2, 3, 1],[SOS_token, 1, 3, 2, 2, 1]], dtype=np.int32)
-    y_data = np.array([[3, 1, 4, 3, 2,EOS_token],[3, 4, 2, 3, 1,EOS_token],[1, 3, 2, 2, 1,EOS_token]],dtype=np.int32)
+#     x_data = np.array([[SOS_token, 3, 1, 4, 3, 2],[SOS_token, 3, 4, 2, 3, 1],[SOS_token, 1, 3, 2, 2, 1]], dtype=np.int32)
+#     y_data = np.array([[3, 1, 4, 3, 2,EOS_token],[3, 4, 2, 3, 1,EOS_token],[1, 3, 2, 2, 1,EOS_token]],dtype=np.int32)
 
-#     x_data = np.array([[SOS_token, 1, 2, 3, 3, 4]], dtype=np.int32)
-#     y_data = np.array([[1, 2, 3, 3, 4,EOS_token]],dtype=np.int32)
+    x_data = np.array([[SOS_token, 1, 2, 3, 3, 4]], dtype=np.int32)
+    y_data = np.array([[1, 2, 3, 3, 4,EOS_token]],dtype=np.int32)
 
 
-    X = torch.tensor(x_data, dtype=torch.int64) #int64이어야 된다.  (N,T): embedding 전
-    Y = torch.tensor(y_data, dtype=torch.int64)  # (N,T)
+    X = torch.tensor(x_data, dtype=torch.int64).to(device) #int64이어야 된다.  (N,T): embedding 전
+    Y = torch.tensor(y_data, dtype=torch.int64).to(device)  # (N,T)
     
     class MyRNN(nn.Module):
         def __init__(self):
@@ -772,11 +767,12 @@ def RNN_test():
     
     
     net = MyRNN()
-     
+    net.to(device)
     loss_fn = nn.CrossEntropyLoss()  # 2dim에 대한 loss, seq loss는 안된다.  --->된다. 아래에 loss2
     optimizer = optim.Adam(net.parameters(),lr=0.01)
      
-    mode = 1 
+
+    
     if mode == 1: 
         net.train()  # train mode
         for epoch in range(500):
@@ -790,18 +786,19 @@ def RNN_test():
             loss.backward()  # loss2.backward()
             optimizer.step()
             
-            if epoch %10 ==0:
+            if epoch %100 ==0:
                 print('epoch: {}, loss = {:.4f}'.format(epoch,loss))
 
 
     else:
-        net.load_state_dict(torch.load(save_path))
+        #net.load_state_dict(torch.load(save_path,map_location = device))
+        net.load_state_dict(torch.load(save_path))  # gpu에서 train 되었는데, map_location 지정하지 않아도 OK.
 
     net.eval()
     max_length = 20
     h=None
     input = np.array([[SOS_token]], dtype=np.int32)
-    input = torch.tensor(input, dtype=torch.int64)
+    input = torch.tensor(input, dtype=torch.int64).to(device)
      
     result = []
     with torch.no_grad():
@@ -810,9 +807,9 @@ def RNN_test():
              
             _,input = torch.max(out,2)
              
-            ch = input.numpy()[0,0]
+            ch = input.cpu().numpy()[0,0]
             if ch == EOS_token: break
-            result.append(index_to_char[input.numpy()[0,0]])
+            result.append(index_to_char[input.cpu().numpy()[0,0]])
      
      
         print(result)
@@ -841,7 +838,10 @@ def RNN_test():
     
     
     # Save. 디렉토리를 미리 만들어야 한다.
-    torch.save(net.state_dict(), save_path)
+    if mode ==1:  # 1--> train mode
+        torch.save(net.state_dict(), save_path)
+    
+    
 def PackedSeq_test():
     '''
     https://simonjisu.github.io/nlp/2018/07/05/packedsequence.html
