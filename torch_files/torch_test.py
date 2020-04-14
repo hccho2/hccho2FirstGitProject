@@ -1024,7 +1024,22 @@ def Attention_Mask():
     softmax_val = torch.nn.functional.softmax(X,1)  # score -> alignment
     print('masked softmax: ', softmax_val)
     
-
+def network_copy():
+    # network copy
+    net1 = nn.Sequential(nn.Linear(2,3),nn.ReLU(),nn.Linear(3,2))
+    net2 = nn.Sequential(nn.Linear(2,3),nn.ReLU(),nn.Linear(3,2))
+    
+    x = torch.from_numpy(np.random.randn(4,2).astype(np.float32))
+    
+    print('net1', net1(x))
+    print('net2', net2(x))
+    
+    for p1, p2 in zip(net1.parameters(), net2.parameters()):
+        p1.data.copy_(p2.data)  # net1 <--- net2
+        #p1.data.copy_(0.3*p1.data+0.7*p2.data)
+    
+    print('net1', net1(x))
+    print('net2', net2(x))
       
 if __name__ == '__main__':
     #test1()
