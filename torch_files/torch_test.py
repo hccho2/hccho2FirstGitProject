@@ -7,8 +7,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 ------
 with torch.no_grad():
     traget = ...
-forward
-loss = ...
+y = forward(x)
+loss = loss_fn(y, target)
 optimizer.zero_grad()
 loss.backward()
 optimizer.step()
@@ -17,8 +17,18 @@ optimizer.step()
 with torch.no_grad():
     traget = ...
 optimizer.zero_grad()
-forward
-loss = ...
+y = forward(x)
+loss = loss_fn(y, target)
+loss.backward()
+optimizer.step()
+
+
+또는
+
+traget = ...
+optimizer.zero_grad()
+y = forward(x)
+loss = loss_fn(y, target.detatch())
 loss.backward()
 optimizer.step()
 
