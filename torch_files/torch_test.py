@@ -5,18 +5,20 @@ https://pytorch.org/tutorials/
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 ------
-
-forwad
-loss
+with torch.no_grad():
+    traget = ...
+forward
+loss = ...
 optimizer.zero_grad()
 loss.backward()
 optimizer.step()
 
 또는
-
+with torch.no_grad():
+    traget = ...
 optimizer.zero_grad()
-forwad
-loss
+forward
+loss = ...
 loss.backward()
 optimizer.step()
 
