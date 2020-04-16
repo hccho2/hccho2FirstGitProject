@@ -4,6 +4,21 @@ https://pytorch.org/tutorials/
 ----
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+------
+
+forwad
+loss
+optimizer.zero_grad()
+loss.backward()
+optimizer.step()
+
+또는
+
+optimizer.zero_grad()
+forwad
+loss
+loss.backward()
+optimizer.step()
 
 -----
 # restore
@@ -14,6 +29,17 @@ torch.save(model.state_dict(), os.path.join(model_dir, 'epoch-{}.pth'.format(epo
 ----
 network weights copy
 net1.load_state_dict(net2.state_dict())
+-----
+optimizer = optim.Adam(net.parameters(),lr=lr) 
+loss_fn = nn.MSELoss()
+
+optimizer.zero_grad()  ----> net.parameters()에 있는 weight들의 grad 값을 0으로 만든다.
+y = net(xx) ----> forward
+loss = loss_fn(y,BB)
+loss.backward()     -----> net.parameters()에 있는 weight들의 grad를 계산한다.
+optimizer.step()   ------> net.parameters()에 있는 weight들의 값의 grad로 update한다.
+
+
 -----
 PyTorch에서는 모델을 저장할 때 .pt 또는 .pth 확장자를 사용하는 것이 일반적인 규칙입니다.  ---> pt, pth는 차이가 나지는 않고, 선택의 문제임.
 
