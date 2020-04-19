@@ -1552,7 +1552,23 @@ np.random.randint(a,b+1) ==> a<= x <=b
 
 
 =====================================================================================
+os.system('color 4')
+class bcolors:
+    HEADER = '\033[1;30;95m'
+    OKBLUE = '\033[1;31;94m'
+    OKGREEN = '\033[1;32;92m'
+    WARNING = '\033[1;33;93m'
+    FAIL = '\033[1;34;91m'
+    ENDC = '\033[1;35;0m'
+    BOLD = '\033[1;36;1m'
+    UNDERLINE = '\033[1;37;4m'
 
+
+
+color = bcolors.OKGREEN
+
+
+print ('hccho' , color + 'hi' + bcolors.ENDC, 1200.09 )
 
 
 
