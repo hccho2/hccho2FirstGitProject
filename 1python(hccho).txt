@@ -1552,7 +1552,7 @@ np.random.randint(a,b+1) ==> a<= x <=b
 
 
 =====================================================================================
-os.system('color 4')
+os.system('color 4')   # ----> 이게 있어야 한다.
 class bcolors:
     HEADER = '\033[1;30;95m'
     OKBLUE = '\033[1;31;94m'
@@ -1563,14 +1563,41 @@ class bcolors:
     BOLD = '\033[1;36;1m'
     UNDERLINE = '\033[1;37;4m'
 
-
-
 color = bcolors.OKGREEN
-
-
 print ('hccho' , color + 'hi' + bcolors.ENDC, 1200.09 )
 
 
+###########
+color2num = dict(
+    gray=30,
+    red=31,
+    green=32,
+    yellow=33,
+    blue=34,
+    magenta=35,
+    cyan=36,
+    white=37,
+    crimson=38
+)
+
+def colorize(string, color, bold=False, highlight=False):
+    """
+    Colorize a string.
+
+    This function was originally written by John Schulman.
+    """
+    attr = []
+    num = color2num[color]
+    if highlight: num += 10
+    attr.append(str(num))
+    if bold: attr.append('1')
+    return '\x1b[%sm%s\x1b[0m' % (';'.join(attr), string)
+
+print('plain',colorize(msg, 'green', bold=False))
+print('Bold', colorize(msg, 'green', bold=True))
+print('highlight', colorize(msg, 'green', highlight=True))
+print('Bold, highlight', colorize(msg, 'green', bold=True, highlight= True))
+print('123hxdf')
 
 =====================================================================================
 
