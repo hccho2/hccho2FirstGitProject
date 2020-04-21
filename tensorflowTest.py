@@ -1749,6 +1749,28 @@ with tf.Session() as sess:
     print(sess.run(c,feed_dict={x:3,y:4}))
 
 ###############################################
+x = tf.placeholder(tf.int32)
+y = tf.placeholder(tf.int32)
+z = tf.Variable(0)
+assert_op = tf.assign(z,z+1)   # data는 assert_equal이 false일 때, 메시지로 출력할 값
+with tf.control_dependencies([assert_op]):
+    c = x+y  # 연산을 하기 전에 control_dependencies를 먼저 연산한다.
+
+with tf.control_dependencies([assert_op]):
+    d = 2*x+y  # 연산을 하기 전에 control_dependencies를 먼저 연산한다.
+
+
+with tf.Session() as sess:
+    sess.run(tf.global_variables_initializer())
+    print(sess.run([c,d,z],feed_dict={x:3,y:4}))  # c,d가 각각 tf.control_dependencies([assert_op] 이다. assert_op를 중복계산하지 않는다.
+    print(sess.run([c],feed_dict={x:3,y:4}))  # z=1 --> z=2
+    print(sess.run([d],feed_dict={x:3,y:4})) # z=2 --> z=3
+    print(sess.run([z])) # z=3
+
+
+
+
+###############################################
 #http://ruishu.io/2017/11/22/ema/
 
 ema = tf.train.ExponentialMovingAverage(decay=0.9)
