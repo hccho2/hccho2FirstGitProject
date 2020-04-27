@@ -1,5 +1,8 @@
 # coding: utf-8
 '''
+>pip install torch
+>conda install pytorch torchvision cpuonly -c pytorch
+
 https://pytorch.org/tutorials/
 ----
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
