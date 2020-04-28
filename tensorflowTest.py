@@ -1771,6 +1771,7 @@ with tf.Session() as sess:
 
 
 ###############################################
+# 여기서는 shadow variable만 만들어 본다. 다음 example에서 shadow variable을 이용한 network을 만든다.
 #http://ruishu.io/2017/11/22/ema/
 
 ema = tf.train.ExponentialMovingAverage(decay=0.9)
@@ -1807,8 +1808,62 @@ print(sess.run(tf.global_variables()[-4:]))
 print('**'*10)
 print(sess.run(x2))
 
+###############################################
+###############################################
+# shadow variable을 이용하여 network 만들기
+def build(s, name,reuse=None, custom_getter=None):
+    with tf.variable_scope(name,reuse=reuse, custom_getter=custom_getter):
+        a = tf.layers.dense(s, 1, activation=None, name='a')
+    return a
+
+### step 1
+ema = tf.train.ExponentialMovingAverage(decay=0.9)
+
+data =np.random.randn(2,3)
+target = np.random.randn(2,1)
+
+s = tf.placeholder(tf.float32, [None, 3], 's')
+t = tf.placeholder(tf.float32, [None, 1], 't')
+
+a = build(s,'Actor')
+loss = tf.losses.mean_squared_error(a,target)
+train_op = tf.train.AdamOptimizer(0.001).minimize(loss)
+
+with tf.control_dependencies([train_op]):
+    # shadow variables을 생성한다. sess.run(x1) 할 때, shadow variable이 update된다.
+    x1 = ema.apply(tf.trainable_variables())  
+w = ema.average(tf.trainable_variables()[0])  # ema.aveage로 shaow varialble에 접근할 수 있다.
+b = ema.average(tf.trainable_variables()[1])
+###########
+### step 2: 이제 shadow variable을 이용한 newtwork을 마들 수 있다.
+def ema_getter(getter, name, *args, **kwargs):
+    return ema.average(getter(name, *args, **kwargs))  # shadow variable에 접근
+
+aa = build(s,'Actor', reuse=True, custom_getter=ema_getter)  # 반드시 name은 같아야 하고, reuse=True이어야 한다.
 
 
+
+# test step 1
+sess= tf.Session()
+sess.run(tf.global_variables_initializer())
+
+print(sess.run(tf.global_variables()[:2]))
+print('--'*10)
+print(sess.run(tf.global_variables()[-2:]))
+sess.run(x1, feed_dict={s: data, t: target})
+print('=='*10)
+print(sess.run(tf.global_variables()[:2]))
+print('--'*10)
+print(sess.run(tf.global_variables()[-2:]))
+print('**'*10)
+
+shadow_weight = sess.run(w)
+shadow_bias = sess.run(b)
+print(shadow_weight,shadow_bias)
+
+# test step 2
+print('직접계산: ', data.dot(shadow_weight)+shadow_bias)
+print('shadow network: ', sess.run(aa,feed_dict={s: data}) )
 
 ###############################################
 # array의 특정 index 추출. gather, gather_nd
