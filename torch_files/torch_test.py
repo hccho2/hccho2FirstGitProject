@@ -408,6 +408,10 @@ def MNIST2():
         
     for name, param in net.named_parameters():
         print (name, param.requires_grad, param.data)
+    
+    # 직접 접근할 수도 있다.
+    net.net.L1.weight.data
+    net.net.L1.weight.grad
         
         
     params_num = sum([np.prod(p.size()) for p in net.parameters()])
