@@ -104,6 +104,8 @@ def test1():
     
     # 정규 난수로 100 x 10의 Tensor를 작성
     t = torch.randn(100, 10)
+    t = torch.zeros(100,10).data.normal_(0,1)
+    t = torch.zeros_like(t).data.normal_(0,1)
     
     # Tensor의 shape은 size 메서드로 취득 가능
     print(t.size(),t.shape)  # size(), shape은 alias
