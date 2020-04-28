@@ -1839,6 +1839,7 @@ b = ema.average(tf.trainable_variables()[1])
 def ema_getter(getter, name, *args, **kwargs):
     return ema.average(getter(name, *args, **kwargs))  # shadow variable에 접근
 
+# custom_getter가 같은 이름 'Actor'를 이용해서 shadow variables를 가져온다.
 aa = build(s,'Actor', reuse=True, custom_getter=ema_getter)  # 반드시 name은 같아야 하고, reuse=True이어야 한다.
 
 
