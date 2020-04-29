@@ -34,7 +34,7 @@ def test2():  # 선형. 행렬곱(중간변수 1개)
     Z = tf.matmul(X , W)
     f = tf.reduce_sum(Z,axis=-1,keepdims=True) # keepdims가 없어도 되려면, Y의 shape이 바뀌어야 한다.
     L = tf.reduce_mean(tf.square(f - Y))
-    grad = tf.gradients(L,W)[0]
+    grad = tf.gradients(L,W)[0]   # tf.gradients는 list를 return한다.
     grad1 = tf.gradients(L,Z)[0] # ---> list: grad1이 list라서 [0]
     grad2 = tf.gradients(Z,W,grad1)[0] # grad와 같은 값.
     manual_grad = tf.matmul(X.T,grad1)
