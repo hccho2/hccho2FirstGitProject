@@ -50,6 +50,7 @@ def test2():  # 선형. 행렬곱(중간변수 1개)
     grad2 = tf.gradients(y,W,grad1)  # grad와 같은 값.
 
     manual_grad = tf.matmul(X.T,grad1)
+    ap = optimizer.apply_gradients(zip(grad,[W]))
     sess = tf.Session()
     sess.run(tf.global_variables_initializer())
 
@@ -59,6 +60,13 @@ def test2():  # 선형. 행렬곱(중간변수 1개)
     # 전체 graient갑
     print('모두 동일:', sess.run([grad, grad2, manual_grad]))
 
+    print('Before: ',sess.run(W))
+    print('직접계산:', sess.run(W-grad[0]*0.01))
+    sess.run(ap)
+    print('After: ',sess.run(W))
+    
+    
+    
     for i in range(2):
         sess.run(train)
 
