@@ -43,11 +43,11 @@ def test2():  # 선형. 행렬곱(중간변수 1개)
     train = optimizer.minimize(L)
 
 
-    grad = tf.gradients(L,[W])
+    grad = tf.gradients(L,W)
 
-    # grad1 = dL/dy, grad2 = tf.gradients(y,[W],grad1) = dy/dW grad1 = dy/dW dL/dy = dL/dW
-    grad1 = tf.gradients(L,[y])  # ---> list: 길이는 변수 갯수. [w에 관한 미분, b에 관한 미분]
-    grad2 = tf.gradients(y,[W],grad1)  # grad와 같은 값.
+
+    grad1 = tf.gradients(L,y)  # ---> list: 길이는 변수 갯수. [w에 관한 미분, b에 관한 미분]
+    grad2 = tf.gradients(y,W,grad1)  # grad와 같은 값.
 
     manual_grad = tf.matmul(x_train.T,grad1) # (3,2) x [(2,4)] ==> shape (1,3,4)
     sess = tf.Session()
