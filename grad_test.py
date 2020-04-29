@@ -28,34 +28,27 @@ def test1():
     print(sess.run([g,g2],feed_dict={y:np.array(2.0).astype(np.double)}))
 
 def test2():  # 선형. 행렬곱(중간변수 1개)
-    x_train = np.array([[1,2,3],[2,0,3]]).astype(np.float32)
-    y_train = np.array([[5],[6]]).astype(np.float32)
-
+    X = np.array([[1,2,3],[2,0,3]]).astype(np.float32)
+    Y = np.array([[5],[6]]).astype(np.float32)
     W = tf.Variable(tf.random_normal([3,4]),name='Weight')
+    Z = tf.matmul(X , W)
+    f = tf.reduce_sum(Z,axis=-1,keepdims=True) # keepdims가 없어도 되려면, Y의 shape이 바뀌어야 한다.
+    L = tf.reduce_mean(tf.square(f - Y))
+    grad = tf.gradients(L,W)[0]
+    grad1 = tf.gradients(L,Z)[0] # ---> list: grad1이 list라서 [0]
+    grad2 = tf.gradients(Z,W,grad1)[0] # grad와 같은 값.
+    manual_grad = tf.matmul(X.T,grad1)
 
 
-    y = tf.matmul(x_train , W)
-    hypothesis = tf.reduce_sum(y,axis=-1,keepdims=True)  # keepdims가 없어도 되려면, y_train의 shape이 바뀌어야 한다.
-
-    L = tf.reduce_mean(tf.square(hypothesis - y_train))
 
     optimizer = tf.train.GradientDescentOptimizer(learning_rate = 0.01)
     train = optimizer.minimize(L)
-
-
-    grad = tf.gradients(L,W)
-
-
-    grad1 = tf.gradients(L,y)[0]  # ---> list: 길이는 변수 갯수. [w에 관한 미분, b에 관한 미분], grad1이 list라서 [0]
-    grad2 = tf.gradients(y,W,grad1)  # grad와 같은 값.
-
-    manual_grad = tf.matmul(X.T,grad1)
-    ap = optimizer.apply_gradients(zip(grad,[W]))
+    ap = optimizer.apply_gradients(zip([grad],[W]))
     sess = tf.Session()
     sess.run(tf.global_variables_initializer())
 
     # grad1은 dL/dy hypothesis-y_train을 나열한 것과 같다.
-    print('grad1:', sess.run(grad1), 'hypothesis: ', sess.run(hypothesis)-y_train)
+    print('grad1:', sess.run(grad1), 'hypothesis: ', sess.run(Z)-Y)
 
     # 전체 graient갑
     print('모두 동일:', sess.run([grad, grad2, manual_grad]))
