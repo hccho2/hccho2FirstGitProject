@@ -49,7 +49,7 @@ def test2():  # 선형. 행렬곱(중간변수 1개)
     grad1 = tf.gradients(L,y)  # ---> list: 길이는 변수 갯수. [w에 관한 미분, b에 관한 미분]
     grad2 = tf.gradients(y,W,grad1)  # grad와 같은 값.
 
-    manual_grad = tf.matmul(x_train.T,grad1) # (3,2) x [(2,4)] ==> shape (1,3,4)
+    manual_grad = tf.matmul(X.T,grad1[0]) # grad shape가 list여서...
     sess = tf.Session()
     sess.run(tf.global_variables_initializer())
 
