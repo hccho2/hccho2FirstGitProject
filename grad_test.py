@@ -48,7 +48,8 @@ def test2():  # 선형. 행렬곱(중간변수 1개)
     sess.run(tf.global_variables_initializer())
 
     # grad1은 dL/dy Z-Y을 나열한 것과 같다.
-    print('grad1:', sess.run(grad1), '\nhypothesis-Y: ', sess.run(f)-Y)
+    print('grad1:\n', sess.run(grad1), '\nf-Y\n: ', sess.run(f)-Y)
+    print('\n\n')
 
     # 전체 graient갑
     print('모두 동일:', sess.run([grad, grad2, manual_grad]))
