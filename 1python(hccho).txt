@@ -1600,7 +1600,13 @@ print('Bold, highlight', colorize(msg, 'green', bold=True, highlight= True))
 print('123hxdf')
 
 =====================================================================================
+# np.digitize: np.digitize( data, gird) ---> data에는 여러개가 들어가도 됨.   
+# data[i]가 grid의 어떤 index에 대응되는지 찾아준다. 정확히는 data[i]를 초과하는 grid값의 index
+# grid의 index가 0..n-1(size n)이면 return 되는 index는 0~n까지이다. grid index 범위를 넘어간다.
 
+grid = np.array([0.0, 1.0, 2.5, 4.0, 10.0])
+np.digitize([1.0,0.5,2.5], grid)  ---> array([2, 1, 3], dtype=int64)
+# 1.0 --> grid의 1.0 < 2.5이므로 2.5=grid[2]에 해당하는 2
 
 
 =====================================================================================
