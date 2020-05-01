@@ -476,6 +476,83 @@ plt.show()
 
 
 ##########################################################
+# grid, 2개의 data 각각의 점들을 선으로 연결
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.collections as mc
+def visualize_samples(samples, discretized_samples, grid, low=None, high=None):
+    """Visualize original and discretized samples on a given 2-dimensional grid."""
+
+    fig, ax = plt.subplots(figsize=(5, 5))
+    
+    # Show grid
+    ax.xaxis.set_major_locator(plt.FixedLocator(grid[0]))
+    ax.yaxis.set_major_locator(plt.FixedLocator(grid[1]))
+    ax.grid(True)
+    
+    
+    # If bounds (low, high) are specified, use them to set axis limits
+    if low is not None and high is not None:
+        ax.set_xlim(low[0], high[0])
+        ax.set_ylim(low[1], high[1])
+    else:
+        # Otherwise use first, last grid locations as low, high (for further mapping discretized samples)
+        low = [splits[0] for splits in grid]
+        high = [splits[-1] for splits in grid]
+
+    
+    # Map each discretized sample (which is really an index) to the center of corresponding grid cell
+    #grid_extended = np.hstack((np.array([low]).T, grid, np.array([high]).T))  # add low and high ends
+    #grid_centers = (grid_extended[:, 1:] + grid_extended[:, :-1]) / 2  # compute center of each grid cell
+    
+    grid_extended = np.hstack((np.array([low]).T, grid, np.array([high]).T))  # 양 끝점 포함.
+    grid_centers = (grid_extended[:, 1:] + grid_extended[:, :-1]) / 2  # compute center of each grid cell
+    
+    locs = np.stack(grid_centers[i, discretized_samples[:, i]] for i in range(len(grid))).T  # map discretized samples
+    
+    ax.plot(samples[:, 0], samples[:, 1], 'o',markersize=3)  # plot original samples
+    ax.plot(locs[:, 0], locs[:, 1], 's',markersize=3)  # plot discretized samples in mapped locations
+    ax.add_collection(mc.LineCollection(list(zip(samples, locs)), colors='orange',linewidth=1))  # add a line connecting each original-discretized sample
+    ax.legend(['original', 'discretized'])
+
+
+
+low = [-1.0, -5.0]
+high = [1.0, 5.0]
+bins= [11,11]  # 양 끝점 포함해서 
+
+
+grid = np.array([np.linspace(low[dim], high[dim], bins[dim])[1:-1] for dim in range(len(bins))])  # 양 끝점 제외
+
+
+
+print(grid)
+
+for l, h, b, splits in zip(low, high, bins, grid):
+    print("    [{}, {}] / {} => {}".format(l, h, b, splits))
+
+
+# data가 grid를 벗어나면 안된다.  ---> 벗어나면 error!!!!!
+data = np.array([ np.clip(0.3*np.random.randn(4),low[0],high[0]), np.clip(2*np.random.randn(4),low[1],high[1])]).T
+
+# np.digitize: np.digitize( data, gird) ---> data에는 여러개가 들어가도 됨.   
+# data[i]가 grid의 어떤 index에 대응되는지 찾아준다. 정확히는 data[i]를 초과하는 grid값의 index
+# grid의 index가 0..n-1(size n)이면 return 되는 index는 0~n까지이다. grid index 범위를 넘어간다.
+
+discretized_data =  np.array([ [ np.digitize(s, g) for s, g in zip(d,grid) ]  for d in data])
+
+
+####
+
+print('data: ', data)
+print('discretized_data: ', discretized_data)
+
+visualize_samples(data, discretized_data, grid, low, high)
+plt.show()
+
+
+
+
 
 
 
