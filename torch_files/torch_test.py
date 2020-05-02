@@ -6,6 +6,15 @@
 https://pytorch.org/tutorials/
 ----
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+------
+x.cpu().detach().numpy()
+x.cpu().data.numpy()
+------------
+변수 직접 선언
+w = torch.randn(3,1, requires_grad=True,device=device)
+
+from torch.autograd import Variable
+w = Variable(torch.randn(3, 1).type(dtype), requires_grad=True)
 
 ------
 with torch.no_grad():
@@ -214,7 +223,58 @@ def MultivariateRegression():
         
     print("w,b,y",w,b,y)
     print('elapese: {} sec'.format(time.time()-s))
+
     
+def MultivariateRegression1():
+    from torch.autograd import Variable
+
+    #dtype = torch.FloatTensor
+    dtype = torch.cuda.FloatTensor # GPU에서 실행하려면 이 주석을 제거하세요.
+
+    # N은 배치 크기이며, D_in은 입력의 차원입니다;
+    # H는 은닉 계층의 차원이며, D_out은 출력 차원입니다:
+    N, D_in, H, D_out = 64, 1000, 100, 10
+
+    # 입력과 출력을 저장하기 위해 무작위 값을 갖는 Tensor를 생성하고, Variable로
+    # 감쌉니다. requires_grade=False로 설정하여 역전파 중에 이 Variable들에 대한
+    # 변화도를 계산할 필요가 없음을 나타냅니다.
+    x = Variable(torch.randn(N, D_in).type(dtype), requires_grad=False)
+    y = Variable(torch.randn(N, D_out).type(dtype), requires_grad=False)
+
+    # 가중치를 저장하기 위해 무작위 값을 갖는 Tensor를 생성하고, Variable로
+    # 감쌉니다. requires_grad=True로 설정하여 역전파 중에 이 Variable들에 대한
+    # 변화도를 계산할 필요가 있음을 나타냅니다.
+    w1 = Variable(torch.randn(D_in, H).type(dtype), requires_grad=True)
+    w2 = Variable(torch.randn(H, D_out).type(dtype), requires_grad=True)
+    bias = Variable(torch.randn(D_out).type(dtype), requires_grad=True)
+    learning_rate = 1e-6
+    for t in range(500):
+        # 순전파 단계: Variable 연산을 사용하여 y 값을 예측합니다. 이는 Tensor를 사용한
+        # 순전파 단계와 완전히 동일하지만, 역전파 단계를 별도로 구현하지 않기 위해 중간
+        # 값들(Intermediate Value)에 대한 참조(Reference)를 갖고 있을 필요가 없습니다.
+        y_pred = x.mm(w1).clamp(min=0).mm(w2) + bias
+
+        # Variable 연산을 사용하여 손실을 계산하고 출력합니다.
+        # loss는 (1,) 모양을 갖는 Variable이며, loss.data는 (1,) 모양의 Tensor입니다;
+        # loss.data[0]은 손실(loss)의 스칼라 값입니다.
+        loss = (y_pred - y).pow(2).sum()
+        if t % 10 ==0:
+            print(t, loss.data)
+
+        # autograde를 사용하여 역전파 단계를 계산합니다. 이는 requires_grad=True를
+        # 갖는 모든 Variable에 대한 손실의 변화도를 계산합니다. 이후 w1.grad와 w2.grad는
+        # w1과 w2 각각에 대한 손실의 변화도를 갖는 Variable이 됩니다.
+        loss.backward()
+
+        # 경사하강법(Gradient Descent)을 사용하여 가중치를 갱신합니다; w1.data와
+        # w2.data는 Tensor이며, w1.grad와 w2.grad는 Variable이고, w1.grad.data와
+        # w2.grad.data는 Tensor입니다.
+        w1.data -= learning_rate * w1.grad.data
+        w2.data -= learning_rate * w2.grad.data
+
+        # 가중치 갱신 후에는 수동으로 변화도를 0으로 만듭니다.
+        w1.grad.data.zero_()
+        w2.grad.data.zero_()    
 def MultivariateRegression2():
     # optim, nn.MSELoss() 이용
     device =  'cpu'  #'cuda:0'
@@ -1087,7 +1147,14 @@ def network_copy():
     
     print('net1', net1(x))
     print('net2', net2(x))
-      
+
+    
+    
+    
+    
+    
+    
+    
 if __name__ == '__main__':
     #test1()
     test2() # tensor 생성과 초기화
