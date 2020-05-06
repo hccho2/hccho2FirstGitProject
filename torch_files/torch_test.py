@@ -796,7 +796,8 @@ def init_test3():
     model.apply(weights_init)  # apply는 nn.Module로 부터 상속.
     print(model.state_dict())
     
-def RNN_test0(): 
+def RNN_test00():
+    # nn.LSTM vs nn.LSTMCell
     batch_size = 2
     input_size=3 # embedding dim
     hidden_size = 4 # hidden size
@@ -813,7 +814,28 @@ def RNN_test0():
     
     print(output.shape, hn.shape,cn.shape)  
 
-    
+def RNN_test11():
+    # nn.LSTMCell
+    batch_size = 2
+    input_size=3 # embedding dim
+    hidden_size = 4 # hidden size
+    num_layers = 7 # LSTM을 몇단으로 쌓을 지...
+    T= 5 # seq length
+
+    h0 = torch.randn(batch_size,hidden_size)
+    c0 = torch.randn(batch_size,hidden_size)
+    #rnn = nn.LSTMCell(input_size=input_size, hidden_size=hidden_size, num_layers=num_layers,batch_first=True )
+    rnn = nn.LSTMCell(input_size=input_size, hidden_size=hidden_size)
+
+    input = torch.randn( T,batch_size, input_size)
+
+    for i in range(T):
+        hn, cn = rnn(input[i], (h0, c0))  # (batch_size,T,hidden_dim), h(num_layers,batch_size,hidden_dim), c(num_layers,batch_size,hidden_dim)
+
+    print(hn.shape)
+
+
+
 def RNN_test():
     mode = 0 #   1---> train mode, 0 ---> infer mode
     
