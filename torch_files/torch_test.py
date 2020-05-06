@@ -837,10 +837,12 @@ def RNN_test11():
 
 
 def RNN_test():
-    mode = 0 #   1---> train mode, 0 ---> infer mode
+    mode = 1 #   1---> train mode, 0 ---> infer mode
     
     if mode==0:
         device = torch.device('cpu')
+    else:
+        device = torch.device('cuda')
     save_path = './saved_model/xxx.pt'
     vocab_size = 6
     SOS_token = 0
@@ -850,11 +852,11 @@ def RNN_test():
     hidden_dim =7
     num_layers = 2
     index_to_char = {SOS_token: '<S>', 1: 'h', 2: 'e', 3: 'l', 4: 'o', EOS_token: '<E>'}
-#     x_data = np.array([[SOS_token, 3, 1, 4, 3, 2],[SOS_token, 3, 4, 2, 3, 1],[SOS_token, 1, 3, 2, 2, 1]], dtype=np.int32)
-#     y_data = np.array([[3, 1, 4, 3, 2,EOS_token],[3, 4, 2, 3, 1,EOS_token],[1, 3, 2, 2, 1,EOS_token]],dtype=np.int32)
+    x_data = np.array([[SOS_token, 3, 1, 4, 3, 2],[SOS_token, 3, 4, 2, 3, 1],[SOS_token, 1, 3, 2, 2, 1]], dtype=np.int32)
+    y_data = np.array([[3, 1, 4, 3, 2,EOS_token],[3, 4, 2, 3, 1,EOS_token],[1, 3, 2, 2, 1,EOS_token]],dtype=np.int32)
 
-    x_data = np.array([[SOS_token, 1, 2, 3, 3, 4]], dtype=np.int32)
-    y_data = np.array([[1, 2, 3, 3, 4,EOS_token]],dtype=np.int32)
+#     x_data = np.array([[SOS_token, 1, 2, 3, 3, 4]], dtype=np.int32)
+#     y_data = np.array([[1, 2, 3, 3, 4,EOS_token]],dtype=np.int32)
 
 
     X = torch.tensor(x_data, dtype=torch.int64).to(device) #int64이어야 된다.  (N,T): embedding 전
@@ -879,7 +881,7 @@ def RNN_test():
             x2,h = self.lstm(x1,h0)  # dropout이 있어, 같은 input에 대하여 값이 달라질 수 있다.
             
             #loop를 이용한 계산
-            if False:
+            if True:   #For loop를 돌릴려면, nn.LSTM보다는 nn.LSTMCell을 하는 것이 더 적절한다.
                 max_len = x.size(1)
                 lstm_output = []
                 hh=h0
@@ -1179,7 +1181,7 @@ def network_copy():
     
 if __name__ == '__main__':
     #test1()
-    test2() # tensor 생성과 초기화
+    #test2() # tensor 생성과 초기화
     #model1()
     #MultivariateRegression()
     #MultivariateRegression2()
@@ -1194,8 +1196,9 @@ if __name__ == '__main__':
     #init_test()
     #init_test2()
     #init_test3()
-    #RNN_test0()
-    #RNN_test()
+    #RNN_test00()
+    #RNN_test11()
+    RNN_test()
     #PackedSeq_test()
     
     #bidirectional_test()
