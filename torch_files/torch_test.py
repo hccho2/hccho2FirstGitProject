@@ -68,7 +68,7 @@ optimizer.step()   ------> net.parameters()에 있는 weight들의 값의 grad�
 PyTorch에서는 모델을 저장할 때 .pt 또는 .pth 확장자를 사용하는 것이 일반적인 규칙입니다.  ---> pt, pth는 차이가 나지는 않고, 선택의 문제임.
 
 -----
-nn.CrossEntropyLoss: 2D 또는 3D logit이 넘어잘 수 있다. (N,C) 또는 (N,T,C)
+nn.CrossEntropyLoss: 2D 또는 3D logit이 넘어잘 수 있다. (N,C) 또는 (N,T,C)        target은 one-hot으로 변환하지 않은 것이 넘어간다.
 
 
 
