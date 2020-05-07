@@ -842,7 +842,7 @@ def RNN_test():
     if mode==0:
         device = torch.device('cpu')
     else:
-        device = torch.device('cuda')
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     save_path = './saved_model/xxx.pt'
     vocab_size = 6
     SOS_token = 0
@@ -908,9 +908,9 @@ def RNN_test():
         net.train()  # train mode
         for epoch in range(500):
             optimizer.zero_grad()
-            Y_hat,_ = net(X)
-            loss = loss_fn(input=Y_hat.view(-1,vocab_size),target = Y.view(-1))
-            loss2 = loss_fn(input=torch.transpose(Y_hat,1,2),target = Y)
+            Y_hat,_ = net(X)  # X: (3,6)   Y_hat: (3,6,6)
+            loss = loss_fn(input=Y_hat.view(-1,vocab_size),target = Y.view(-1))  # input: (18,6), target: (18)
+            loss2 = loss_fn(input=torch.transpose(Y_hat,1,2),target = Y)  # (N,D,T), (N,T)로도 가능
             
             assert np.abs(loss.item() - loss2.item()) < 0.000001
             
@@ -1210,7 +1210,6 @@ if __name__ == '__main__':
     #Attention_Mask()
 
     print('Done')
-
 
 
 
