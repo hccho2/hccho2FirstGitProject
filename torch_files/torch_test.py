@@ -68,6 +68,10 @@ optimizer.step()   ------> net.parameters()에 있는 weight들의 값의 grad�
 PyTorch에서는 모델을 저장할 때 .pt 또는 .pth 확장자를 사용하는 것이 일반적인 규칙입니다.  ---> pt, pth는 차이가 나지는 않고, 선택의 문제임.
 
 -----
+nn.CrossEntropyLoss: 2D 또는 3D logit이 넘어잘 수 있다. (N,C) 또는 (N,T,C)
+
+
+
 
 Attention Mask
 http://juditacs.github.io/2018/12/27/masked-attention.html
@@ -367,7 +371,7 @@ def MNIST():
     # shuffle되어 있지 않다.
     digits = load_digits()     # dict_keys(['data', 'target', 'target_names', 'images', 'DESCR']), (1797, 64), (1797,), array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]),(1797, 8, 8)
 
-    #shffule = np.random.choice(len(digits.data),len(digits.data))
+    shffule = np.random.choice(len(digits.data),len(digits.data))
     shffle = np.arange(len(digits.data))
     np.random.shuffle(shffle)
     
@@ -381,7 +385,7 @@ def MNIST():
     
     net = nn.Sequential(nn.Linear(64,32),nn.ReLU(),nn.Linear(32,16),nn.ReLU(),nn.Linear(16,10))
     
-    loss_fn = nn.CrossEntropyLoss()
+    loss_fn = nn.CrossEntropyLoss()  # 넘길 때, (N,C), (N,)  <--- one_hot으로 변환하지 않는 target을 넘긴다.
     optimizer = optim.Adam(net.parameters())
     
     
@@ -396,7 +400,7 @@ def MNIST():
             xx= net(xx)
         '''
         
-        loss = loss_fn(Y_hat,Y)
+        loss = loss_fn(Y_hat,Y)  # Y_hat: (N, 10), Y: (N,)
         loss.backward()
         optimizer.step()
         if step % 50 == 0:
@@ -1209,7 +1213,7 @@ if __name__ == '__main__':
     #MultivariateRegression()
     #MultivariateRegression2()
     #MultivariateRegression3()
-    #MNIST()
+    MNIST()
     #MNIST2()
     #MNIST3()
     #MNIST4()
@@ -1221,7 +1225,7 @@ if __name__ == '__main__':
     #init_test3()
     #RNN_test00()
     #RNN_test11()
-    RNN_test()
+    #RNN_test()
     #PackedSeq_test()
     
     #bidirectional_test()
@@ -1233,7 +1237,6 @@ if __name__ == '__main__':
     #Attention_Mask()
 
     print('Done')
-
 
 
 
