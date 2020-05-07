@@ -795,6 +795,29 @@ def init_test3():
     
     model.apply(weights_init)  # apply는 nn.Module로 부터 상속.
     print(model.state_dict())
+
+    
+    
+def BCE_test():
+
+    target = torch.tensor([[1,1,0,0,1],[0,0,1,1,1]],dtype=torch.float32)
+    logit = torch.randn(2,5)
+    weight = torch.tensor([0.5,2,0.5,0.5,10])  # All weights are equal to 1
+    
+    criterion1 = torch.nn.BCEWithLogitsLoss(weight=weight, reduction='none')   # pos_weight는 positive label에만 부여하는 weight
+    criterion2 = torch.nn.BCEWithLogitsLoss(weight=weight, reduction='mean')  # (N,T) 전체 평균.
+    
+    print(criterion1(logit, target)) # logit, target: (N,T)
+    print(criterion2(logit, target)) 
+    
+    p = torch.sigmoid(logit)
+    
+    a = -(target*torch.log(p) + (1-target)*torch.log(1-p))*weight
+    print(a)
+    print(torch.mean(a))
+    
+    
+    
     
 def RNN_test00():
     # nn.LSTM vs nn.LSTMCell
