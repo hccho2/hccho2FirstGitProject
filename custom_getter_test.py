@@ -102,6 +102,7 @@ tf.trainable_variables()
 ema = tf.train.ExponentialMovingAverage(decay=0.9)
 
 def ema_getter(getter, name, *args, **kwargs):
+    # getter(name, *args, **kwargs)를 통해, 같은 이름을 가지는 weight를 가져온다. ---> 이 놈을 ema.average에 넘겨, shadow weight를 가져온다.
     return ema.average(getter(name, *args, **kwargs))  # shadow variable에 접근
 
 def build_net(s,reuse=None, custom_getter=None):
