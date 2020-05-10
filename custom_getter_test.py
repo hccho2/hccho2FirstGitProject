@@ -174,3 +174,68 @@ print(data_x.dot(A[0])+A[1])   # y1과 동일
 print(data_x.dot(B[0])+B[1])   # y2와 동일
 
 
+
+############################################################################################
+############################################################################################
+############################################################################################
+def adding_noise():
+    # weight에 noise를 추가한 새로운 network만들기
+    def ema_getter(getter, name, *args, **kwargs):
+        # weight에 ranom noise 더하기
+        weight = getter(name, *args, **kwargs)
+        return weight + tf.random.normal(tf.shape(weight),mean=0.,stddev=0.01)  
+
+    def build_net(s,reuse=None, custom_getter=None):
+        trainable = True if reuse is None else False
+        with tf.variable_scope('MyNet', reuse=reuse, custom_getter=custom_getter):
+            out = tf.layers.dense(s,units=1,trainable=trainable)
+            return out
+
+    x1 = tf.placeholder(tf.float32,shape=[None,2])
+    target = tf.placeholder(tf.float32,shape=[None,1])
+    y1 = build_net(x1)
+    a_params = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='MyNet')  # trainable_variables() 2개
+
+
+
+
+
+    # network의 trainable weight에 대한 exponential moving average를 weight로 가지는 network을 만든다.
+    # weight 자체는 trainable하지 않다.
+    y2 = build_net(x1, reuse=True, custom_getter=ema_getter)  # target_update에서 만들어진, non trainable_variable 2개로 newtwork이 만들어진다.
+
+
+    loss = tf.losses.mean_squared_error(y1,target)
+
+    # 여기서 만들어지는 op는 control_dependencies(xxx)에 있는 op가 먼저 계산된 후, 연산된다.
+    train_op = tf.train.AdamOptimizer(0.01).minimize(loss)  # train_op가 계산되기 전에 target_update가 먼저 계산된다.
+
+    sess = tf.Session()
+    sess.run(tf.global_variables_initializer())
+
+
+
+
+    print('Before:')
+
+
+    data_x = np.random.randn(2,2)
+    data_y = np.array([[1.0],[1.5]])
+
+    print('Before Train:')
+    for i in range(3):
+        print('y1, y2: ', sess.run([y1,y2],feed_dict={x1: data_x}))  # y1은 변하지 않지만, y2는 매번 변한다.
+
+
+
+    for i in range(5):
+        _,l_= sess.run([train_op,loss],feed_dict={x1: data_x, target:data_y })
+        if i%5:
+            print(i,l_)
+
+    print('After Train:')
+
+    for i in range(3):
+        print('y1, y2: ', sess.run([y1,y2],feed_dict={x1: data_x}))
+
+
