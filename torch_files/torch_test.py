@@ -94,6 +94,17 @@ def show_weights(net):
     for a in net.named_parameters():
         print(a[0], a[1].shape)
 
+def test0():
+    z = np.random.randn(2,3)  # float64
+    w = np.random.randint(5, size=[2,3])  # int32
+    x1 = torch.from_numpy(z)  # torch.float64   --> numpy의 dtype을 유지.
+    x2 = torch.Tensor(z)  # torch.float32  torch.FloatTensor와 동일
+    x3 = torch.FloatTensor(z) # torch.float32
+
+    y1 = torch.from_numpy(w)  # torch.int32
+    y2 = torch.Tensor(w)  # torch.float32
+        
+        
 def test1():
     print(torch.__version__)
     
