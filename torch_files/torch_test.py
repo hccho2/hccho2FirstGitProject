@@ -16,6 +16,10 @@ w = torch.randn(3,1, requires_grad=True,device=device)
 from torch.autograd import Variable
 w = Variable(torch.randn(3, 1).type(dtype), requires_grad=True)
 
+----
+nn.Parameter(torch.empty(3, 2))  # trainable Tensor
+
+
 ------
 with torch.no_grad():
     traget = ...
