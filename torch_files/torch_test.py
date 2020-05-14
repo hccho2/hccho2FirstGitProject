@@ -14,7 +14,7 @@ x.cpu().data.numpy()
 w = torch.randn(3,1, requires_grad=True,device=device)
 
 from torch.autograd import Variable
-w = Variable(torch.randn(3, 1).type(dtype), requires_grad=True)
+w = Variable(torch.randn(3, 1).type(dtype), requires_grad=True)  ----> 이것보다 nn.Parameters 추천
 
 ----
 nn.Parameter(torch.empty(3, 2))  # trainable Tensor
