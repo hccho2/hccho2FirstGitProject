@@ -103,8 +103,8 @@ def test0():
 
     y1 = torch.from_numpy(w)  # torch.int32
     y2 = torch.Tensor(w)  # torch.float32
-        
-        
+    
+    z = torch.Tensor(2,3)  # torch.empyt(2,3)과 동일. Returns a tensor filled with uninitialized data
 def test1():
     print(torch.__version__)
     
