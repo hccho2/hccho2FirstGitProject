@@ -12,14 +12,28 @@ def test1():
     tf.disable_v2_behavior()
     
     x = tf.placeholder(tf.float32,[None,3])
-    y = tf.placeholder(tf.float32)
+    y = tf.placeholder(tf.float32,[None,1])
     z = tf.keras.layers.Dense(units=1)(x)  # 또는 z = tf.layers.dense(x, units=1)
     
+    loss = tf.losses.mean_squared_error(y,z)   # 제곱하여 batch에 대한 평균
+    
+    train_op = tf.train.AdamOptimizer(0.01).minimize(loss)
     
     print(z)
+    
+    data_x = np.random.randn(2,3)
+    data_y = np.random.randn(2,1)
+    
     sess = tf.Session()
     sess.run(tf.global_variables_initializer())
-    print(sess.run(z, feed_dict={x: np.random.randn(2,3)}))
+    print(sess.run([x,y,z,loss], feed_dict={x: data_x,y: data_y}))
+
+
+    for i in range(100):
+        _, l = sess.run([train_op,loss],feed_dict={x: data_x,y: data_y})
+        print(i, l)
+
+    print(sess.run([x,y,z,loss], feed_dict={x: data_x,y: data_y}))
 
 
 
