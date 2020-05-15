@@ -1264,10 +1264,10 @@ class NoisyLinear(nn.Module):
         return x.sign().mul_(x.abs().sqrt_())
 
     def sample_noise(self):
-        # noise 자유도를 줄이기 위해.
+        # noise 자유도를 줄이기 위해.  ---> 논문 참조
         epsilon_in = self._scale_noise(self.in_features)
         epsilon_out = self._scale_noise(self.out_features)
-        self.weight_epsilon.copy_(epsilon_out.ger(epsilon_in))
+        self.weight_epsilon.copy_(epsilon_out.ger(epsilon_in))   # ger: outer product
         self.bias_epsilon.copy_(epsilon_out)
 
     def forward(self, inp):
