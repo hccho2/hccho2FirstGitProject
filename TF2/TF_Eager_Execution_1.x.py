@@ -1,5 +1,8 @@
 # coding: utf-8
+'''
+tensorflow 1.x 버전에서 eager execution 
 
+'''
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
