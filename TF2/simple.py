@@ -1,5 +1,13 @@
 
+'''
+1.x 에서의 contrib가 SIG Addons로 갔다. SIG(special Interest Group)   --> pip install tensorflow-addons
+https://www.tensorflow.org/addons/api_docs/python/tfa
 
+
+import tensorflow as tf
+import tensorflow_addons as tfa     ---> tfa.seq2seq.BahdanauMonotonicAttention 이런 것이 있다.
+
+'''
 
 
 
