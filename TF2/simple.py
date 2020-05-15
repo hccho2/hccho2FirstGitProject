@@ -7,6 +7,10 @@ https://www.tensorflow.org/addons/api_docs/python/tfa
 import tensorflow as tf
 import tensorflow_addons as tfa     ---> tfa.seq2seq.BahdanauMonotonicAttention 이런 것이 있다.
 
+
+https://www.tensorflow.org/tutorials/quickstart/beginner?hl=ko
+
+
 '''
 
 
