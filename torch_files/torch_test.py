@@ -51,12 +51,16 @@ loss.backward()
 optimizer.step()
 
 -----
-# restore
-model.load_state_dict(torch.load('xxx.pth', map_location = device))
------
 # save
-torch.save(model.state_dict(), os.path.join(model_dir, 'epoch-{}.pth'.format(epoch)))
+torch.save(model.state_dict(), os.path.join(model_dir, 'epoch-{}.pth'.format(epoch)))  # weights만 저장
+또는 
+torch.save(model, os.path.join(model_dir, 'epoch-{}.pth'.format(epoch)))   # 모델의 구조까지 저장
 ----
+# restore
+model.load_state_dict(torch.load('xxx.pth', map_location = device))  # model이 이미 정의된 상태
+또는
+model = torch.load('xxx.pth')  # 모델의 구조까지 복원
+-----
 network weights copy
 net1.load_state_dict(net2.state_dict())
 -----
