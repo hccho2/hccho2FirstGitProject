@@ -32,6 +32,14 @@ tfcpu      C:\Anaconda\hccho-virtual\tfcpu\Scripts\python.exe
 이렇게 등록한 2개는 각각의 project에서 선택가능하다.  project의 properties - PyDev-Interpreter/Grammar - Interpreter 에서 선택하면 된다.
 
 =====================================================================
+https://github.com/higgsfield/RL-Adventure/blob/master/6.categorical%20dqn.ipynb  ---> 이 파일을 colab에서 열기.  nbviewer에서 열기.
+
+https://nbviewer.jupyter.org/github//higgsfield/RL-Adventure/blob/master/6.categorical%20dqn.ipynb
+
+https://colab.research.google.com/github//higgsfield/RL-Adventure/blob/master/6.categorical%20dqn.ipynb
+
+=====================================================================
+
 > pip download 
 =====================================================================
 import skimage.io as io   --- error --- pip install로는 안되고,
