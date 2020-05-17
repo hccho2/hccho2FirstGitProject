@@ -5,7 +5,8 @@
 
 https://pytorch.org/tutorials/
 ----
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')  # --> device(type='cuda')
+device = torch.device('cuda:0')                                        # --> device(type='cuda', index=0)
 
 mynet.to(device) # 또는 mynet.cuda(), mynet.cpu()
 ------
