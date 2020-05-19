@@ -22,7 +22,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tensorflow.keras.initializers import Constant
 print(tf.__version__)
-
+print('gpu available?', tf.test.is_gpu_available())
 
 
 
