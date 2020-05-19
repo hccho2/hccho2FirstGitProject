@@ -1,6 +1,15 @@
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'   # CPU Only Mode
+============
+error: 
+WARNING:tensorflow:Entity <bound method Dense.call of <tensorflow.python.layers.core.Dense object at 0x000001BECB4B9080>> 
+could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. 
+When filing the bug, set the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and attach the full output. 
+Cause: converting <bound method Dense.call of <tensorflow.python.layers.core.Dense object at 0x000001BECB4B9080>>: 
+AssertionError: Bad argument number for Name: 3, expecting 4
 
-
+https://github.com/tensorflow/autograph/issues/1
+pip install --user gast==0.2.2
+==================
 
 with tf.variable_scope('hccho1'):
 
