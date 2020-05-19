@@ -1,5 +1,7 @@
 
 '''
+2020년5월19일 현재: tensorflow-gpu 2.2, 2.1 설치해도 error. ---> 2.0.2는 설치.
+
 1.x 에서의 contrib가 SIG Addons로 갔다. SIG(special Interest Group)   --> pip install tensorflow-addons
 https://www.tensorflow.org/addons/api_docs/python/tfa
 
