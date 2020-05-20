@@ -9,7 +9,11 @@ https://github.com/tensorflow/tensorflow/issues/35618#issuecomment-596631286   <
 
  latest microsoft visual c++ redistributable 설치하면, 해결된다.
  
+ 
+
+ 
 *******************
+cudnn 설치 안해도, tf.test.is_gpu_available() ---> 에러 안남. 실제 돌릴 때, error.
 cudnn설치: cudnn은 쉽다.
 
 https://developer.nvidia.com/rdp/cudnn-archive
