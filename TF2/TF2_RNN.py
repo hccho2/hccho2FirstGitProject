@@ -15,8 +15,10 @@ from tensorflow.keras.initializers import Constant
 
 
 def simple_rnn():
+    # https://www.tensorflow.org/guide/keras/rnn
+    
     inputs = tf.random.normal([3, 5, 7])
-    rnn1 = tf.keras.layers.RNN([tf.keras.layers.LSTMCell(4),tf.keras.layers.LSTMCell(11)])
+    rnn1 = tf.keras.layers.RNN([tf.keras.layers.LSTMCell(4),tf.keras.layers.LSTMCell(11)])  # RNN(LSTMCell(units)) will run on non-CuDNN kernel
     output = rnn1(inputs)
     print('output shape:', output.shape)
 
@@ -25,7 +27,17 @@ def simple_rnn():
     rnn2 = tf.keras.layers.RNN(tf.keras.layers.LSTMCell(4), return_sequences=True, return_state=True)
     whole_seq_output, final_memory_state, final_carry_state = rnn2(inputs)
     print('output shape: {}, hidden_state_shape: {}, cell_state_shape: {}, '.format(whole_seq_output.shape,final_memory_state.shape,final_carry_state.shape  ))
+    
+    # tf.keras.layers.LSTM은 CuDNN Kernel 사용.
+    rnn3 = tf.keras.layers.LSTM(4,return_sequences=True, return_state=True, name='encoder')  
+    whole_seq_output, final_memory_state, final_carry_state = rnn3(inputs)
+    print('output shape: {}, hidden_state_shape: {}, cell_state_shape: {}, '.format(whole_seq_output.shape,final_memory_state.shape,final_carry_state.shape  ))
 
+    
+    
+    
+    
+    
 def decoder_test():
 
     vocab_size = 6
