@@ -66,7 +66,7 @@ def simple_rnn2():
         return model
     
     model = build_model(allow_cudnn_kernel=True)
-    inputs = tf.random.normal([batch_size, 5, 7])
+    inputs = tf.random.normal([batch_size, 5, input_dim])
     outputs = model(inputs)
 
 
