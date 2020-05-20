@@ -1,6 +1,9 @@
 # coding: utf-8
 
 '''
+
+https://www.tensorflow.org/tutorials/text/text_generation  ---> RNN 기초
+
 https://github.com/tensorflow/addons/issues/1856   ---> 아직 bug가 있다. AttentionWraper의 state를 list로 할 것인가? tuple로 할 것인가? 정리가 되어 있지 않다.
 
 '''
@@ -33,11 +36,42 @@ def simple_rnn():
     whole_seq_output, final_memory_state, final_carry_state = rnn3(inputs)
     print('output shape: {}, hidden_state_shape: {}, cell_state_shape: {}, '.format(whole_seq_output.shape,final_memory_state.shape,final_carry_state.shape  ))
 
+
+def simple_rnn2():
+    
+    batch_size = 3
+    input_dim = 5
+    
+    units = 7
+    output_size = 6  
     
     
+    def build_model(allow_cudnn_kernel=True):
+        # CuDNN is only available at the layer level, and not at the cell level.
+        # This means `LSTM(units)` will use the CuDNN kernel,
+        # while RNN(LSTMCell(units)) will run on non-CuDNN kernel.
+        if allow_cudnn_kernel:
+            # The LSTM layer with default options uses CuDNN.
+            lstm_layer = tf.keras.layers.LSTM(units, input_shape=(None, input_dim))
+        else:
+            # Wrapping a LSTMCell in a RNN layer will not use CuDNN.
+            lstm_layer = tf.keras.layers.RNN(
+                tf.keras.layers.LSTMCell(units),
+                input_shape=(None, input_dim))
+        model = tf.keras.models.Sequential([
+            lstm_layer,
+            tf.keras.layers.BatchNormalization(),
+            tf.keras.layers.Dense(output_size)]
+        )
+        return model
     
-    
-    
+    model = build_model(allow_cudnn_kernel=True)
+    inputs = tf.random.normal([batch_size, 5, 7])
+    outputs = model(inputs)
+
+
+
+
 def decoder_test():
 
     vocab_size = 6
@@ -70,12 +104,22 @@ def decoder_test():
     sampler = tfa.seq2seq.sampler.TrainingSampler()
     
     # Decoder
-    decoder_cell = tf.keras.layers.LSTMCell(hidden_dim)
+    
+    method = 2
+    if method==1:
+        decoder_cell = tf.keras.layers.LSTMCell(hidden_dim)
+        # decoder init state:
+        
+        #init_state = [tf.zeros((batch_size,hidden_dim)), tf.ones((batch_size,hidden_dim))]   # (h,c)
+        init_state = decoder_cell.get_initial_state(inputs=None, batch_size=batch_size, dtype=tf.float32)
+        
+    else:
+        decoder_cell = tf.keras.layers.StackedRNNCells([tf.keras.layers.LSTMCell(hidden_dim),tf.keras.layers.LSTMCell(2*hidden_dim)])
+        init_state = decoder_cell.get_initial_state(inputs=input)
+    
+    
     projection_layer = tf.keras.layers.Dense(output_dim)
     
-    # decoder init state:
-    #init_state = [tf.zeros((batch_size,hidden_dim)), tf.ones((batch_size,hidden_dim))]   # (h,c)
-    init_state = decoder_cell.get_initial_state(inputs=None, batch_size=batch_size, dtype=tf.float32)
     
     decoder = tfa.seq2seq.BasicDecoder(decoder_cell, sampler, output_layer=projection_layer)
     
@@ -152,11 +196,11 @@ def attention_test():
 
 
 if __name__ == '__main__':
-    simple_rnn()
+    #simple_rnn()
+    simple_rnn2()
     #decoder_test()
     #attention_test()
     print('Done')
-
 
 
 
