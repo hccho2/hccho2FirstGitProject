@@ -11,11 +11,20 @@ import tensorflow as tf
 import tensorflow_addons as tfa
 
 from tensorflow.keras.initializers import Constant
-from tensorflow.python.ops.gen_batch_ops import batch
 
-# Build RNN
-#   encoder_outputs: [max_time, batch_size, num_units]
-#   encoder_state: [batch_size, num_units]
+
+
+def simple_rnn():
+    inputs = tf.random.normal([3, 5, 7])
+    rnn1 = tf.keras.layers.RNN([tf.keras.layers.LSTMCell(4),tf.keras.layers.LSTMCell(11)])
+    output = rnn1(inputs)
+    print('output shape:', output.shape)
+
+
+
+    rnn2 = tf.keras.layers.RNN(tf.keras.layers.LSTMCell(4), return_sequences=True, return_state=True)
+    whole_seq_output, final_memory_state, final_carry_state = rnn2(inputs)
+    print('output shape: {}, hidden_state_shape: {}, cell_state_shape: {}, '.format(whole_seq_output.shape,final_memory_state.shape,final_carry_state.shape  ))
 
 def decoder_test():
 
@@ -131,7 +140,8 @@ def attention_test():
 
 
 if __name__ == '__main__':
-    decoder_test()
+    simple_rnn()
+    #decoder_test()
     #attention_test()
     print('Done')
 
