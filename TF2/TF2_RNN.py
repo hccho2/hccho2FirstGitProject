@@ -20,12 +20,14 @@ from tensorflow.keras.initializers import Constant
 def simple_rnn():
     # https://www.tensorflow.org/guide/keras/rnn
     
-    inputs = tf.random.normal([3, 5, 7])
-    rnn1 = tf.keras.layers.RNN([tf.keras.layers.LSTMCell(4),tf.keras.layers.LSTMCell(11)])  # RNN(LSTMCell(units)) will run on non-CuDNN kernel
+    batch_size = 3
+    seq_length = 5
+    inputs = tf.random.normal([batch_size, seq_length, 7])
+    rnn1 = tf.keras.layers.RNN([tf.keras.layers.LSTMCell(4),tf.keras.layers.LSTMCell(11)],return_sequences=True)  # RNN(LSTMCell(units)) will run on non-CuDNN kernel
     
     state =  rnn1.get_initial_state(inputs)
     output = rnn1(inputs,state)
-    print('output shape:', output.shape)
+    print('output shape:', output.shape)  # return_sequences=False: (batch_size,11)         return_sequences = True --> batch_size,seq_length,11)
 
 
 
@@ -40,35 +42,37 @@ def simple_rnn():
 
 
 def simple_rnn2():
-    
+    # RNN + BN + FC
     batch_size = 3
-    input_dim = 5
+    seq_length = 5
+    input_dim = 7
     
-    units = 7
-    output_size = 6  
+    hidden_dim = 9
+    output_size = 11  
     
     
     def build_model(allow_cudnn_kernel=True):
         # CuDNN is only available at the layer level, and not at the cell level.
-        # This means `LSTM(units)` will use the CuDNN kernel,
-        # while RNN(LSTMCell(units)) will run on non-CuDNN kernel.
+        # This means `LSTM(hidden_dim)` will use the CuDNN kernel,
+        # while RNN(LSTMCell(hidden_dim)) will run on non-CuDNN kernel.
         if allow_cudnn_kernel:
             # The LSTM layer with default options uses CuDNN.
-            lstm_layer = tf.keras.layers.LSTM(units, input_shape=(None, input_dim))
+            lstm_layer = tf.keras.layers.LSTM(hidden_dim, input_shape=(None, input_dim),return_sequences=True)
         else:
             # Wrapping a LSTMCell in a RNN layer will not use CuDNN.
-            lstm_layer = tf.keras.layers.RNN(tf.keras.layers.LSTMCell(units),input_shape=(None, input_dim))
+            lstm_layer = tf.keras.layers.RNN(tf.keras.layers.LSTMCell(hidden_dim),input_shape=(None, input_dim),return_sequences=True)
+        
+        
         model = tf.keras.models.Sequential([
-            lstm_layer,
-            tf.keras.layers.BatchNormalization(),
-            tf.keras.layers.Dense(output_size)]
-        )
+                                            lstm_layer,
+                                            tf.keras.layers.BatchNormalization(),
+                                            tf.keras.layers.Dense(output_size)])
         return model
     
-    model = build_model(allow_cudnn_kernel=True)
-    inputs = tf.random.normal([batch_size, 5, input_dim])
+    model = build_model(allow_cudnn_kernel=False)
+    inputs = tf.random.normal([batch_size, seq_length, input_dim])
     outputs = model(inputs)
-
+    print(outputs.shape) # return_sequences=False: (batch_size,11)         return_sequences = True --> batch_size,seq_length,11)
 
 
 
@@ -99,14 +103,11 @@ def decoder_test():
     input = embedding(x_data)
     
 
-    
-    # Sampler
-    sampler = tfa.seq2seq.sampler.TrainingSampler()
-    
     # Decoder
     
     method = 1
     if method==1:
+        # single layer RNN
         decoder_cell = tf.keras.layers.LSTMCell(hidden_dim)
         # decoder init state:
         
@@ -114,6 +115,7 @@ def decoder_test():
         init_state = decoder_cell.get_initial_state(inputs=None, batch_size=batch_size, dtype=tf.float32)
         
     else:
+        # multi layer RNN
         decoder_cell = tf.keras.layers.StackedRNNCells([tf.keras.layers.LSTMCell(hidden_dim),tf.keras.layers.LSTMCell(2*hidden_dim)])
         init_state = decoder_cell.get_initial_state(inputs=input)
     
@@ -121,9 +123,43 @@ def decoder_test():
     projection_layer = tf.keras.layers.Dense(output_dim)
     
     
-    decoder = tfa.seq2seq.BasicDecoder(decoder_cell, sampler, output_layer=projection_layer)
     
-    outputs, last_state, last_sequence_lengths = decoder(input,initial_state=init_state, sequence_length=[seq_length]*batch_size)
+    decoder_method = 4
+    if decoder_method==1:
+        # tensorflow 1.x에서 tf.contrib.seq2seq.TrainingHelper
+        sampler = tfa.seq2seq.sampler.TrainingSampler()  # alias ---> sampler = tfa.seq2seq.TrainingSampler()
+    
+        decoder = tfa.seq2seq.BasicDecoder(decoder_cell, sampler, output_layer=projection_layer)
+        outputs, last_state, last_sequence_lengths = decoder(input,initial_state=init_state, sequence_length=[seq_length]*batch_size,training=True)
+    
+    elif decoder_method==2:
+        # tensorflow 1.x에서 tf.contrib.seq2seq.GreedyEmbeddingHelper
+        sampler = tfa.seq2seq.GreedyEmbeddingSampler()  # alias ---> sampler = tfa.seq2seq.sampler.GreedyEmbeddingSampler
+        
+        decoder = tfa.seq2seq.BasicDecoder(decoder_cell, sampler, output_layer=projection_layer,maximum_iterations=seq_length)
+        outputs, last_state, last_sequence_lengths = decoder(embedding.weights,initial_state=init_state,
+                                                             start_tokens=tf.tile([SOS_token], [batch_size]), end_token=EOS_token,training=False)    
+
+    elif decoder_method==3:
+        sampler = tfa.seq2seq.sampler.TrainingSampler()
+        
+        decoder = tfa.seq2seq.BasicDecoder(decoder_cell, sampler, output_layer=projection_layer)
+        kwargs={'initial_state': init_state}
+        outputs, last_state, last_sequence_lengths = tfa.seq2seq.dynamic_decode(decoder = decoder,maximum_iterations = seq_length,
+                                                    impute_finished=True, output_time_major=False,decoder_init_input=input,decoder_init_kwargs=kwargs,training=True)
+
+    elif decoder_method==4:
+        sampler = tfa.seq2seq.GreedyEmbeddingSampler()
+        
+        decoder = tfa.seq2seq.BasicDecoder(decoder_cell, sampler, output_layer=projection_layer)
+        kwargs={'initial_state': init_state, 'start_tokens': tf.tile([SOS_token], [batch_size]), 'end_token': EOS_token}
+        outputs, last_state, last_sequence_lengths = tfa.seq2seq.dynamic_decode(decoder = decoder,maximum_iterations = seq_length,
+                                                    impute_finished=True, output_time_major=False,decoder_init_input=embedding.weights, decoder_init_kwargs=kwargs,training=False)    
+
+
+
+
+
     logits = outputs.rnn_output
     
     print(logits.shape)
@@ -201,7 +237,6 @@ if __name__ == '__main__':
     decoder_test()
     #attention_test()
     print('Done')
-
 
 
 
