@@ -22,7 +22,9 @@ def simple_rnn():
     
     inputs = tf.random.normal([3, 5, 7])
     rnn1 = tf.keras.layers.RNN([tf.keras.layers.LSTMCell(4),tf.keras.layers.LSTMCell(11)])  # RNN(LSTMCell(units)) will run on non-CuDNN kernel
-    output = rnn1(inputs)
+    
+    state =  rnn1.get_initial_state(inputs)
+    output = rnn1(inputs,state)
     print('output shape:', output.shape)
 
 
@@ -55,9 +57,7 @@ def simple_rnn2():
             lstm_layer = tf.keras.layers.LSTM(units, input_shape=(None, input_dim))
         else:
             # Wrapping a LSTMCell in a RNN layer will not use CuDNN.
-            lstm_layer = tf.keras.layers.RNN(
-                tf.keras.layers.LSTMCell(units),
-                input_shape=(None, input_dim))
+            lstm_layer = tf.keras.layers.RNN(tf.keras.layers.LSTMCell(units),input_shape=(None, input_dim))
         model = tf.keras.models.Sequential([
             lstm_layer,
             tf.keras.layers.BatchNormalization(),
@@ -105,7 +105,7 @@ def decoder_test():
     
     # Decoder
     
-    method = 2
+    method = 1
     if method==1:
         decoder_cell = tf.keras.layers.LSTMCell(hidden_dim)
         # decoder init state:
@@ -197,11 +197,10 @@ def attention_test():
 
 if __name__ == '__main__':
     #simple_rnn()
-    simple_rnn2()
-    #decoder_test()
+    #simple_rnn2()
+    decoder_test()
     #attention_test()
     print('Done')
-
 
 
 
