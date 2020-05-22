@@ -279,15 +279,21 @@ def decoder_train_test():
     sampler = tfa.seq2seq.GreedyEmbeddingSampler()  # alias ---> sampler = tfa.seq2seq.sampler.GreedyEmbeddingSampler
     sample_batch_size = 4
     
-    decoder_type = 1
+    decoder_type = 2
     if decoder_type==1:
         decoder = tfa.seq2seq.BasicDecoder(decoder_cell, sampler, output_layer=projection_layer,maximum_iterations=seq_length)
-        #init_state = [tf.ones_like(init_state[0]),tf.ones_like(init_state[1])]
-        init_state = [tf.random.normal(shape=(4,hidden_dim),mean=0.5),tf.random.normal(shape=(4,hidden_dim),mean=0.5)]
+        if method==1:
+            init_state = decoder_cell.get_initial_state(inputs=None, batch_size=sample_batch_size, dtype=tf.float32)
+        else:
+            init_state = decoder_cell.get_initial_state(inputs=tf.zeros([sample_batch_size,hidden_dim],dtype=tf.float32))
+        
     else:
         beam_width=2
         decoder = tfa.seq2seq.BeamSearchDecoder(decoder_cell,beam_width,output_layer=projection_layer,maximum_iterations=seq_length)
-        init_state = decoder_cell.get_initial_state(inputs=tf.zeros_like(x_data,dtype=tf.float32))
+        if method==1:
+            init_state = decoder_cell.get_initial_state(inputs=None, batch_size=sample_batch_size*beam_width, dtype=tf.float32)
+        else:
+            init_state = decoder_cell.get_initial_state(inputs=tf.zeros([sample_batch_size*beam_width,hidden_dim],dtype=tf.float32))
         
     outputs, last_state, last_sequence_lengths = decoder(embedding.weights,initial_state=init_state,
                                                          start_tokens=tf.tile([SOS_token], [sample_batch_size]), end_token=EOS_token,training=False) 
