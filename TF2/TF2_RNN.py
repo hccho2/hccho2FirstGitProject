@@ -6,6 +6,12 @@ https://www.tensorflow.org/tutorials/text/text_generation  ---> RNN 기초
 
 https://github.com/tensorflow/addons/issues/1856   ---> 아직 bug가 있다. AttentionWraper의 state를 list로 할 것인가? tuple로 할 것인가? 정리가 되어 있지 않다.
 
+
+tensorflow nmt + attenstion manual
+https://www.tensorflow.org/tutorials/text/nmt_with_attention
+
+
+get_initial_state()함수가 class type에 따라, 일관성이 없다....
 '''
 
 
@@ -74,6 +80,32 @@ def simple_rnn2():
     outputs = model(inputs)
     print(outputs.shape) # return_sequences=False: (batch_size,11)         return_sequences = True --> batch_size,seq_length,11)
 
+def seq_loss_test():
+    batch_size = 2
+    seq_length = 5
+    vocab_size= 6
+    
+    x = tf.random.normal((batch_size,seq_length,vocab_size))
+    logit = tf.nn.log_softmax(x)
+    
+    target = tf.random.uniform([batch_size,seq_length], 0,vocab_size,tf.int32)
+    
+    predict = tf.argmax(logit,axis=-1)
+    
+    
+    print(x.shape)
+    print('target: ',target)
+    #print('logit: ', logit)
+    print('predict: ', predict)
+    
+    
+    loss = -tf.gather_nd(tf.reshape(logit,[-1,vocab_size]), tf.stack([tf.range(batch_size*seq_length),tf.reshape(target,[-1])],axis=-1))
+    loss = tf.reduce_mean(loss)
+    
+    weights = tf.ones(shape=[batch_size,seq_length])
+    loss2 = tfa.seq2seq.sequence_loss(logit,target,weights)  # logit: (batch_size, seq_length, vocab_size),        target, weights: (batch_size, seq_length)
+    loss3 = tfa.seq2seq.SequenceLoss()(target, logit,weights)   # target, logit 순으로 
+    print(loss,loss2,loss3)
 
 
 def decoder_test():
@@ -101,11 +133,11 @@ def decoder_test():
     ##### embedding.weights, embedding.trainable_variables, embedding.trainable_weights --> 모두 같은 결과 
     
     input = embedding(x_data)
-    
+    target = tf.convert_to_tensor(y_data)
 
     # Decoder
     
-    method = 1
+    method = 2
     if method==1:
         # single layer RNN
         decoder_cell = tf.keras.layers.LSTMCell(hidden_dim)
@@ -117,14 +149,14 @@ def decoder_test():
     else:
         # multi layer RNN
         decoder_cell = tf.keras.layers.StackedRNNCells([tf.keras.layers.LSTMCell(hidden_dim),tf.keras.layers.LSTMCell(2*hidden_dim)])
-        init_state = decoder_cell.get_initial_state(inputs=input)
+        init_state = decoder_cell.get_initial_state(inputs=input)  #inputs=tf.zeros_like(x_data,dtype=tf.float32)로 해도 됨. inputs의 batch_size만 참조하기 때문에
     
     
     projection_layer = tf.keras.layers.Dense(output_dim)
     
     
     
-    decoder_method = 4
+    decoder_method = 1
     if decoder_method==1:
         # tensorflow 1.x에서 tf.contrib.seq2seq.TrainingHelper
         sampler = tfa.seq2seq.sampler.TrainingSampler()  # alias ---> sampler = tfa.seq2seq.TrainingSampler()
@@ -164,6 +196,107 @@ def decoder_test():
     
     print(logits.shape)
 
+    if decoder_method==1 or decoder_method==3:
+        weights = tf.ones(shape=[batch_size,seq_length])
+        loss = tfa.seq2seq.sequence_loss(logits,target,weights)  # logit: (batch_size, seq_length, vocab_size),        target, weights: (batch_size, seq_length)
+    
+        print('loss: ', loss)
+    
+    
+def decoder_train_test():
+    vocab_size = 6
+    SOS_token = 0
+    EOS_token = 5
+    
+    # x_data = np.array([[SOS_token, 3, 1, 4, 3, 2],[SOS_token, 3, 4, 2, 3, 1],[SOS_token, 1, 3, 2, 2, 1]], dtype=np.int32)
+    # y_data = np.array([[3, 1, 4, 3, 2,EOS_token],[3, 4, 2, 3, 1,EOS_token],[1, 3, 2, 2, 1,EOS_token]],dtype=np.int32)
+    # print("data shape: ", x_data.shape)
+    
+    
+    index_to_char = {SOS_token: '<S>', 1: 'h', 2: 'e', 3: 'l', 4: 'o', EOS_token: '<E>'}
+    x_data = np.array([[SOS_token, 1, 2, 3, 3, 4]], dtype=np.int32)
+    y_data = np.array([[1, 2, 3, 3, 4,EOS_token]],dtype=np.int32)
+    
+    
+    
+    output_dim = vocab_size
+    batch_size = len(x_data)
+    hidden_dim =7
+    num_layers = 2
+    seq_length = x_data.shape[1]
+    embedding_dim = 8
+    state_tuple_mode = True
+    init_state_flag = 0
+    init = np.arange(vocab_size*embedding_dim).reshape(vocab_size,-1)
+    
+    embedding = tf.keras.layers.Embedding(vocab_size, embedding_dim,embeddings_initializer=Constant(init),trainable=True) 
+    ##### embedding.weights, embedding.trainable_variables, embedding.trainable_weights --> 모두 같은 결과 
+    
+    
+    target = tf.convert_to_tensor(y_data)
+    
+    # Decoder
+    method = 1
+    if method==1:
+        # single layer RNN
+        decoder_cell = tf.keras.layers.LSTMCell(hidden_dim)
+        # decoder init state:
+        
+        #init_state = [tf.zeros((batch_size,hidden_dim)), tf.ones((batch_size,hidden_dim))]   # (h,c)
+        init_state = decoder_cell.get_initial_state(inputs=None, batch_size=batch_size, dtype=tf.float32)
+        
+    else:
+        # multi layer RNN
+        decoder_cell = tf.keras.layers.StackedRNNCells([tf.keras.layers.LSTMCell(hidden_dim),tf.keras.layers.LSTMCell(2*hidden_dim)])
+        init_state = decoder_cell.get_initial_state(inputs=tf.zeros_like(x_data,dtype=tf.float32))  # inputs의 batch_size만 참조하기 때문에
+    
+    
+    projection_layer = tf.keras.layers.Dense(output_dim)
+    
+    
+
+    sampler = tfa.seq2seq.sampler.TrainingSampler()  # alias ---> sampler = tfa.seq2seq.TrainingSampler()
+    decoder = tfa.seq2seq.BasicDecoder(decoder_cell, sampler, output_layer=projection_layer)
+    
+    
+    optimizer = tf.keras.optimizers.Adam(lr=0.01)
+    for step in range(50):
+        with tf.GradientTape() as tape:
+            input = embedding(x_data)
+            outputs, last_state, last_sequence_lengths = decoder(input,initial_state=init_state, sequence_length=[seq_length]*batch_size,training=True)
+            logits = outputs.rnn_output
+            
+            weights = tf.ones(shape=[batch_size,seq_length])
+            loss = tfa.seq2seq.sequence_loss(logits,target,weights)
+        grads = tape.gradient(loss,embedding.weights+decoder.weights)
+        optimizer.apply_gradients(zip(grads,embedding.weights+decoder.weights))
+        
+        if step%10==0:
+            print(step, loss.numpy())
+    
+    
+    
+    sampler = tfa.seq2seq.GreedyEmbeddingSampler()  # alias ---> sampler = tfa.seq2seq.sampler.GreedyEmbeddingSampler
+    sample_batch_size = 4
+    
+    decoder_type = 1
+    if decoder_type==1:
+        decoder = tfa.seq2seq.BasicDecoder(decoder_cell, sampler, output_layer=projection_layer,maximum_iterations=seq_length)
+        #init_state = [tf.ones_like(init_state[0]),tf.ones_like(init_state[1])]
+        init_state = [tf.random.normal(shape=(4,hidden_dim),mean=0.5),tf.random.normal(shape=(4,hidden_dim),mean=0.5)]
+    else:
+        beam_width=2
+        decoder = tfa.seq2seq.BeamSearchDecoder(decoder_cell,beam_width,output_layer=projection_layer,maximum_iterations=seq_length)
+        init_state = decoder_cell.get_initial_state(inputs=tf.zeros_like(x_data,dtype=tf.float32))
+        
+    outputs, last_state, last_sequence_lengths = decoder(embedding.weights,initial_state=init_state,
+                                                         start_tokens=tf.tile([SOS_token], [sample_batch_size]), end_token=EOS_token,training=False) 
+    
+    result = tf.argmax(outputs.rnn_output,axis=-1).numpy()
+    
+    print(result)
+    for i in range(sample_batch_size):
+        print(''.join( index_to_char[a] for a in result[i] if a != EOS_token))
 
 def attention_test():
     
@@ -234,10 +367,11 @@ def attention_test():
 if __name__ == '__main__':
     #simple_rnn()
     #simple_rnn2()
-    decoder_test()
+    #seq_loss_test()
+    #decoder_test()
+    decoder_train_test()
     #attention_test()
     print('Done')
-
 
 
 

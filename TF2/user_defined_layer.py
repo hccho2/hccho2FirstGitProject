@@ -45,7 +45,8 @@ class MyCell(tf.keras.layers.Layer):
 
 
 
-def simple_layer():
+def user_defined_dense_layer():
+    # user defined Dense Layer
     class MyDenseLayer(tf.keras.layers.Layer):
         def __init__(self, num_outputs):
             super(MyDenseLayer, self).__init__()
@@ -270,7 +271,7 @@ def user_defined_cell_decoder_test():
 
 
 if __name__ == '__main__':
-    #simple_layer()
+    #user_defined_dense_layer()
     #simple_layer2()
     #simple_rnn()
     #simple_rnn2()  # User Defined cell인 MyCell test
