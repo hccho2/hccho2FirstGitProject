@@ -9,6 +9,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')  # --> dev
 device = torch.device('cuda:0')                                        # --> device(type='cuda', index=0)
 
 mynet.to(device) # 또는 mynet.cuda(), mynet.cpu()
+y = x.to(device)  # inplace방식 아님. x.to(device)하면, x가 바뀌지는 않는다. 
 ------
 x.cpu().detach().numpy()
 x.cpu().data.numpy()
