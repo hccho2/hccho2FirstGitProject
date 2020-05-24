@@ -19,7 +19,7 @@ import tensorflow_addons as tfa
 from tensorflow.keras.initializers import Constant
 
 # tf.keras.layers.Layer ----> OK
-# tf.keras.Model  ----> 아래, test_mode 1, 2에서는 OK.   3에서는 error
+# tf.keras.Model  ----> 아래, test_mode 1, 2에서는 OK.   3에서는 error      tf.keras.Model는 pytorch의 nn.Module로 부면 된다.
 class MyCell(tf.keras.layers.Layer):
     def __init__(self, hidden_dim):
         super(MyCell, self).__init__(name='')
@@ -30,7 +30,7 @@ class MyCell(tf.keras.layers.Layer):
         self.state_size = self.rnn_cell.state_size
         self.output_size = 2*hidden_dim  # self.rnn_cell.output_size
 
-    def call(self, inputs, states):
+    def call(self, inputs, states,training=None):
         output, states = self.rnn_cell(inputs,states)
         output = self.dense(output)
         return output,states
@@ -41,12 +41,11 @@ class MyCell(tf.keras.layers.Layer):
             batch_size = tf.shape(inputs)[0]
             dtype = inputs.dtype
         
-        return [tf.zeros((batch_size,self.hidden_dim)), tf.zeros((batch_size,self.hidden_dim))]
+        return [tf.zeros((batch_size,self.hidden_dim),dtype=dtype), tf.zeros((batch_size,self.hidden_dim),dtype=dtype)]
 
 
 
-def user_defined_dense_layer():
-    # user defined Dense Layer
+def simple_layer():
     class MyDenseLayer(tf.keras.layers.Layer):
         def __init__(self, num_outputs):
             super(MyDenseLayer, self).__init__()
@@ -148,9 +147,7 @@ def simple_rnn():
     i1 = 32
     i2 = 64
     i3 = 32
-    batch_size = 64
-    num_batches = 100
-    timestep = 50
+
     
     cell = NestedCell(unit_1, unit_2, unit_3)
     rnn = tf.keras.layers.RNN(cell)
@@ -164,20 +161,21 @@ def simple_rnn():
     
     model.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
     
-def simple_rnn2():
+def user_defined_cell_test():
 
     # User Defined cell인 MyCell test
     batch_size = 3
     hidden_dim = 5
     seq_length = 4
     feature_dim = 7
-    cell = MyCell(hidden_dim)
+    
+    cell = MyCell(hidden_dim)   # User Defined Cell
 
-    test_mode = 3
+    test_mode = 1
     if test_mode==1:
         inputs = tf.random.normal([batch_size, feature_dim])
-        states =  cell.get_initial_state(inputs=None, batch_size=batch_size)
-        outputs, states = cell(inputs,states)
+        states =  cell.get_initial_state(inputs=None, batch_size=batch_size,dtype=tf.float32)
+        outputs, states = cell(inputs,states,training=True)
         print(outputs)
         print(states)
     elif test_mode==2:
@@ -222,17 +220,16 @@ def user_defined_cell_decoder_test():
     output_dim = vocab_size
     batch_size = len(x_data)
     hidden_dim =7
-    num_layers = 2
+
     seq_length = x_data.shape[1]
     embedding_dim = 8
-    state_tuple_mode = True
-    init_state_flag = 0
+
     init = np.arange(vocab_size*embedding_dim).reshape(vocab_size,-1)
     
     embedding = tf.keras.layers.Embedding(vocab_size, embedding_dim,embeddings_initializer=Constant(init),trainable=True) 
     ##### embedding.weights, embedding.trainable_variables, embedding.trainable_weights --> 모두 같은 결과 
     
-    input = embedding(x_data)
+    inputs = embedding(x_data)
     
 
     
@@ -241,7 +238,7 @@ def user_defined_cell_decoder_test():
     
     # Decoder
     
-    method = 1
+    method = 2
     if method==2:
         #decoder_cell = tf.keras.layers.LSTMCell(hidden_dim)
         decoder_cell = MyCell(hidden_dim)
@@ -252,7 +249,7 @@ def user_defined_cell_decoder_test():
         
     else:
         decoder_cell = tf.keras.layers.StackedRNNCells([MyCell(hidden_dim),MyCell(2*hidden_dim)])
-        init_state = decoder_cell.get_initial_state(inputs=input)
+        init_state = decoder_cell.get_initial_state(inputs=tf.zeros_like(x_data,dtype=tf.float32))  # inputs의 batch_size만 참조하기 때문에
     
     
     projection_layer = tf.keras.layers.Dense(output_dim)
@@ -260,7 +257,7 @@ def user_defined_cell_decoder_test():
     
     decoder = tfa.seq2seq.BasicDecoder(decoder_cell, sampler, output_layer=projection_layer)
     
-    outputs, last_state, last_sequence_lengths = decoder(input,initial_state=init_state, sequence_length=[seq_length]*batch_size)
+    outputs, last_state, last_sequence_lengths = decoder(inputs,initial_state=init_state, sequence_length=[seq_length]*batch_size)
     logits = outputs.rnn_output
     
     print(logits.shape)
@@ -271,14 +268,13 @@ def user_defined_cell_decoder_test():
 
 
 if __name__ == '__main__':
-    #user_defined_dense_layer()
+    #simple_layer()
     #simple_layer2()
     #simple_rnn()
-    #simple_rnn2()  # User Defined cell인 MyCell test
-    user_defined_cell_decoder_test()  # User Defined cell인 MyCell + decoder test
+    user_defined_cell_test()  # User Defined cell인 MyCell test
+    #user_defined_cell_decoder_test()  # User Defined cell인 MyCell + decoder test
 
     print('Done')
-
 
 
 
