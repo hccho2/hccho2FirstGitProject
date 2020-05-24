@@ -19,7 +19,7 @@ import tensorflow_addons as tfa
 from tensorflow.keras.initializers import Constant
 
 # tf.keras.layers.Layer ----> OK
-# tf.keras.Model  ----> 아래, test_mode 1, 2에서는 OK.   3에서는 error      tf.keras.Model는 pytorch의 nn.Module로 부면 된다.
+# tf.keras.Model  ----> 아래, test_mode 1, 2에서는 OK.   3에서는 error      tf.keras.Model는 pytorch의 nn.Module로 면 된다.
 class MyCell(tf.keras.layers.Layer):
     def __init__(self, hidden_dim):
         super(MyCell, self).__init__(name='')
