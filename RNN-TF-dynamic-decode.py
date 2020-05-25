@@ -32,7 +32,7 @@ class DynamicDecode():
             initial_state = cell.zero_state(batch_size, tf.float32) #(batch_size x hidden_dim) 
 
             if is_training:
-                helper = tf.contrib.seq2seq.TrainingHelper(inputs, np.array([seq_length]*batch_size))
+                helper = tf.contrib.seq2seq.TrainingHelper(inputs, np.array([seq_length]*batch_size,dtype=np.int32))
             else:
                 SOS_token=0
                 EOS_token = output_dim-1
@@ -109,7 +109,7 @@ def dynamic_decode_test():
                 h0 = tf.random_normal([batch_size,hidden_dim]) #h0 = tf.cast(np.random.randn(batch_size,hidden_dim),tf.float32)
                 initial_state = (tf.concat((tf.zeros_like(h0),h0), axis=1),) + (tf.concat((tf.zeros_like(h0),tf.zeros_like(h0)), axis=1),) * (num_layers-1)
         if train_mode:
-            helper = tf.contrib.seq2seq.TrainingHelper(inputs, np.array([seq_length]*batch_size))
+            helper = tf.contrib.seq2seq.TrainingHelper(inputs, np.array([seq_length]*batch_size,dtype=np.int32))
             #helper = tf.contrib.seq2seq.TrainingHelper(inputs, np.array([[2],[4],[6]]).reshape(-1))
         else:
             helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(embedding, start_tokens=tf.tile([SOS_token], [batch_size]), end_token=EOS_token)
@@ -209,7 +209,7 @@ def dynamic_decode_helpertest():
                 h0 = tf.random_normal([batch_size,hidden_dim]) #h0 = tf.cast(np.random.randn(batch_size,hidden_dim),tf.float32)
                 initial_state = (tf.concat((tf.zeros_like(h0),h0), axis=1),) + (tf.concat((tf.zeros_like(h0),tf.zeros_like(h0)), axis=1),) * (num_layers-1)
         if train_mode:
-            #helper = tf.contrib.seq2seq.TrainingHelper(inputs, np.array([seq_length]*batch_size))
+            #helper = tf.contrib.seq2seq.TrainingHelper(inputs, np.array([seq_length]*batch_size,dtype=np.int32))
             helper = tf.contrib.seq2seq.ScheduledEmbeddingTrainingHelper(inputs, np.array([seq_length]*batch_size),embedding,0.3)
             #helper = tf.contrib.seq2seq.ScheduledOutputTrainingHelper(inputs, np.array([seq_length]*batch_size),0.3)   # output dim(embedding 전),input dim이 잘 맞아야 한다. 예에서 embedding_dim=vocab_size
         else:
@@ -308,7 +308,7 @@ def attention_test():
         initial_state = cell.zero_state(batch_size, tf.float32) # AttentionWrapperState
  
         if train_mode:
-            helper = tf.contrib.seq2seq.TrainingHelper(inputs, np.array([seq_length]*batch_size))
+            helper = tf.contrib.seq2seq.TrainingHelper(inputs, np.array([seq_length]*batch_size,dtype=np.int32))
         else:
             helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(embedding, start_tokens=tf.tile([SOS_token], [batch_size]), end_token=EOS_token)
      
@@ -429,7 +429,7 @@ def attention_multicell_test():
         initial_state = cell.zero_state(batch_size, tf.float32) #(batch_size x hidden_dim) x layer 개수   ==> AttentionWrapperState class object를 return한다.
   
         if train_mode:
-            helper = tf.contrib.seq2seq.TrainingHelper(inputs, np.array([seq_length]*batch_size))
+            helper = tf.contrib.seq2seq.TrainingHelper(inputs, np.array([seq_length]*batch_size,dtype=np.int32))
         else:
             helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(embedding, start_tokens=tf.tile([SOS_token], [batch_size]), end_token=EOS_token)
       
@@ -571,7 +571,7 @@ def attention_keras_test():
         initial_state = cell.zero_state(batch_size, tf.float32) # AttentionWrapperState
  
         if train_mode:
-            helper = tf.contrib.seq2seq.TrainingHelper(inputs, np.array([seq_length]*batch_size))
+            helper = tf.contrib.seq2seq.TrainingHelper(inputs, np.array([seq_length]*batch_size,dtype=np.int32))
         else:
             helper = tf.contrib.seq2seq.GreedyEmbeddingHelper(embedding, start_tokens=tf.tile([SOS_token], [batch_size]), end_token=EOS_token)
      
