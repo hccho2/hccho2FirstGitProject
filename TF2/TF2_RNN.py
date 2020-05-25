@@ -30,12 +30,31 @@ class MyProjection(tf.keras.layers.Layer):  # tf.keras.layers.Layer    tf.keras.
     
     def build(self, input_shape):
         # tf.keras.layers.Layer를 상속받았을 때에는 .필요한 weight들을 여기서 만들어 주어야 한다.
+        # input_shape을 참고해서, 필요한 크기의 weight를 생성한다.
+        #self.kernel = self.add_variable("kernel",shape=[int(input_shape[-1]),self.num_outputs])
         pass
         
     def call(self, inputs,training=None):
         y = self.L1(inputs)
         z = self.L2(y)
         return z
+
+
+
+class MyProjection2(tf.keras.Model):  # tf.keras.layers.Layer    tf.keras.Model
+    # tf.keras.Model은 새로운 weight 없이, 기존의 layer들의 조합으로 새로운 layer를 만들 때 사용하면 좋다.
+    def __init__(self,output_dim):
+        super(MyProjection2, self).__init__()   # 이게 있어야 한다.
+        self.output_dim = output_dim
+        self.L1 = tf.keras.layers.Dense(20, activation = tf.nn.relu)
+        self.L2 = tf.keras.layers.Dense(self.output_dim) 
+    
+        
+    def call(self, inputs,training=None):
+        y = self.L1(inputs)
+        z = self.L2(y)
+        return z
+
 
 def simple_rnn():
     # https://www.tensorflow.org/guide/keras/rnn
@@ -194,8 +213,8 @@ def simple_seq2seq2():
     
     
     #projection_layer = tf.keras.layers.Dense(decoder_output_dim)
-    projection_layer = MyProjection(decoder_output_dim)
-    
+    #projection_layer = MyProjection(decoder_output_dim)
+    projection_layer = MyProjection2(decoder_output_dim)
     
     sampler = tfa.seq2seq.sampler.TrainingSampler()
     decoder = tfa.seq2seq.BasicDecoder(decoder_cell, sampler, output_layer=projection_layer)
@@ -656,7 +675,6 @@ if __name__ == '__main__':
     #attention_test()
     #InferenceSampler_test()
     print('Done')
-
 
 
 

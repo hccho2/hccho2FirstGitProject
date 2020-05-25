@@ -7,7 +7,20 @@ https://www.tensorflow.org/guide/keras/rnn
 
 
 1. layer class는 tf.keras.layers.Layer를 상속받아서 구현한다.
-2. 기존에 있는 layer를 황용하는 경우에는 tf.keras.Model을 상속받는다.
+2. 기존에 있는 layer를 활용하는 경우에는 tf.keras.Model을 상속받는다.
+
+
+사용자 정의 층을 구현하는 가장 좋은 방법은 tf.keras.Layer 클래스를 상속하고 다음과 같이 구현하는 것입니다. 
+ 1. __init__ 에서 층에 필요한 매개변수를 입력 받습니다. 
+ 2. build, 입력 텐서의 크기를 얻고 남은 초기화를 진행할 수 있습니다 .
+ 3. call, 정방향 연산(forward computation)을 진행 할 수 있습니다.
+
+변수를 생성하기 위해 build가 호출되길 기다릴 필요가 없다는 것에 주목하세요. 
+또한 변수를 __init__에 생성할 수도 있습니다. 그러나 build에 변수를 생성하는 유리한 점은 층이 작동할 입력의 크기를 기준으로 나중에 변수를 만들 수 있다는 것입니다. 
+반면에, __init__에 변수를 생성하는 것은 변수 생성에 필요한 크기가 명시적으로 지정되어야 함을 의미합니다.
+
+
+다른 층을 포함한 모델을 만들기 위해 사용하는 메인 클래스는 tf.keras.Model입니다. 다음은 tf.keras.Model을 상속(inheritance)하여 구현한 코드입니다.
 
 '''
 
@@ -22,6 +35,7 @@ from tensorflow.keras.initializers import Constant
 # tf.keras.layers.Layer ----> OK
 # tf.keras.Model  ----> 아래, test_mode 1, 2에서는 OK.   3에서는 error      tf.keras.Model는 pytorch의 nn.Module로 보면 된다.
 class MyCell(tf.keras.layers.Layer):
+    # RNN + FC
     def __init__(self, hidden_dim):
         super(MyCell, self).__init__(name='')
         self.hidden_dim = hidden_dim
@@ -44,7 +58,28 @@ class MyCell(tf.keras.layers.Layer):
         
         return [tf.zeros((batch_size,self.hidden_dim),dtype=dtype), tf.zeros((batch_size,self.hidden_dim),dtype=dtype)]
 
+class MyCell2(tf.keras.layers.Layer):
+    # Residual cell
+    def __init__(self, hidden_dim):
+        super(MyCell2, self).__init__(name='')
+        self.hidden_dim = hidden_dim
+        self.rnn_cell = tf.keras.layers.LSTMCell(hidden_dim)
+        
+        self.state_size = self.rnn_cell.state_size
+        self.output_size = hidden_dim  # self.rnn_cell.output_size
 
+    def call(self, inputs, states,training=None):
+        output, states = self.rnn_cell(inputs,states)
+        output = output + inputs
+        return output,states
+
+    def get_initial_state(self, inputs=None, batch_size=None, dtype=None):
+        
+        if inputs is not None:
+            batch_size = tf.shape(inputs)[0]
+            dtype = inputs.dtype
+        
+        return [tf.zeros((batch_size,self.hidden_dim),dtype=dtype), tf.zeros((batch_size,self.hidden_dim),dtype=dtype)]
 
 def simple_layer():
     class MyDenseLayer(tf.keras.layers.Layer):
@@ -168,11 +203,13 @@ def user_defined_cell_test():
 
     # User Defined cell인 MyCell test
     batch_size = 3
-    hidden_dim = 5
+    
     seq_length = 4
     feature_dim = 7
+    hidden_dim = feature_dim
     
-    cell = MyCell(hidden_dim)   # User Defined Cell
+    #cell = MyCell(hidden_dim)   # User Defined Cell
+    cell = MyCell2(hidden_dim)
 
     test_mode = 3
     if test_mode==1:
@@ -274,12 +311,11 @@ def user_defined_cell_decoder_test():
 
 
 if __name__ == '__main__':
-    simple_layer()
+    #simple_layer()
     #simple_layer2()
     #simple_rnn()
-    #user_defined_cell_test()  # User Defined cell인 MyCell test
+    user_defined_cell_test()  # User Defined cell인 MyCell test
     #user_defined_cell_decoder_test()  # User Defined cell인 MyCell + decoder test
 
     print('Done')
-
 
