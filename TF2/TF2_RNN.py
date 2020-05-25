@@ -21,7 +21,21 @@ import tensorflow_addons as tfa
 
 from tensorflow.keras.initializers import Constant
 
-
+class MyProjection(tf.keras.layers.Layer):  # tf.keras.layers.Layer    tf.keras.Model
+    def __init__(self,output_dim):
+        super(MyProjection, self).__init__()   # 이게 있어야 한다.
+        self.output_dim = output_dim
+        self.L1 = tf.keras.layers.Dense(20, activation = tf.nn.relu)
+        self.L2 = tf.keras.layers.Dense(self.output_dim) 
+    
+    def build(self, input_shape):
+        # tf.keras.layers.Layer를 상속받았을 때에는 .필요한 weight들을 여기서 만들어 주어야 한다.
+        pass
+        
+    def call(self, inputs,training=None):
+        y = self.L1(inputs)
+        z = self.L2(y)
+        return z
 
 def simple_rnn():
     # https://www.tensorflow.org/guide/keras/rnn
@@ -177,7 +191,12 @@ def simple_seq2seq2():
     else:
         decoder_cell = tf.keras.layers.LSTMCell(hidden_dim)  # RNN Cell
     
-    projection_layer = tf.keras.layers.Dense(decoder_output_dim)
+    
+    
+    #projection_layer = tf.keras.layers.Dense(decoder_output_dim)
+    projection_layer = MyProjection(decoder_output_dim)
+    
+    
     sampler = tfa.seq2seq.sampler.TrainingSampler()
     decoder = tfa.seq2seq.BasicDecoder(decoder_cell, sampler, output_layer=projection_layer)
     
@@ -630,12 +649,12 @@ if __name__ == '__main__':
     #simple_rnn2()
     #bidirectional_rnn_test()
     #simple_seq2seq()
-    #simple_seq2seq2()
+    simple_seq2seq2()
     #seq_loss_test()
     #decoder_test()
     #decoder_train_test()
     #attention_test()
-    InferenceSampler_test()
+    #InferenceSampler_test()
     print('Done')
 
 

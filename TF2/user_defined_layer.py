@@ -18,8 +18,9 @@ import tensorflow as tf
 import tensorflow_addons as tfa
 from tensorflow.keras.initializers import Constant
 
+# tf.keras.layers.Layer로 부터 상속받아야 한다. tf.keras.Model은 안되나? tf.keras.Model은 Layer들의 집합성격이 강하다.
 # tf.keras.layers.Layer ----> OK
-# tf.keras.Model  ----> 아래, test_mode 1, 2에서는 OK.   3에서는 error      tf.keras.Model는 pytorch의 nn.Module로 면 된다.
+# tf.keras.Model  ----> 아래, test_mode 1, 2에서는 OK.   3에서는 error      tf.keras.Model는 pytorch의 nn.Module로 보면 된다.
 class MyCell(tf.keras.layers.Layer):
     def __init__(self, hidden_dim):
         super(MyCell, self).__init__(name='')
@@ -52,13 +53,15 @@ def simple_layer():
             self.num_outputs = num_outputs
         
         def build(self, input_shape):
+            # input data가 처음 들어오면, 그 shape을 보고, weight를 만든다.
             self.kernel = self.add_variable("kernel",shape=[int(input_shape[-1]), self.num_outputs])
         
-        def call(self, input):
+        def call(self, input,training=None):
             return tf.matmul(input, self.kernel)
     
     layer = MyDenseLayer(10)
-    print(layer(tf.zeros([10, 5])))
+    inputs = tf.random.normal([10,5])
+    print(layer(inputs,training=True))
     print(layer.trainable_variables)
 
 
@@ -171,14 +174,16 @@ def user_defined_cell_test():
     
     cell = MyCell(hidden_dim)   # User Defined Cell
 
-    test_mode = 1
+    test_mode = 3
     if test_mode==1:
+        # 1 time step 처리
         inputs = tf.random.normal([batch_size, feature_dim])
         states =  cell.get_initial_state(inputs=None, batch_size=batch_size,dtype=tf.float32)
         outputs, states = cell(inputs,states,training=True)
         print(outputs)
         print(states)
     elif test_mode==2:
+        # 여러 step을 loop로 처리
         inputs = tf.random.normal([batch_size, seq_length, feature_dim])
         
         states =  [tf.zeros([batch_size,hidden_dim]),tf.zeros([batch_size,hidden_dim])]
@@ -192,6 +197,7 @@ def user_defined_cell_test():
         print(outputs_all)
         print(states)
     elif test_mode==3:
+        # tf.keras.layers.RNN을 만들어 batch로 처리.
         rnn = tf.keras.layers.RNN(cell,return_sequences=True, return_state=True)
         
         inputs = tf.random.normal([batch_size, seq_length, feature_dim])
@@ -268,13 +274,12 @@ def user_defined_cell_decoder_test():
 
 
 if __name__ == '__main__':
-    #simple_layer()
+    simple_layer()
     #simple_layer2()
     #simple_rnn()
-    user_defined_cell_test()  # User Defined cell인 MyCell test
+    #user_defined_cell_test()  # User Defined cell인 MyCell test
     #user_defined_cell_decoder_test()  # User Defined cell인 MyCell + decoder test
 
     print('Done')
-
 
 

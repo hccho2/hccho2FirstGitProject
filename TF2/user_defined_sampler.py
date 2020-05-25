@@ -100,7 +100,7 @@ def user_defined_sampler_decoder_test():
         init_state = decoder_cell.get_initial_state(inputs=inputs)  #inputs=tf.zeros_like(x_data,dtype=tf.float32)로 해도 됨. inputs의 batch_size만 참조하기 때문에
     
     
-    projection_layer = tf.keras.layers.Dense(output_dim)
+    projection_layer = tf.keras.layers.Dense(output_dim,activation=tf.nn.relu)
     
     
     
