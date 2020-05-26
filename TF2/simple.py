@@ -1,3 +1,5 @@
+# coding: utf-8
+
 
 '''
 2020년5월19일 현재: tensorflow-gpu 2.2, 2.1 설치해도 error. 2.0.2는 error 안남.
@@ -119,10 +121,68 @@ def simple_model():
     plt.tight_layout()
     plt.show()
 
+
+
+def keras_standard_model():
+    batch_size = 2
+    input_dim = 3
+    model = tf.keras.models.Sequential()
+    
+    
+    model.add(tf.keras.layers.Dense(units=10,input_dim=3,activation='relu'))
+    model.add(tf.keras.layers.Dense(units=1,activation=None))
+    
+    print(model.summary())
+    
+    
+    
+    X = tf.random.normal(shape=(batch_size, input_dim))
+    Y = tf.random.normal(shape=(batch_size, 1))
+    
+    optimizer = tf.keras.optimizers.Adam(lr=0.01)
+    model.compile(optimizer,loss='mse')
+    
+    model.fit(X,Y,epochs=100,verbose=1)
+    
+    
+    print(X,Y)
+    print(model.predict(X))
+
+
+def keras_standard_model2():
+    batch_size = 2
+    input_dim = 3
+    
+    inputs = tf.keras.Input(shape=(input_dim,))  # 구제적인 입력 data없이 ---> placeholder같은 ...
+    
+    L1 = tf.keras.layers.Dense(units=10,input_dim=3,activation='relu')
+    L2 = tf.keras.layers.Dense(units=1,activation=None)
+    
+    output = L2(L1(inputs))
+    
+    model = tf.keras.Model(inputs,output)
+    print(model.summary())
+    
+    
+    X = tf.random.normal(shape=(batch_size, input_dim))
+    Y = tf.random.normal(shape=(batch_size, 1))
+    
+    
+    optimizer = tf.keras.optimizers.Adam(lr=0.01)
+    model.compile(optimizer,loss='mse')
+    
+    model.fit(X,Y,epochs=100,verbose=1)
+    
+    
+    print(X,Y)
+    print(model.predict(X))
+
+
 if __name__ == "__main__":    
     #embeddidng_test()
-    simple_model()
-
+    #simple_model()
+    #keras_standard_model()
+    keras_standard_model2()
 
 
 

@@ -18,7 +18,7 @@ get_initial_state()함수가 class type에 따라, 일관성이 없다....
 import numpy as np
 import tensorflow as tf
 import tensorflow_addons as tfa
-
+import matplotlib.pyplot as plt
 from tensorflow.keras.initializers import Constant
 
 class MyProjection(tf.keras.layers.Layer):  # tf.keras.layers.Layer    tf.keras.Model
@@ -381,10 +381,8 @@ def decoder_train_test():
 
     seq_length = x_data.shape[1]
     embedding_dim = 8
-
-    init = np.arange(vocab_size*embedding_dim).reshape(vocab_size,-1)
     
-    embedding = tf.keras.layers.Embedding(vocab_size, embedding_dim,embeddings_initializer=Constant(init),trainable=True) 
+    embedding = tf.keras.layers.Embedding(vocab_size, embedding_dim,trainable=True) 
     ##### embedding.weights, embedding.trainable_variables, embedding.trainable_weights --> 모두 같은 결과 
     
     
@@ -418,7 +416,7 @@ def decoder_train_test():
     
     optimizer = tf.keras.optimizers.Adam(lr=0.01)
     
-    for step in range(500):
+    for step in range(200):
         with tf.GradientTape() as tape:
             inputs = embedding(x_data)
             if isinstance(sampler, tfa.seq2seq.sampler.ScheduledEmbeddingTrainingSampler):
@@ -437,7 +435,6 @@ def decoder_train_test():
         
         if step%10==0:
             print(step, loss.numpy())
-    
     
     
     
@@ -557,7 +554,13 @@ def attention_test():
     logits = outputs.rnn_output
     
     print(logits.shape)
+    
 
+    alignment_stack = last_state.alignment_history.stack().numpy()
+    print("alignment_history: ", alignment_stack.shape)  # (seq_length, batch_size, encoder_length)
+    
+    plt.imshow(alignment_stack[:,0,:], cmap='hot',interpolation='nearest')
+    plt.show()
 
 
 def InferenceSampler_test():
@@ -672,9 +675,8 @@ if __name__ == '__main__':
     #simple_seq2seq2()
     #seq_loss_test()
     #decoder_test()
-    #decoder_train_test()
-    attention_test()
+    decoder_train_test()
+    #attention_test()
     #InferenceSampler_test()
     print('Done')
-
 
