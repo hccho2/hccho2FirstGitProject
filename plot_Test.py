@@ -552,12 +552,12 @@ plt.show()
 
 
 
-
-
-
-
 ##########################################################
+# heat map
+data = np.random.randn(10,10)
 
+plt.imshow(data, cmap='hot', interpolation='none')  # interpolation='nearest'
+plt.show()
 
 
 ##########################################################
