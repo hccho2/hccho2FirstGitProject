@@ -78,7 +78,7 @@ def dynamic_decode_test():
             for _ in range(num_layers):
                 cell = tf.contrib.rnn.BasicRNNCell(num_units=hidden_dim)
                 #cell = tf.contrib.rnn.BasicLSTMCell(num_units=hidden_dim,state_is_tuple=state_tuple_mode)
-                #cell = tf.contrib.rnn.GRUCell(num_units=hidden_dim)
+                #cell = tf.contrib.rnn.GRUCell(num_units=hidden_dim)  # init_state_flag==0 으로 해야 됨.
                 cells.append(cell)
             cell = tf.contrib.rnn.MultiRNNCell(cells)    
         else:
