@@ -64,7 +64,8 @@ def simple_rnn():
     input_dim = 7
     hidden_dim = 4
     inputs = tf.random.normal([batch_size, seq_length, input_dim])
-    rnn1 = tf.keras.layers.RNN([tf.keras.layers.SimpleRNNCell(hidden_dim),tf.keras.layers.LSTMCell(hidden_dim*2)],return_sequences=True)  # RNN(LSTMCell(units)) will run on non-CuDNN kernel
+    cells = [tf.keras.layers.SimpleRNNCell(hidden_dim),tf.keras.layers.LSTMCell(hidden_dim*2)] # 또는  cells = tf.keras.layers.StackedRNNCells(cells)
+    rnn1 = tf.keras.layers.RNN(cells,return_sequences=True)  # RNN(LSTMCell(units)) will run on non-CuDNN kernel
     
     initial_state =  rnn1.get_initial_state(inputs)
     output = rnn1(inputs,initial_state)
@@ -668,13 +669,12 @@ if __name__ == '__main__':
     #simple_rnn2()
     #bidirectional_rnn_test()
     #simple_seq2seq()
-    simple_seq2seq2()
+    #simple_seq2seq2()
     #seq_loss_test()
     #decoder_test()
     #decoder_train_test()
-    #attention_test()
+    attention_test()
     #InferenceSampler_test()
     print('Done')
-
 
 
