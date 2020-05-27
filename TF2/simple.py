@@ -17,6 +17,17 @@ import tensorflow_addons as tfa     ---> tfa.seq2seq.BahdanauMonotonicAttention 
 https://www.tensorflow.org/tutorials/quickstart/beginner?hl=ko
 
 
+
+
+모델 저장
+https://www.tensorflow.org/tutorials/keras/save_and_load?hl=ko
+https://www.tensorflow.org/guide/saved_model?hl=ko
+
+방법 1: tf.saved_model.save  ----> tf.saved_model.load
+밥법2: checkpoint 파일로 저장 (2가지 방법)
+     1. model.save_weights  ---> model.load_weights
+     2. tf.train.Checkpoint를 이용하는 방법
+
 '''
 
 
@@ -136,8 +147,12 @@ def keras_standard_model():
     
     
     
-    X = tf.random.normal(shape=(batch_size, input_dim))
-    Y = tf.random.normal(shape=(batch_size, 1))
+    #X = tf.random.normal(shape=(batch_size, input_dim))
+    #Y = tf.random.normal(shape=(batch_size, 1))
+    
+    X = tf.convert_to_tensor(np.array([[1.4358643,  1.275539,  -1.8608146 ], [-0.3436857, -0.7065693, -1.1548917]]),dtype=tf.float32)
+    Y = tf.convert_to_tensor(np.array([[-1.4839303 ], [0.88788706]]),dtype=tf.float32)
+    
     
     optimizer = tf.keras.optimizers.Adam(lr=0.01)
     model.compile(optimizer,loss='mse')
@@ -147,8 +162,60 @@ def keras_standard_model():
     
     print(X,Y)
     print(model.predict(X))
+    
+    #tf.saved_model.save(model,'./saved_model')   # ----> model_load_test()
+    
+    save_method=2
+    if save_method==1:
+        model.save_weights('./saved_model/model_ckpt')   # train하지 않은 모델을 restore하기 때문에  몇가지 WARNING이 나온다. WARNING:tensorflow:Unresolved object in checkpoint: (root).optimizer
+    else:
+        checkpoint = tf.train.Checkpoint(model=model)   # tf.train.Checkpoint(optimizer=optimizer, model=model)
+        checkpoint.save('./saved_model/model_ckpt')   # model_ckpt-1로 저장된다.
+    
+    print(model.weights)
 
 
+def model_load_test():
+    # tf.saved_model.save() 로 저장딘 것 복원.
+    # https://www.tensorflow.org/api_docs/python/tf/saved_model/load
+    '''
+    .fit, .predict는 없다.
+    .variables, .trainable_variables    .__call__    가능함.
+    '''
+    model = tf.saved_model.load('./saved_model')
+    
+    print(model)
+    batch_size = 2
+    input_dim = 3
+    #X = tf.random.normal(shape=(batch_size, input_dim))
+    X = tf.convert_to_tensor(np.array([[-0.03935467, -1.461705,   -1.4099646 ], [-0.20841599,  0.47920665, -0.44796956]]),dtype=tf.float32)
+    print(model(X))
+    
+def model_load_checkpoint():
+    
+    model = tf.keras.models.Sequential()
+    model.add(tf.keras.layers.Dense(units=10,input_dim=3,activation='relu'))
+    model.add(tf.keras.layers.Dense(units=1,activation=None))
+    
+    print(model.summary())
+    
+    #print('before:', model.weights)
+    
+    save_method=2
+    if save_method==1:
+        model.load_weights('./saved_model/model_ckpt')
+    else:
+        checkpoint = tf.train.Checkpoint(model=model)
+        checkpoint.restore('./saved_model/model_ckpt-1')
+    #print('after: ', model.weights)
+    
+    
+    X = tf.convert_to_tensor(np.array([[1.4358643,  1.275539,  -1.8608146 ], [-0.3436857, -0.7065693, -1.1548917]]),dtype=tf.float32)
+    Y = tf.convert_to_tensor(np.array([[-1.4839303 ], [0.88788706]]),dtype=tf.float32)
+    
+    print('target: ', Y.numpy())
+    print('predict: ', model.predict(X))
+    
 def keras_standard_model2():
     batch_size = 2
     input_dim = 3
@@ -165,6 +232,7 @@ def keras_standard_model2():
     
     
     X = tf.random.normal(shape=(batch_size, input_dim))
+    
     Y = tf.random.normal(shape=(batch_size, 1))
     
     
@@ -181,9 +249,10 @@ def keras_standard_model2():
 if __name__ == "__main__":    
     #embeddidng_test()
     #simple_model()
-    #keras_standard_model()
-    keras_standard_model2()
-
+    #keras_standard_model()   # ---> model_load_test
+    #model_load_test()
+    model_load_checkpoint()
+    #keras_standard_model2()
 
 
 
