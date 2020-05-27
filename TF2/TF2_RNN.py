@@ -311,7 +311,7 @@ def decoder_test():
     
     
     
-    decoder_method = 1
+    decoder_method = 3
     if decoder_method==1:
         # tensorflow 1.x에서 tf.contrib.seq2seq.TrainingHelper
         sampler = tfa.seq2seq.sampler.TrainingSampler()  # alias ---> sampler = tfa.seq2seq.TrainingSampler()
@@ -333,7 +333,7 @@ def decoder_test():
         decoder = tfa.seq2seq.BasicDecoder(decoder_cell, sampler, output_layer=projection_layer)
         kwargs={'initial_state': init_state}
         outputs, last_state, last_sequence_lengths = tfa.seq2seq.dynamic_decode(decoder = decoder,maximum_iterations = seq_length,
-                                                    impute_finished=True, output_time_major=False,decoder_init_input=input,decoder_init_kwargs=kwargs,training=True)
+                                                    impute_finished=True, output_time_major=False,decoder_init_input=inputs,decoder_init_kwargs=kwargs,training=True)
 
     elif decoder_method==4:
         sampler = tfa.seq2seq.GreedyEmbeddingSampler()
@@ -702,7 +702,7 @@ def attention_test():
     
     
 
-    outputs, last_state, last_sequence_lengths = decoder(decoder_input,initial_state=attention_init_state2, sequence_length=[seq_length]*batch_size)
+    outputs, last_state, last_sequence_lengths = decoder(decoder_input,initial_state=attention_init_state2, sequence_length=[seq_length]*batch_size,training=True)
     logits = outputs.rnn_output
     
     print(logits.shape)
@@ -826,9 +826,9 @@ if __name__ == '__main__':
     #simple_seq2seq()
     #simple_seq2seq2()
     #seq_loss_test()
-    #decoder_test()
+    decoder_test()
     #decoder_train_test()
-    decoder_train_save_restore_test()
+    #decoder_train_save_restore_test()
     #attention_test()
     #InferenceSampler_test()
     print('Done')

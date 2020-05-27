@@ -194,7 +194,7 @@ def model_load_test():
 def model_load_checkpoint():
     
     model = tf.keras.models.Sequential()
-    model.add(tf.keras.layers.Dense(units=10,input_dim=3,activation='relu'))
+    model.add(tf.keras.layers.Dense(units=10,input_dim=3,activation='relu'))  # input_dim을 넣어주면, weight를 미리 생성한다.
     model.add(tf.keras.layers.Dense(units=1,activation=None))
     
     print(model.summary())
