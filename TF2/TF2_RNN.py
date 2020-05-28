@@ -55,6 +55,35 @@ class MyProjection2(tf.keras.Model):  # tf.keras.layers.Layer    tf.keras.Model
         z = self.L2(y)
         return z
 
+def cell_loop():
+    batch_size = 3
+    seq_length = 5
+    input_dim = 7
+    hidden_dim = 4
+    
+    cells = tf.keras.layers.StackedRNNCells([tf.keras.layers.SimpleRNNCell(hidden_dim),tf.keras.layers.LSTMCell(hidden_dim*2)]) # 또는  cells = tf.keras.layers.StackedRNNCells(cells)
+    
+    initial_state =  cells.get_initial_state(inputs=None, batch_size=batch_size,dtype=tf.float32)
+    
+    
+    print(initial_state)
+    inputs = tf.random.normal([batch_size, seq_length, input_dim])
+    
+    state = initial_state
+    output_all = []
+    for i in range(seq_length):
+        output, state = cells(inputs[:,i,:],state)
+        output_all.append(output)
+    
+    output_all = tf.stack(output_all,axis=1)
+    print(output_all)
+
+    # tf.keras.layers.RNN으로  batch 처리
+    rnn = tf.keras.layers.RNN(cells,return_sequences=True)
+    output_all2 = rnn(inputs,initial_state)   # output_all과 같은 결과
+    print(output_all2)
+
+
 
 def simple_rnn():
     # https://www.tensorflow.org/guide/keras/rnn
@@ -690,6 +719,7 @@ def attention_test():
     decoder_cell = tf.keras.layers.LSTMCell(hidden_dim)
     
     # tfa.seq2seq.AttentionWrapper의 initial_cell_state로 tuple을 넣어야 되는데... 이건 버그임. 
+    # initial_cell_state 로 넘어가는 것은 계산에 사용되는 것은 아니고, get_initial_state()이 불려지면 넘겨 주려고....
     decoder_cell = tfa.seq2seq.AttentionWrapper(decoder_cell, attention_mechanism,attention_layer_size=13,initial_cell_state=init_state,output_attention=True,alignment_history=True)
     projection_layer = tf.keras.layers.Dense(output_dim)
     
@@ -820,13 +850,14 @@ def InferenceSampler_test():
 
 
 if __name__ == '__main__':
+    cell_loop()
     #simple_rnn()
     #simple_rnn2()
     #bidirectional_rnn_test()
     #simple_seq2seq()
     #simple_seq2seq2()
     #seq_loss_test()
-    decoder_test()
+    #decoder_test()
     #decoder_train_test()
     #decoder_train_save_restore_test()
     #attention_test()
