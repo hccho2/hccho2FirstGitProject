@@ -1,8 +1,11 @@
 # coding: utf-8
 '''
-1. numpy array 된 data는 TesnorDataset으로 변환하면 되낟.
+from torch.utils.data import TensorDataset, Dataset DataLoader
 
-2. Dataset을 상속하여 데이터 셋을 만든다.
+
+1. numpy array 된 data는 TesnorDataset으로 변환하면 된다.   ---> DataLoader에 넘긴다.
+
+2. Dataset을 상속하여 데이터 셋을 만든다.  ----> 이렇게 만든 데이터셋을 DataLoader에 넘기면 된다.
 
 
 
