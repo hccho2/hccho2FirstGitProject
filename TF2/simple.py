@@ -251,8 +251,8 @@ if __name__ == "__main__":
     #simple_model()
     #keras_standard_model()   # ---> model_load_test
     #model_load_test()
-    model_load_checkpoint()
-    #keras_standard_model2()
+    #model_load_checkpoint()
+    keras_standard_model2()
 
 
 

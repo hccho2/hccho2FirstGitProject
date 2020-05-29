@@ -850,7 +850,7 @@ def InferenceSampler_test():
 
 
 if __name__ == '__main__':
-    cell_loop()
+    #cell_loop()
     #simple_rnn()
     #simple_rnn2()
     #bidirectional_rnn_test()
@@ -860,6 +860,6 @@ if __name__ == '__main__':
     #decoder_test()
     #decoder_train_test()
     #decoder_train_save_restore_test()
-    #attention_test()
+    attention_test()
     #InferenceSampler_test()
     print('Done')
