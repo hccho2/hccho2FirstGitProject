@@ -36,6 +36,7 @@ class MyDataset(Dataset):
 
 
 def Mycollate_fn(batch):
+	# 여기서 batch_size로 묶는 작업이 필요하다.
 	# batch:  data 하나씩,  batch_size만큼의 list 
 	x, y = zip(*batch)
 	
