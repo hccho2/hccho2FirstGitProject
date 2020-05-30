@@ -993,18 +993,28 @@ print_kwargs(kwargs_1="Shark", kwargs_2=4.5, kwargs_3=True)
 =======
 
 def safe_division_d(number, divisor, **kwargs):
-
-ignore_overflow = kwargs.pop(‘ignore_overflow’, False)
-
-ignore_zero_div = kwargs.pop(‘ignore_zero_division’, False)
-
-if kwargs:
-
-raise TypeError(‘Unexpected **kwargs: %r’ % kwargs)
+	ignore_overflow = kwargs.pop(‘ignore_overflow’, False)
+	ignore_zero_div = kwargs.pop(‘ignore_zero_division’, False)
+	if kwargs:
+		raise TypeError(‘Unexpected **kwargs: %r’ % kwargs)
 
 
 pop 메서드로 kwargs 딕셔너리에서 원하는 키워드 인수를 꺼낸다. 키가 없을 때의 기본값은 pop 메서드의 두번째 인수로 지정한다. 
 마지막으로 kwargs에 더는 남아 있는 키워드가 없음을 확인하여 호출하는 쪽에서 올바르지 않은 인수를 넘기지 않게 한다.
+=====
+def my_func(x,*args, **kwargs):   # arguments, keyward argument
+    # args: tuple로 인식
+    # kwargs: dict로 인식  ===> named arguemnt가 여기로 들어온다.
+    print(x)
+    for w in args:
+        print('args: ', w)
+        
+    d  = kwargs.pop('name', '')  # 없을 경우에 두번째 argument를 default값으로
+    print(d)
+    d  = kwargs.pop('age', 0)   # 없을 경우에 두번째 argument를 default값으로
+    print(d)
+
+my_func(33, 1,2,3,name='cho')  # 1,2,3  ---> args,   named argument는 kwargs
 
 
 =====
