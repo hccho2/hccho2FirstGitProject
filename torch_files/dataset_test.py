@@ -9,7 +9,7 @@ from torch.utils.data import TensorDataset, Dataset DataLoader
 
 
 
-
+DataLoader에서 num_workers > 0일 때는 code에  __main__이 있어야 한다.   -----> drop_last의 default는 False이다.
 
 
 '''
@@ -52,7 +52,8 @@ def Mycollate_fn(batch):
 def test1():
     mydataset = MyDataset()
     
-    train_loader = DataLoader(dataset=mydataset, batch_size=2, shuffle=True, num_workers=2,drop_last=True,collate_fn=None)
+    train_loader = DataLoader(dataset=mydataset, batch_size=8, shuffle=True, num_workers=2,drop_last=True,collate_fn=Mycollate_fn)
+
 
     for i, data in enumerate(train_loader):
         print(data[0].size(), data[1].size(), data)
