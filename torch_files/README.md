@@ -84,3 +84,12 @@ extractor = MyVGG(vgg16)
 featres2 = extractor(imgs)
 
 ```
+
+
+
+## pytorch image load
+import torch.nn.functional as F
+
+F.linear(input, weight, bias=None)  y=xA^T + b
+Input: (N, *, in_features) where * means any number of additional dimensions
+Weight: (out_features, in_features)(out_features,in_features)
