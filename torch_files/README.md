@@ -87,9 +87,15 @@ featres2 = extractor(imgs)
 
 
 
-## pytorch image load
+## pytorch 기본 연산
 import torch.nn.functional as F
 
 F.linear(input, weight, bias=None)  y=xA^T + b
 Input: (N, *, in_features) where * means any number of additional dimensions
 Weight: (out_features, in_features)(out_features,in_features)
+```
+x = torch.randn(2,3)
+w = torch.randn(3,4)
+
+x.mm(w)  # = torch.mm(x,w) = torch.nn.functional.linear(x,w.T)
+```
