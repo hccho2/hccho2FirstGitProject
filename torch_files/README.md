@@ -96,6 +96,6 @@ Weight: (out_features, in_features)(out_features,in_features)
 ```
 x = torch.randn(2,3)
 w = torch.randn(3,4)
-
-x.mm(w)  # x.matmul(w) = torch.mm(x,w) = torch.nn.functional.linear(x,w.T)   ---> dot(벡터,벡터), mv(행렬,벡터), mm(행렬,행렬) ---> matmul이 모두 커버.
+b = torch.randn(4)
+x.mm(w) +b  # x.matmul(w)+b = torch.mm(x,w)+b = torch.nn.functional.linear(x,w.T,b)   ---> dot(벡터,벡터), mv(행렬,벡터), mm(행렬,행렬) ---> matmul이 모두 커버.
 ```
