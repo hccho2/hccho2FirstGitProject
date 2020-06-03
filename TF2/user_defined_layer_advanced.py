@@ -46,25 +46,25 @@ import tensorflow.keras.backend as K
 from tensorflow.python.util import nest
 class MinimalRNNCell(tf.keras.layers.AbstractRNNCell):
 
-  def __init__(self, units, **kwargs):
-    self.units = units
-    super(MinimalRNNCell, self).__init__(**kwargs)
-
-  @property
-  def state_size(self):
-    return self.units
-
-  def build(self, input_shape):
-    self.kernel = self.add_weight(shape=(input_shape[-1], self.units), initializer='uniform', name='kernel')
-    self.recurrent_kernel = self.add_weight(shape=(self.units, self.units), initializer=tf.keras.initializers.RandomUniform(), name='recurrent_kernel')
-    self.bias = self.add_weight(shape=(self.units), initializer='zeros', name='bias')
-    self.built = True
-
-  def call(self, inputs, states):
-    prev_output = states[0] if nest.is_sequence(states) else states  # tf.keras.layers.RNN에서는 state를 tuple로 다룬다.
-    h = K.dot(inputs, self.kernel)
-    output = h + K.dot(prev_output, self.recurrent_kernel) + self.bias
-    return output, output
+    def __init__(self, units, **kwargs):
+        self.units = units
+        super(MinimalRNNCell, self).__init__(**kwargs)
+    
+    @property
+    def state_size(self):
+        return self.units
+    
+    def build(self, input_shape):
+        self.kernel = self.add_weight(shape=(input_shape[-1], self.units), initializer='uniform', name='kernel')
+        self.recurrent_kernel = self.add_weight(shape=(self.units, self.units), initializer=tf.keras.initializers.RandomUniform(), name='recurrent_kernel')
+        self.bias = self.add_weight(shape=(self.units), initializer='zeros', name='bias')
+        self.built = True
+    
+    def call(self, inputs, states):
+        prev_output = states[0] if nest.is_sequence(states) else states  # tf.keras.layers.RNN에서는 state를 tuple로 다룬다.
+        h = K.dot(inputs, self.kernel)
+        output = h + K.dot(prev_output, self.recurrent_kernel) + self.bias
+        return output, output
 
 
 hidden_dim = 7
@@ -101,7 +101,6 @@ print(output_all)
 rnn = tf.keras.layers.RNN(mycell,return_sequences=True)
 output_all2 = rnn(inputs,initial_state)   # output_all과 같은 결과
 print(output_all2)
-
 
 
 
