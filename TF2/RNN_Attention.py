@@ -1,5 +1,13 @@
 
+'''
 
+tfa.seq2seq.BahdanauAttention ---> 이 놈이 encoder_output(즉, memory)를 넘겨 받아 생성되는 구조 
+---> encoder_output이  계속 바뀌어야 하기 때문에,  numeric tensor가 들어갈 수가 없다. 
+---> eager mode와 맞지가 않다. 그래서 encoder_output이 tf.keras.Input이 되거나, symbolic tensor여야 될 수 밖에 없다.
+---> tf.keras.Input를 넘기는데 bug가 있다.
+
+
+'''
 
 # coding: utf-8
 import numpy as np
@@ -7,11 +15,6 @@ import tensorflow as tf
 import tensorflow_addons as tfa
 
 from tensorflow_addons.seq2seq import Sampler
-
-
-
-
-
 
 
 
@@ -58,7 +61,7 @@ def alignment_test():
     
     score_result = model([encoder_input_data,processed_query_data,prev_alignment_data2])
     print(score_result)
-    
+
 
 def seq2seq_attention():
     encoder_vocab = 20
@@ -104,7 +107,7 @@ def seq2seq_attention():
     memory = my_encoder(encoder_inputs_data)  # encoder_timestep은 fix되지 않아도 된다.
     
     
-    decoder_timestep = 10  #encoder time step
+    decoder_timestep = 10  #decoder time step
     attention_init_state = attention_wrapper_cell.get_initial_state(inputs=None, batch_size=batch_size, dtype=tf.float32)
     
     
@@ -197,8 +200,87 @@ def seq2seq_attention2():
     print('done')
 
 
-seq2seq_attention2()
+def seq2seq_attention_graph_mode():
+    # alignment_history=True ---> Error
+    tf.compat.v1.disable_eager_execution()
 
+    batch_size = 2
+    
+    
+    encoder_hidden_dim = 6
+    
+    
+    
+    encoder_output = tf.compat.v1.placeholder(tf.float32, shape=[batch_size,None,encoder_hidden_dim])
+    encoder_seq_length = tf.compat.v1.placeholder(tf.int32, shape=[batch_size])
+    
+    decoder_vocab_size = 10
+    decoder_embedding_dim = 8
+    decoder_hidden_dim = 5
+    attention_units = 11
+    output_dim = 5
+    
+    decoder_cell = tf.keras.layers.LSTMCell(decoder_hidden_dim)
+    decoder_init_state = tuple(decoder_cell.get_initial_state(inputs=None, batch_size=batch_size, dtype=tf.float32))
+    attention_mechanism = tfa.seq2seq.BahdanauAttention(attention_units, encoder_output,memory_sequence_length=encoder_seq_length)
+    attention_wrapper_cell = tfa.seq2seq.AttentionWrapper(decoder_cell, attention_mechanism,attention_layer_size=13,initial_cell_state=decoder_init_state,
+                                                          output_attention=True,alignment_history=False)
+    projection_layer = tf.keras.layers.Dense(output_dim)
+    
+    
+    attention_init_state = attention_wrapper_cell.get_initial_state(inputs=None, batch_size=batch_size, dtype=tf.float32)
+    
+    
+    attention_init_state = tfa.seq2seq.AttentionWrapperState(list(attention_init_state.cell_state),attention_init_state.attention,attention_init_state.alignments,
+                                                              attention_init_state.alignment_history,attention_init_state.attention_state)
+    
+    
+    sampler = tfa.seq2seq.sampler.TrainingSampler()
+    decoder = tfa.seq2seq.BasicDecoder(attention_wrapper_cell, sampler, output_layer=projection_layer)
+    
+    
+    
+    decoder_inputs = tf.compat.v1.placeholder(tf.int32, shape=[batch_size,None])
+    decoder_seq_length = tf.compat.v1.placeholder(tf.int32, shape=[batch_size])
+    
+    
+    decoder_embedding = tf.keras.layers.Embedding(decoder_vocab_size, decoder_embedding_dim,trainable=True) 
+    decoder_embedded = decoder_embedding(decoder_inputs)
+    
+    outputs, last_state, last_sequence_lengths = decoder(decoder_embedded,initial_state=attention_init_state, sequence_length=decoder_seq_length,training=True)
+    
+    
+    
+    
+    print(outputs)
+    
+    
+    sess = tf.compat.v1.Session()
+    sess.run(tf.compat.v1.global_variables_initializer())
+    
+    
+    ### Test
+    encoder_timestep = 10
+    decoder_timestep = 12
+    
+    
+    encoder_output_data = np.random.normal(0,1, [batch_size, encoder_timestep, encoder_hidden_dim])
+    encoder_seq_length_data = np.array([encoder_timestep]*batch_size,dtype=np.int32)
+    decoder_inputs_data = np.random.randint(decoder_vocab_size, size=[batch_size,decoder_timestep])
+    decoder_seq_length_data = np.array([decoder_timestep]*batch_size,dtype=np.int32)
+    
+    
+    a,b,c = sess.run([outputs,last_state, last_sequence_lengths], feed_dict={encoder_output: encoder_output_data,encoder_seq_length: encoder_seq_length_data, decoder_inputs: decoder_inputs_data,decoder_seq_length: decoder_seq_length_data })
+     
+     
+    print(a)
+    print(b)
+    print(c)
+
+
+if __name__ == '__main__':
+
+    seq2seq_attention_graph_mode()
 
 
 
