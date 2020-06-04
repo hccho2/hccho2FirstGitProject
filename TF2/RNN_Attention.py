@@ -279,7 +279,9 @@ def seq2seq_attention_graph_mode():
 
 
 if __name__ == '__main__':
-
+    #alignment_test()
+    #seq2seq_attention()
+    #seq2seq_attention2()
     seq2seq_attention_graph_mode()
 
 
