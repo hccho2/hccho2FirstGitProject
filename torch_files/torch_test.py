@@ -94,11 +94,13 @@ http://juditacs.github.io/2018/12/27/masked-attention.html
 import torch
 from torch import nn,optim
 from torch.utils.data import Dataset, DataLoader, TensorDataset
+import torch.nn.functional as F
+
 from matplotlib import pyplot as plt
 import numpy as np
 import time
 from sklearn.datasets import load_digits
-import tqdm
+import tqdm,math
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 def show_weights(net):
     for idx, m in enumerate(net.named_modules()):
@@ -869,12 +871,10 @@ def RNN_test11():
     batch_size = 2
     input_size=3 # embedding dim
     hidden_size = 4 # hidden size
-    num_layers = 7 # LSTM을 몇단으로 쌓을 지...
     T= 5 # seq length
 
     h0 = torch.randn(batch_size,hidden_size)
     c0 = torch.randn(batch_size,hidden_size)
-    #rnn = nn.LSTMCell(input_size=input_size, hidden_size=hidden_size, num_layers=num_layers,batch_first=True )
     rnn = nn.LSTMCell(input_size=input_size, hidden_size=hidden_size)
 
     input = torch.randn( T,batch_size, input_size)
@@ -929,9 +929,10 @@ def RNN_test():
         def forward(self,x, h0=None):
             x1 = self.first_net(x)  # x:(N,T), x1:(N,T,embedding_dim)
             x2,h = self.lstm(x1,h0)  # dropout이 있어, 같은 input에 대하여 값이 달라질 수 있다.
+            # hidden state: ( h(num_layers, batch_size, hidden_dim), c(num_layers, batch_size, hidden_dim) )
             
             #loop를 이용한 계산
-            if True:   #For loop를 돌릴려면, nn.LSTM보다는 nn.LSTMCell을 하는 것이 더 적절한다.
+            if True:   #For loop를 돌릴려면, nn.LSTM보다는 nn.LSTMCell을 하는 것이 더 적절한다.   -----> 더 적절한게 아니고, Cell로 해야한다.
                 max_len = x.size(1)
                 lstm_output = []
                 hh=h0
@@ -1325,7 +1326,7 @@ if __name__ == '__main__':
     #MultivariateRegression()
     #MultivariateRegression2()
     #MultivariateRegression3()
-    MNIST()
+    #MNIST()
     #MNIST2()
     #MNIST3()
     #MNIST4()
@@ -1336,7 +1337,7 @@ if __name__ == '__main__':
     #init_test2()
     #init_test3()
     #RNN_test00()
-    #RNN_test11()
+    RNN_test11()
     #RNN_test()
     #PackedSeq_test()
     
@@ -1349,6 +1350,5 @@ if __name__ == '__main__':
     #Attention_Mask()
 
     print('Done')
-
 
 
