@@ -99,3 +99,6 @@ w = torch.randn(3,4)
 b = torch.randn(4)
 x.mm(w) +b  # x.matmul(w)+b = torch.mm(x,w)+b = torch.nn.functional.linear(x,w.T,b)   ---> dot(벡터,벡터), mv(행렬,벡터), mm(행렬,행렬) ---> matmul이 모두 커버.
 ```
+
+batch matrix multiplication
+toch.bmm(A,B) # A(N,n,m) B:(N,m,k)  ---> (N,n,k)
