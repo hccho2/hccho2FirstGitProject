@@ -101,4 +101,8 @@ x.mm(w) +b  # x.matmul(w)+b = torch.mm(x,w)+b = torch.nn.functional.linear(x,w.T
 ```
 
 batch matrix multiplication
+```
 toch.bmm(A,B) # A(N,n,m) B:(N,m,k)  ---> (N,n,k)
+```
+
+
