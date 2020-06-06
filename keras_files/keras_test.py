@@ -7,7 +7,7 @@ keras.layers.RepeatVector(n)    (N,D) ---> (N,n,D)
 
 
 https://www.tensorflow.org/api_docs/python/tf/keras/layers/Attention
-keras.layers.Attention: Dot-product attention layer, a.k.a. Luong-style attention
+keras.layers.Attention: Dot-product attention layer, a.k.a. Luong-style attention   ---> Transformer용
 
 
 
