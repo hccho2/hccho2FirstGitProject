@@ -3,6 +3,17 @@ optimizer: SGD(lr=0.01), SGD(lr=0.01, momentum=0.9), RMSprop(lr=0.001), Adam(lr=
 
 
 
+keras.layers.RepeatVector(n)    (N,D) ---> (N,n,D)
+
+
+https://www.tensorflow.org/api_docs/python/tf/keras/layers/Attention
+keras.layers.Attention: Dot-product attention layer, a.k.a. Luong-style attention
+
+
+
+https://www.tensorflow.org/api_docs/python/tf/keras/layers/TimeDistributed
+keras.layers.TimeDistributed  video같이 image가 series 있을 때, (N,T,H,W,C) ---> Convolution으로 처리하고자 할 때.
+
 '''
 
 
