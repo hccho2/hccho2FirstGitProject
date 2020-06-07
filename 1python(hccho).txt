@@ -1044,29 +1044,7 @@ os.path.join(os.path.dirname(filename), 'aaaa.dat')  # 'E:\\dir1\\dir2\\aaaa.dat
 dir = 'D:\hccho\speech-recognition\speech_commands\speech_dataset'
 all_subdir = [x[0] for x in os.walk(dir) if x[0] != dir]
 
-=====================================================================================
-import re
 
-_WORD_SPLIT = re.compile(b"([.,!?\"':;)(])")
-def basic_tokenizer(sentence):
-    """Very basic tokenizer: split the sentence into a list of tokens."""
-    words = []
-    for space_separated_fragment in sentence.strip().split():
-        if isinstance(space_separated_fragment, str):
-            word = str.encode(space_separated_fragment)
-        else:
-            word = space_separated_fragment  
-        words.extend(re.split(_WORD_SPLIT, word))
-    return [w.decode('utf-8') for w in words if w]
- 
-s = 'Can we make this quick?  Roxanne Korrine and Andrew Barrett are having an incredibly horrendous public break- up on the quad.  Again.'
-x = basic_tokenizer(s) # ['Can', 'we', 'make', 'this', 'quick', '?', 'Roxanne', 'Korrine', 'and', 'Andrew', 'Barrett', 'are', 'having', 'an', 'incredibly', 'horrendous', 'public', 'break-', 'up', 'on', 'the', 'quad', '.', 'Again', '.']
-
-y=[w.strip() for w in s.split(' ') if w] #['Can', 'we', 'make', 'this', 'quick?', 'Roxanne', 'Korrine', 'and', 'Andrew', 'Barrett','are', 'having', 'an', 'incredibly', 'horrendous', 'public', 'break-', 'up', 'on', 'the', 'quad.', 'Again.']
-
-=====================================================================================
-'hello world'.split() --> 공백으로 split
-list('hello world')  --> 한 글자씩 split
 =====================================================================================
 # simple graph
 import numpy as np
