@@ -849,40 +849,65 @@ def data_gen():
 #############################################################
 
 def Make_Batch():
-    # 이 example도 data가 simple할 때는 가능하지만, mini batch별로 조작을 어떻게 해야하는지???
+    # 이 example도 data가 simple할 때는 가능하지만, mini batch별로 조작을 어떻게 해야하는지???  ---> dataset.batch, dataset.mpa순서 조정으로 
     from tensorflow.keras import preprocessing
-    samples = ['너 오늘 이뻐 보인다', 
+    samples = ['너 오늘 아주 이뻐 보인다', 
                '나는 오늘 기분이 더러워', 
                '끝내주는데, 좋은 일이 있나봐', 
                '나 좋은 일이 생겼어', 
-               '아 오늘 진짜 짜증나', 
+               '아 오늘 진짜 너무 많이 정말로 짜증나', 
                '환상적인데, 정말 좋은거 같아']
     
     label = [[1], [0], [1], [1], [0], [1]]
-    MAX_LEN = 6
+    MAX_LEN = 5
     
-    tokenizer = preprocessing.text.Tokenizer()
-    tokenizer.fit_on_texts(samples)
-    sequences = tokenizer.texts_to_sequences(samples)
+    tokenizer = preprocessing.text.Tokenizer(oov_token="<UKN>")   # oov: out of vocabulary
+    tokenizer.fit_on_texts(samples+['SOS','EOS'])
+    print(tokenizer.word_index)
     
-    sequences = preprocessing.sequence.pad_sequences(sequences, maxlen=MAX_LEN, padding='post')
+    sequences1 = tokenizer.texts_to_sequences(samples)
+    '''
+    [[4, 1, 5, 6, 7],
+     [8, 1, 9, 10],
+     [11, 2, 3, 12],
+     [13, 2, 3, 14],
+     [15, 1, 16, 17, 18, 19, 20],
+     [21, 22, 23, 24]]
+    '''
+    
+    sequences2 = preprocessing.sequence.pad_sequences(sequences1, maxlen=MAX_LEN, padding='post',truncating='post')
+    '''
+    array([[ 4,  1,  5,  6,  7],
+           [ 8,  1,  9, 10,  0],
+           [11,  2,  3, 12,  0],
+           [13,  2,  3, 14,  0],
+           [15,  1, 16, 17, 18],
+           [21, 22, 23, 24,  0]])
+    
+    '''
     
     word_index = tokenizer.word_index
     
-    
-    
     BATCH_SIZE = 2
-    EPOCH = 20
+    EPOCH = 2
     
     def mapping_fn(X, Y=None):
+        # dataset.map(mapping_fn) ---> dataset.batch(BATCH_SIZE) 순서인 경우
+        # X: <tf.Tensor 'args_0:0' shape=(5,) dtype=int32>  Y: <tf.Tensor 'args_1:0' shape=(1,) dtype=int32>
+        
+        # dataset.batch(BATCH_SIZE) --> dataset.map(mapping_fn) 순서인 경우
+        # X: <tf.Tensor 'args_0:0' shape=(?, 5) dtype=int32>, Y: <tf.Tensor 'args_1:0' shape=(?, 1) dtype=int32>
+        
         data_X = {'xx': X}  # dict로 보낼 때, key는 
         data_Y = Y # label = {'yy': Y}로 해도 된다.
         return data_X, data_Y  # data_X은 dict, data_Y은 numpy array로 
     
-    dataset = tf.data.Dataset.from_tensor_slices((sequences, label))
+    dataset = tf.data.Dataset.from_tensor_slices((sequences2, label))
+    
+    dataset = dataset.shuffle(len(sequences2))
+    
     dataset = dataset.map(mapping_fn)
-    dataset = dataset.shuffle(len(sequences))
-    dataset = dataset.batch(BATCH_SIZE) 
+    dataset = dataset.batch(BATCH_SIZE)
     dataset = dataset.repeat(EPOCH)
     iterator = dataset.make_one_shot_iterator()
     next_data = iterator.get_next()
