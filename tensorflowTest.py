@@ -875,9 +875,9 @@ def Make_Batch():
     EPOCH = 20
     
     def mapping_fn(X, Y=None):
-        input = {'xx': X}  # dict로 보낼 때, key는 
-        lable = Y # label = {'yy': Y}로 해도 된다.
-        return input, label  # input은 dict, label은 numpy array로 
+        data_X = {'xx': X}  # dict로 보낼 때, key는 
+        data_Y = Y # label = {'yy': Y}로 해도 된다.
+        return data_X, data_Y  # data_X은 dict, data_Y은 numpy array로 
     
     dataset = tf.data.Dataset.from_tensor_slices((sequences, label))
     dataset = dataset.map(mapping_fn)
