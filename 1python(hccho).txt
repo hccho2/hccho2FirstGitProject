@@ -1482,6 +1482,31 @@ y= [nltk.word_tokenize(sent) for sent in x]
 w = list(itertools.chain(*y))
 z = nltk.FreqDist(w)    # zz=collections.Counter(w) 같은 결과
 vocab = z.most_common(5) # zz.most_common(5)
+
+=====================================================================================
+import re
+
+_WORD_SPLIT = re.compile(b"([.,!?\"':;)(])")
+def basic_tokenizer(sentence):
+    """Very basic tokenizer: split the sentence into a list of tokens."""
+    words = []
+    for space_separated_fragment in sentence.strip().split():
+        if isinstance(space_separated_fragment, str):
+            word = str.encode(space_separated_fragment)
+        else:
+            word = space_separated_fragment  
+        words.extend(re.split(_WORD_SPLIT, word))
+    return [w.decode('utf-8') for w in words if w]
+ 
+s = 'Can we make this quick?  Roxanne Korrine and Andrew Barrett are having an incredibly horrendous public break- up on the quad.  Again.'
+x = basic_tokenizer(s) # ['Can', 'we', 'make', 'this', 'quick', '?', 'Roxanne', 'Korrine', 'and', 'Andrew', 'Barrett', 'are', 'having', 'an', 'incredibly', 'horrendous', 'public', 'break-', 'up', 'on', 'the', 'quad', '.', 'Again', '.']
+
+y=[w.strip() for w in s.split(' ') if w] #['Can', 'we', 'make', 'this', 'quick?', 'Roxanne', 'Korrine', 'and', 'Andrew', 'Barrett','are', 'having', 'an', 'incredibly', 'horrendous', 'public', 'break-', 'up', 'on', 'the', 'quad.', 'Again.']
+
+=====================================================================================
+'hello world'.split() --> 공백으로 split
+list('hello world')  --> 한 글자씩 split
+
 =====================================================================================
 import re
 from konlpy.tag import Okt
