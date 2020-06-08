@@ -96,7 +96,7 @@ def show_plot(plot_data, delta, title):
     return plt
 
 
-def plot_train_history(history, title):
+def plot_train_history(history, title, validation_freq=None):
     # keras fit함수가 return하는 history를 plot
     loss = history.history['loss']
     val_loss = history.history['val_loss']
@@ -106,7 +106,10 @@ def plot_train_history(history, title):
     plt.figure()
     
     plt.plot(epochs, loss, 'b', label='Training loss')
-    plt.plot(epochs, val_loss, 'r', label='Validation loss')
+    if validation_freq is not None:
+        plt.plot(validation_freq, val_loss, 'r', label='Validation loss')
+    else:
+        plt.plot(epochs, val_loss, 'r', label='Validation loss')
     plt.title(title)
     plt.legend()
     
@@ -395,17 +398,17 @@ def multivariate_multi_step_model():
     
     # steps_per_epoch=EVALUATION_INTERVAL  -----> Dataset으로 data가 주어져 있기 때문에 batch_size가 Datset속에 정해져 있다. 그래서 몇 step을 1 ephoch로 볼 것인가?
     # validation_steps=50  ----> validation data로 Dataset으로 주어져 있기 때문에, validation loss를 몇 변 계산할 것인가?
-    # validation_freq=[1, 4, 6,9,10]
+    validation_freq=[1, 4, 6,9,10]
     # validation_freq= 2 ---> 매 2 epoch마다
     multi_step_history = multi_step_model.fit(train_data_multi, epochs=EPOCHS,
                                                 steps_per_epoch=EVALUATION_INTERVAL,
                                                 validation_data=val_data_multi,
-                                                validation_steps=50,validation_freq=[1, 4, 6,9,10])
+                                                validation_steps=50,validation_freq=validation_freq)
 
 
 
-
-    plot_train_history(multi_step_history, 'Multi-Step Training and validation loss')
+    # validation_freq=[1, 4, 6,9,10] ---> 이렇게 주면 train, validation loss갯수가 맞지 않아 error
+    plot_train_history(multi_step_history, 'Multi-Step Training and validation loss',np.array(validation_freq)-1)
 
     for x, y in val_data_multi.take(3):
         multi_step_plot(x[0], y[0], multi_step_model.predict(x)[0])
