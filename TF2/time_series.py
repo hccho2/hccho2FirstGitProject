@@ -182,11 +182,11 @@ def test1():
     plt.show()
 
 def univariate_model():
-    csv_path = 'jena_climate_2009_2016_simple.csv'    # 'jena_climate_2009_2016.csv' ,    'jena_climate_2009_2016_simple.csv'
+    csv_path = 'jena_climate_2009_2016.csv'    # 'jena_climate_2009_2016.csv' ,    'jena_climate_2009_2016_simple.csv'
     df = pd.read_csv(csv_path)
     print(df.head())
     
-    TRAIN_SPLIT = 400  #300000
+    TRAIN_SPLIT = 300000  #300000
     tf.random.set_seed(13)
     
     uni_data = df['T (degC)']
@@ -211,7 +211,7 @@ def univariate_model():
     
     print('x_train_uni shape: {}, y_train_uni shape: {}, x_val_uni shape: {}, y_val_uni shape: {}'.format(x_train_uni.shape,y_train_uni.shape,x_val_uni.shape,y_val_uni.shape ))
     
-    BATCH_SIZE = 8
+    BATCH_SIZE = 256
     BUFFER_SIZE = 10000
     
     train_univariate = tf.data.Dataset.from_tensor_slices((x_train_uni, y_train_uni))
@@ -251,7 +251,7 @@ def univariate_model():
 
 
 def multivariate_single_step_model():
-    csv_path = 'jena_climate_2009_2016_simple.csv'    # 'jena_climate_2009_2016.csv' ,    'jena_climate_2009_2016_simple.csv'
+    csv_path = 'jena_climate_2009_2016.csv'    # 'jena_climate_2009_2016.csv' ,    'jena_climate_2009_2016_simple.csv'
     df = pd.read_csv(csv_path)    
 
     features_considered = ['p (mbar)', 'T (degC)', 'rho (g/m**3)']
@@ -265,7 +265,7 @@ def multivariate_single_step_model():
 
 
 
-    TRAIN_SPLIT = 1600  #300000
+    TRAIN_SPLIT = 300000  #300000
     dataset = features.values   # ---> numpy array (N,3)
     data_mean = dataset[:TRAIN_SPLIT].mean(axis=0)
     data_std = dataset[:TRAIN_SPLIT].std(axis=0)
@@ -286,7 +286,7 @@ def multivariate_single_step_model():
     print ('Single window of past history : {}'.format(x_train_single[0].shape))   # (120,3)
     print('x_train_single shape: {}, y_train_single shape: {}, x_val_single shape: {}, y_val_single shape: {}'.format(x_train_single.shape,y_train_single.shape,x_val_single.shape,y_val_single.shape ))
 
-    BATCH_SIZE = 4
+    BATCH_SIZE = 256
     BUFFER_SIZE = 10000
     train_data_single = tf.data.Dataset.from_tensor_slices((x_train_single, y_train_single))
     train_data_single = train_data_single.cache().shuffle(BUFFER_SIZE).batch(BATCH_SIZE).repeat()
@@ -416,8 +416,8 @@ def multivariate_multi_step_model():
 
 if __name__ == '__main__':
     #test1()
-    #univariate_model()
+    univariate_model()
     #multivariate_single_step_model()
-    multivariate_multi_step_model()
+    #multivariate_multi_step_model()
 
     print('Done')
