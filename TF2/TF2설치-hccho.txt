@@ -23,3 +23,12 @@ Download cuDNN v7.6.4 (September 27, 2019), for CUDA 10.0    ----> cuDNN Library
 
 
 압축파일에 있는 파일을 쿠다 설치 디렉토리의 같은 이름의 디렉토리에 복사하면 끝.
+
+*******************
+numpy 설치:   tensorflow 2.2는 conda가 지원하지 않는다. pip로 tensorflow를 설치했다.
+그래서인지 numpy를 conda로 설치하면, eclipse에서 error가 난다  ---> pip로 설치
+pandas로 pip로 설치.
+
+
+
+
