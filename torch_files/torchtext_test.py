@@ -34,7 +34,19 @@ train_data = TabularDataset(path='./data/examples.tsv',
                 fields=[('text', TEXT), ('label', LABEL)])
 train_data.split(...)
 
+
+4. Iterator, BucketIterator를 이용해서 DataLoader를 만든다.
+========================
+** 보통 torch.utils.data.Dataset을 상속받아 custom Dataset을 만든다.
+여기서는 torchtext.data.Dataset을 상속받아 custom Dataset을 만들 수 있다.
+
+========================
 imdb.tar.gz  ---> 1줄로된 파일이 모여있다. 12,500 x 4 = 5만 ----> 전체를 하나의 csv로 모아 놓을 것이   IMDb_Reviews.csv (5만 lines)   1은 긍정, 0은 부정
+
+========================
+
+
+
 
 
 '''
@@ -219,14 +231,18 @@ def test2_kor():
     for i in range(2):
         batch = next(iter(train_loader))
         print(batch.text, batch.label)    
-    
+
+
+
+
+
+
 if __name__ == '__main__':
     #test1()
     #test2_english()
     test2_kor()
 
     print('Done')
-
 
 
 
