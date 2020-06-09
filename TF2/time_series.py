@@ -131,10 +131,7 @@ def baseline(history):
     return np.mean(history)
 
 
-
-
-
-
+    
 def test1():
     # feature로 온도 data 1개만 가지고, 온도를 예측한다.
     csv_path = 'jena_climate_2009_2016_simple.csv'    # 'jena_climate_2009_2016.csv' ,    'jena_climate_2009_2016_simple.csv'
@@ -182,6 +179,7 @@ def test1():
     plt.show()
 
 def univariate_model():
+    s_time = time.time()
     csv_path = 'jena_climate_2009_2016.csv'    # 'jena_climate_2009_2016.csv' ,    'jena_climate_2009_2016_simple.csv'
     df = pd.read_csv(csv_path)
     print(df.head())
@@ -195,7 +193,7 @@ def univariate_model():
     print(uni_data.head())
     
     
-    
+    uni_data = uni_data.values    #    ---> 이 부분이 없으면, padas를 넘기게 되는데, padas로 data를 만들면 1시간 소요. numpy array로 넘기면  1초.
     uni_train_mean = uni_data[:TRAIN_SPLIT].mean()
     uni_train_std = uni_data[:TRAIN_SPLIT].std()
     print('평군/분산: ',uni_train_mean,  uni_train_std)
@@ -208,7 +206,7 @@ def univariate_model():
     univariate_future_target = 0
     x_train_uni, y_train_uni = univariate_data(uni_data, 0, TRAIN_SPLIT, univariate_past_history, univariate_future_target)
     x_val_uni, y_val_uni = univariate_data(uni_data, TRAIN_SPLIT, None, univariate_past_history, univariate_future_target)
-    
+    print('data loading: ', int(time.time()-s_time))
     print('x_train_uni shape: {}, y_train_uni shape: {}, x_val_uni shape: {}, y_val_uni shape: {}'.format(x_train_uni.shape,y_train_uni.shape,x_val_uni.shape,y_val_uni.shape ))
     
     BATCH_SIZE = 256
@@ -228,17 +226,16 @@ def univariate_model():
     
     simple_lstm_model.compile(optimizer='adam', loss='mae')
 
-    # val_univariate.take(10)   ----> 크기 3짜리 Dataset을 만든다.
+    # val_univariate.take(10)   ----> 크기 10짜리 Dataset을 만든다.
 
     for x, y in val_univariate.take(3):
-        print(simple_lstm_model.predict(x).shape)
+        print(x.shape, simple_lstm_model.predict(x).shape)
 
 
     EVALUATION_INTERVAL = 200
     EPOCHS = 10
     
-    simple_lstm_model.fit(train_univariate, epochs=EPOCHS,
-                          steps_per_epoch=EVALUATION_INTERVAL,
+    simple_lstm_model.fit(train_univariate, epochs=EPOCHS,steps_per_epoch=EVALUATION_INTERVAL,
                           validation_data=val_univariate, validation_steps=50)
 
 
@@ -251,6 +248,7 @@ def univariate_model():
 
 
 def multivariate_single_step_model():
+    s_time = time.time()
     csv_path = 'jena_climate_2009_2016.csv'    # 'jena_climate_2009_2016.csv' ,    'jena_climate_2009_2016_simple.csv'
     df = pd.read_csv(csv_path)    
 
@@ -283,6 +281,7 @@ def multivariate_single_step_model():
     x_val_single, y_val_single = multivariate_data(dataset, dataset[:, 1], TRAIN_SPLIT, None, past_history,
                                                    future_target, STEP, single_step=True)
 
+    print('data loading: ', int(time.time()-s_time))
     print ('Single window of past history : {}'.format(x_train_single[0].shape))   # (120,3)
     print('x_train_single shape: {}, y_train_single shape: {}, x_val_single shape: {}, y_val_single shape: {}'.format(x_train_single.shape,y_train_single.shape,x_val_single.shape,y_val_single.shape ))
 
@@ -347,7 +346,7 @@ def multivariate_multi_step_model():
     
     dataset = (dataset-data_mean)/data_std
 
-    past_history = 720   # 720이면 5일치   
+    past_history = 720   # 720이면 5일치   ----> STEP간격으로 추출
     future_target = 72   # 6*12  ---> 12시간 후의 온도 예측
     STEP = 6  # data는 10분 단위로 관측되어 있다. ----> 1시간 단위의 data를 사용
     # 종합하면   120개 data를 사용 (N,120,3)
@@ -416,6 +415,7 @@ def multivariate_multi_step_model():
 
 if __name__ == '__main__':
     #test1()
+    #data_load_test()
     univariate_model()
     #multivariate_single_step_model()
     #multivariate_multi_step_model()
