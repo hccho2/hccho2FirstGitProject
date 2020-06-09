@@ -150,7 +150,7 @@ def test1():
     uni_data.plot(subplots=True)   # 전체 data 그력보기.   ----> subplots=True ---> 각 column feature 별로 그래프가 그려진다.  False ---> 하나의 chart에 같이 그린다.
     plt.show()
     
-    
+    uni_data = uni_data.values    #    ---> 이 부분이 없으면, padas를 넘기게 되는데, padas로 data를 만들면 1시간 소요. numpy array로 넘기면  1초.
     uni_train_mean = uni_data[:TRAIN_SPLIT].mean()
     uni_train_std = uni_data[:TRAIN_SPLIT].std()
     print('평군/분산: ',uni_train_mean,  uni_train_std)
