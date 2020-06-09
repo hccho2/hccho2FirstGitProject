@@ -76,11 +76,36 @@ def test4():
     # 책 "파이토치 첫걸음" pp 74
     # TensorDataset: numpy array로 부터 dataset 생성
     # Dataset: 상속하여 class로 작성. __len__(), __getitem__() 필수 
-    mydataset = datasets.ImageFolder('D:/hccho/CommonDataset/VOCdevkit/VOC2007')   # 이 디렉토리안에 sub-directory로 분류되어 있어야 한다.
+    
+    from torch.utils.data.sampler import SubsetRandomSampler
+    transform=transforms.Compose([transforms.Resize(size=(128,128)), transforms.ToTensor(),transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])])
+    mydataset = datasets.ImageFolder('D:/hccho/CommonDataset/101_ObjectCategories',transform=transform)   # 이 디렉토리안에 sub-directory로 분류되어 있어야 한다.
+    print(len(mydataset))
     print(mydataset.classes)
     print(mydataset.class_to_idx)
     
-    dataloader = torch.utils.data.DataLoader(mydataset, batch_size=2,shuffle=True,num_workers=2)    
+    print('sample: ', mydataset[-5][0].shape, mydataset[-5][1])
+    
+    
+    
+    dataloader = torch.utils.data.DataLoader(mydataset, batch_size=8,shuffle=True,num_workers=2)    
+    for i, d in enumerate(dataloader):
+        print(d[0].shape, d[1])
+        if i>1: break
+    
+    
+    print('='*20)
+    # dataset 전체가 아닌 경우, SubsetRandomSampler가 유용하다. ---> train/valid로 누우어야 하는 경우.
+    # balanced sampling:  https://discuss.pytorch.org/t/balanced-sampling-between-classes-with-torchvision-dataloader/2703/3
+    indices = list(range(len(mydataset)))
+    np.random.shuffle(indices)
+    split = int(0.7*len(mydataset))
+    train_idx = indices[:split]
+    sampler = SubsetRandomSampler(train_idx)    # torch.utils.data.WeightedRandomSampler
+    dataloader2 = torch.utils.data.DataLoader(mydataset,sampler=sampler, batch_size=8)
+    for i, d in enumerate(dataloader2):
+        print(d[0].shape, d[1])
+        if i>10: break    
     
 if __name__ == '__main__':
     #test1()
