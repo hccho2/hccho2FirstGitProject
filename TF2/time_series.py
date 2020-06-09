@@ -8,6 +8,7 @@ data file: https://storage.googleapis.com/tensorflow/tf-keras-datasets/jena_clim
 - 10분단위 data
 - 5일 data = 6*24*5=720 개 data로 부터 ===> 6시간 후 온도 예측.  ----> 아래 예에서는 12시간 후의 온도 예측
 
+Data를 만들 때, padas로부터 만들면 1시간 소요됨. numpy array로 하면 1초~7초
 
 3개의 model
 1. 온도 feature 1개만 사용하여 온도 예측
