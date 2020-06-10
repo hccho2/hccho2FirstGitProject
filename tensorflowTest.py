@@ -846,6 +846,58 @@ def data_gen():
     for i in range(5):
         x,y = sess.run([X,Y])
         print(i, x,y)
+#################
+# batch마다 가장 긴 data를 기준으로 padding  ===> batch마다 길이가 달라진다.
+def variable_length_data_gen():
+    batch_size = 2    
+    
+    samples = ['너 오늘 아주 이뻐 보인다', 
+               '나는 오늘 기분이 더러워', 
+               '끝내주는데, 좋은 일이 있나봐', 
+               '나 좋은 일이 생겼어', 
+               '아 오늘 진짜 너무 많이 정말로 짜증나', 
+               '환상적인데, 정말 좋은거 같아']    
+    labels = np.array([[1], [0], [1], [1], [0], [1]])
+    
+    
+    okt = Okt()
+    samples2 = [okt.morphs(x) for x in samples]
+    
+    tokenizer2 = preprocessing.text.Tokenizer(oov_token="<UKN>")   # oov: out of vocabulary
+    tokenizer2.fit_on_texts(samples2+['SOS','EOS'])
+    print(tokenizer2.word_index)
+    sequences2 = tokenizer2.texts_to_sequences(samples2)
+    print(sequences2)
+    sos_id = tokenizer2.word_index['sos']
+    eos_id = tokenizer2.word_index['eos']
+    
+    
+    def g():
+        data_len= len(sequences2)
+        while True:
+            sample_ids = np.random.choice(data_len,batch_size, replace=False)
+            sample_sequence = np.array(sequences2)[sample_ids]
+            sample_sequence = [[sos_id]+s+[eos_id] for s in sample_sequence]
+            sequence_length = [len(s) for s in sample_sequence]
+            max_len = np.max(sequence_length)            
+            sample_sequence = preprocessing.sequence.pad_sequences(sample_sequence, maxlen=max_len, padding='post')
+            sample_label = labels[sample_ids].reshape(-1)
+            
+            yield {'text': sample_sequence,'length': sequence_length}, sample_label
+    
+    
+    dataset = tf.data.Dataset.from_generator(g, ({'text': tf.int32, 'length': tf.int32}, tf.int32), ({'text': tf.TensorShape([batch_size, None]),'length': tf.TensorShape([batch_size]) }, tf.TensorShape([batch_size])))
+     
+    iterator = dataset.make_one_shot_iterator()
+     
+    X,Y = iterator.get_next()
+     
+    sess = tf.Session()
+     
+    for i in range(5):
+        x,y = sess.run([X,Y])
+        print(i, x,y)
+
 #############################################################
 from konlpy.tag import Kkma,Okt
 def Make_Batch():
