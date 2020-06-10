@@ -459,7 +459,7 @@ print(c.keys())  # --> ['linear', 'mel', 'tokens', 'loss_coeff', 'allow_pickle']
 =====================================================================================
 # 파일 한줄씩 읽어, list에 저장
 with open('wnids.txt', 'r') as f:
-    A = [x.strip() for x in f]
+    A = [x.strip() for x in f]    # strip: 양끝의 공백, '\n'을 제거한다.
 =====================================================================================
 import pandas as pd
 
