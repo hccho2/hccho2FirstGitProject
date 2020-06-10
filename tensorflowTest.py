@@ -847,7 +847,7 @@ def data_gen():
         x,y = sess.run([X,Y])
         print(i, x,y)
 #############################################################
-
+from konlpy.tag import Kkma,Okt
 def Make_Batch():
     # 이 example도 data가 simple할 때는 가능하지만, mini batch별로 조작을 어떻게 해야하는지???  ---> dataset.batch, dataset.mpa순서 조정으로 
     from tensorflow.keras import preprocessing
