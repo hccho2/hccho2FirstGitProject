@@ -16,7 +16,9 @@ pip install torchtext
 
 
 1. data file을 pandas로 읽어들인 후, preprocessing 작업을 한 후, 필요한 column만으로 csv파일을 만든다.
-2. data.Field를 만든다.   ---> build_vocab    ---> 0: unknown, 1: pad, ....
+2. data.Field를 만든다.  각 column(field)를 어떻게 처리하는지 결정해 주어야 한다.(e.g. tokenizer.morphs, str.split )   ---> build_vocab    ---> 0: unknown, 1: pad, ....
+   Field에서 padding 처리도 된다.  
+   fix_length가 주어지면, fix_length에 맞게 padding되고 ,   fix_length=None이면, batch에 따라 전체 길리가 달라진다. batch 내에서 최대길이에 맞게 padding이 이루어진다.
 3. data.TabularDataset을 만든다.
 
 여러 파일로 분리되어 있는 경우: TabularDataset.splits
@@ -58,14 +60,13 @@ import spacy  #
 import nltk  # nltk.download('punkt')
 from nltk.tokenize import word_tokenize
 from konlpy.tag import Kkma
-import random
+import random,re
 
 def test1():
     en_text = "The Dogs Run back corner near spare bedrooms?"
     
     
     spacy_en = spacy.load('en')
-    
     tokens = [tok.text for tok in spacy_en.tokenizer(en_text)]
     print('spacy:', tokens)
     
@@ -104,13 +105,16 @@ def test2_english():
         
         train_df.to_csv("imdb_train_data.csv", index=False)
         test_df.to_csv("imdb_test_data.csv", index=False)
-
+    
+    
+    
+    spacy_en = spacy.load('en')
     TEXT = torchtext.data.Field(sequential=True,
                       use_vocab=True,
-                      tokenize=str.split,
+                      tokenize='spacy',   # tokenize=str.split
                       lower=True,
                       batch_first=True,
-                      fix_length=100)   # fix_length를 넘어가면, pad(1)이 붙는다.
+                      fix_length=100)   # fix_length보다 짧으면, pad(1)이 붙는다.  fixed_lengt=None이면, batch중에서 가장 긴 것을 기준으로....
     
     LABEL = torchtext.data.Field(sequential=False,
                        use_vocab=False,
@@ -167,8 +171,7 @@ def test2_kor():
 
     tokenizer = Kkma()  # .morphs() ---> 너무 느리다.
 
-    ID = torchtext.data.Field(sequential = False,
-                    use_vocab = False) # 실제 사용은 하지 않을 예정   ---> txt파일에 ID column이 있어서...
+    ID = torchtext.data.Field(sequential = False,use_vocab = False) # 실제 사용은 하지 않을 예정   ---> txt파일에 ID column이 있어서...
     TEXT = torchtext.data.Field(sequential=True,include_lengths=True,
                       use_vocab=True,
                       tokenize=tokenizer.morphs, # 토크나이저로는 Kkma 사용.
@@ -180,7 +183,7 @@ def test2_kor():
                        use_vocab=False,
                        is_target=True)
 
-
+    # tsv: Tab-separated values
     if False:
         train_data, test_data = torchtext.data.TabularDataset.splits(
                 path='D:/BookCodes/tensorflow-ml-nlp-master/4.TEXT_CLASSIFICATION/data_in', train='ratings_train.txt', 
@@ -201,7 +204,7 @@ def test2_kor():
     print(vars(train_data[0]))
     
     
-    TEXT.build_vocab(train_data, min_freq=10, max_size=10000)
+    TEXT.build_vocab(train_data, min_freq=10, max_size=10000)   # build_vocab 단계를 거처야, 단어가 숫자로 mapping된다.
     print('단어 집합의 크기 : {}'.format(len(TEXT.vocab)))
     print(TEXT.vocab.stoi)
     
@@ -233,17 +236,46 @@ def test2_kor():
         print(batch.text, batch.label)    
 
 
+def make_Dataset_test():
+    class MyDataset(torchtext.data.Dataset):
+        def __init__(self, path, fields, max_length=None, **kwargs):
+            # fields: [('id', ID), ('text', TEXT), ('label', LABEL)]
+            examples = []
+            with open(path, encoding='utf-8') as f:    
+                first_line = f.readline()  # skip_header   
+                for line in f:
+                    line = re.split(r'\t+', line.strip()) # --> ['9976970', '아 더빙.. 진짜 짜증나네요 목소리', '0']    
+                    examples.append(torchtext.data.Example.fromlist(line, fields))
+            
+            
+            super(MyDataset, self).__init__(examples, fields, **kwargs)
+
+    tokenizer = Kkma()  # .morphs() ---> 너무 느리다.
+    tokenize = lambda x: x.split()
+    ID = torchtext.data.Field(sequential = False,use_vocab = False)
+    TEXT = torchtext.data.Field(sequential=True, tokenize=tokenizer.morphs,batch_first=True,include_lengths=True)  # tokenize=tokenize tokenize=tokenizer.morphs
+    LABEL = torchtext.data.Field(sequential=False, use_vocab=False,is_target=True)
+    mydataset = MyDataset('D:/BookCodes/tensorflow-ml-nlp-master/4.TEXT_CLASSIFICATION/data_in/ratings_train_small.txt',[('id', ID), ('text', TEXT), ('label', LABEL)])
+
+    print(vars(mydataset[0]))
 
 
-
+    TEXT.build_vocab(mydataset, min_freq=3, max_size=10000)   # build_vocab 단계를 거처야, 단어가 숫자로 mapping된다.
+    print('단어 집합의 크기 : {}'.format(len(TEXT.vocab)))
+    print(TEXT.vocab.stoi)
+    
+    train_loader = torchtext.data.Iterator(dataset=mydataset, batch_size = 3,shuffle=True)
+    for i, d in enumerate(train_loader):
+        print(i,d.text, d.label)   # d.text[0], d.text[1] ----> Field에서 include_lengths=True로 설정.
+        if i>=2: break    
 
 if __name__ == '__main__':
-    #test1()
+    test1()
     #test2_english()
-    test2_kor()
+    #test2_kor()
+    #make_Dataset_test()
 
     print('Done')
-
 
 
 
