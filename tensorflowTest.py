@@ -864,26 +864,41 @@ def Make_Batch():
     tokenizer = preprocessing.text.Tokenizer(oov_token="<UKN>")   # oov: out of vocabulary
     tokenizer.fit_on_texts(samples+['SOS','EOS'])
     print(tokenizer.word_index)
-    
-    sequences1 = tokenizer.texts_to_sequences(samples)
+    sequences = tokenizer.texts_to_sequences(samples)
     '''
-    [[4, 1, 5, 6, 7],
-     [8, 1, 9, 10],
-     [11, 2, 3, 12],
-     [13, 2, 3, 14],
-     [15, 1, 16, 17, 18, 19, 20],
-     [21, 22, 23, 24]]
+    [[5, 2, 6, 7, 8],
+     [9, 2, 10, 11],
+     [12, 3, 4, 13],
+     [14, 3, 4, 15],
+     [16, 2, 17, 18, 19, 20, 21],
+     [22, 23, 24, 25]]
     '''
     
-    sequences2 = preprocessing.sequence.pad_sequences(sequences1, maxlen=MAX_LEN, padding='post',truncating='post')
-    '''
-    array([[ 4,  1,  5,  6,  7],
-           [ 8,  1,  9, 10,  0],
-           [11,  2,  3, 12,  0],
-           [13,  2,  3, 14,  0],
-           [15,  1, 16, 17, 18],
-           [21, 22, 23, 24,  0]])
+    okt = Okt()
+    samples2 = [okt.morphs(x) for x in samples]
     
+    tokenizer2 = preprocessing.text.Tokenizer(oov_token="<UKN>")   # oov: out of vocabulary
+    tokenizer2.fit_on_texts(samples2+['SOS','EOS'])
+    print(tokenizer2.word_index)
+    sequences2 = tokenizer2.texts_to_sequences(samples2)
+    '''
+    [[7, 2, 8, 9, 10],
+     [4, 11, 2, 12, 13, 14],
+     [15, 5, 3, 6, 16, 17],
+     [4, 3, 6, 18],
+     [19, 2, 20, 21, 22, 23, 24],
+     [25, 26, 27, 5, 28, 3, 29, 30]]
+    
+    '''
+    
+    sequences3 = preprocessing.sequence.pad_sequences(sequences, maxlen=MAX_LEN, padding='post',truncating='post')
+    '''
+    array([[ 5,  2,  6,  7,  8],
+           [ 9,  2, 10, 11,  0],
+           [12,  3,  4, 13,  0],
+           [14,  3,  4, 15,  0],
+           [16,  2, 17, 18, 19],
+           [22, 23, 24, 25,  0]])
     '''
     
     word_index = tokenizer.word_index
@@ -902,9 +917,9 @@ def Make_Batch():
         data_Y = Y # label = {'yy': Y}로 해도 된다.
         return data_X, data_Y  # data_X은 dict, data_Y은 numpy array로 
     
-    dataset = tf.data.Dataset.from_tensor_slices((sequences2, label))
+    dataset = tf.data.Dataset.from_tensor_slices((sequences3, label))
     
-    dataset = dataset.shuffle(len(sequences2))
+    dataset = dataset.shuffle(len(sequences3))
     
     dataset = dataset.map(mapping_fn)
     dataset = dataset.batch(BATCH_SIZE)
