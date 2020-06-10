@@ -59,7 +59,7 @@ import torchtext
 import spacy  # 
 import nltk  # nltk.download('punkt')
 from nltk.tokenize import word_tokenize
-from konlpy.tag import Kkma
+from konlpy.tag import Kkma,Okt
 import random,re
 
 def test1():
@@ -249,7 +249,7 @@ def make_Dataset_test():
             
             super(MyDataset, self).__init__(examples, fields, **kwargs)
 
-    tokenizer = Kkma()  # .morphs() ---> 너무 느리다.   tokenize=tokenizer.morphs  or tokenize = lambda x: x.split()
+    tokenizer = Okt()   #꼬꼬마: Kkma(), Twiter: OKt() --->  .morphs() ---> 꼬꼬마는 너무 느리다.   tokenize=tokenizer.morphs  or tokenize = lambda x: x.split()
     
     ID = torchtext.data.Field(sequential = False,use_vocab = False)
     TEXT = torchtext.data.Field(sequential=True, tokenize=tokenizer.morphs,batch_first=True,include_lengths=True)  # tokenize=tokenize tokenize=tokenizer.morphs
@@ -269,9 +269,9 @@ def make_Dataset_test():
         if i>=2: break    
 
 if __name__ == '__main__':
-    test1()
-    test2_english()
-    #test2_kor()
+    #test1()
+    #test2_english()
+    test2_kor()
     #make_Dataset_test()
 
     print('Done')
