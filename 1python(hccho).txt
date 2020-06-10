@@ -425,7 +425,7 @@ lines = lines.replace('\n','')
 data = np.fromstring(lines,sep=',',dtype=np.float).reshape(dimX,dimY)
 print(data)
 =====================================================================================
-#\n 없이 일기
+#\n 없이 읽기
 words = open(filename, encoding='utf-8').read().splitlines()  # list ['가게', '가격', '가구', '가구',...]
 
 =====================================================================================
