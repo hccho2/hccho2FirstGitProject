@@ -108,13 +108,12 @@ def test2_english():
     
     
     
-    spacy_en = spacy.load('en')
     TEXT = torchtext.data.Field(sequential=True,
                       use_vocab=True,
                       tokenize='spacy',   # tokenize=str.split
                       lower=True,
                       batch_first=True,
-                      fix_length=100)   # fix_length보다 짧으면, pad(1)이 붙는다.  fixed_lengt=None이면, batch중에서 가장 긴 것을 기준으로....
+                      fix_length=None)   # fix_length보다 짧으면, pad(1)이 붙는다.  fixed_lengt=None이면, batch중에서 가장 긴 것을 기준으로....
     
     LABEL = torchtext.data.Field(sequential=False,
                        use_vocab=False,
@@ -149,7 +148,7 @@ def test2_english():
     
     
     for i, d in enumerate(train_loader):
-        print(i,d.text, d.label)
+        print(i,d.text.shape, d.text, d.label)
         if i>=2: break
     
     
@@ -157,7 +156,7 @@ def test2_english():
     print('='*20)
     for i in range(2):
         batch = next(iter(train_loader))
-        print(batch.text, batch.label)
+        print(batch.text.shape, batch.text, batch.label)
 
 
 def test2_kor():
@@ -250,8 +249,8 @@ def make_Dataset_test():
             
             super(MyDataset, self).__init__(examples, fields, **kwargs)
 
-    tokenizer = Kkma()  # .morphs() ---> 너무 느리다.
-    tokenize = lambda x: x.split()
+    tokenizer = Kkma()  # .morphs() ---> 너무 느리다.   tokenize=tokenizer.morphs  or tokenize = lambda x: x.split()
+    
     ID = torchtext.data.Field(sequential = False,use_vocab = False)
     TEXT = torchtext.data.Field(sequential=True, tokenize=tokenizer.morphs,batch_first=True,include_lengths=True)  # tokenize=tokenize tokenize=tokenizer.morphs
     LABEL = torchtext.data.Field(sequential=False, use_vocab=False,is_target=True)
@@ -271,12 +270,11 @@ def make_Dataset_test():
 
 if __name__ == '__main__':
     test1()
-    #test2_english()
+    test2_english()
     #test2_kor()
     #make_Dataset_test()
 
     print('Done')
-
 
 
 
