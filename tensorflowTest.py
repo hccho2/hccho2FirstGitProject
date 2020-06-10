@@ -863,7 +863,7 @@ def variable_length_data_gen():
     okt = Okt()
     samples2 = [okt.morphs(x) for x in samples]
     
-    tokenizer2 = preprocessing.text.Tokenizer(oov_token="<UKN>")   # oov: out of vocabulary
+    tokenizer2 = preprocessing.text.Tokenizer(oov_token="<UKN>")   # oov: out of vocabulary  --->  0: pad, 1: <UNK>, ... num_words-1,
     tokenizer2.fit_on_texts(samples2+['SOS','EOS'])
     print(tokenizer2.word_index)
     sequences2 = tokenizer2.texts_to_sequences(samples2)
