@@ -1147,17 +1147,25 @@ def Loss_Seq_test():
     # sequence loss를 구하기 위해서는, (N,T,n_class)가 아닌, (N,n_class,T)형태로 logit에 넣어 주어야 한다. target(N,T)
     with torch.no_grad(): 
         loss1 = nn.NLLLoss()
-        loss2 = nn.CrossEntropyLoss()
+        loss2 = nn.CrossEntropyLoss()  # 평균은 N*T로 나누어서 취한다.
         
-        logit = torch.tensor([[[1.0,2.0,1.5],[3.0,1.0,4.0]],[[1.0,2.0,1.5],[2.0,1.0,1.0]]], dtype=torch.float)
+        batch_size = 3
+        T = 4
+        D = 5
+        logit = torch.randn(batch_size, T, D)
         
-        target = torch.tensor([[2,1],[1,0]])   # target label  ---> one hot 2 == (0,0,1)
+        target = torch.randint(D,size=(batch_size,T))
         
         # logit(N, n_class), target: N
-        loss1_ = loss1(torch.transpose(logit,1,2), target)   # 
+        loss1_ = loss1(torch.transpose(logit,1,2), target)   # (N,D,T), (N,T)
         loss2_ = loss2(torch.transpose(logit,1,2), target)   # cross entropy loss
         
-        print(loss1_,loss2_)
+        print("loss비교: ", loss1_,loss2_)
+        
+        softmax_val = torch.nn.functional.softmax(logit,2)
+        log_softmax_val = torch.log(softmax_val)
+        print("Cross Entropy loss before mean: ", log_softmax_val.view(-1,D)[np.arange(batch_size*T),target.view(-1)])
+        print("Cross Entropy loss: ", -torch.mean(log_softmax_val.view(-1,D)[np.arange(batch_size*T),target.view(-1)]))
         
 def Loss_Mask_test():
     with torch.no_grad(): 
@@ -1348,7 +1356,7 @@ if __name__ == '__main__':
     #init_test2()
     #init_test3()
     #RNN_test00()
-    RNN_test11()
+    #RNN_test11()
     #RNN_test()
     #PackedSeq_test()
     
@@ -1356,10 +1364,9 @@ if __name__ == '__main__':
 
 
     #Loss_test()
-    #Loss_Seq_test()
+    Loss_Seq_test()
     #Loss_Mask_test()
     #Attention_Mask()
 
     print('Done')
-
 
