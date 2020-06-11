@@ -59,7 +59,7 @@ import torchtext
 import spacy  # 
 import nltk  # nltk.download('punkt')
 from nltk.tokenize import word_tokenize
-from konlpy.tag import Kkma,Okt
+from konlpy.tag import Kkma
 import random,re
 
 def test1():
@@ -108,12 +108,13 @@ def test2_english():
     
     
     
+    spacy_en = spacy.load('en')
     TEXT = torchtext.data.Field(sequential=True,
                       use_vocab=True,
                       tokenize='spacy',   # tokenize=str.split
                       lower=True,
                       batch_first=True,
-                      fix_length=None)   # fix_length보다 짧으면, pad(1)이 붙는다.  fixed_lengt=None이면, batch중에서 가장 긴 것을 기준으로....
+                      fix_length=100)   # fix_length보다 짧으면, pad(1)이 붙는다.  fixed_lengt=None이면, batch중에서 가장 긴 것을 기준으로....
     
     LABEL = torchtext.data.Field(sequential=False,
                        use_vocab=False,
@@ -148,7 +149,7 @@ def test2_english():
     
     
     for i, d in enumerate(train_loader):
-        print(i,d.text.shape, d.text, d.label)
+        print(i,d.text, d.label)
         if i>=2: break
     
     
@@ -156,7 +157,7 @@ def test2_english():
     print('='*20)
     for i in range(2):
         batch = next(iter(train_loader))
-        print(batch.text.shape, batch.text, batch.label)
+        print(batch.text, batch.label)
 
 
 def test2_kor():
@@ -201,11 +202,11 @@ def test2_kor():
     print('테스트 샘플의 개수 : {}'.format(len(test_data)))
     
     print(vars(train_data[0]))
-    
+    print(train_data.examples[0].id,train_data.examples[0].text,train_data.examples[0].label )
     
     TEXT.build_vocab(train_data, min_freq=10, max_size=10000)   # build_vocab 단계를 거처야, 단어가 숫자로 mapping된다.
     print('단어 집합의 크기 : {}'.format(len(TEXT.vocab)))
-    print(TEXT.vocab.stoi)
+    print(TEXT.vocab.stoi)  # 단어 dict
     
     
     # DataLoader 만들기
@@ -220,8 +221,15 @@ def test2_kor():
         # data.BucketIterator ----> padding이 최소화 되도록 한다.
         train_loader, test_loader = torchtext.data.BucketIterator.splits((train_data, test_data),
                                                                        batch_size=batch_size,
-                                                                       device='cpu',
+                                                                       device='cpu',shuffle=False,
                                                                        sort_key=lambda x: len(x.text))
+
+
+    # train_data에 직접 접근 & 직접 단어를 숫자로 mapping 시키기
+    for i, d in enumerate(train_data):
+        # d: Example
+        print(d.text,TEXT.numericalize(([d.text],1)), d.label )  # tuple([xx],batch_size)을 넘겨야 한다.
+        if i>=2: break
     
     for i, d in enumerate(train_loader):
         print(i,d.text, d.label)   # d.text[0], d.text[1] ----> Field에서 include_lengths=True로 설정.
@@ -230,8 +238,9 @@ def test2_kor():
     
     
     print('='*20)
+    it = iter(train_loader)
     for i in range(2):
-        batch = next(iter(train_loader))
+        batch = next(it)
         print(batch.text, batch.label)    
 
 
@@ -249,8 +258,8 @@ def make_Dataset_test():
             
             super(MyDataset, self).__init__(examples, fields, **kwargs)
 
-    tokenizer = Okt()   #꼬꼬마: Kkma(), Twiter: OKt() --->  .morphs() ---> 꼬꼬마는 너무 느리다.   tokenize=tokenizer.morphs  or tokenize = lambda x: x.split()
-    
+    tokenizer = Kkma()  # .morphs() ---> 너무 느리다.
+    tokenize = lambda x: x.split()
     ID = torchtext.data.Field(sequential = False,use_vocab = False)
     TEXT = torchtext.data.Field(sequential=True, tokenize=tokenizer.morphs,batch_first=True,include_lengths=True)  # tokenize=tokenize tokenize=tokenizer.morphs
     LABEL = torchtext.data.Field(sequential=False, use_vocab=False,is_target=True)
@@ -275,6 +284,7 @@ if __name__ == '__main__':
     #make_Dataset_test()
 
     print('Done')
+
 
 
 
