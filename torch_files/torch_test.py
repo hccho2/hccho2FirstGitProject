@@ -82,9 +82,18 @@ PyTorch에서는 모델을 저장할 때 .pt 또는 .pth 확장자를 사용하�
 -----
 nn.CrossEntropyLoss: 2D 또는 3D logit이 넘어잘 수 있다. (N,C) 또는 (N,T,C)        target은 one-hot으로 변환하지 않은 것이 넘어간다.
 
+-----
+optimizer = torch.optim.SGD(model.parameters(), lr=0.05)
+scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.1)  # scheduler.step()이 30분 call하면 0.1을 곱한다.
+# lr = 0.05     if epoch < 30
+# lr = 0.005    if 30 <= epoch < 60
+# lr = 0.0005   if 60 <= epoch < 90
+for i in range(100):
+    print(i, scheduler.get_lr())
+    scheduler.step()
 
 
-
+-----
 Attention Mask
 http://juditacs.github.io/2018/12/27/masked-attention.html
 '''
