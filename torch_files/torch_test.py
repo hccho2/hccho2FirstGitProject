@@ -84,12 +84,14 @@ nn.CrossEntropyLoss: 2D 또는 3D logit이 넘어잘 수 있다. (N,C) 또는 (N
 
 -----
 optimizer = torch.optim.SGD(model.parameters(), lr=0.05)
-scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.1)  # scheduler.step()이 30분 call하면 0.1을 곱한다.
+#scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.1)  # scheduler.step()이 30분 call하면 0.1을 곱한다.
+# StepLR은 ExponentialLR을 좀 더 정교하게 .... 본질적으로 동일.
+scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.99, last_epoch=-1)  # 매 step마다 gamma를 곱한다.StepLR과 다를게 뭔가????
 # lr = 0.05     if epoch < 30
 # lr = 0.005    if 30 <= epoch < 60
 # lr = 0.0005   if 60 <= epoch < 90
 for i in range(100):
-    print(i, scheduler.get_lr())
+    print(i, scheduler.get_lr(), scheduler.get_last_lr())
     scheduler.step()
 
 
