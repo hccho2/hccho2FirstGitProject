@@ -63,7 +63,7 @@ class Transformer(nn.Module):
         x = self.embedding(ecoder_inputs)  # (29,N)  ---> (29,N,hidden_dim)
         y = self.embedding(decoder_inputs) # (11,N)  ---> (11,N,hidden_dim)
         
-        outputs = self.transformer_model(x,y)
+        outputs = self.transformer_model(x,y)  # tgt_mask필요
         outputs = self.out_linear(outputs)
         return outputs
     
@@ -84,7 +84,7 @@ for epoch in range(num_epoch):
         target = d.target.to(device)
         encoder_inputs = d.src[1:-1,:].to(device)
         decoder_inputs = target[:-1,:]
-        outputs = model(encoder_inputs,decoder_inputs)
+        outputs = model(encoder_inputs,decoder_inputs)  # (T,N,D]
         
         loss = model.loss_fn(outputs.permute(1,2,0), target[1:,:].T)  # (T,N,D)  ---> CrossEntropyLoss에는 (N,D,T)를 넘겨야 한다. target에는 (N,T)
         loss.backward()
@@ -92,6 +92,8 @@ for epoch in range(num_epoch):
         
         if i % 200 == 0:
             print('epoch: {}, setp: {}, loss: {}, elapse: {}'.format(epoch, i, loss.item(), int(time.time()-s_time)))
+            predict = torch.argmax(outputs,-1).detach()
+            print(''.join([TEXT.vocab.itos[x] for x in encoder_inputs[:,0].to('cpu').numpy()]),'|', ''.join([TEXT.vocab.itos[x] for x in target[:,0].to('cpu').numpy()]),'-->',''.join([TEXT.vocab.itos[x] for x in predict[:,0].to('cpu').numpy()]))
         
 
 
