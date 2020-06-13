@@ -1243,9 +1243,25 @@ def network_copy():
     print('net2', net2(x))
 
 ################################################################
+def dropout_test():
+    
+    class MyTestNet(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.drop_layer = nn.Dropout(0.5)
 
-
-
+        def forward(self, x):
+            return self.drop_layer(x)
+    
+    net = MyTestNet()
+    
+    x = torch.ones(2,3,5)
+    
+    print(net(x))
+    
+    net.eval()
+    print(net(x))
+    
 ###############################################################
 
 
@@ -1257,63 +1273,65 @@ def network_copy():
 
 
 ###############################################################
-# 사용자 정의 Layer 만들기.
-class NoisyLinear(nn.Module):
-    # Dense Layer를 변형하여 Noise Layer
-    def __init__(self, in_features, out_features, std_init=0.4):
-        super(NoisyLinear, self).__init__()
-        self.in_features = in_features
-        self.out_features = out_features
-        self.std_init = std_init
-        self.weight_mu = nn.Parameter(torch.empty(out_features, in_features))
-        self.weight_sigma = nn.Parameter(torch.empty(out_features, in_features))
-        
-        # register_buffer를 통해 tensor 생성. ---> non trainable.
-        # register_buffer를 통해, state_dict에 추가된다.
-        self.register_buffer('weight_epsilon', torch.empty(out_features, in_features))
-        
-        
-        self.bias_mu = nn.Parameter(torch.empty(out_features))
-        self.bias_sigma = nn.Parameter(torch.empty(out_features))
-        self.register_buffer('bias_epsilon', torch.empty(out_features))
-        self.reset_parameters()  # trainable variable 초기화
-        self.sample_noise()      # non trainable variable인 noise update
-
-    def reset_parameters(self):
-        # trainable variable 초기화
-        mu_range = 1.0 / math.sqrt(self.in_features)
-        self.weight_mu.data.uniform_(-mu_range, mu_range)
-        self.weight_sigma.data.fill_(self.std_init / math.sqrt(self.in_features))
-        self.bias_mu.data.uniform_(-mu_range, mu_range)
-        self.bias_sigma.data.fill_(self.std_init / math.sqrt(self.out_features))
-
-    def _scale_noise(self, size):
-        x = torch.randn(size)
-        return x.sign().mul_(x.abs().sqrt_())
-
-    def sample_noise(self):
-        # noise 자유도를 줄이기 위해.  ---> 논문 참조
-        epsilon_in = self._scale_noise(self.in_features)
-        epsilon_out = self._scale_noise(self.out_features)
-        self.weight_epsilon.copy_(epsilon_out.ger(epsilon_in))   # ger: outer product
-        self.bias_epsilon.copy_(epsilon_out)
-
-    def forward(self, inp):
-        if self.training:
-            return F.linear(inp, self.weight_mu + self.weight_sigma * self.weight_epsilon, self.bias_mu + self.bias_sigma * self.bias_epsilon)
-        else:
-            return F.linear(inp, self.weight_mu, self.bias_mu)
-        
-L = NoisyLinear(3,2)
-x = torch.Tensor(5,3)
-y = L(x)
-
-for l in L.parameters():
-    print(l)
-
-L.state_dict()
-L.state_dict()['weight_epsilon']
-L.state_dict()['weight_sigma']
+def UserDenfedLayer_test():
+    
+    # 사용자 정의 Layer 만들기.
+    class NoisyLinear(nn.Module):
+        # Dense Layer를 변형하여 Noise Layer
+        def __init__(self, in_features, out_features, std_init=0.4):
+            super(NoisyLinear, self).__init__()
+            self.in_features = in_features
+            self.out_features = out_features
+            self.std_init = std_init
+            self.weight_mu = nn.Parameter(torch.empty(out_features, in_features))
+            self.weight_sigma = nn.Parameter(torch.empty(out_features, in_features))
+            
+            # register_buffer를 통해 tensor 생성. ---> non trainable.
+            # register_buffer를 통해, state_dict에 추가된다.
+            self.register_buffer('weight_epsilon', torch.empty(out_features, in_features))
+            
+            
+            self.bias_mu = nn.Parameter(torch.empty(out_features))
+            self.bias_sigma = nn.Parameter(torch.empty(out_features))
+            self.register_buffer('bias_epsilon', torch.empty(out_features))
+            self.reset_parameters()  # trainable variable 초기화
+            self.sample_noise()      # non trainable variable인 noise update
+    
+        def reset_parameters(self):
+            # trainable variable 초기화
+            mu_range = 1.0 / math.sqrt(self.in_features)
+            self.weight_mu.data.uniform_(-mu_range, mu_range)
+            self.weight_sigma.data.fill_(self.std_init / math.sqrt(self.in_features))
+            self.bias_mu.data.uniform_(-mu_range, mu_range)
+            self.bias_sigma.data.fill_(self.std_init / math.sqrt(self.out_features))
+    
+        def _scale_noise(self, size):
+            x = torch.randn(size)
+            return x.sign().mul_(x.abs().sqrt_())
+    
+        def sample_noise(self):
+            # noise 자유도를 줄이기 위해.  ---> 논문 참조
+            epsilon_in = self._scale_noise(self.in_features)
+            epsilon_out = self._scale_noise(self.out_features)
+            self.weight_epsilon.copy_(epsilon_out.ger(epsilon_in))   # ger: outer product
+            self.bias_epsilon.copy_(epsilon_out)
+    
+        def forward(self, inp):
+            if self.training:
+                return F.linear(inp, self.weight_mu + self.weight_sigma * self.weight_epsilon, self.bias_mu + self.bias_sigma * self.bias_epsilon)
+            else:
+                return F.linear(inp, self.weight_mu, self.bias_mu)
+            
+    L = NoisyLinear(3,2)
+    x = torch.Tensor(5,3)
+    y = L(x)
+    
+    for l in L.parameters():
+        print(l)
+    
+    L.state_dict()
+    L.state_dict()['weight_epsilon']
+    L.state_dict()['weight_sigma']
 ###############################################################
 
 
@@ -1364,9 +1382,9 @@ if __name__ == '__main__':
 
 
     #Loss_test()
-    Loss_Seq_test()
+    #Loss_Seq_test()
     #Loss_Mask_test()
     #Attention_Mask()
-
+    dropout_test()
     print('Done')
 
