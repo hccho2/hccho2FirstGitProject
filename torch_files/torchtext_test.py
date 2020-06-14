@@ -30,7 +30,7 @@ train_data = TabularDataset.splits(path='./data/',
                     fields=[('text', TEXT), ('label', LABEL)])
 
 
-하나의 파일인 경우: 읽은 후, spliti할 수 있다.
+하나의 파일인 경우: 읽은 후, split할 수 있다.
 train_data = TabularDataset(path='./data/examples.tsv', 
                 format='tsv', 
                 fields=[('text', TEXT), ('label', LABEL)])
@@ -61,7 +61,7 @@ import nltk  # nltk.download('punkt')
 from nltk.tokenize import word_tokenize
 from konlpy.tag import Kkma
 import random,re
-
+import pickle,os
 def test1():
     en_text = "The Dogs Run back corner near spare bedrooms?"
     
@@ -135,12 +135,25 @@ def test2_english():
 
 
     # 필드 구성 확인.
-    print(train_data.fields.items())
-
+    print("fields:", train_data.fields.items())  # fields: dict_items([('text', <torchtext.data.field.Field object at 0x000001C4DB2D10F0>), ('label', <torchtext.data.field.Field object at 0x000001C4DB2D1080>)])
     
-    TEXT.build_vocab(train_data, min_freq=10, max_size=10000)
-    print('단어 집합의 크기 : {}'.format(len(TEXT.vocab)))   # {'<unk>': 0, '<pad>': 1, 'the': 2, 'a': 3, ....}
-    print(TEXT.vocab.stoi)
+    
+    # vocab --> pickle파일
+    if (not (os.path.exists('vocab_en.pickle'))):
+        # bilid_vocab( ..., vectors=GloVe('6B', dim=emb_dim), ...)
+        TEXT.build_vocab(train_data, min_freq=10, max_size=10000)   # vectors를 지정하면 단어의 embedding을 불러 온다. 참고: load_vectors
+        print('단어 집합의 크기 : {}'.format(len(TEXT.vocab)))   # {'<unk>': 0, '<pad>': 1, 'the': 2, 'a': 3, ....}
+        
+        # inference를 대비하여 vocab를 저장해 두어야 한다.
+        with open('vocab_en.pickle', 'wb') as f:
+            pickle.dump(TEXT.vocab, f) 
+    
+    else:
+        with open('vocab_en.pickle','rb') as f:
+            TEXT.vocab = pickle.load(f)
+        
+        
+    print(dict(TEXT.vocab.stoi))
     
     # DataLoader 만들기
     batch_size = 2
@@ -160,6 +173,13 @@ def test2_english():
         print(batch.text, batch.label)
 
 
+   
+
+
+def index_to_word(vocab,indexs):
+    output = [ vocab[x] for x in indexs ]
+    return output
+    
 def test2_kor():
     train_df = pd.read_table('D:/BookCodes/tensorflow-ml-nlp-master/4.TEXT_CLASSIFICATION/data_in/ratings_train.txt')
     test_df = pd.read_table('D:/BookCodes/tensorflow-ml-nlp-master/4.TEXT_CLASSIFICATION/data_in/ratings_test.txt')  
@@ -233,6 +253,7 @@ def test2_kor():
     
     for i, d in enumerate(train_loader):
         print(i,d.text, d.label)   # d.text[0], d.text[1] ----> Field에서 include_lengths=True로 설정.
+        print(''.join([TEXT.vocab.itos[x] for x in d.text[0][0].numpy()]))
         if i>=2: break
     
     
@@ -279,12 +300,11 @@ def make_Dataset_test():
 
 if __name__ == '__main__':
     #test1()
-    #test2_english()
-    test2_kor()
+    test2_english()
+    #test2_kor()
     #make_Dataset_test()
 
     print('Done')
-
 
 
 
