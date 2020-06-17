@@ -798,6 +798,22 @@ def TFRecord_reading3():
         plt.title(y)
         plt.show()    
 #############################################################
+# train_input, train_target  <----- numpy array
+buffer_size = 32
+dataset = tf.data.Dataset.from_tensor_slices((train_input, train_target))  # 여기의 argument가 mapping_fn의 argument가 된다.
+dataset = dataset.shuffle(buffer_size=buffer_size*10)
+dataset = dataset.batch(buffer_size,drop_remainder=False)
+
+for i,(x,y) in enumerate(dataset):
+if i% 300 == 0:
+    print(x.shape,y.shape)
+print('='*10)
+for i,(x,y) in enumerate(dataset):
+if i% 1000 == 0:
+    print(x.shape,y.shape)  
+
+#############################################################
+
 def shuffle_batch():
     # shuffle_batch를 이용하는 또 다른 방식
     # 전체 data를 tf.train.slice_input_producer에 넣어 처리
