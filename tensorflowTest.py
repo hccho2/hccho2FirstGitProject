@@ -914,21 +914,24 @@ def Make_Batch():
     MAX_LEN = 5
     
     tokenizer = preprocessing.text.Tokenizer(oov_token="<UKN>")   # oov: out of vocabulary
-    tokenizer.fit_on_texts(samples+['SOS','EOS'])
+    tokenizer.fit_on_texts(samples+['SOS','EOS']) # 0에는 아무것도 할당되어 있지 않다.
     print(tokenizer.word_index)
-
-	
+    
+    
+    word_to_index = tokenizer.word_index
+    word_to_index['PAD'] = 0
+    index_to_word = dict(map(reversed, word_to_index.items()))
+    
+    print('word_to_index(pad): ', word_to_index)
+    print('index_to_word', index_to_word)
     if False:
         # inference에 사용하기 위해 vocab를 저장해 두어야 한다.
-        word_to_index = tokenizer.word_index
-        index_to_word = dict(map(reversed, word_to_index.items()))
-        
         if (not (os.path.exists('vocab.pickle'))):
             with open('vocab.pickle', 'wb') as f:
                 pickle.dump({'word_to_index': word_to_index, 'index_to_word': index_to_word}, f)
-	
-	
-	
+    	
+    	
+    	
     sequences = tokenizer.texts_to_sequences(samples)  # 역변환: tokenizer.sequences_to_texts(sequences)
     '''
     [[5, 2, 6, 7, 8],
