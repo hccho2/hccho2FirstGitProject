@@ -146,18 +146,35 @@ def keras_standard_model():
     print(model.summary())
     
     
-    
-    #X = tf.random.normal(shape=(batch_size, input_dim))
-    #Y = tf.random.normal(shape=(batch_size, 1))
-    
-    X = tf.convert_to_tensor(np.array([[1.4358643,  1.275539,  -1.8608146 ], [-0.3436857, -0.7065693, -1.1548917]]),dtype=tf.float32)
-    Y = tf.convert_to_tensor(np.array([[-1.4839303 ], [0.88788706]]),dtype=tf.float32)
-    
+    data_mode = 2
+    if data_mode == 1:
+        X = tf.random.normal(shape=(10, input_dim))
+        Y = tf.random.normal(shape=(10, 1))
+        
+        #X = tf.convert_to_tensor(np.array([[1.4358643,  1.275539,  -1.8608146 ], [-0.3436857, -0.7065693, -1.1548917]]),dtype=tf.float32)
+        #Y = tf.convert_to_tensor(np.array([[-1.4839303 ], [0.88788706]]),dtype=tf.float32)
+        
+        #X = np.array([[1.4358643,  1.275539,  -1.8608146 ], [-0.3436857, -0.7065693, -1.1548917]])
+        #Y = np.array([[-1.4839303 ], [0.88788706]])
+    else:
+        X = tf.random.normal(shape=(10, input_dim))
+        Y = tf.random.normal(shape=(10, 1))        
+        dataset = tf.data.Dataset.from_tensor_slices((X, Y))  # 여기의 argument가 mapping_fn의 argument가 된다.
+        dataset = dataset.shuffle(buffer_size=batch_size*10).repeat() # 반복회수를 지정하지 않으면 무한반복
+        dataset = dataset.batch(batch_size,drop_remainder=False)
+        
+        
     
     optimizer = tf.keras.optimizers.Adam(lr=0.01)
     model.compile(optimizer,loss='mse')
     
-    model.fit(X,Y,epochs=100,verbose=1)
+    if data_mode == 1:
+        # data를 X,Y를 batch_size로 나누어서 epochs만큼 train
+        model.fit(X,Y,batch_size=batch_size, epochs=5,verbose=1) # Verbosity mode. 0 = silent, 1 = progress bar, 2 = one line per epoch
+    else:
+        # dataset 자체레 batch_size가 정해져 있기 때문에, 몇 step을 1 epoch으로 볼 것인가 지엉(steps_per_epoch)
+        model.fit(dataset, epochs=5,verbose=1, steps_per_epoch = 10)
+    
     
     
     print(X,Y)
@@ -249,10 +266,10 @@ def keras_standard_model2():
 if __name__ == "__main__":    
     #embeddidng_test()
     #simple_model()
-    #keras_standard_model()   # ---> model_load_test
+    keras_standard_model()   # ---> model_load_test
     #model_load_test()
     #model_load_checkpoint()
-    keras_standard_model2()
+    #keras_standard_model2()
 
 
 
