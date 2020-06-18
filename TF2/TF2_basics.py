@@ -182,8 +182,9 @@ def keras_standard_model():
     
     #tf.saved_model.save(model,'./saved_model')   # ----> model_load_test()
     
+    model_dir = './saved_model'
     model_dir_preface = './saved_model/model_ckpt'   # 저장할 때는 디렉토리 + preface
-    save_method=1
+    save_method=3
     if save_method==1:
         # model로 부터 바로 저장
         model.save_weights(model_dir_preface)   # train하지 않은 모델을 restore하기 때문에  몇가지 WARNING이 나온다. WARNING:tensorflow:Unresolved object in checkpoint: (root).optimizer
@@ -191,7 +192,11 @@ def keras_standard_model():
         # tf.train.Checkpoint를 사용하여 저장
         checkpoint = tf.train.Checkpoint(model=model)   # tf.train.Checkpoint(optimizer=optimizer, model=model)
         checkpoint.save(model_dir_preface)   # model_ckpt-1로 저장된다.    
-    
+    else:
+        checkpoint = tf.train.Checkpoint(model=model)   # tf.train.Checkpoint(optimizer=optimizer, model=model)
+        chekpoint_manager = tf.train.CheckpointManager(checkpoint, model_dir,checkpoint_name = 'model_ckpt', max_to_keep=5)   # preface없이 모델 dir만 넣어준다.
+        ckpt_save_path = chekpoint_manager.save()
+        print('model saved: ', ckpt_save_path)
     
     
     print(model.weights)
@@ -324,10 +329,10 @@ def keras_standard_model3():
 if __name__ == "__main__":    
     #embeddidng_test()
     #simple_model()
-    #keras_standard_model()   # ---> model_load_test
+    keras_standard_model()   # ---> model_load_test
     
     #model_load_test()
-    model_load_checkpoint()
+    #model_load_checkpoint()
     #keras_standard_model2()
     #keras_standard_model3()
 
