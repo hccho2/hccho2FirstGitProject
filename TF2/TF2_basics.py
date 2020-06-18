@@ -182,12 +182,17 @@ def keras_standard_model():
     
     #tf.saved_model.save(model,'./saved_model')   # ----> model_load_test()
     
-    save_method=2
+    model_dir_preface = './saved_model/model_ckpt'   # 저장할 때는 디렉토리 + preface
+    save_method=1
     if save_method==1:
-        model.save_weights('./saved_model/model_ckpt')   # train하지 않은 모델을 restore하기 때문에  몇가지 WARNING이 나온다. WARNING:tensorflow:Unresolved object in checkpoint: (root).optimizer
-    else:
+        # model로 부터 바로 저장
+        model.save_weights(model_dir_preface)   # train하지 않은 모델을 restore하기 때문에  몇가지 WARNING이 나온다. WARNING:tensorflow:Unresolved object in checkpoint: (root).optimizer
+    elif save_method==2:
+        # tf.train.Checkpoint를 사용하여 저장
         checkpoint = tf.train.Checkpoint(model=model)   # tf.train.Checkpoint(optimizer=optimizer, model=model)
-        checkpoint.save('./saved_model/model_ckpt')   # model_ckpt-1로 저장된다.
+        checkpoint.save(model_dir_preface)   # model_ckpt-1로 저장된다.    
+    
+    
     
     print(model.weights)
 
@@ -218,12 +223,18 @@ def model_load_checkpoint():
     
     #print('before:', model.weights)
     
-    save_method=2
+    
+    model_dir = './saved_model'
+    
+    save_method=1
     if save_method==1:
-        model.load_weights('./saved_model/model_ckpt')
-    else:
+        model.load_weights(model_dir+'/model_ckpt')
+    elif save_method==2:
         checkpoint = tf.train.Checkpoint(model=model)
-        checkpoint.restore('./saved_model/model_ckpt-1')
+        chekpoint_manager = tf.train.CheckpointManager(checkpoint, model_dir, max_to_keep=5)   # preface없이 모델 dir만 넣어준다.
+        checkpoint.restore(chekpoint_manager.latest_checkpoint)  # checkpoint.restore('./saved_model/model_ckpt-1')
+        
+        
     #print('after: ', model.weights)
     
     
@@ -316,9 +327,8 @@ if __name__ == "__main__":
     #keras_standard_model()   # ---> model_load_test
     
     #model_load_test()
-    #model_load_checkpoint()
+    model_load_checkpoint()
     #keras_standard_model2()
-    keras_standard_model3()
-
+    #keras_standard_model3()
 
 
