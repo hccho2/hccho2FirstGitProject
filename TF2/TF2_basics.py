@@ -193,6 +193,7 @@ def keras_standard_model():
         checkpoint = tf.train.Checkpoint(model=model)   # tf.train.Checkpoint(optimizer=optimizer, model=model)
         checkpoint.save(model_dir_preface)   # model_ckpt-1로 저장된다.    
     else:
+        # tf.train.Checkpoint --> tf.train.CheckpointManager를 이용하여 저장.
         checkpoint = tf.train.Checkpoint(model=model)   # tf.train.Checkpoint(optimizer=optimizer, model=model)
         chekpoint_manager = tf.train.CheckpointManager(checkpoint, model_dir,checkpoint_name = 'model_ckpt', max_to_keep=5)   # preface없이 모델 dir만 넣어준다.
         ckpt_save_path = chekpoint_manager.save()
