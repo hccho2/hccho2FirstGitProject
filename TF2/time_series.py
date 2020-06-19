@@ -325,6 +325,7 @@ def multivariate_single_step_model():
 
 
 def multivariate_multi_step_model():
+    # 간혹 loss가 떨어지지 않는 경우가 있음. 다시 돌리면 됨
     s_time = time.time()
     csv_path = 'jena_climate_2009_2016.csv'    # 'jena_climate_2009_2016.csv' ,    'jena_climate_2009_2016_simple.csv'
     df = pd.read_csv(csv_path)    
@@ -398,8 +399,10 @@ def multivariate_multi_step_model():
     
     # steps_per_epoch=EVALUATION_INTERVAL  -----> Dataset으로 data가 주어져 있기 때문에 batch_size가 Datset속에 정해져 있다. 그래서 몇 step을 1 ephoch로 볼 것인가?
     # validation_steps=50  ----> validation data로 Dataset으로 주어져 있기 때문에, validation loss를 몇 변 계산할 것인가?
-    validation_freq=[1, 4, 6,9,10]
-    # validation_freq= 2 ---> 매 2 epoch마다
+    #validation_freq=[1, 4, 6,9,10]
+    validation_freq= 1 # ---> 매 2 epoch마다
+    
+    #validation_steps은 validation_data가 무한 반복하는 것에 대비하여, 몇번 validation을 수행할지 지정. 무한 반복하지 않는 data에 대해서는 지정하지 않아도 된다. 이 때는 data소진할 때까지.
     multi_step_history = multi_step_model.fit(train_data_multi, epochs=EPOCHS,
                                                 steps_per_epoch=EVALUATION_INTERVAL,
                                                 validation_data=val_data_multi,
@@ -408,7 +411,8 @@ def multivariate_multi_step_model():
 
 
     # validation_freq=[1, 4, 6,9,10] ---> 이렇게 주면 train, validation loss갯수가 맞지 않아 error
-    plot_train_history(multi_step_history, 'Multi-Step Training and validation loss',np.array(validation_freq)-1)
+    # validation_freq = 1이 아니면, error
+    plot_train_history(multi_step_history, 'Multi-Step Training and validation loss', validation_freq=None)  # np.array(validation_freq)-1
 
     for x, y in val_data_multi.take(3):
         multi_step_plot(x[0], y[0], multi_step_model.predict(x)[0])
@@ -417,8 +421,8 @@ def multivariate_multi_step_model():
 if __name__ == '__main__':
     #test1()
     #data_load_test()
-    univariate_model()
+    #univariate_model()
     #multivariate_single_step_model()
-    #multivariate_multi_step_model()
+    multivariate_multi_step_model()
 
     print('Done')
