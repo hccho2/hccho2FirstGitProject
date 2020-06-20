@@ -19,5 +19,21 @@ pip아니고, 다음과 같이 conda로 설치
 ##########################
 ##########################
 다시...
-pip install -U numpy
-pip install torch==1.5.1+cu101 torchvision==0.6.1+cu101 -f https://download.pytorch.org/whl/torch_stable.html
+conda install -c anaconda numpy                   https://anaconda.org/anaconda/numpy
+conda install pytorch torchvision cudatoolkit=10.1 -c pytorch         https://pytorch.org/
+
+
+Google 검색: conda install 패키지이름 ----> Anaconda Cloud설치 명령 참고.
+
+conda install -c pytorch torchtext
+
+
+conda install -c anaconda pandas
+
+conda install -c anaconda natsort
+
+
+<설치후> import pytorch  --> import numpy ---> OK
+import numpy만 하면 error ===> eclipse ---> Python Interpreter --> Environment에 PATH 추가
+PATH:   C:\Anaconda3\envs\torch15;C:\Anaconda3\envs\torch15\Library\bin;
+
