@@ -60,4 +60,10 @@ cudnn  --> archive cudnnn releases   ---> 버전 선택 --> "library for linux" 
 eclipse-dsl-2019-06-R-linux-gtk-x86_64.tar.gz
 
 
+압축풀기: 풀면 cuda라는 디렉토리가 생성된다.
+tar -xzvf cudnn-10.0-linux-x64-v7.6.2.24.tgz
+
+sudo cp cuda/include/cudnn.h /usr/local/cuda-10.1/include/cudnn.h
+sudo cp cuda/lib64/libcudnn* /usr/local/cuda-10.1/lib64/
+sudo chmod a+r /usr/local/cuda-10.1/include/cudnn.h /usr/local/cuda-10.1/lib64/libcudnn*
 
