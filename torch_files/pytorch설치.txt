@@ -54,3 +54,5 @@ batch_size를 올리면, windows 사용량이 더 많이 올라가고, 속도도
 
 아래 링크 글을 보면, windows, ubuntu에서 4배 차이난다고 하고 있다.
 https://github.com/pytorch/pytorch/issues/13807#issuecomment-634964850
+
+pytorch 1.5  ---> 1.2를 새로운 env로 설치 후, test했을 때도 속도는 달라지지 않는다.
