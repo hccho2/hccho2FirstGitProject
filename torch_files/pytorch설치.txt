@@ -36,4 +36,17 @@ conda install -c anaconda natsort
 <설치후> import pytorch  --> import numpy ---> OK
 import numpy만 하면 error ===> eclipse ---> Python Interpreter --> Environment에 PATH 추가
 PATH:   C:\Anaconda3\envs\torch15;C:\Anaconda3\envs\torch15\Library\bin;
+##########################
+##########################
+
+Windows의 작업관라자의 GPU사용률이 정확하지 않다. 아래 코드를 돌려보면, 사용량은 0이지만, nvidia-smi에서는 100%나온다.
+
+a = torch.rand(20000,20000).cuda()
+while True:
+    a +=1
+    a -=1
+---
+ubuntu에 비해, Windows에서는 같은 batch_size에서 nvidia-smi사용량이 적게 나온다. 
+batch_size를 올리면, windows 사용량이 더 많이 올라가고, 속도도 빨라진다.
+
 
