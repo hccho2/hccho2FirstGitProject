@@ -47,6 +47,10 @@ while True:
     a -=1
 ---
 ubuntu에 비해, Windows에서는 같은 batch_size에서 nvidia-smi사용량이 적게 나온다. 
-batch_size를 올리면, windows 사용량이 더 많이 올라가고, 속도도 빨라진다.
+batch_size를 올리면, windows 사용량이 더 많이 올라가고, 속도도 빨라진다
+
+---> ubuntu:colab:windows = 1:2:3 
 
 
+아래 링크 글을 보면, windows, ubuntu에서 4배 차이난다고 하고 있다.
+https://github.com/pytorch/pytorch/issues/13807#issuecomment-634964850
