@@ -52,3 +52,12 @@ sudo apt-get -y install cuda
 sudo apt-get install cuda-libraries-10-0
 ===>/usr/local/cuda-10.1  
 
+
+cudnn설치
+
+https://developer.nvidia.com/rdp/cudnn-archive
+cudnn  --> archive cudnnn releases   ---> 버전 선택 --> "library for linux" ---> 로그인 후, 다운
+eclipse-dsl-2019-06-R-linux-gtk-x86_64.tar.gz
+
+
+
