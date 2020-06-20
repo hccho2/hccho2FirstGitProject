@@ -30,5 +30,14 @@ numpy 설치:   tensorflow 2.2는 conda가 지원하지 않는다. pip로 tensor
 pandas로 pip로 설치.
 
 
+*******************
+ubuntu 2.2 설치
+https://www.tensorflow.org/install?hl=ko
+
+여기 설명되어 있는대로, pip를 먼저 upgrade하고 설치해야한다. pip upgrade하지 않으면, 1.4가 설치된다.
+
+cuda, 
+
+
 
 
