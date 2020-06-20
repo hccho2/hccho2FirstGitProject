@@ -7,3 +7,7 @@ pc에 cuda 10.1이 설치되어 있어(10.2는 설치되지 있지 않음)
 
 pip아니고, 다음과 같이 conda로 설치
 > conda install pytorch torchvision cudatoolkit=10.1 -c pytorch
+
+
+
+> 이유를 모르겠지만, numpy보다 torch를 먼저 import해야 eclipse에서 error안남.
