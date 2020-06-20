@@ -11,3 +11,13 @@ pip아니고, 다음과 같이 conda로 설치
 
 
 > 이유를 모르겠지만, numpy보다 torch를 먼저 import해야 eclipse에서 error안남.
+
+
+
+
+
+##########################
+##########################
+다시...
+pip install -U numpy
+pip install torch==1.5.1+cu101 torchvision==0.6.1+cu101 -f https://download.pytorch.org/whl/torch_stable.html
