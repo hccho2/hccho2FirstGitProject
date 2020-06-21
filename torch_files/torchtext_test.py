@@ -56,8 +56,8 @@ imdb.tar.gz  ---> 1줄로된 파일이 모여있다. 12,500 x 4 = 5만 ----> 전
 import pandas as pd
 from konlpy.tag import Mecab
 import torchtext
-import spacy  # 
-import nltk  # nltk.download('punkt')
+import spacy  # conda install -c conda-forge spacy
+import nltk  # conda install -c anaconda nltk  --->    nltk.download('punkt')
 from nltk.tokenize import word_tokenize
 from konlpy.tag import Kkma
 import random,re
@@ -298,12 +298,51 @@ def make_Dataset_test():
         print(i,d.text, d.label)   # d.text[0], d.text[1] ----> Field에서 include_lengths=True로 설정.
         if i>=2: break    
 
+def make_data():
+    samples = ['너 오늘 아주 이뻐 보인다', 
+               '나는 오늘 기분이 더러워', 
+               '끝내주는데, 좋은 일이 있나봐', 
+               '나 좋은 일이 생겼어', 
+               '아 오늘 진짜 너무 많이 정말로 짜증나', 
+               '환상적인데, 정말 좋은거 같아']
+    
+    
+    # 1. Field 정의
+    tokenizer = Kkma()
+    TEXT = torchtext.data.Field(sequential=True, tokenize=tokenizer.morphs,batch_first=True,include_lengths=False)
+    fields = [('text', TEXT)]
+    
+    # 2. torchtext.data.Example 생성
+    sequences=[]
+    for s in samples:
+        sequences.append(torchtext.data.Example.fromlist([s], fields))
+    
+    for s in sequences:
+        print(s.text)
+    
+    
+    # 3. Dataset생성(word data)
+    mydataset = torchtext.data.Dataset(sequences,fields)# Example ==> Dataset생성
+    
+    # 4. vocab 생성
+    TEXT.build_vocab(mydataset, min_freq=1, max_size=10000)
+    print(TEXT.vocab.stoi)
+    
+    
+    # Dataset생성(id로 변환된 data)
+    mydataset = torchtext.data.Iterator(dataset=mydataset, batch_size = 6)
+    
+    
+    
+    for d in mydataset:
+        print(d.text)
+    
 if __name__ == '__main__':
     #test1()
-    test2_english()
+    #test2_english()
     #test2_kor()
     #make_Dataset_test()
-
+    make_data()
     print('Done')
 
 
