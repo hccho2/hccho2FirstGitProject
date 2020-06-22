@@ -1,0 +1,46 @@
+try:
+    %tensorflow_version 1.x   #  %tensorflow_version 1.x  
+except Exception:
+    pass
+	
+
+
+
+
+# 하위 디렉토리 파일까지 보여주기   -lRS(소문자 L, RS)
+!ls -lRS
+
+
+
+# local pc --> colab 파일 업로드
+#  여러개 동시 선택 가능 해야 됨
+from google.colab import files
+
+uploaded = files.upload()
+
+for fn in uploaded.keys():
+  print('User uploaded file "{name}" with length {length} bytes'.format(name=fn, length=len(uploaded[fn])))
+
+
+
+
+
+#압축 후 다운로드
+
+from google.colab import files
+#!tar -czvf result.tar.gz ./bipedalwalker-ddpg/model.ckpt-1310*
+#!tar -czvf result.tar.gz ./pong/*
+#files.download('./saved_model/epoch-5.pth')
+files.download('./checkpoint/model.ckpt-21000.meta')
+#!rm result.tar.gz
+
+
+
+
+# 디렉토리 만들고 파일 이동
+#!mkdir save_model
+!rm ./saved_model2/*
+#!mv checkpoint ./VABLSTMcheckpoints
+
+
+#!mv model* ./VABLSTMcheckpoints   # 여러개 옮기기
