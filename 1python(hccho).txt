@@ -688,6 +688,17 @@ im = scipy.misc.imresize(im, self.resize)  #정수값이 return.  ----> deprecat
 
 scipy.misc.imsave(save_path, im)
 =====================================================================================
+from scipy.misc import imread, imresize   ---> imread, imresize가 deprecated되었다.
+
+scipy.misc.imread   ---> 정수 uint8   ---> from imageio import imread 사용하면 된다.
+
+scipy.misc.resize   ---> 정수 uint8 ---> from PIL import Image릉 이용해서, array를 Image로 만든 후, resize하고 np.array로 comverting한다.  ---> uint8
+
+from PIL import Image
+np.array(Image.fromarray(img).resize((10,10)))  # 여기서 img: numpy array
+
+
+=====================================================================================
 import os, glob
 a = os.path.join("../tensorflow-style-transfer-master","images", "*.jpg") #string을  \로 이어  path를 만든다.
 b = glob.glob(a) # wild card를 풀어  filename list를 만든다.
