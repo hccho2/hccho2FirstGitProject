@@ -14,10 +14,33 @@ import matplotlib.pyplot as plt
 import cv2
 
 
+from tensorflow.keras.applications import inception_v3
+
+
+
+def deprocess_image(x):
+    mean = [103.939, 116.779, 123.68]
+
+    x[...,0] += mean[0]
+    x[...,1] += mean[1]
+    x[...,2] += mean[2]
+
+    return x[...,::-1]
+
+
+def preprocess_image(x):
+    mean = [103.939, 116.779, 123.68]
+    x = x[...,::-1]
+    x[...,0] -= mean[0]
+    x[...,1] -= mean[1]
+    x[...,2] -= mean[2]
+
+    return x
+
 
 def grad_cam():
     tf.compat.v1.disable_eager_execution()   # K.gradients를 사용하기 위해....
-    model = VGG16(weights='imagenet')  # C:\Users\BRAIN\.keras\models\vgg16_weights_tf_dim_ordering_tf_kernels.h5  540M
+    model = VGG16(weights='imagenet')  # C:\Users\BRAIN\.keras\models\inception_v3_weights_tf_dim_ordering_tf_kernels_notop.h5  85M
     
     img_path = './creative_commons_elephant.jpg'
     img = image.load_img(img_path, target_size=(224, 224))  # PIL.Image.Image
@@ -148,6 +171,9 @@ def saliency_map():
     plt.show()
     
 def fooling():
+    # 주어진 image롤 class 확률에 대하여 미분하여, 미리 정한 다른 class로 분류되게 image를 update해 나간다.
+    tf.compat.v1.disable_eager_execution()   # K.gradients를 사용하기 위해....
+    
     # imagenet class id: https://gist.github.com/yrevar/942d3a0ac09ec9e5eb3a
     '''
     0: 'tench, Tinca tinca',1: 'goldfish, Carassius auratus',2: 'great white shark, white shark, man-eater, man-eating shark, Carcharodon carcharias',
@@ -170,41 +196,24 @@ def fooling():
         by the model.
         """
         X_fooling = X.copy()
-        learning_rate = 1
-        ##############################################################################
-        # TODO: Generate a fooling image X_fooling that the model will classify as   #
-        # the class target_y. Use gradient ascent on the target class score, using   #
-        # the model.classifier Tensor to get the class scores for the model.image.   #
-        # When computing an update step, first normalize the gradient:               #
-        #   dX = learning_rate * g / ||g||_2                                         #
-        #                                                                            #
-        # You should write a training loop                                           #
-        #                                                                            #  
-        # HINT: For most examples, you should be able to generate a fooling image    #
-        # in fewer than 100 iterations of gradient ascent.                           #
-        # You can print your progress over iterations to check your algorithm.       #
-        ##############################################################################
+        learning_rate = 5
 
-
+        score = model.output[:, target_y]
+        
+        grads = tf.gradients(score, model.input)[0]
+        
+        iterate = K.function([model.input],[model.output,grads])
+        
         for i in range(100):
-            with tf.GradientTape() as tape:
-                pred = model(X_fooling)
-                scores = pred[0,target_y]
-                
-                #gradient = tf.gradients(scores,model.input)[0]
-                #gradient = gradient / tf.norm(gradient)               
-                
-                
-            classification_ = np.argmax(pred[0])
+            pred_,gradient_ = iterate(X_fooling)             
+        
+            classification_ = np.argmax(pred_[0])
+            #print(i,classification_)
             if classification_ == target_y:
                 break
-        
-            gradient = tf.gradients(scores,model.input)
-            gradient = gradient / tf.norm(gradient)
-            X_fooling += learning_rate * gradient_
-        ##############################################################################
-        #                             END OF YOUR CODE                               #
-        ##############################################################################
+            gradient_ = gradient_ / np.linalg.norm(gradient_)
+            X_fooling += learning_rate * gradient_      
+
         return X_fooling
     
     
@@ -216,16 +225,194 @@ def fooling():
 
     
     x = np.expand_dims(x,axis=0)
-    x = preprocess_input(x)  # -123.68~1.0사이값으로 변횐되네....    (1, 224, 224, 3)
+    processed_x = preprocess_input(x.copy())  # -123.68~1.0사이값으로 변횐되네....    (1, 224, 224, 3)
     target_y = 8 
-    X_fooling = make_fooling_image(x, target_y, model)
+    X_fooling = make_fooling_image(processed_x, target_y, model)
+    
+    preds = model.predict(X_fooling)  # list return
+    fake_class = decode_predictions(preds, top=3)[0][0][1]
+    print('Predicted:', decode_predictions(preds, top=3)[0])
+    orig_img = x[0]    
+    fool_img = deprocess_image(X_fooling[0])
+    
+    # Rescale 
+    plt.subplot(1, 4, 1)
+    plt.imshow(orig_img/255.)
+    plt.axis('off')
+    plt.title('African_elephant')
+    plt.subplot(1, 4, 2)
+    plt.imshow(fool_img/225.)
+    plt.title(fake_class)
+    plt.axis('off')
+    plt.subplot(1, 4, 3)
+    plt.title('Difference')
+    plt.imshow(deprocess_image((processed_x-X_fooling)[0])/255.)
+    plt.axis('off')
+    plt.subplot(1, 4, 4)
+    plt.title('Magnified difference (10x)')
+    plt.imshow(deprocess_image(10 * (processed_x-X_fooling)[0])/255.)
+    plt.axis('off')
+    plt.gcf().tight_layout()
+    plt.show()
     
     
+def deep_dream():
+    import scipy
+    tf.compat.v1.disable_eager_execution()
+    K.set_learning_phase(0)
+    model = inception_v3.InceptionV3(weights='imagenet',include_top=False)
+
+    # model.summary()를 사용하면 모든 층 이름을 확인할 수 있습니다
+    layer_contributions = {
+        'mixed2': 0.2,
+        'mixed3': 3.,
+        'mixed4': 2.,
+        'mixed5': 1.5,
+    }
+
+    # 층 이름과 층 객체를 매핑한 딕셔너리를 만듭니다.
+    layer_dict = dict([(layer.name, layer) for layer in model.layers])
+    
+    # 손실을 정의하고 각 층의 기여분을 이 스칼라 변수에 추가할 것입니다
+    loss = K.variable(0.)
+    for layer_name in layer_contributions:
+        coeff = layer_contributions[layer_name]
+        # 층의 출력을 얻습니다
+        activation = layer_dict[layer_name].output
+    
+        scaling = K.prod(K.cast(K.shape(activation), 'float32'))
+        # 층 특성의 L2 노름의 제곱을 손실에 추가합니다. 이미지 테두리는 제외하고 손실에 추가합니다.
+        loss = loss + coeff * K.sum(K.square(activation[:, 2: -2, 2: -2, :])) / scaling
+
+
+    # 이 텐서는 생성된 딥드림 이미지를 저장합니다
+    dream = model.input
+    
+    # 손실에 대한 딥드림 이미지의 그래디언트를 계산합니다
+    grads = K.gradients(loss, dream)[0]
+    
+    # 그래디언트를 정규화합니다(이 기교가 중요합니다)
+    grads /= K.maximum(K.mean(K.abs(grads)), 1e-7)
+    
+    # 주어진 입력 이미지에서 손실과 그래디언트 값을 계산할 케라스 Function 객체를 만듭니다
+    outputs = [loss, grads]
+    fetch_loss_and_grads = K.function([dream], outputs)
+    
+    def eval_loss_and_grads(x):
+        outs = fetch_loss_and_grads([x])
+        loss_value = outs[0]
+        grad_values = outs[1]
+        return loss_value, grad_values
+    
+    # 이 함수는 경사 상승법을 여러 번 반복하여 수행합니다
+    def gradient_ascent(x, iterations, step, max_loss=None):
+        for i in range(iterations):
+            loss_value, grad_values = eval_loss_and_grads(x)
+            if max_loss is not None and loss_value > max_loss:
+                break
+            print('...', i, '번째 손실 :', loss_value)
+            x += step * grad_values
+        return x
+
+    def resize_img(img, size):
+        img = np.copy(img)
+        factors = (1,
+                   float(size[0]) / img.shape[1],
+                   float(size[1]) / img.shape[2],
+                   1)
+        return scipy.ndimage.zoom(img, factors, order=1)
     
     
+    def save_img(img, fname):
+        pil_img = deprocess_image(np.copy(img))
+        image.save_img(fname, pil_img)
+    
+    
+    def preprocess_image(image_path):
+        # 사진을 열고 크기를 줄이고 인셉션 V3가 인식하는 텐서 포맷으로 변환하는 유틸리티 함수
+        img = image.load_img(image_path)
+        img = image.img_to_array(img)
+        img = np.expand_dims(img, axis=0)
+        img = inception_v3.preprocess_input(img)
+        return img
+    
+    
+    def deprocess_image(x):
+        # 넘파이 배열을 적절한 이미지 포맷으로 변환하는 유틸리티 함수
+        if K.image_data_format() == 'channels_first':
+            x = x.reshape((3, x.shape[2], x.shape[3]))
+            x = x.transpose((1, 2, 0))
+        else:
+            # inception_v3.preprocess_input 함수에서 수행한 전처리 과정을 복원합니다
+            x = x.reshape((x.shape[1], x.shape[2], 3))
+        x /= 2.
+        x += 0.5
+        x *= 255.
+        x = np.clip(x, 0, 255).astype('uint8')
+        return x
+
+
+    # 하이퍼파라미터를 바꾸면 새로운 효과가 만들어집니다
+    step = 0.01  # 경상 상승법 단계 크기
+    num_octave = 3  # 경사 상승법을 실행할 스케일 단계 횟수
+    octave_scale = 1.4  # 스케일 간의 크기 비율
+    iterations = 20  # 스케일 단계마다 수행할 경사 상승법 횟수
+    
+    # 손실이 10보다 커지면 이상한 그림이 되는 것을 피하기 위해 경사 상승법 과정을 중지합니다
+    max_loss = 10.
+    
+    # 사용할 이미지 경로를 씁니다
+    base_image_path = './original_photo_deep_dream.jpg'
+    
+    # 기본 이미지를 넘파이 배열로 로드합니다
+    img = preprocess_image(base_image_path)
+    
+    # 경사 상승법을 실행할 스케일 크기를 정의한 튜플의 리스트를 준비합니다
+    original_shape = img.shape[1:3]
+    successive_shapes = [original_shape]
+    for i in range(1, num_octave):
+        shape = tuple([int(dim / (octave_scale ** i)) for dim in original_shape])
+        successive_shapes.append(shape)
+    
+    # 이 리스트를 크기 순으로 뒤집습니다
+    successive_shapes = successive_shapes[::-1]
+    
+    # 이미지의 넘파이 배열을 가장 작은 스케일로 변경합니다
+    original_img = np.copy(img)
+    shrunk_original_img = resize_img(img, successive_shapes[0])
+    
+    for shape in successive_shapes:
+        print('처리할 이미지 크기', shape)
+        img = resize_img(img, shape)
+        img = gradient_ascent(img,
+                              iterations=iterations,
+                              step=step,
+                              max_loss=max_loss)
+        upscaled_shrunk_original_img = resize_img(shrunk_original_img, shape)
+        same_size_original = resize_img(original_img, shape)
+        lost_detail = same_size_original - upscaled_shrunk_original_img
+    
+        img += lost_detail
+        shrunk_original_img = resize_img(original_img, shape)
+        save_img(img, fname='dream_at_scale_' + str(shape) + '.png')
+    
+    save_img(img, fname='./final_dream.png')
+
+
+
+    plt.imshow(plt.imread(base_image_path))
+    plt.figure()
+    
+    plt.imshow(deprocess_image(np.copy(img)))
+    plt.show()
+
+
+
+
 if __name__ == "__main__":    
     #grad_cam()
-    saliency_map()
+    #saliency_map()
     #fooling()
+    deep_dream()
+    
     print('Done')
-
