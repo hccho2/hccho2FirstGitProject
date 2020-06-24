@@ -173,7 +173,7 @@ class TiledGradients(tf.Module):
         return gradients 
 
 
-def run_deep_dream_with_octaves(img, steps_per_octave=100, step_size=0.01, 
+def run_deep_dream_with_octaves(img,get_tiled_gradients, steps_per_octave=100, step_size=0.01, 
                                 octaves=range(-2,3), octave_scale=1.3):
     base_shape = tf.shape(img)
     img = tf.keras.preprocessing.image.img_to_array(img)
@@ -256,43 +256,45 @@ def try1():
     end = time.time()
     print(end-start)
 
-
-original_img = np.array(PIL.Image.open('hccho.jpg'))
-img = tf.constant(np.array(original_img))
-base_shape = tf.shape(img)[:-1]
-
-
-base_model = tf.keras.applications.InceptionV3(include_top=False, weights='imagenet')
-
-# Maximize the activations of these layers
-names = ['mixed3', 'mixed5']
-layers = [base_model.get_layer(name).output for name in names]
-
-
-
-shift_down, shift_right, img_rolled = random_roll(np.array(original_img), 512)
-show(img_rolled)
-
-
-
-
-dream_model = tf.keras.Model(inputs=base_model.input, outputs=layers)
-get_tiled_gradients = TiledGradients(dream_model)
-
-img = run_deep_dream_with_octaves(img=original_img, step_size=0.01)
-
-
-img = tf.image.resize(img, base_shape)
-img = tf.image.convert_image_dtype(img/255.0, dtype=tf.uint8)
-show(img)
-
-
+def try2():
+    original_img = np.array(PIL.Image.open('hccho.jpg'))
+    img = tf.constant(np.array(original_img))
+    base_shape = tf.shape(img)[:-1]
+    
+    
+    base_model = tf.keras.applications.InceptionV3(include_top=False, weights='imagenet')
+    
+    # Maximize the activations of these layers
+    names = ['mixed3', 'mixed5']
+    layers = [base_model.get_layer(name).output for name in names]
+    
+    
+    
+    shift_down, shift_right, img_rolled = random_roll(np.array(original_img), 512)
+    show(img_rolled)
+    
+    
+    
+    
+    dream_model = tf.keras.Model(inputs=base_model.input, outputs=layers)
+    get_tiled_gradients = TiledGradients(dream_model)
+    
+    img = run_deep_dream_with_octaves(img=original_img,get_tiled_gradients=get_tiled_gradients, step_size=0.01)
+    
+    
+    img = tf.image.resize(img, base_shape)
+    img = tf.image.convert_image_dtype(img/255.0, dtype=tf.uint8)
+    show(img)
 
 
 
 
 
+if __name__ == '__main__':
+    #try1()
+    try2()
 
-print('Done')
+
+    print('Done')
 
 

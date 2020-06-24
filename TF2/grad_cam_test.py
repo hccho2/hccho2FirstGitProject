@@ -16,7 +16,7 @@ from tensorflow.keras import backend as K
 import numpy as np
 import matplotlib.pyplot as plt 
 import cv2
-
+import time
 
 from tensorflow.keras.applications import inception_v3  # 입력이미지의 크기가 달라도 된다. 상태적인 크기로 변형된다.
 
@@ -260,16 +260,7 @@ def fooling():
     plt.show()
     
 def fooling2():
-    # 주어진 image롤 class 확률에 대하여 미분하여, 미리 정한 다른 class로 분류되게 image를 update해 나간다.
-    tf.compat.v1.disable_eager_execution()   # K.gradients를 사용하기 위해....
-    
-    # imagenet class id: https://gist.github.com/yrevar/942d3a0ac09ec9e5eb3a
-    '''
-    0: 'tench, Tinca tinca',1: 'goldfish, Carassius auratus',2: 'great white shark, white shark, man-eater, man-eating shark, Carcharodon carcharias',
-    3: 'tiger shark, Galeocerdo cuvieri',4: 'hammerhead, hammerhead shark',5: 'electric ray, crampfish, numbfish, torpedo',6: 'stingray',
-    7: 'cock',8: 'hen',
-    
-    '''
+    # fooling()과 달리 tf.GradientTape로 구현: 핵심은 tape.watch()
     def make_fooling_image(X, target_y, model):
         """
         Generate a fooling image that is close to X, but that the model classifies
@@ -284,28 +275,63 @@ def fooling2():
         - X_fooling: An image that is close to X, but that is classifed as target_y
         by the model.
         """
-        X_fooling = X.copy()
+        s_time = time.time()
+        X_fooling = tf.convert_to_tensor(X)
         learning_rate = 5
 
-        score = model.output[:, target_y]
-        
-        grads = tf.gradients(score, model.input)[0]
-        
-        iterate = K.function([model.input],[model.output,grads])
-        
         for i in range(100):
-            pred_,gradient_ = iterate(X_fooling)             
-        
-            classification_ = np.argmax(pred_[0])
-            #print(i,classification_)
-            if classification_ == target_y:
+            with tf.GradientTape() as tape:
+                tape.watch(X_fooling)
+                pred = model(X_fooling)
+                score = pred[0, target_y]
+            classification = tf.argmax(pred[0])
+            if classification == target_y:
                 break
-            gradient_ = gradient_ / np.linalg.norm(gradient_)
-            X_fooling += learning_rate * gradient_      
-
+            gradient = tape.gradient(score, X_fooling)
+            gradient = gradient / tf.norm(gradient)
+            X_fooling += learning_rate * gradient 
+        
+        
+        print('elapsed: ', time.time()-s_time)
         return X_fooling
     
-    
+
+
+    def make_fooling_image2(X, target_y, model):
+        # tf.function은 loading 시간이 있기 때문에, 빨라지지 않을 수도 있다. 여기서는 조금 빨라진다.
+        # foo loop 전체를 tf.function으로 묶을 수도 있지만, 여기서는 target_y와 같아지면, 멈춰야 하기 때문에 묶지 못한다.
+        # 
+        s_time = time.time()
+        X_fooling = tf.convert_to_tensor(X)
+        learning_rate = 5
+
+        @tf.function(input_signature=[tf.TensorSpec(shape=[1,224,224,3], dtype=tf.float32)])
+        def train(X_fooling):
+            with tf.GradientTape() as tape:
+                tape.watch(X_fooling)
+                pred = model(X_fooling)
+                score = pred[0, target_y]
+            gradient = tape.gradient(score, X_fooling)
+            gradient = gradient / tf.norm(gradient)
+            X_fooling += learning_rate * gradient             
+            return tf.argmax(pred[0]), X_fooling
+            
+        
+        
+        c = np.argmax(model.predict(X_fooling),axis=-1)[0]
+        for i in range(100):
+            if c== target_y:
+                break
+            c,X_fooling = train(X_fooling)
+            c = c.numpy()
+            
+        print('elapsed: ', time.time()-s_time)
+        return X_fooling
+
+
+
+
+
     model = VGG16(weights='imagenet')
     img_path = './creative_commons_elephant.jpg'
     img = image.load_img(img_path, target_size=(224, 224))  # PIL.Image.Image
@@ -316,7 +342,8 @@ def fooling2():
     x = np.expand_dims(x,axis=0)
     processed_x = preprocess_input(x.copy())  # -123.68~1.0사이값으로 변횐되네....    (1, 224, 224, 3)
     target_y = 8 
-    X_fooling = make_fooling_image(processed_x, target_y, model)
+    X_fooling = make_fooling_image(processed_x, target_y, model).numpy()
+    #X_fooling = make_fooling_image2(processed_x, target_y, model).numpy()
     
     preds = model.predict(X_fooling)  # list return
     fake_class = decode_predictions(preds, top=3)[0][0][1]
