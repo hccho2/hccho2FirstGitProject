@@ -259,6 +259,108 @@ def fooling():
     plt.gcf().tight_layout()
     plt.show()
     
+def fooling2():
+    # 주어진 image롤 class 확률에 대하여 미분하여, 미리 정한 다른 class로 분류되게 image를 update해 나간다.
+    tf.compat.v1.disable_eager_execution()   # K.gradients를 사용하기 위해....
+    
+    # imagenet class id: https://gist.github.com/yrevar/942d3a0ac09ec9e5eb3a
+    '''
+    0: 'tench, Tinca tinca',1: 'goldfish, Carassius auratus',2: 'great white shark, white shark, man-eater, man-eating shark, Carcharodon carcharias',
+    3: 'tiger shark, Galeocerdo cuvieri',4: 'hammerhead, hammerhead shark',5: 'electric ray, crampfish, numbfish, torpedo',6: 'stingray',
+    7: 'cock',8: 'hen',
+    
+    '''
+    def make_fooling_image(X, target_y, model):
+        """
+        Generate a fooling image that is close to X, but that the model classifies
+        as target_y.
+    
+        Inputs:
+        - X: Input image, of shape (1, 224, 224, 3)
+        - target_y: An integer in the range [0, 1000)
+        - model: Pretrained SqueezeNet model
+    
+        Returns:
+        - X_fooling: An image that is close to X, but that is classifed as target_y
+        by the model.
+        """
+        X_fooling = X.copy()
+        learning_rate = 5
+
+        score = model.output[:, target_y]
+        
+        grads = tf.gradients(score, model.input)[0]
+        
+        iterate = K.function([model.input],[model.output,grads])
+        
+        for i in range(100):
+            pred_,gradient_ = iterate(X_fooling)             
+        
+            classification_ = np.argmax(pred_[0])
+            #print(i,classification_)
+            if classification_ == target_y:
+                break
+            gradient_ = gradient_ / np.linalg.norm(gradient_)
+            X_fooling += learning_rate * gradient_      
+
+        return X_fooling
+    
+    
+    model = VGG16(weights='imagenet')
+    img_path = './creative_commons_elephant.jpg'
+    img = image.load_img(img_path, target_size=(224, 224))  # PIL.Image.Image
+    x = image.img_to_array(img)  # (224, 224, 3) 값응 정수이지만(0.0 ~ 255.0), float32
+    
+
+    
+    x = np.expand_dims(x,axis=0)
+    processed_x = preprocess_input(x.copy())  # -123.68~1.0사이값으로 변횐되네....    (1, 224, 224, 3)
+    target_y = 8 
+    X_fooling = make_fooling_image(processed_x, target_y, model)
+    
+    preds = model.predict(X_fooling)  # list return
+    fake_class = decode_predictions(preds, top=3)[0][0][1]
+    print('Predicted:', decode_predictions(preds, top=3)[0])
+    orig_img = x[0]    
+    fool_img = deprocess_image(X_fooling[0])
+    
+    # Rescale 
+    plt.figure(figsize=(15,3))
+    plt.subplot(1, 4, 1)
+    plt.imshow(orig_img/255.)
+    plt.axis('off')
+    plt.title('African_elephant')
+    plt.subplot(1, 4, 2)
+    plt.imshow(fool_img/225.)
+    plt.title(fake_class)
+    plt.axis('off')
+    plt.subplot(1, 4, 3)
+    plt.title('Difference')
+    plt.imshow(deprocess_image((processed_x-X_fooling)[0])/255.)
+    plt.axis('off')
+    plt.subplot(1, 4, 4)
+    plt.title('Magnified difference (10x)')
+    plt.imshow(deprocess_image(10 * (processed_x-X_fooling)[0])/255.)
+    plt.axis('off')
+    plt.gcf().tight_layout()
+    plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     
 def deep_dream():
     import scipy
@@ -447,7 +549,8 @@ if __name__ == "__main__":
     #grad_cam()
     #saliency_map()
     #fooling()
-    InceptionV3_test()
+    fooling2()
+    #InceptionV3_test()
     #deep_dream()
     
     print('Done')
