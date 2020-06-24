@@ -3,6 +3,10 @@
 '''
 CAM: Class Activation Map
 gradient CAM
+
+
+tensorflow tutorial -- DeepDream: https://www.tensorflow.org/tutorials/generative/deepdream
+
 '''
 import tensorflow as tf
 from tensorflow.keras.preprocessing import image
@@ -14,7 +18,7 @@ import matplotlib.pyplot as plt
 import cv2
 
 
-from tensorflow.keras.applications import inception_v3
+from tensorflow.keras.applications import inception_v3  # 입력이미지의 크기가 달라도 된다. 상태적인 크기로 변형된다.
 
 
 
@@ -259,44 +263,7 @@ def fooling():
 def deep_dream():
     import scipy
     tf.compat.v1.disable_eager_execution()
-    K.set_learning_phase(0)
-    model = inception_v3.InceptionV3(weights='imagenet',include_top=False)
 
-    # model.summary()를 사용하면 모든 층 이름을 확인할 수 있습니다
-    layer_contributions = {
-        'mixed2': 0.2,
-        'mixed3': 3.,
-        'mixed4': 2.,
-        'mixed5': 1.5,
-    }
-
-    # 층 이름과 층 객체를 매핑한 딕셔너리를 만듭니다.
-    layer_dict = dict([(layer.name, layer) for layer in model.layers])
-    
-    # 손실을 정의하고 각 층의 기여분을 이 스칼라 변수에 추가할 것입니다
-    loss = K.variable(0.)
-    for layer_name in layer_contributions:
-        coeff = layer_contributions[layer_name]
-        # 층의 출력을 얻습니다
-        activation = layer_dict[layer_name].output
-    
-        scaling = K.prod(K.cast(K.shape(activation), 'float32'))
-        # 층 특성의 L2 노름의 제곱을 손실에 추가합니다. 이미지 테두리는 제외하고 손실에 추가합니다.
-        loss = loss + coeff * K.sum(K.square(activation[:, 2: -2, 2: -2, :])) / scaling
-
-
-    # 이 텐서는 생성된 딥드림 이미지를 저장합니다
-    dream = model.input
-    
-    # 손실에 대한 딥드림 이미지의 그래디언트를 계산합니다
-    grads = K.gradients(loss, dream)[0]
-    
-    # 그래디언트를 정규화합니다(이 기교가 중요합니다)
-    grads /= K.maximum(K.mean(K.abs(grads)), 1e-7)
-    
-    # 주어진 입력 이미지에서 손실과 그래디언트 값을 계산할 케라스 Function 객체를 만듭니다
-    outputs = [loss, grads]
-    fetch_loss_and_grads = K.function([dream], outputs)
     
     def eval_loss_and_grads(x):
         outs = fetch_loss_and_grads([x])
@@ -351,9 +318,51 @@ def deep_dream():
         x = np.clip(x, 0, 255).astype('uint8')
         return x
 
+    #####################################
+    #####################################
+
+
+    K.set_learning_phase(0)
+    model = inception_v3.InceptionV3(weights='imagenet',include_top=False)
+
+    # model.summary()를 사용하면 모든 층 이름을 확인할 수 있습니다
+    layer_contributions = {
+        'mixed2': 0.2,
+        'mixed3': 3.,
+        'mixed4': 2.,
+        'mixed5': 1.5,
+    }
+
+    # 층 이름과 층 객체를 매핑한 딕셔너리를 만듭니다.
+    layer_dict = dict([(layer.name, layer) for layer in model.layers])
+    
+    # 손실을 정의하고 각 층의 기여분을 이 스칼라 변수에 추가할 것입니다
+    loss = K.variable(0.)
+    for layer_name in layer_contributions:
+        coeff = layer_contributions[layer_name]
+        # 층의 출력을 얻습니다
+        activation = layer_dict[layer_name].output
+    
+        scaling = K.prod(K.cast(K.shape(activation), 'float32'))
+        # 층 특성의 L2 노름의 제곱을 손실에 추가합니다. 이미지 테두리는 제외하고 손실에 추가합니다.
+        loss = loss + coeff * K.sum(K.square(activation[:, 2: -2, 2: -2, :])) / scaling
+
+
+    # 이 텐서는 생성된 딥드림 이미지를 저장합니다
+    dream = model.input
+    
+    # 손실에 대한 딥드림 이미지의 그래디언트를 계산합니다
+    grads = K.gradients(loss, dream)[0]
+    
+    # 그래디언트를 정규화합니다(이 기교가 중요합니다)
+    grads /= K.maximum(K.mean(K.abs(grads)), 1e-7)
+    
+    # 주어진 입력 이미지에서 손실과 그래디언트 값을 계산할 케라스 Function 객체를 만듭니다
+    outputs = [loss, grads]
+    fetch_loss_and_grads = K.function([dream], outputs)
 
     # 하이퍼파라미터를 바꾸면 새로운 효과가 만들어집니다
-    step = 0.01  # 경상 상승법 단계 크기
+    step = 0.01  # 경상 상승법 단계 크기----> learning rate 역활
     num_octave = 3  # 경사 상승법을 실행할 스케일 단계 횟수
     octave_scale = 1.4  # 스케일 간의 크기 비율
     iterations = 20  # 스케일 단계마다 수행할 경사 상승법 횟수
@@ -362,26 +371,26 @@ def deep_dream():
     max_loss = 10.
     
     # 사용할 이미지 경로를 씁니다
-    base_image_path = './original_photo_deep_dream.jpg'
+    base_image_path = './original_photo_deep_dream.jpg'    # './original_photo_deep_dream.jpg'    './creative_commons_elephant.jpg'
     
     # 기본 이미지를 넘파이 배열로 로드합니다
     img = preprocess_image(base_image_path)
     
     # 경사 상승법을 실행할 스케일 크기를 정의한 튜플의 리스트를 준비합니다
-    original_shape = img.shape[1:3]
+    original_shape = img.shape[1:3]  # (350, 350)
     successive_shapes = [original_shape]
     for i in range(1, num_octave):
         shape = tuple([int(dim / (octave_scale ** i)) for dim in original_shape])
         successive_shapes.append(shape)
     
     # 이 리스트를 크기 순으로 뒤집습니다
-    successive_shapes = successive_shapes[::-1]
+    successive_shapes = successive_shapes[::-1]  # --->  [(178, 178), (250, 250), (350, 350)]
     
     # 이미지의 넘파이 배열을 가장 작은 스케일로 변경합니다
     original_img = np.copy(img)
     shrunk_original_img = resize_img(img, successive_shapes[0])
     
-    for shape in successive_shapes:
+    for shape in successive_shapes:  # num_octave만큼 반복
         print('처리할 이미지 크기', shape)
         img = resize_img(img, shape)
         img = gradient_ascent(img,
@@ -406,13 +415,39 @@ def deep_dream():
     plt.imshow(deprocess_image(np.copy(img)))
     plt.show()
 
+def InceptionV3_test():
+    def preprocess_image(image_path):
+        # 사진을 열고 크기를 줄이고 인셉션 V3가 인식하는 텐서 포맷으로 변환하는 유틸리티 함수
+        img = image.load_img(image_path)
+        img = image.img_to_array(img)
+        img = np.expand_dims(img, axis=0)
+        img = inception_v3.preprocess_input(img)
+        return img    
 
-
-
+    model = inception_v3.InceptionV3(weights='imagenet',include_top=True)  # include_top = True/False에 따라, weight 파일이 다르다.
+    base_image_path = './creative_commons_elephant.jpg'   # './original_photo_deep_dream.jpg'    './creative_commons_elephant.jpg'
+    img = preprocess_image(base_image_path)
+    
+    print('preprocessed: ', img.shape)
+    
+    out = model(img)
+    print(out.shape)
+    
+    layer_dict = dict([(layer.name, layer) for layer in model.layers])
+    
+    target_layers = [layer_dict['mixed4'].output,layer_dict['mixed5'].output]
+    
+    model2 = K.function([model.input], target_layers)
+    
+    zzz = model2(img)
+    print(zzz[0].shape, zzz[1].shape )
+    
+    
 if __name__ == "__main__":    
     #grad_cam()
     #saliency_map()
     #fooling()
-    deep_dream()
+    InceptionV3_test()
+    #deep_dream()
     
     print('Done')
