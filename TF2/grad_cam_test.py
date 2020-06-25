@@ -371,8 +371,8 @@ def fooling2():
     x = np.expand_dims(x,axis=0)
     processed_x = preprocess_input(x.copy())  # -123.68~1.0사이값으로 변횐되네....    (1, 224, 224, 3)
     target_y = 8 
-    #X_fooling = make_fooling_image(processed_x, target_y, model).numpy()
-    X_fooling = make_fooling_image3(processed_x, target_y, model).numpy()
+    X_fooling = make_fooling_image(processed_x, target_y, model).numpy()  # 2.95초
+    #X_fooling = make_fooling_image3(processed_x, target_y, model).numpy()  # make_fooling_image2: 2.4초             make_fooling_image3: 2.58초
     
     preds = model.predict(X_fooling)  # list return
     fake_class = decode_predictions(preds, top=3)[0][0][1]
