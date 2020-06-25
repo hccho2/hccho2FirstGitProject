@@ -17,16 +17,20 @@ DataLoader에서 num_workers > 0일 때는 code에  __main__이 있어야 한다
 
 
 import torch
-from torch.utils.data import Dataset, DataLoader, TensorDataset
+from torch.utils.data import Dataset, DataLoader, TensorDataset,ConcatDataset
 import numpy as np
 
 class MyDataset(Dataset): 
     """ Diabetes dataset.""" 
     # Initialize your data, download, etc. 
-    def __init__(self): 
+    def __init__(self,type=0): 
         self.len = 9
-        self.x_data = torch.from_numpy(np.random.randn(self.len,4)) 
-        self.y_data = torch.from_numpy(np.random.rand(self.len,1)) 
+        if type==0:
+            self.x_data = torch.from_numpy(np.random.randn(self.len,4)) 
+            self.y_data = torch.from_numpy(np.random.rand(self.len,1)) 
+        else:
+            self.x_data = torch.from_numpy(np.ones([self.len,4])) 
+            self.y_data = torch.from_numpy(np.zeros([self.len,1]))         
     
     def __getitem__(self, index): 
         return self.x_data[index], self.y_data[index] 
@@ -50,13 +54,14 @@ def Mycollate_fn(batch):
 
 
 def test1():
-    mydataset = MyDataset()
+    mydataset1 = MyDataset(0)
+    mydataset2 = MyDataset(1)
+    mydatset = ConcatDataset([mydataset1,mydataset2])
     
-    train_loader = DataLoader(dataset=mydataset, batch_size=8, shuffle=True, num_workers=2,drop_last=True,collate_fn=Mycollate_fn)
-
+    train_loader = DataLoader(dataset=mydatset, batch_size=2, shuffle=True, num_workers=2,drop_last=True,collate_fn=Mycollate_fn)
 
     for i, data in enumerate(train_loader):
-        print(data[0].size(), data[1].size(), data)
+        print(data[0].size(), data[1].size(), data, '\n')
 if __name__ == '__main__':
 
     test1()
