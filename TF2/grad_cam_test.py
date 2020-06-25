@@ -320,6 +320,7 @@ def fooling2():
         
         c = np.argmax(model.predict(X_fooling),axis=-1)[0]
         for i in range(100):
+            #print(i)
             if c== target_y:
                 break
             c,X_fooling = train(X_fooling)
@@ -328,7 +329,35 @@ def fooling2():
         print('elapsed: ', time.time()-s_time)
         return X_fooling
 
+    def make_fooling_image3(X, target_y, model):
+        # loop 전제를 tf.function으로.... y_target을 tain()의 argument로 넘기니까 되네...
+        # 
+        s_time = time.time()
+        X_fooling = tf.convert_to_tensor(X)
+        learning_rate = 5
 
+        @tf.function(input_signature=[tf.TensorSpec(shape=[1,224,224,3], dtype=tf.float32),tf.TensorSpec(shape=[], dtype=tf.int32)])
+        def train(X_fooling,y):
+            y = tf.cast(y,tf.int32)
+            for i in tf.range(100):
+                with tf.GradientTape() as tape:
+                    tape.watch(X_fooling)
+                    pred = model(X_fooling)
+                    score = pred[0, y]
+                
+                classification = tf.cast(tf.argmax(pred[0]),tf.int32)
+                if classification == y:
+                    break
+                gradient = tape.gradient(score, X_fooling)
+                gradient = gradient / tf.norm(gradient)
+                X_fooling += learning_rate * gradient             
+            return X_fooling
+        
+        #tf.config.experimental_run_functions_eagerly(True)
+        X_fooling = train(X_fooling,target_y)
+            
+        print('elapsed: ', time.time()-s_time)
+        return X_fooling
 
 
 
@@ -342,8 +371,8 @@ def fooling2():
     x = np.expand_dims(x,axis=0)
     processed_x = preprocess_input(x.copy())  # -123.68~1.0사이값으로 변횐되네....    (1, 224, 224, 3)
     target_y = 8 
-    X_fooling = make_fooling_image(processed_x, target_y, model).numpy()
-    #X_fooling = make_fooling_image2(processed_x, target_y, model).numpy()
+    #X_fooling = make_fooling_image(processed_x, target_y, model).numpy()
+    X_fooling = make_fooling_image3(processed_x, target_y, model).numpy()
     
     preds = model.predict(X_fooling)  # list return
     fake_class = decode_predictions(preds, top=3)[0][0][1]
