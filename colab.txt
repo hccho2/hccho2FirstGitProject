@@ -17,11 +17,12 @@ except Exception:
 from google.colab import files
 
 uploaded = files.upload()
-
 for fn in uploaded.keys():
   print('User uploaded file "{name}" with length {length} bytes'.format(name=fn, length=len(uploaded[fn])))
 
-
+# 구글 드라이브 연결
+from google.colab import drive 
+drive.mount('/content/gdrive/')
 
 
 
