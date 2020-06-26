@@ -11,7 +11,7 @@ cuda 설치중에 error나면, 빠른 설치 대신, 사용자 정의설치 선�
 tensorflow 2.2 설치 후, import 할 때, dll error 나면, 
 https://github.com/tensorflow/tensorflow/issues/35618#issuecomment-596631286   <-- 여기 참고.
 
- latest microsoft visual c++ redistributable 설치하면, 해결된다.
+ latest microsoft visual c++ redistributable 설치하면, 해결된다.    x64: vc_redist.x64.exe
  
  
 
