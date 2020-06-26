@@ -1673,7 +1673,42 @@ for fn in uploaded.keys():
 
 
 =====================================================================================
+def binary_to_array():
+    from PIL import Image
+    import matplotlib.pyplot as plt
+    import six
+    
+    
+    imagePath = 'D:/OCR/deep-text-recognition-benchmark-master/demo_image/ABC마트.jpg'
+    with open(imagePath, 'rb') as f:
+        imageBin = f.read()
+    
+    buf = six.BytesIO()
+    buf.write(imageBin)
+    buf.seek(0)    
+    img1 = Image.open(buf).convert('RGB')
+    img1_array = np.array(img1)
+    print(img1_array.shape)
+    
+    
+    # Image를 이용하여 바로 읽기.
+    img2 = Image.open(imagePath).convert('RGB')
+    img2_array = np.array(img2)
+    print(img2_array.shape)
+    
+    
+    
+    
+    plt.subplot(1,2,1)
+    plt.imshow(img1_array)
 
+    plt.subplot(1,2,2)
+    plt.imshow(img2_array)
+    
+    plt.show()
+    
+    
+    print(np.allclose(img1_array,img2_array))
 
 
 =====================================================================================
