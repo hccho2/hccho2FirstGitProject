@@ -1,5 +1,5 @@
 tensorflow 2.0 --> cudart64_100.dll  --> cuda 10.0 설치
-tensorflow 2.2 --> cudart64_101.dll  --> cuda 10.1 설치해야 됨.
+tensorflow 2.2 --> cudart64_101.dll  --> cuda 10.1 설치해야 됨.  cudnn: cudnn-10.1-windows10-x64-v7.6.4.38.zip
 
 cuda 설치중에 error나면, 빠른 설치 대신, 사용자 정의설치 선택하고, cuda만 설치중에
 
@@ -14,7 +14,7 @@ https://github.com/tensorflow/tensorflow/issues/35618#issuecomment-596631286   <
  
 *******************
 cudnn 설치 안해도, tf.test.is_gpu_available() ---> 에러 안남. 실제 돌릴 때, error.
-cudnn설치: cudnn은 쉽다.
+cudnn설치: cudnn은 쉽다.   cudnn-10.1-windows10-x64-v7.6.4.38.zip
 
 https://developer.nvidia.com/rdp/cudnn-archive
 
