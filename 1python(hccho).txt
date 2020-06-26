@@ -1674,6 +1674,12 @@ for fn in uploaded.keys():
 
 =====================================================================================
 def binary_to_array():
+    # 1. bianry을  ---> Image를 통해 array
+    # 2. file을 Image로 load
+    # 3. binary를 tf.image.decode_jpeg
+    # 1.2 결과는 동일. 3은 일치하지는 않는다.
+    
+    
     from PIL import Image
     import matplotlib.pyplot as plt
     import six
@@ -1709,6 +1715,16 @@ def binary_to_array():
     
     
     print(np.allclose(img1_array,img2_array))
+    
+
+    # tensorflow 
+    import tensorflow as tf
+    
+    x = tf.image.decode_jpeg(imageBin, channels=3)
+    sess = tf.Session()
+    xx = sess.run(x)   
+    print(xx.shape)  # 값의 차이는 이다. 
+    print(np.allclose(img1_array,xx)
 
 
 =====================================================================================
