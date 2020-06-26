@@ -33,6 +33,8 @@ pandas로 pip로 설치.
 eclipse ---> Python Interpreter --> Environment에 PATH 추가
 PATH:   C:\Anaconda3\envs\;C:\Anaconda3\envs\torch15\Library\bin;
 
+base에서도 이런 문제:   PATH: C:\Anaconda3\Library\bin
+
 
 *******************
 ubuntu 2.2 설치
