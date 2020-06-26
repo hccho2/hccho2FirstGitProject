@@ -56,15 +56,38 @@ def Mycollate_fn(batch):
 def test1():
     mydataset1 = MyDataset(0)
     mydataset2 = MyDataset(1)
-    mydatset = ConcatDataset([mydataset1,mydataset2])
+    mydataset = ConcatDataset([mydataset1,mydataset2])
     
-    train_loader = DataLoader(dataset=mydatset, batch_size=2, shuffle=True, num_workers=2,drop_last=True,collate_fn=Mycollate_fn)
+    train_loader = DataLoader(dataset=mydataset, batch_size=2, shuffle=True, num_workers=2,drop_last=True,collate_fn=Mycollate_fn)
 
     for i, data in enumerate(train_loader):
         print(data[0].size(), data[1].size(), data, '\n')
+    
+    
+    
+def test2():
+    # iter을 이용해서 data를 계속 공급할 수 있게 한다.
+    mydataset = MyDataset(0)
+    train_loader = DataLoader(dataset=mydataset, batch_size=2, shuffle=True, num_workers=2,drop_last=True,collate_fn=Mycollate_fn)
+    
+    loader_iter = iter(train_loader)
+    
+    for i in range(10):
+        try:
+            a,b = loader_iter.next()  # data가 다 소진되면 error
+            print(a,b)
+        except StopIteration:
+            print('='*20)
+            loader_iter = iter(train_loader)
+            a,b = loader_iter.next()  # data가 다 소진되면 error
+            print(a,b)        
+        
+        
+    
 if __name__ == '__main__':
 
-    test1()
+    #test1()
+    test2()
     
     print('Done')
     
