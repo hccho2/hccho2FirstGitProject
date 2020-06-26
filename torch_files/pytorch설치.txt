@@ -36,6 +36,10 @@ conda install -c anaconda natsort
 <설치후> import pytorch  --> import numpy ---> OK
 import numpy만 하면 error ===> eclipse ---> Python Interpreter --> Environment에 PATH 추가
 PATH:   C:\Anaconda3\envs\torch15;C:\Anaconda3\envs\torch15\Library\bin;
+
+
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 ##########################
 ##########################
 
