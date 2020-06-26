@@ -90,11 +90,14 @@ tf22> pip install tensorflow-gpu   --->  2.2설치된다.   ----> dll 로드 에
 
 
 import tensorflow 해보면,  cudart64_101.dll 로드 못했다는 error 남.
+---> down 받아 놓은 cuda, cudnn 설치
+---> tensorflow load 
+
+3. 이제 pytorch 설치(pytorch 1.5.1)
+가상환경 생성 ---> torch install 홈페이지에 있는 conda 명령어로 (cuda  10.1) 설치
 
 
-
-
-
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 
