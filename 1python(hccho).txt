@@ -1724,7 +1724,7 @@ def binary_to_array():
     sess = tf.Session()
     xx = sess.run(x)   
     print(xx.shape)  # 값의 차이는 이다. 
-    print(np.allclose(img1_array,xx)
+    print(np.allclose(img1_array,xx))
 
 
 =====================================================================================
