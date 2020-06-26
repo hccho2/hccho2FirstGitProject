@@ -1,3 +1,7 @@
+> python -m pip install --upgrade pip    --- pip를 upgrade해야 pip로 설치해도 가상환경에 설치된다.
+
+
+
 tensorflow 2.0 --> cudart64_100.dll  --> cuda 10.0 설치
 tensorflow 2.2 --> cudart64_101.dll  --> cuda 10.1 설치해야 됨.  cudnn: cudnn-10.1-windows10-x64-v7.6.4.38.zip
 
