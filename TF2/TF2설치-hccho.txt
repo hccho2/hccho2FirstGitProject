@@ -29,6 +29,10 @@ numpy 설치:   tensorflow 2.2는 conda가 지원하지 않는다. pip로 tensor
 그래서인지 numpy를 conda로 설치하면, eclipse에서 error가 난다  ---> pip로 설치
 pandas로 pip로 설치.
 
+------> 해결책:
+eclipse ---> Python Interpreter --> Environment에 PATH 추가
+PATH:   C:\Anaconda3\envs\;C:\Anaconda3\envs\torch15\Library\bin;
+
 
 *******************
 ubuntu 2.2 설치
