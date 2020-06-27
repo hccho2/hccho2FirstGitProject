@@ -105,4 +105,35 @@ batch matrix multiplication
 toch.bmm(A,B) # A(N,n,m) B:(N,m,k)  ---> (N,n,k)
 ```
 
+## pytorch Loss
+<p align="center"><img src="asset/torch_loss.png" />  </p>
+```
+# NLLLoss: negative log likelihood loss
+# CrossEntropyLoss  == (logit -> softmax -> log -> NLLLoss)
+# NLLLoss는 넣어주는 값중에 lable에 해당하는 값에 마이너스 붙혀주는 역할.
+with torch.no_grad(): 
+    loss1 = nn.NLLLoss()
+    loss2 = nn.CrossEntropyLoss()
 
+    logit = torch.tensor([[1.0,2.0,1.5],[3.0,1.0,4.0]], requires_grad=True, dtype=torch.float)
+
+    target = torch.tensor([2,1])   # target label  ---> one hot 2 == (0,0,1)
+
+    # logit(N, n_class), target: N
+    loss1_ = loss1(logit, target)   # -torch.mean(logit[np.arange(2),target])
+    loss2_ = loss2(logit, target)   # cross entropy loss
+
+    print(loss1_,loss2_)
+
+
+    softmax_val = torch.nn.functional.softmax(logit,1)
+    log_softmax_val = torch.log(softmax_val)  # logit.log_softmax(1) 값과 같다.
+    print("softmax: ", softmax_val)
+    print("log-softmax: ", log_softmax_val)
+    print("Cross Entropy loss: ", -torch.mean(log_softmax_val[np.arange(2),target]))
+
+    print("Cross Entropy Loss by NLLLosss: ", loss1(log_softmax_val,target))
+
+    print("NLLLost: ", -torch.mean(logit[np.arange(2),target]))
+
+```
