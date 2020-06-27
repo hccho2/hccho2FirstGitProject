@@ -107,6 +107,7 @@ toch.bmm(A,B) # A(N,n,m) B:(N,m,k)  ---> (N,n,k)
 
 ## pytorch Loss
 <p align="center"><img src="asset/torch_loss.png" />  </p>
+
 ```
 # NLLLoss: negative log likelihood loss
 # CrossEntropyLoss  == (logit -> softmax -> log -> NLLLoss)
