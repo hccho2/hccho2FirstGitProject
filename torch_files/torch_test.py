@@ -780,6 +780,7 @@ def init_test():
     print('='*20)
     hidden_size=5
     
+    #batch_first=False(default) ---> (T,N,D)   True---> (N,T,D)
     rnn = nn.RNN(input_size=embedding_dim, hidden_size=hidden_size,num_layers=1,bias=True,nonlinearity='tanh', batch_first=True, dropout=0, bidirectional=False)
     
     y,h = rnn(z)  # stateful
