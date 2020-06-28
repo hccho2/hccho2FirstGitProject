@@ -840,13 +840,13 @@ def init_test3():
     
     
 def BCE_test():
-
+    # multi-label BCE
     target = torch.tensor([[1,1,0,0,1],[0,0,1,1,1]],dtype=torch.float32)
     logit = torch.randn(2,5)
     weight = torch.tensor([0.5,2,0.5,0.5,10])  # All weights are equal to 1
     
     criterion1 = torch.nn.BCEWithLogitsLoss(weight=weight, reduction='none')   # pos_weight는 positive label에만 부여하는 weight
-    criterion2 = torch.nn.BCEWithLogitsLoss(weight=weight, reduction='mean')  # (N,T) 전체 평균.
+    criterion2 = torch.nn.BCEWithLogitsLoss(weight=weight, reduction='mean')  # 'mean'(default) (N,T) 전체 평균.
     
     print(criterion1(logit, target)) # logit, target: (N,T)
     print(criterion2(logit, target)) 
@@ -1041,24 +1041,22 @@ def PackedSeq_test():
     https://simonjisu.github.io/nlp/2018/07/05/packedsequence.html
     pytorch의 rnn 모듈은 PackedSequence가 들어왔는지를 판단하여 처리한다.
     '''
-    input_seq2idx= torch.tensor([[  1,  16,   7,  11,  13,   2],
-        [  1,  16,   6,  15,   8,   0],
-        [ 12,   9,   0,   0,   0,   0],
+    input_seq2idx= torch.tensor([[ 12,   9,   0,   0,   0,   0],
         [  5,  14,   3,  17,   0,   0],
-        [ 10,   0,   0,   0,   0,   0]])
+        [  1,  16,   7,  11,  13,   2],
+        [ 10,   0,   0,   0,   0,   0],
+        [  1,  16,   6,  15,   8,   0],])
     
     
-
+    # input_seq2idx[i, :].data.nonzero()  ---> 0이 아닌 값들의 index를 뽑아준다. ----> max 취하고 1 더하면, padding 되지 않은 길이
     input_lengths = torch.LongTensor([torch.max(input_seq2idx[i, :].data.nonzero())+1 for i in range(input_seq2idx.size(0))])
-    input_lengths, sorted_idx = input_lengths.sort(0, descending=True)
-    input_seq2idx = input_seq2idx[sorted_idx]
+    input_lengths, sorted_idx = input_lengths.sort(0, descending=True)  # 정렬된 길이, 인텍스
+    input_seq2idx = input_seq2idx[sorted_idx] # ---> 길이순으로 정렬
     
-    
-    print(input_seq2idx)
+    print(input_seq2idx) # PackedSequence(data=tensor([ 1,  1,  5, 12, 10, 16, 16, 14,  9,  7,  6,  3, 11, 15, 17, 13,  8,  2]), batch_sizes=tensor([5, 4, 3, 3, 2, 1]), sorted_indices=None, unsorted_indices=None)
     
     packed_input = torch.nn.utils.rnn.pack_padded_sequence(input_seq2idx, input_lengths.tolist(), batch_first=True)
     print(packed_input)
-    
     
     print('='*20)
     
@@ -1066,8 +1064,8 @@ def PackedSeq_test():
     ###################################
 
     embedding_dim = 3
-    hidden_size = 5
-    emb = nn.Embedding(50, embedding_dim, padding_idx=0)
+    hidden_size = 2
+    emb = nn.Embedding(50, embedding_dim, padding_idx=0)  #(batch_size, T, embedding_dim)
     rnn = nn.RNN(input_size=embedding_dim, hidden_size=hidden_size, batch_first=True)
     
     embed=emb(input_seq2idx)
@@ -1079,7 +1077,34 @@ def PackedSeq_test():
     out2,h2=rnn(embed)  # h2는 길이에 상관없이 제일 끝 hidden state가 들어가 있다.
     print(out,output_lengths)  # padded 부분에 garbage가 없다.
     print(out2)  # padded부분도 계산이되어, garbage가 들어 있다.
+
+
+
+    def sequence_mask(lengths, maxlen=None, dtype=torch.bool):   # tf.sequence_mask.
+        if maxlen is None:
+            maxlen = lengths.max()
+        row_vector = torch.arange(0, maxlen, 1)
+        matrix = torch.unsqueeze(lengths, dim=-1)
+        mask = row_vector < matrix
     
+        mask.type(dtype)
+        return mask
+
+    mask = sequence_mask(input_lengths)   # mask = torch.arange(maxlen)[None, :] < input_lengths[:, None]
+    print(out2*mask.unsqueeze(-1))
+
+
+
+
+
+
+
+
+
+
+
+
+
 def bidirectional_test():
     batch_size = 2
     T = 5
@@ -1381,11 +1406,11 @@ if __name__ == '__main__':
     
     #bidirectional_test()
 
-
+    BCE_test()
     #Loss_test()
     #Loss_Seq_test()
     #Loss_Mask_test()
     #Attention_Mask()
-    dropout_test()
+    #dropout_test()
     print('Done')
 
