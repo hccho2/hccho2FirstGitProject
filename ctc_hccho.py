@@ -23,13 +23,13 @@ def CTC_Loss():
     # 이는 0번을 padding으로 인식하는 문제가 있기 때문이다.
     # 따라서, 0번에는 의미 있는 charcter를 부여하면 안된다.
     # v2에서 label에 sparse가 아닌, dense를 넣어주어야 한다.
-    
-    
+
+
     batch_size=2
     output_T=5
     target_T=3 # target의 길이. Model이 만들어 내는 out_T는 target보다 길다.
     num_class = 4 # 0, 1, 2는 character이고, 마지막 3은 blank이다.
-    
+
     x = np.arange(40).reshape(batch_size,output_T,num_class).astype(np.float32)
     x = np.random.randn(batch_size,output_T,num_class)
     x = np.array([[[ 0.74273746,  0.07847633, -0.89669566,  0.87111101],
@@ -37,67 +37,69 @@ def CTC_Loss():
             [-0.4019564 ,  0.59862392, -0.90470981, -0.16236736],
             [ 0.28194173,  0.82136263,  0.06700599, -0.43223688],
             [ 0.1487472 ,  1.04652007, -0.51399114, -0.4759599 ]],
-    
+
            [[-0.53616811, -2.025543  , -0.06641838, -1.88901458],
             [-0.75484499,  0.24393693, -0.08489008, -1.79244747],
             [ 0.36912486,  0.93965647,  0.42183299,  0.89334628],
             [-0.6257366 , -2.25099419, -0.59857886,  0.35591563],
             [ 0.72191422,  0.37786281,  1.70582983,  0.90937337]]]).astype(np.float32)
-    
+
     xx = tf.convert_to_tensor(x)
     xx = tf.Variable(xx)
     logits = tf.transpose(xx,[1,0,2])
-    
+
     yy = np.random.randint(0,num_class-1,size=(batch_size,target_T))  # low=0, high=3 ==> 0,1,2
     yy = np.array([[1, 2, 2],[1, 0, 1]]).astype(np.int32)
     #yy = np.array([[1, 2, 2,0,0,0],[1,0,2,0,0,0]]).astype(np.int32)  # 끝에 붙은 0은 pad로 간주한다. 중간에 있는 0은 character로 간주
-    
+
     zero = tf.constant(0, dtype=tf.int32)
     where = tf.not_equal(yy, zero)
     indices = tf.where(where)
     values = tf.gather_nd(yy, indices)
     targets = tf.SparseTensor(indices, values, yy.shape)
-    
-    
+
+
     # preprocess_collapse_repeated=False  ---> label은 반복되는 character가 있을 수 있으니, 당연히 False
     # ctc_merge_repeated=False  ---> 모델이 예측한 반복된 character를 merge하지 않는다. 이것은 ctc loss의 취지와 다르다.
     loss0 = tf.nn.ctc_loss(labels=targets,inputs=logits,sequence_length=[output_T]*batch_size,ctc_merge_repeated=False) 
     # 이 loss0는 의미 없음.
-    
+
     loss1 = tf.nn.ctc_loss(labels=targets,inputs=logits,sequence_length=[output_T]*batch_size)
     loss2 = tf.nn.ctc_loss_v2(labels=yy,logits=logits,label_length =[target_T]*batch_size,
                               logit_length=[output_T]*batch_size,logits_time_major=True,blank_index=num_class-1)
-    
-    
+
+
     # lables에 sparse tensor를 넣으면, v1과 결과가 같다. 
     loss3 = tf.nn.ctc_loss_v2(labels=targets,logits=logits,label_length =[3,3],
                               logit_length=[output_T]*batch_size,logits_time_major=True,blank_index=num_class-1)
-    
+
     optimizer = tf.train.GradientDescentOptimizer(learning_rate=1)
-    gradient = optimizer.compute_gradients(loss1)
-    
-    
+    gradient = optimizer.compute_gradients(loss1)[0]  # return (gradient, variable)
+
+
     prob = tf.nn.softmax(xx,axis=-1)
     # jacobian을 이용해서 logits에 대한 softmax값의 미분을 구한다.
     a = xx[0,1]
     b = tf.nn.softmax(a)
-    grad = jacobian(b,a)
-    
-    
+    grad = jacobian(b,a) # logit에 대한 softmax 미분.
+
+
     # logit에 대한 미분을 softmax에 대한 미분으로 변환하기 위해 grad의 inverse를 곱한다.
     # grad의 역행렬이 존재하지 않는다.
-    
-    
+
+
     sess = tf.Session()
     sess.run(tf.global_variables_initializer())
     l0 = sess.run(loss0)
     l1 = sess.run(loss1)
     l2 = sess.run(loss2)
     l3 = sess.run(loss3)
-    print('loss: ',l0, l1,l2,l3)
-    g = sess.run(gradient[0][0])
-    p = sess.run(prob)
-    gg = sess.run(grad)
+    print('loss: ',l0, l1,l2,l3)  # l1=l2=l3
+    g = sess.run(gradient)  # g[1]은 x값과 같고, g[0]이 gradient이다.  g[0][0][1] == 엑셀에서 계산한 값
+    p = sess.run(prob)  # logit을 softmax취한 확률값.
+    gg = sess.run(grad)  # logit에 대한 softmax 미분.
+
+    print('엑셀값과 비교:', g[0][0][1])  # g[0][첫번째 batch][두번째 time step]
 
 
 def CTC_Loss2():
