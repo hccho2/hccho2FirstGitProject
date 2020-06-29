@@ -81,8 +81,8 @@ def CTC_Loss():
     # jacobian을 이용해서 logits에 대한 softmax값의 미분을 구한다.
     a = xx[0,1]
     b = tf.nn.softmax(a)
-    grad = jacobian(b,a) # logit에 대한 softmax 미분.
-
+    grad1 = jacobian(b,a) # logit에 대한 softmax 미분.
+    grad2 = tf.diag(b) - tf.einsum('i,j->ij', b, b)   # diag(b) - matmul(b,b.T)  grad1과 같은 값
 
     # logit에 대한 미분을 softmax에 대한 미분으로 변환하기 위해 grad의 inverse를 곱한다.
     # grad의 역행렬이 존재하지 않는다.
@@ -97,9 +97,10 @@ def CTC_Loss():
     print('loss: ',l0, l1,l2,l3)  # l1=l2=l3
     g = sess.run(gradient)  # g[1]은 x값과 같고, g[0]이 gradient이다.  g[0][0][1] == 엑셀에서 계산한 값
     p = sess.run(prob)  # logit을 softmax취한 확률값.
-    gg = sess.run(grad)  # logit에 대한 softmax 미분.
+    gg1,gg2 = sess.run([grad1,grad2])  # logit에 대한 softmax 미분.
 
-    print('엑셀값과 비교:', g[0][0][1])  # g[0][첫번째 batch][두번째 time step] -->  [ 0.22371903  0.06342658 -0.40160912  0.11446385]
+    print('엑셀값과 비교:', g[0][0][1])  # g[0][첫번째 batch][두번째 time step]
+    print(np.allclose(gg1,gg2))  # True
 
 
 def CTC_Loss2():
