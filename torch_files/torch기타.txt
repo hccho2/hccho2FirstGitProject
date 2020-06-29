@@ -1,0 +1,30 @@
+import torch
+torch.manual_seed(random_seed)
+
+
+
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+===> 속도 느리짐.
+
+import numpy as np
+np.random.seed(random_seed)
+
+
+import random
+random.seed(random_seed)  # torchvision의 transforms에서 사용
+
+
+
+torch.cuda.manual_seed(random_seed)
+torch.cuda.manual_seed_all(random_seed) # if use multi-GPU
+
+
+
+torch.manual_seed(random_seed)
+torch.cuda.manual_seed(random_seed)
+torch.cuda.manual_seed_all(random_seed) # if use multi-GPU
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+np.random.seed(random_seed)
+random.seed(random_seed)
