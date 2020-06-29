@@ -99,7 +99,7 @@ def CTC_Loss():
     p = sess.run(prob)  # logit을 softmax취한 확률값.
     gg = sess.run(grad)  # logit에 대한 softmax 미분.
 
-    print('엑셀값과 비교:', g[0][0][1])  # g[0][첫번째 batch][두번째 time step]
+    print('엑셀값과 비교:', g[0][0][1])  # g[0][첫번째 batch][두번째 time step] -->  [ 0.22371903  0.06342658 -0.40160912  0.11446385]
 
 
 def CTC_Loss2():
