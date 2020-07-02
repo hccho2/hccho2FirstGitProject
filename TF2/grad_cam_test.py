@@ -19,7 +19,7 @@ import cv2
 import time
 
 from tensorflow.keras.applications import inception_v3  # 입력이미지의 크기가 달라도 된다. 상태적인 크기로 변형된다.
-
+from tensorflow.keras.applications import resnet
 
 
 def deprocess_image(x):
@@ -371,8 +371,8 @@ def fooling2():
     x = np.expand_dims(x,axis=0)
     processed_x = preprocess_input(x.copy())  # -123.68~1.0사이값으로 변횐되네....    (1, 224, 224, 3)
     target_y = 8 
-    X_fooling = make_fooling_image(processed_x, target_y, model).numpy()  # 2.95초
-    #X_fooling = make_fooling_image3(processed_x, target_y, model).numpy()  # make_fooling_image2: 2.4초             make_fooling_image3: 2.58초
+    #X_fooling = make_fooling_image(processed_x, target_y, model).numpy()
+    X_fooling = make_fooling_image3(processed_x, target_y, model).numpy()
     
     preds = model.predict(X_fooling)  # list return
     fake_class = decode_predictions(preds, top=3)[0][0][1]
@@ -573,40 +573,63 @@ def deep_dream():
     plt.imshow(deprocess_image(np.copy(img)))
     plt.show()
 
-def InceptionV3_test():
-    def preprocess_image(image_path):
+def InceptionV3_Resnet_test():
+    def preprocess_image(image_path,base_model,image_size):
         # 사진을 열고 크기를 줄이고 인셉션 V3가 인식하는 텐서 포맷으로 변환하는 유틸리티 함수
-        img = image.load_img(image_path)
+        img = image.load_img(image_path).resize(image_size)   # PIL.JpegImagePlugin.JpegImageFile image
+        
         img = image.img_to_array(img)
         img = np.expand_dims(img, axis=0)
-        img = inception_v3.preprocess_input(img)
+        img = base_model.preprocess_input(img)  # 이미지  크기가 변하지 않는다.
         return img    
 
-    model = inception_v3.InceptionV3(weights='imagenet',include_top=True)  # include_top = True/False에 따라, weight 파일이 다르다.
+    flag = 'resnet'  # 'inception', 'resnet'
+    if flag == 'inception':
+        model = inception_v3.InceptionV3(weights='imagenet',include_top=True)  # include_top = True/False에 따라, weight 파일이 다르다.
+        base_model = inception_v3
+        image_size = (299,299)
+    elif flag =='resnet':
+        model = resnet.ResNet50(weights='imagenet',include_top=True)  # 100M 
+        base_model = resnet
+        image_size = (224,224)
+    
+    
+    print(model.summary())
     base_image_path = './creative_commons_elephant.jpg'   # './original_photo_deep_dream.jpg'    './creative_commons_elephant.jpg'
-    img = preprocess_image(base_image_path)
+    img = preprocess_image(base_image_path, base_model,image_size)
     
     print('preprocessed: ', img.shape)
     
-    out = model(img)
-    print(out.shape)
+    out = model(img)  # tensor
+    preds = model.predict(img)  # np.array
+    print(out.shape, np.argmax(out,axis=1))
+    print(base_model.decode_predictions(preds, top=3))
     
-    layer_dict = dict([(layer.name, layer) for layer in model.layers])
     
-    target_layers = [layer_dict['mixed4'].output,layer_dict['mixed5'].output]
-    
-    model2 = K.function([model.input], target_layers)
-    
-    zzz = model2(img)
-    print(zzz[0].shape, zzz[1].shape )
-    
+    if flag == 'inception':
+        layer_dict = dict([(layer.name, layer) for layer in model.layers])
+        
+        target_layers = [layer_dict['mixed10'].output,layer_dict['avg_pool'].output]
+        
+        model2 = K.function([model.input], target_layers)
+        
+        zzz = model2(img)
+        print(zzz[0].shape, zzz[1].shape )
+    elif flag == 'resnet':
+        layer_dict = dict([(layer.name, layer) for layer in model.layers])
+        
+        target_layers = [layer_dict['conv5_block3_out'].output,layer_dict['avg_pool'].output]   
+        model2 = K.function([model.input], target_layers)
+        
+        zzz = model2(img)
+        print(zzz[0].shape, zzz[1].shape )    
     
 if __name__ == "__main__":    
     #grad_cam()
     #saliency_map()
     #fooling()
-    fooling2()
-    #InceptionV3_test()
+    #fooling2()
+    InceptionV3_Resnet_test()
     #deep_dream()
     
     print('Done')
