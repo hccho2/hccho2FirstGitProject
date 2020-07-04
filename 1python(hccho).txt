@@ -1728,7 +1728,11 @@ def binary_to_array():
 
 
 =====================================================================================
-
+from pydub import AudioSegment
+sound = AudioSegment.from_wav("D:/SpeechRecognition/sample-kor.wav")
+sound = sound.set_channels(1)
+sound = sound.set_frame_rate(16000)
+sound.export("D:/SpeechRecognition/sample-kor.flac",format = "flac")
 
 
 =====================================================================================
