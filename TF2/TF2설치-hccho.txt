@@ -47,7 +47,7 @@ ubuntu 2.2 설치
 https://www.tensorflow.org/install?hl=ko
 
 여기 설명되어 있는대로, pip를 먼저 upgrade하고 설치해야한다. pip upgrade하지 않으면, 1.4가 설치된다.
-
+x86_64 --> dev(local)
 cuda 10.1 https://developer.nvidia.com/cuda-10.1-download-archive-update2?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu&target_version=1804&target_type=deblocal
 
 이곳에서 아래 명령 순서대로 하라고 나온다.
