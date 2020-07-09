@@ -61,7 +61,7 @@ sudo apt-get update
 sudo apt-get -y install cuda
 
 마지막, sudo apt-get -y install cuda 에서 의존성 어쩌고하면서 error  --> 다음과 같이 하면 설치됨.
-sudo apt-get install cuda-libraries-10-0
+sudo apt-get install cuda-libraries-10-1
 ===>/usr/local/cuda-10.1  
 
 
