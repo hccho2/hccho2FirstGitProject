@@ -103,6 +103,21 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 
+tensorflow 는 아니고, 일반적인 설치
+nvidia 재설치를 위해 삭제하기
+https://hwiyong.tistory.com/233
+1. Ndivia driver 삭제
+sudo apt-get remove --purge '^nvidia-.*' 
+ 
+
+2. CUDA 삭제
+sudo apt-get --purge remove 'cuda*'
+sudo apt-get autoremove --purge 'cuda*'
+CUDA 파일 삭제
+sudo rm -rf /usr/local/cuda
+or
+sudo rm -rf /usr/local/cuda-10.0
+
 
 
 
