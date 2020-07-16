@@ -533,7 +533,7 @@ LSTMStateTuple(c=array([[-0.08561244, -0.71315455],[-0.02546103, -0.3122089 ]], 
     from tensorflow.contrib.framework.python.framework import checkpoint_utils
     checkpoint_dir = 'D:\\hccho\\cs231n-Assignment\\assignment3\\save-sigle-layer\\model.ckpt-1000000.ckpt' # 구체적으로 명시
     #checkpoint_dir = 'D:\\hccho\\cs231n-Assignment\\assignment3\\save-sigle-layer # 디렉토리만 지정 ==> 가장 최근
-    var_list = checkpoint_utils.list_variables(checkpoint_dir)
+    var_list = checkpoint_utils.list_variables(checkpoint_dir)  # tf.train.list_variables(checkpoint_dir)
     """	
     with open('var_list.txt', 'w') as f:
         for item in var_list:
