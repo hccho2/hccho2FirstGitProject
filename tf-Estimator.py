@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import logging
 import argparse
 import iris_data
-import timeline
+import os
 from tensorflow.python.keras import backend as K
 
 """
@@ -15,6 +15,19 @@ model_dir에 checkpoint 파일이 저장되어 있으면 load하여 train을 이
 
 # TensorFlow에서는 5가지의 로깅 타입을 제공하고 있습니다. ( DEBUG, INFO, WARN, ERROR, FATAL ) INFO가 설정되면, 그 이하는 다 출력된다.
 tf.logging.set_verbosity(tf.logging.INFO) # 이게 있어야 train log가 출력된다.
+
+
+1. log_step_count_steps (e.g  100) 주기에 마다, 다음과 같이 출력이 된다.
+
+INFO:tensorflow:loss = 2.381317, step = 0
+INFO:tensorflow:loss = 0.25970125, step = 500 (0.809 sec)
+
+2. logging_hook = tf.train.LoggingTensorHook({"loss----" : loss, "accuracy=" : accuracy[1] }, every_n_iter=200)의  every_n_iter 주기로 원하는 형식으로 출력 가능하다.
+
+3. 
+est = tf.estimator.Estimator(..., model_dir= ..., ...)
+est.train(..., steps=1000)  model_dir에서 몇 step이 돈 모델인지 알수 있다. 이어서 steps만큼 더 돈다. steps가 지정되지 않으면, input_fn의 공급이 끝날 때까지 돈다. data의 공급이 끝나면, steps를 못 채울 수도 있다.
+est.train(..., max_steps=5000) max_steps를 지정하면 누적 step을 지정하는 것이다.
 """
 
 
@@ -270,9 +283,9 @@ def Run3():
         if mode == tf.estimator.ModeKeys.EVAL:
             accuracy = tf.metrics.mean_absolute_error(labels=labels,predictions=logits)
             metrics = {'xxxx': accuracy}    
-            metrics = {'xxxx': accuracy}    
             eval_logging_hook = tf.train.LoggingTensorHook({"eval-----my logits" : -logits, "eval2----my labels": labels}, every_n_iter=1)  # 각 iteration에서 계산되는 값
-            return tf.estimator.EstimatorSpec(mode, loss=loss, eval_metric_ops=metrics,evaluation_hooks=[eval_logging_hook]) # 전체 iteration 평균값   
+            return tf.estimator.EstimatorSpec(mode, loss=loss, eval_metric_ops=metrics,evaluation_hooks=[eval_logging_hook]) # 전체 iteration 평균값
+   
 
         #optimizer = tf.train.GradientDescentOptimizer(0.00001)   
         optimizer = tf.train.AdagradOptimizer(learning_rate=1.0)  # AdagradOptimizer는 lr이 좀 높아야 되네...
@@ -283,6 +296,9 @@ def Run3():
         
         # dict형으로 첫번째 argument를 만들어 넘기면, fotmatter 함수로 넘겨진 my_format 함수의 argument로 dict형이 넘어간다.
         logging_hook3 = tf.train.LoggingTensorHook({"xxxx" : -logits, "yyy": labels}, every_n_iter=200,formatter=my_format)
+        
+        
+        tf.train.init_from_checkpoint(os.path.join(params['model_dir'],'model.ckpt-3000'))
         
         return tf.estimator.EstimatorSpec(mode, loss=loss, train_op=train_op,training_hooks = [logging_hook,logging_hook2,logging_hook3])
 
@@ -327,7 +343,7 @@ def Run4():
     
     
     def feed_fn():
-        batch_x, batch_y = mnist.train.next_batch(batch_size)
+        batch_x, batch_y = mnist.train.next_batch(batch_size)  # mnist.train.num_examples = 55000
         return {'x:0': batch_x, 'y:0': batch_y }
     
     
@@ -354,17 +370,20 @@ def Run4():
         
         # Compute loss.     loss를 tf.estimator.ModeKeys.PREDICT 보다 앞쪽에 정의하면 predict 모드에서 error발생
         loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(labels=y,logits = logits))
+        
+        loss_metric = tf.metrics.mean(loss)
         accuracy = tf.metrics.accuracy(labels=tf.argmax(y,axis=1), predictions=predicted_classes, name='acc_op')
         # Compute evaluation metrics.
         if mode == tf.estimator.ModeKeys.EVAL:
-            metrics = {'acc=====': accuracy,'acc---': accuracy} # 이곳에 들어가는 op는 tf.metrics.accuracy로 만들어 진 것이어야 한다.
-            return tf.estimator.EstimatorSpec(mode, loss=loss, eval_metric_ops=metrics)
+            metrics = {'acc=====': accuracy,'acc---': accuracy, 'loss2': loss_metric} # 이곳에 들어가는 op는 tf.metrics.accuracy로 만들어 진 것이어야 한다.
+            evaluation_hooks = tf.train.LoggingTensorHook({'loss' : loss_metric[1], 'accuracy': accuracy[1]}, every_n_iter=1)
+            return tf.estimator.EstimatorSpec(mode, loss=loss, eval_metric_ops=metrics,evaluation_hooks=[evaluation_hooks])
    
 
        
         optimizer = tf.train.AdamOptimizer(learning_rate=0.05)
         train_op = optimizer.minimize(loss, global_step=tf.train.get_global_step())   
-        logging_hook = tf.train.LoggingTensorHook({"loss----" : loss, "accuracy" : accuracy[1] }, every_n_iter=200)
+        logging_hook = tf.train.LoggingTensorHook({"loss----" : loss, "accuracy=" : accuracy[1] }, every_n_iter=200)  # dict key값을 정렬 순으로 출력한다.
         
         return tf.estimator.EstimatorSpec(mode, loss=loss, train_op=train_op,training_hooks = [logging_hook])
     
@@ -382,10 +401,11 @@ def Run4():
     
     
     # hooks를 통해. feed_fn이 input_fn_train에 있는 palceholder를 채워준다.
-    classifier.train( input_fn=input_fn_train,hooks=[tf.train.FeedFnHook(feed_fn)],steps=1000)  # steps=train 회수
+    classifier.train( input_fn=input_fn_train,hooks=[tf.train.FeedFnHook(feed_fn)],steps=1000)  # steps= 추가적인 train 회수
+    classifier.train( input_fn=input_fn_train,hooks=[tf.train.FeedFnHook(feed_fn)],steps=1000)  # steps= 추가적인 train 회수
     print("---Evaluation---")
-    classifier.evaluate( input_fn=input_fn_train,hooks=[tf.train.FeedFnHook(feed_fn)],steps=1)  
-
+    eval_result = classifier.evaluate( input_fn=input_fn_train,hooks=[tf.train.FeedFnHook(feed_fn)],steps=10)# return 되는 결과는 자동 출력되는 것은 같다. 각 steps이 진행되면서 누적 평균이 출력된다. 
+    print(eval_result) # steps의 누적 평균
 def Run5():
     # input function을 tf.data.Dataset를 이용하여 구현
     #
@@ -452,6 +472,87 @@ def Run5():
     d1,d2 = sess.run([c1,c2])
     print(d1,d2)
 
+def Run6():
+    from tensorflow.keras import preprocessing
+    samples = ['너 오늘 아주 이뻐 보인다', 
+               '나는 오늘 기분이 더러워', 
+               '끝내주는데, 좋은 일이 있나봐', 
+               '나 좋은 일이 생겼어', 
+               '아 오늘 진짜 너무 많이 정말로 짜증나', 
+               '환상적인데, 정말 좋은거 같아']
+    
+    label = [[1], [0], [1], [1], [0], [1]]
+    MAX_LEN = 5
+    
+    tokenizer = preprocessing.text.Tokenizer(oov_token="<UKN>")   # oov: out of vocabulary
+    tokenizer.fit_on_texts(samples+['SOS','EOS'])
+    print(tokenizer.word_index)   
+    
+    
+    if False:
+        # inference에 사용하기 위해 vocab를 저장해 두어야 한다.
+        word_to_index = tokenizer.word_index
+        index_to_word = dict(map(reversed, word_to_index.items()))
+        
+        if (not (os.path.exists('vocab.pickle'))):
+            with open('vocab.pickle', 'wb') as f:
+                pickle.dump({'word_to_index': word_to_index, 'index_to_word': index_to_word}, f)
+    
+    
+    
+    sequences1 = tokenizer.texts_to_sequences(samples)  # 역변환: tokenizer.sequences_to_texts(sequences1)
+    '''
+    [[4, 1, 5, 6, 7],
+     [8, 1, 9, 10],
+     [11, 2, 3, 12],
+     [13, 2, 3, 14],
+     [15, 1, 16, 17, 18, 19, 20],
+     [21, 22, 23, 24]]
+    '''
+    
+    sequences2 = preprocessing.sequence.pad_sequences(sequences1, maxlen=MAX_LEN, padding='post',truncating='post')
+    '''
+    array([[ 4,  1,  5,  6,  7],
+           [ 8,  1,  9, 10,  0],
+           [11,  2,  3, 12,  0],
+           [13,  2,  3, 14,  0],
+           [15,  1, 16, 17, 18],
+           [21, 22, 23, 24,  0]])
+    
+    '''
+    
+    word_index = tokenizer.word_index
+    
+    BATCH_SIZE = 2
+    EPOCH = 2
+    
+    def mapping_fn(X, Y=None):
+        # dataset.map(mapping_fn) ---> dataset.batch(BATCH_SIZE) 순서인 경우
+        # X: <tf.Tensor 'args_0:0' shape=(5,) dtype=int32>  Y: <tf.Tensor 'args_1:0' shape=(1,) dtype=int32>
+        
+        # dataset.batch(BATCH_SIZE) --> dataset.map(mapping_fn) 순서인 경우
+        # X: <tf.Tensor 'args_0:0' shape=(?, 5) dtype=int32>, Y: <tf.Tensor 'args_1:0' shape=(?, 1) dtype=int32>
+        
+        data_X = {'xx': X}  # dict로 보낼 때, key는 
+        data_Y = Y # label = {'yy': Y}로 해도 된다.
+        return data_X, data_Y  # data_X은 dict, data_Y은 numpy array로 
+    
+    dataset = tf.data.Dataset.from_tensor_slices((sequences2, label))
+    
+    dataset = dataset.shuffle(len(sequences2))
+    
+    dataset = dataset.map(mapping_fn)
+    dataset = dataset.batch(BATCH_SIZE)
+    dataset = dataset.repeat(EPOCH)
+    iterator = dataset.make_one_shot_iterator()
+    next_data = iterator.get_next()
+    
+    with tf.Session() as sess:
+        while True:
+            try:
+                print(sess.run(next_data)) # <---tuple, next_data[0],next_data[1]로 각각 접근 가능
+            except tf.errors.OutOfRangeError:
+                break
 
 def argparse_test():
     # python tf-Estimator.py --batch_size 124  <----add_argument를 통해 추가한 것만 가능
@@ -466,10 +567,11 @@ if __name__ == '__main__':
     
     #Run1()  # tf.estimator.LinearRegressor
     #Run2()
-    #Run3()
+    Run3()
 
-    Run4()
+    #Run4()
     
     #Run5()
 
+    #Run6()
     print('Done')
