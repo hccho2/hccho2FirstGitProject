@@ -77,6 +77,27 @@ ss = s.reset_index(drop=True)  # drop=True 옵션을 주면 기존 index가 없�
 #sss = ss.drop(columns=['index'])  # drop=True을 주지 않았을 경우, 'index' 컬럼을 지운다.
 ############################################################
 
+data: 첫번째 column에 일련번호가 있고, tab으로 구분되어 있다.
+1	I didn't know it was police housing," officers quoted Tsuchida as saying.
+2	You would be a great client for Southern Indiana Homeownership's credit counseling but you are saying to yourself "Oh, we can pay that off."
+3	He believes the 21st century will be the "century of biology" just as the 20th century was the century of IT.
+
+def preprocess_hccho():
+    import pandas as pd
+    input_file = 'D:/NLP/Datasets/eng_news_2005_300K/eng_news_2005_300K-sentences.txt'
+    output_file = 'D:/NLP/Datasets/eng_news_2005_300K/processed.txt'
+    
+    data = pd.read_csv(input_file, sep="\t",header = None)
+    
+    print(data.head(10))
+
+    data = data[1].apply( lambda x: re.sub(r'''["`']''','',x))   # r'[^\w\s]'
+    
+    data.to_csv(output_file, index=False, header=False,sep='\t')
+
+    print(data.head(10))
+
+    print('Done')
 
 
 ############################################################
