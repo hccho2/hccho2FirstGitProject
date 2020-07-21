@@ -1737,6 +1737,10 @@ sound.export("D:/SpeechRecognition/sample-kor.flac",format = "flac")
 
 =====================================================================================
 
+try:
+	x = sess.run([next_element["input_ids"],next_element["input_mask"],next_element["segment_ids"] ]) 
+except Exception as ex:
+	print("error message: ", ex)
 
 
 =====================================================================================
