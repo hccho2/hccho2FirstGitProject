@@ -22,6 +22,9 @@ https://github.com/tensorflow/tensorflow/issues/35618#issuecomment-596631286   <
 cudnn 설치 안해도, tf.test.is_gpu_available() ---> 에러 안남. 실제 돌릴 때, error.
 cudnn설치: cudnn은 쉽다.   cudnn-10.1-windows10-x64-v7.6.4.38.zip
 
+L = tf.compat.v1.keras.layers.CuDNNLSTM(3)
+
+
 https://developer.nvidia.com/rdp/cudnn-archive
 
 Download cuDNN v7.6.4 (September 27, 2019), for CUDA 10.1    ---> cuDNN Library for Windows 10 다운 받는 다.
