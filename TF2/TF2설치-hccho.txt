@@ -87,6 +87,7 @@ sudo chmod a+r /usr/local/cuda-10.1/include/cudnn.h /usr/local/cuda-10.1/lib64/l
 
 2. tensorflow 2.2를 가상환경에 설치하기 위해
 >conda create -n tf22 python=3.7  -----> python=3.7 반드시 필요
+>conda remove --name tf22 --all
 
 tf22> pip install tensorflow-gpu   --->  2.2설치된다.   ----> dll 로드 에러 ---> vc_redist.x64.exe 설치
 
