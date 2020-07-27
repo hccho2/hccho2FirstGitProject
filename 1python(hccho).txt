@@ -1274,34 +1274,37 @@ if __name__ == '__main__':
     print('test1-multiprocess-Pool')
     test1()
     print(time.time()-s," sec")
+    print('='*20)
 
     print('test1_1-multiprocessing-Process')
     s = time.time()
     test1_1()
     print(time.time()-s," sec")
-
+    print('='*20)
 
     print('serial 처리')
     s = time.time()
     test2()
     print(time.time()-s," sec")
-
+    print('='*20)
+    
     print('test3-ProcessPoolExecutor')
     s = time.time()
     test3()
     print(time.time()-s," sec")
-
+    print('='*20)
 
     print('test4-thread')
     s = time.time()
     test4()
     print(time.time()-s," sec")
-
+    print('='*20)
 
     print('test5-thread')
     s = time.time()
     test5()
     print(time.time()-s," sec")
+    print('='*20)
 
 =====================================================================================
 from multiprocessing import Process, Queue
