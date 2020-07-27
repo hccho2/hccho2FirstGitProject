@@ -1113,11 +1113,10 @@ with tqdm(total=200,ncols=70) as pbar:
 import time
 from tqdm import tqdm
 from contextlib import closing
-from multiprocessing import Pool
+from multiprocessing import Pool, Process
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 import threading
-import tensorflow as tf
 from collections import deque
 import numpy as np
 def isPrime2(n):
@@ -1130,13 +1129,29 @@ def isPrime2(n):
     return True
 items = [23245457771477,23245457771477,23245457771477,23245457771477,12345,456789,23245457771477,23245457771477,23245457771477,23245457771477,23245457771477]
 items = items + items + items + items + items + items + items + items + items
-def test():
+def test1():
+    # https://medium.com/@lih.verma/multi-processing-in-python-process-vs-pool-5caf0f67eb2b
+    # data based parallelism( 하나의 함수-다양한 argument)
     results = []
     fn = partial(isPrime2)
     with closing(Pool(processes=None)) as pool:
         for out in tqdm(pool.imap_unordered(isPrime2, items), total=len(items), desc="Prime Check"):
             results.append(out)
     print(results)
+    
+def test1_1():
+    # rfunction based parallelism(여러가지 함수 실행도 가능)   ----> 속도 향상됨
+    # https://stackoverflow.com/questions/10415028/how-can-i-recover-the-return-value-of-a-function-passed-to-multiprocessing-proce
+    jobs = []
+    for item in items:
+        job = Process(target=isPrime2, args=(item,))
+        jobs.append(job)
+        job.start()
+        
+    for job in tqdm(jobs):
+        job.join()    
+    
+    
 def test2():
     # 단순히 serial하게 처리. cpu process 1개만 사용.
     for item in tqdm(items, total=len(items), desc="Prime Check"):
@@ -1155,6 +1170,9 @@ def test3():
     n_frames = [n_frame for n_frame in n_frames if n_frame is not None]
     print(n_frames)
 
+
+        
+        
 # 다음의 test4, test5는 threading.Thread를 상속받아서 처리하거나 직접 이용하는 차이가 있다.
 def test4():
     # threading.Trhead는 병렬처리를 하는 것은 아니다.
@@ -1176,7 +1194,6 @@ def test4():
         result.append(que.get())
     print(result)
 
-n=0
 def test4_1():   # tensorflow의 coord = tf.train.Coordinator()를 이용하여 안정적으로 종료시키기. request_stop(), coord.should_stop()
 	N = 100000
 	num_thread = 4
@@ -1220,6 +1237,10 @@ def test4_1():   # tensorflow의 coord = tf.train.Coordinator()를 이용하여 
 			
 
 	print('Done')
+
+
+
+
 n=0
 def test5():
 	# parallel이  소극적으로 이루어지는 것 같다~~
@@ -1250,29 +1271,38 @@ def test5():
     print(que)
 if __name__ == '__main__':
     s = time.time()
-    test()
+    print('test1-multiprocess-Pool')
+    test1()
     print(time.time()-s," sec")
+
+    print('test1_1-multiprocessing-Process')
+    s = time.time()
+    test1_1()
+    print(time.time()-s," sec")
+
 
     print('serial 처리')
     s = time.time()
     test2()
     print(time.time()-s," sec")
 
-    print('test3')
+    print('test3-ProcessPoolExecutor')
     s = time.time()
     test3()
     print(time.time()-s," sec")
 
-    print('test4')
+
+    print('test4-thread')
     s = time.time()
     test4()
     print(time.time()-s," sec")
 
 
-    print('test5')
+    print('test5-thread')
     s = time.time()
     test5()
     print(time.time()-s," sec")
+
 =====================================================================================
 from multiprocessing import Process, Queue
  
