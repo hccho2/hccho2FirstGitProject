@@ -125,7 +125,9 @@ sudo rm -rf /usr/local/cuda-10.0
 
 
 
-
+=====================================
+기타 package
+> pip install scikit-learn
 
 
 
