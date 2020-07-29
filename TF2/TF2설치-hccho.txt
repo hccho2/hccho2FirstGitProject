@@ -129,6 +129,9 @@ sudo rm -rf /usr/local/cuda-10.0
 기타 package
 > pip install scikit-learn
 
+- matplotlib
+https://anaconda.org/conda-forge/matplotlib  ---->  conda install -c conda-forge matplotlib
+
 =====================================
 2020년7월29일 tensorflow 2.3 설치
 - 2.2 설치한 env에 2.2 삭제하고 2.3 설치 ----->   여러가지 error
