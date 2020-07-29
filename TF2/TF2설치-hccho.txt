@@ -129,6 +129,18 @@ sudo rm -rf /usr/local/cuda-10.0
 기타 package
 > pip install scikit-learn
 
+=====================================
+2020년7월29일 tensorflow 2.3 설치
+- 2.2 설치한 env에 2.2 삭제하고 2.3 설치 ----->   여러가지 error
+
+       module 'tensorflow' has no attribute 'keras'
+       ImportError: cannot import name 'descriptor'
+
+       ModuleNotFoundError: No module named 'opt_einsum'
+
+해결책:  env 날리고, 새로운 env 만들어서 설치.
+
+
 
 
 
