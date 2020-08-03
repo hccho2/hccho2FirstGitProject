@@ -145,6 +145,15 @@ https://anaconda.org/conda-forge/matplotlib  ---->  conda install -c conda-forge
 
 
 
+===================================
+가상환경에서 py파일 실행  ---> batch파일로 만들기
+"call"을 붙혀주어야 한다.
 
+python2.bat를 다음과 같이 만든다.
 
+call conda activate ml-agents
+call python %1
+call conda deactivate
+
+> python2 xxx.py
 
