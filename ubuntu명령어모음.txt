@@ -48,3 +48,7 @@ alias cls='clear'
 
 ssh로 다른 서버 접속하기
 > ssh -X id@domoin.com
+
+
+# 소문자 엘RS
+!ls -lRS
