@@ -796,7 +796,15 @@ def TFRecord_reading3():
         x,y = sess.run(next_element)
         io.imshow(x)
         plt.title(y)
-        plt.show()    
+        plt.show()
+#############################################################
+#### tfrecord 파일 관련 error메시지.
+- 파일 이름이 잘못되었을 때:
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xc1 in position 129: invalid start byte
+
+- example = tf.parse_single_example(record, name_to_features) 에서 name_to_features에 해당하는 dict를 잘못 설정했을 때.
+tensorflow.python.framework.errors_impl.InvalidArgumentError: Key: segment_ids.  Can't parse serialized Example.
+
 #############################################################
 # train_input, train_target  <----- numpy array
 buffer_size = 32
