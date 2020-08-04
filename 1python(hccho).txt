@@ -1780,7 +1780,14 @@ except Exception as ex:
 
 
 =====================================================================================
+import numpy as np
+from IPython.lib.pretty import pprint
 
+a = np.random.randn(1000,100)
+print(a)
+
+a = list(a)
+pprint(a,max_seq_length=5)
 
 
 =====================================================================================
