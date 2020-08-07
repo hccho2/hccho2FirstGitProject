@@ -1,3 +1,8 @@
+nvidia-smi에 나오는 cuda버전은 드라이버가 지원하는 최대 cuda버전입니다. 실제 설치된 cuda버전은 nvcc -V로 확인되는 버전이 실제 설치된 cuda버전 입니다ㆍ
+
+==========================
+
+
 > python -m pip install --upgrade pip    --- pip를 upgrade해야 pip로 설치해도 가상환경에 설치된다.
 
 
