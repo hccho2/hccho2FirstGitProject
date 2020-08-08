@@ -98,7 +98,18 @@ for i in range(100):
 -----
 Attention Mask
 http://juditacs.github.io/2018/12/27/masked-attention.html
+
+-----
+DataLoader에서 num_workers> 0 ----> __main__ 이 있어야 한다. 
+jupyter notebook에서는 num_workers=0으로 해야 한다.
+
+
+
 '''
+
+
+
+
 
 
 
