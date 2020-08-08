@@ -77,6 +77,12 @@ tf.gether
 tf.gather_nd
 tf.scatter_add
 tf.sequence_mask
+tf.sequence_mask([1, 3, 2], 5)  # [[True, False, False, False, False],
+                                #  [True, True, True, False, False],
+                                #  [True, True, False, False, False]]
+
+
+tf.boolean_mask([0,1,2,3], [True,False,True,False]) ==> [0,2] (True에 해당하는 값마 추출)
 tf.slice
 
 
