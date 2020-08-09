@@ -51,6 +51,8 @@ y = forward(x)
 loss = loss_fn(y, target.detatch())
 loss.backward()
 optimizer.step()
+# learning_rate decay
+# accuracy 계산
 
 -----
 # save
