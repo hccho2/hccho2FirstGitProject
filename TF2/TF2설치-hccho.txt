@@ -161,4 +161,6 @@ call python %1
 call conda deactivate
 
 > python2 xxx.py
-
+===========================================
+기타 package설치
+cv2  --> pip install opencv-python
