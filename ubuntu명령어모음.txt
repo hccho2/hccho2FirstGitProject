@@ -52,3 +52,8 @@ ssh로 다른 서버 접속하기
 
 # 소문자 엘RS
 !ls -lRS
+
+#############
+> wget URL
+> wget -O save_filename URL
+> wget -c URL    <------------- 이어 받기
