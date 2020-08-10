@@ -7,6 +7,12 @@ kill -9 %1
 cp -r /home/datasets/st_ko/v1_64  /home/hccho2/datasets
 
 
+--- 디렉토리 복사
+cp -r a /test/b/      또는 cp -r a /test/b
+1. /test 폴더가 없으면 오류.
+2. /test/b 폴더가 없으면 a폴더를 test폴더 아래에 b라는 이름으로 복사. => /test/b
+3. /test/b 폴더가 있으면 a폴더를 b폴더 아래에 복사. => /test/b/a
+
 
 ----
 디렉토리 파일 갯수 세기: > ls 디렉토리명 | wc -l 
