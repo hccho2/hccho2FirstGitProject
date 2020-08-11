@@ -55,7 +55,11 @@ optimizer.step()
 # accuracy 계산
 
 -----
-# save
+model_dir = 'xxxx/bbb/' 
+if not os.path.exists(model_dir):
+    os.makedirs(model_dir)
+
+# save  ---> 디렉토리가 미리 만들어져 있어야 한다. ---> 없으면 error!!!
 torch.save(model.state_dict(), os.path.join(model_dir, 'epoch-{}.pth'.format(epoch)))  # weights만 저장
 또는 
 torch.save(model, os.path.join(model_dir, 'epoch-{}.pth'.format(epoch)))   # 모델의 구조까지 저장
