@@ -1,5 +1,10 @@
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'   # CPU Only Mode
 ============
+import os
+# 0(debug), 1(info), 2(warning), 3(Error)
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # warning log 필터링. 
+
+===========
 error: 
 WARNING:tensorflow:Entity <bound method Dense.call of <tensorflow.python.layers.core.Dense object at 0x000001BECB4B9080>> 
 could not be transformed and will be executed as-is. Please report this to the AutgoGraph team. 
