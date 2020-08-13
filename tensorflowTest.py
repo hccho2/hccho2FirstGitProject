@@ -2,7 +2,8 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '-1'   # CPU Only Mode
 ============
 import os
 # 0(debug), 1(info), 2(warning), 3(Error)
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # warning log 필터링. 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # warning log 필터링. -----> import tensorflow보다 앞에 배치.
+import tensorflow as tf #
 
 ===========
 error: 
