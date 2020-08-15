@@ -20,6 +20,22 @@ uploaded = files.upload()
 for fn in uploaded.keys():
     print('User uploaded file "{name}" with length {length} bytes'.format(name=fn, length=len(uploaded[fn])))
 
+#########################################################
+# 파일 1개 옮기기.
+!pip install -U -q PyDrive
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
+from google.colab import auth
+from oauth2client.client import GoogleCredentials
+
+auth.authenticate_user()
+gauth = GoogleAuth()
+gauth.credentials = GoogleCredentials.get_application_default()
+drive = GoogleDrive(gauth)
+
+file_id = '1OsOSdpvkmqvcKFbDy8u9BQk98rcKJLCZ'   # https://drive.google.com/file/d/1OsOSdpvkmqvcKFbDy8u9BQk98rcKJLCZ/view?usp=sharing  --> Get Shareable Link에서 중간 file id만 추출
+downloaded = drive.CreateFile({'id': file_id})
+downloaded.GetContentFile('wiki_corpus.txt')
 
 ###########################################
 # 구글 드라이브 연결
