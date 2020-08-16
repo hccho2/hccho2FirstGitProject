@@ -27,9 +27,10 @@ nn.Parameter(torch.empty(3, 2))  # trainable Tensor
 ------
 with torch.no_grad():
     traget = ...
+
+optimizer.zero_grad()
 y = forward(x)
 loss = loss_fn(y, target)
-optimizer.zero_grad()
 loss.backward()
 optimizer.step()
 
