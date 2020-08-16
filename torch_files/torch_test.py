@@ -18,6 +18,15 @@ print(x.requires_grad)
 y = x.detach()   # detach는 새로운 tensor를 만든다.
 print(y.requires_grad)
 print(x.eq(y).all())
+------------
+x = torch.randn(3, requires_grad=True)
+print(x.requires_grad)
+print((x ** 2).requires_grad)
+
+with torch.no_grad():
+    y = x**2  # y.requires_grad = False가 된다. x의 requires_grad가 바뀌는 것은 아니다. 
+
+
 
 
 
