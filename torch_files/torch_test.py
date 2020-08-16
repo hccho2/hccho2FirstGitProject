@@ -10,9 +10,17 @@ device = torch.device('cuda:0')                                        # --> dev
 
 mynet.to(device) # 또는 mynet.cuda(), mynet.cpu()
 y = x.to(device)  # inplace방식 아님. x.to(device)하면, x가 바뀌지는 않는다. 
-------
+---------
 x.cpu().detach().numpy()
 x.cpu().data.numpy()
+---
+print(x.requires_grad)
+y = x.detach()   # detach는 새로운 tensor를 만든다.
+print(y.requires_grad)
+print(x.eq(y).all())
+
+
+
 ------------
 변수 직접 선언
 w = torch.randn(3,1, requires_grad=True,device=device)
