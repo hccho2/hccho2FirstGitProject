@@ -1,3 +1,10 @@
+CPU: Intel (R) Xeon(R) CPU @ 2.30GHz (Dual-Core)
+GPU: Nvidia Tesla K80 혹은 Nvidia Tesla P100
+GPU Memory: 12GB (K80) / 16GB (P100)
+VM 지속시간: 12시간
+
+==========================================================
+
 try:
     %tensorflow_version 1.x   #  %tensorflow_version 1.x  
 except Exception:
