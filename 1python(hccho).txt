@@ -1,4 +1,7 @@
 python -m pip install --upgrade pip
+
+=======
+C:\Users\Administrator\AppData\Local\pip    ----> pip cache directory    > cd %USERPROFILE%\AppData\Local\pip
 ========
 python 3.6설치
 
