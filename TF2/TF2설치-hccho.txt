@@ -41,13 +41,17 @@ Download cuDNN v7.6.4 (September 27, 2019), for CUDA 10.0    ----> cuDNN Library
 *******************
 numpy 설치:   tensorflow 2.2는 conda가 지원하지 않는다. pip로 tensorflow를 설치했다.
 그래서인지 numpy를 conda로 설치하면, eclipse에서 error가 난다  ---> pip로 설치
-pandas로 pip로 설치.
+pandas pip로 설치.
 
 ------> 해결책:
 eclipse ---> Python Interpreter --> Environment에 PATH 추가
 PATH:   C:\Anaconda3\envs\;C:\Anaconda3\envs\torch15\Library\bin;
 
 base에서도 이런 문제:   PATH: C:\Anaconda3\Library\bin
+*******************
+CPU 버전
+> pip install tensorflow-cpu==2.2
+
 
 
 *******************
