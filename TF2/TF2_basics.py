@@ -28,6 +28,23 @@ https://www.tensorflow.org/guide/saved_model?hl=ko
      1. model.save_weights  ---> model.load_weights
      2. tf.train.Checkpoint를 이용하는 방법
 
+
+loss_object = tf.keras.losses.SparseCategoricalCrossentropy()
+
+optimizer = tf.keras.optimizers.Adam()
+@tf.function
+def train_step(images, labels):
+    with tf.GradientTape() as tape:
+        predictions = model(images)
+        loss = loss_object(labels, predictions)
+    gradients = tape.gradient(loss, model.trainable_variables)
+    optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+
+    train_loss(loss)
+    train_accuracy(labels, predictions)
+
+
+
 '''
 
 
@@ -36,6 +53,7 @@ import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 from tensorflow.keras.initializers import Constant
+import tensorflow.keras.backend as K
 print(tf.__version__)
 print('gpu available?', tf.test.is_gpu_available())
 
@@ -163,6 +181,9 @@ def keras_standard_model():
         dataset = dataset.shuffle(buffer_size=batch_size*10).repeat() # 반복회수를 지정하지 않으면 무한반복
         dataset = dataset.batch(batch_size,drop_remainder=False)
         
+        validation_dataset = tf.data.Dataset.from_tensor_slices((X, Y))
+        validation_dataset = validation_dataset.batch(len(X),drop_remainder=False)
+        
         
     
     optimizer = tf.keras.optimizers.Adam(lr=0.01)
@@ -170,10 +191,16 @@ def keras_standard_model():
     
     if data_mode == 1:
         # data를 X,Y를 batch_size로 나누어서 epochs만큼 train
-        model.fit(X,Y,batch_size=batch_size, epochs=5,verbose=1) # Verbosity mode. 0 = silent, 1 = progress bar, 2 = one line per epoch
+        #model.fit(X,Y,batch_size=batch_size, epochs=5,verbose=1) # Verbosity mode. 0 = silent, 1 = progress bar, 2 = one line per epoch
+        
+        model.fit(X,Y,batch_size=batch_size, epochs=5,verbose=1,validation_split=0.1)
     else:
-        # dataset 자체레 batch_size가 정해져 있기 때문에, 몇 step을 1 epoch으로 볼 것인가 지엉(steps_per_epoch)
-        model.fit(dataset, epochs=5,verbose=1, steps_per_epoch = 10)
+        # dataset 자체에 batch_size가 정해져 있기 때문에, 몇 step을 1epoch으로 볼 것인가 지정(steps_per_epoch)
+        # tf.data.Dataset오로 data를 주면, validation_split이 작동하지 않는다.
+        #model.fit(dataset, epochs=5,verbose=1, steps_per_epoch = 10)
+        
+        
+        model.fit(dataset, epochs=5,verbose=1, steps_per_epoch = 10,validation_data=validation_dataset,validation_freq=2)
     
     
     
@@ -323,9 +350,67 @@ def keras_standard_model3():
 
 
 
+def mode_test():
+    # 
+    mode = 2
+    if mode == 1:
+        class MyModel(tf.keras.Model):
+            def __init__(self):
+                super(MyModel, self).__init__()
+                
+                self.dropout = tf.keras.layers.Dropout(0.5)
+                self.dense = tf.keras.layers.Dense(1,name='hccho')
+            def call(self,x,training=True):
+                # tf.keras.Model을 통해서 간접적으로 call 될 때는, training=None이 들어온다. ===> training= K.learning_phase()가 내부적으로 적용된다.
+                return self.dense(self.dropout(x, training = training))
 
 
+        model = MyModel()
+    else:
+        model = tf.keras.models.Sequential()
+        
+        model.add(tf.keras.layers.Dropout(0.5))
+        model.add(tf.keras.layers.Dense(units=1))
+    
+    
+    batch_size=2
+    input_dim=3
+    x = tf.random.normal(shape=(batch_size,input_dim))
+    y = tf.random.normal(shape=(batch_size,1))
+    
+    y1 = model(x,True)
+    y2 = model(x,False)
+    
+    print("dropout on: ", y1,'\ndropout off: ', y2)
+    print('manual cal: ', np.matmul(x,model.get_weights()[0]) + model.get_weights()[1])
+    print('loss: ', np.square(np.subtract(y, y1)).mean(), np.square(np.subtract(y, y2)).mean())
+    
+    
+    print('='*20)
+    X = tf.keras.Input(shape=(input_dim,),dtype=tf.float32)
+    Y1 = model(X,True)  # train mode용
+    Y2 = model(X) # eval mode용 ----> call의 training에는 default값이 들어간다.  ----> 아래에 있는 Model을 통한 구조에서는 None이 들어간다.
+    
+    
+    
+    
+    model1 = tf.keras.Model(X,Y1)
+    optimizer = tf.keras.optimizers.Adam(lr=0.01)
+    model1.compile(optimizer,loss='mse')
+    
+    model2 =  tf.keras.Model(X,Y2)
+    model2.compile(optimizer,loss='mse')
 
+    
+    
+    
+    print('train mode: ', model1(x))  
+    print('eval mode: ',model1.evaluate(x,y))  # training=True로 설정되어 있기 때문에, evaluate에서도 training=True가 적용된다. dropout이 random하기 때문에 위에서 계산한 loss와 다르다.
+    
+    print('='*40)
+    
+    print('train mode: ', model2(x)) # training=None이 들어간다.  ---> K.learning_phase() = 0이다  ----> dropout=off
+    print('eval mode: ',model2.evaluate(x,y))  # training=False가 적용되어 있기 때문에 위에서 계산한 loss값과 일치한다.
 
 if __name__ == "__main__":    
     #embeddidng_test()
@@ -336,5 +421,5 @@ if __name__ == "__main__":
     #model_load_checkpoint()
     #keras_standard_model2()
     #keras_standard_model3()
-
+    #mode_test()
 
