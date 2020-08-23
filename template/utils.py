@@ -3,6 +3,7 @@ import os
 import json
 from glob import glob
 from datetime import datetime
+from collections import namedtuple
 def get_most_recent_checkpoint(checkpoint_dir):
     checkpoint_paths = [path for path in glob("{}/*.ckpt-*.data-*".format(checkpoint_dir))]
     
