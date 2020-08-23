@@ -24,9 +24,12 @@ ckpt_file_name_preface = 'model.ckpt'   # 이 이름을 바꾸면, get_most_rece
 load_path = 'hccho-ckpt\\hccho-mm-2019-07-31_13-56-59'
 
 1. load_path 설명. None이거나 주어져 있거나(user가 설정해야 됨). None이면 log_dir를 이용해서 새로 만든다.
-2. lad_path(주어져 있거나, 새로 만들거나 뭔가 주어져 있다) --> restore_path = get_most_recent_checkpoint(log_dir)  e.g. restore_path = 'hccho-ckpt\\hccho-mm-2019-08-02_09-56-45\\model.ckpt-120000'
+2. load_path(주어져 있거나, 새로 만들거나 뭔가 주어져 있다) --> restore_path = get_most_recent_checkpoint(log_dir)  e.g. restore_path = 'hccho-ckpt\\hccho-mm-2019-08-02_09-56-45\\model.ckpt-120000'
 3. checkpoint_path  ---> 'hccho-ckpt\\hccho-mm-2019-08-02_10-21-12\\model.ckpt'
 
+load_path = 'hccho-ckpt\\hccho-mm-2019-08-02_13-56-29'
+restore_path = 'hccho-ckpt\\hccho-mm-2019-08-02_13-56-29\\model.ckpt-180000'   or ''
+checkpoint_path = 'hccho-ckpt\\hccho-mm-2019-08-02_13-56-29\\model.ckpt'
 
 
 3. 참고로 estimator의 model_dir 는 load_path와 동등함.
