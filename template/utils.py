@@ -68,8 +68,8 @@ def load_hparams(hparams, load_path, skip_list=[]):
 def save_hparams(model_dir, hparams):
     
     param_path = os.path.join(model_dir, hparams.PARAMS_NAME)
-
-    info = eval(hparams.to_json(),{'false': False, 'true': True, 'null': None})
+    # hparams.to_json() ---> string return ---> '{"log_dir": "hccho-ckpt", "model_name": "hccho-mm", "ckpt_file_name_preface": "model.ckpt", "PARAMS_NAME": "params.json", "learning_rate": 0.01, "layer_size": [3, 1]}'
+    info = eval(hparams.to_json(),{'false': False, 'true': True, 'null': None})   # python의 eval함수가 dict형으로 변환해 준다.
     write_json(param_path, info)
 
     print(" [*] MODEL dir: {}".format(model_dir))
