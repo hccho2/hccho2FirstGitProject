@@ -598,8 +598,9 @@ variables_in_checkpoint = tf.train.list_variables('.\\ckpt\\resnet_v2_50.ckpt') 
 import tensorflow as tf  # tensorflow 2.x
 from tensorflow.python.training import checkpoint_utils
 
-
-ckpt_dir_or_file = r'D:\hccho\TF2\RnnEncoderDecoder\saved_model_mid'
+# 디렉토리, 파일 preface 모두 가능
+#ckpt_dir_or_file = r'D:\hccho\TF2\RnnEncoderDecoder\saved_model_mid'
+ckpt_dir_or_file = r'D:\hccho\TF2\RnnEncoderDecoder\saved_model_mid\model_ckpt-7030'
 var_list = tf.train.list_variables(ckpt_dir_or_file)
 for v in var_list: 
     print(v) # tuple(variable name, [shape])
