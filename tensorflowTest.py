@@ -542,7 +542,7 @@ LSTMStateTuple(c=array([[-0.08561244, -0.71315455],[-0.02546103, -0.3122089 ]], 
  def get_info_from_checkpoint():
     import tensorflow as tf
     tf.reset_default_graph()
-    from tensorflow.contrib.framework.python.framework import checkpoint_utils
+    from tensorflow.contrib.framework.python.framework import checkpoint_utils  # tf 2.x   from tensorflow.python.training import checkpoint_utils
     checkpoint_dir = 'D:\\hccho\\cs231n-Assignment\\assignment3\\save-sigle-layer\\model.ckpt-1000000.ckpt' # 구체적으로 명시
     #checkpoint_dir = 'D:\\hccho\\cs231n-Assignment\\assignment3\\save-sigle-layer # 디렉토리만 지정 ==> 가장 최근
     var_list = checkpoint_utils.list_variables(checkpoint_dir)  # tf.train.list_variables(checkpoint_dir)
@@ -590,10 +590,23 @@ def init_from_checkpoint():
     print(np.allclose(ww,vv))
     print(np.allclose(kk,vv2))
 =======================
-참고: tensorflow 2.x
+참고: tensorflow 2.x  ---->  tf.train.list_variables, from tensorflow.python.training import checkpoint_utils
 https://www.tensorflow.org/guide/checkpoint
 saver = tf.train.Saver(tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope="resnet_v2_50"))
 variables_in_checkpoint = tf.train.list_variables('.\\ckpt\\resnet_v2_50.ckpt')  # ---> key,shape만. 값은 없음. 
+-----
+import tensorflow as tf  # tensorflow 2.x
+from tensorflow.python.training import checkpoint_utils
+
+
+ckpt_dir_or_file = r'D:\hccho\TF2\RnnEncoderDecoder\saved_model_mid'
+var_list = tf.train.list_variables(ckpt_dir_or_file)
+for v in var_list: 
+    print(v) # tuple(variable name, [shape])
+    vv = checkpoint_utils.load_variable(ckpt_dir_or_file, v[0])
+    print(vv) #values 
+----
+
 
 =======================
 Bahdanau attention weight
