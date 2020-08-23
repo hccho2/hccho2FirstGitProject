@@ -590,9 +590,10 @@ def init_from_checkpoint():
     print(np.allclose(ww,vv))
     print(np.allclose(kk,vv2))
 =======================
-참고: 
+참고: tensorflow 2.x
+https://www.tensorflow.org/guide/checkpoint
 saver = tf.train.Saver(tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope="resnet_v2_50"))
-variables_in_checkpoint = tf.train.list_variables('.\\ckpt\\resnet_v2_50.ckpt')
+variables_in_checkpoint = tf.train.list_variables('.\\ckpt\\resnet_v2_50.ckpt')  # ---> key,shape만. 값은 없음. 
 
 =======================
 Bahdanau attention weight
