@@ -33,7 +33,7 @@ def prepare_dirs(hp, load_path=None):
         load_path = os.path.join(hp.log_dir, "{}-{}".format(hp.model_name, get_time()))
         os.makedirs(load_path)
         
-        save_hparams(load_path, hp)
+        save_hparams(load_path, hp)  # hp에 있는 내용을 json파일로 저장한다.
         copy_file("hparams.py", os.path.join(load_path, "hparams.py"))
         
     else:
