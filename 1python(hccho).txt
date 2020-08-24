@@ -616,12 +616,20 @@ parser.add_argument('--epochs', type=int, default=10)
 parser.add_argument('--batch_size', type=int, default=32)
 parser.add_argument('--batch_size2', required=True, choices=["aa","bb"])   <----- required=True 항목이 빠지면, usage를 출력하면서 끝난다.
 
-# 옵션에 따라 하나의 parameter 설정
+# 옵션에 따라 하나의 parameter 설정   ====> 'flip'에 True 또는 False를 주고 싶을 때....
 parser.add_argument("--flip", dest="flip", action="store_true", help="flip images horizontally")  
 #  ---> action="store_true"  ==> default로 False. 반면 action="store_false"  ==> True
 parser.add_argument("--no_flip", dest="flip", action="store_false", help="don't flip images horizontally")
 parser.set_defaults(flip=True)
+===
+# train_flag에 True 또는 False를 주고 싶을 때....
+parser.add_argument('--train', dest='train_flag', action='store_true')
+parser.add_argument('--test', dest='train_flag', action='store_false')
+parser.set_defaults(train_flag=False)
+> python xxx.py --train    ====> train_flag에 True값
+> python xxx.py --test     ====> train_flag에 False값
 
+===
 args = parser.parse_args()
 filelist_dir = args.filelist
 output_dir = args.out_dir
