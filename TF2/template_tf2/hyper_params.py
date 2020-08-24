@@ -4,8 +4,8 @@ from hparams import HParams   # pip install hparams
 
 hp = HParams(
     log_dir = "hccho-ckpt",
-    model_name = "hccho-mm",
-    ckpt_file_name_preface = 'model.ckpt',   # 이 이름을 바꾸면, get_most_recent_checkpoint도 바꿔야 한다.
+    model_name = "hccho-mm",  # log_dir + model_name + 날짜시간   --> hccho-ckpt\hccho-mm-2020-08-24_17-08-31
+    ckpt_file_name_preface = 'model.ckpt',   # checkpoint preface
     PARAMS_NAME = "params.json",
     hp_filename = 'hyper_params.py',  # 이 파일 자체의 이름
     
