@@ -9,6 +9,10 @@ hp = HParams(
     PARAMS_NAME = "params.json",
     hp_filename = 'hyper_params.py',  # 이 파일 자체의 이름
     
+    slack_token = 'xoxb-1344137669264-1332987507329-Q0t0Nhl7I0KoginCMqqocqBj',
+    slack_send_msg = True,
+    
+    
     learning_rate = 0.02,
     layer_size = [3,1],
     
