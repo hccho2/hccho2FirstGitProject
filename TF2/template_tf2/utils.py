@@ -84,14 +84,14 @@ def load_json(path, as_class=False, encoding='euc-kr'):
     import re
     with open(path,encoding=encoding) as f:
         content = f.read()
-        content = re.sub(",\s*}", "}", content)
+        content = re.sub(",\s*}", "}", content)  # ,공백}  ---> }
         content = re.sub(",\s*]", "]", content)
 
         if as_class:
             data = json.loads(content, object_hook=\
                     lambda data: namedtuple('Data', data.keys())(*data.values()))
         else:
-            data = json.loads(content)
+            data = json.loads(content)  # string --> dict
 
     return data   
 def write_json(path, data):
@@ -103,6 +103,11 @@ def prepare(hp,load_path):
     load_path,restore_path,checkpoint_path = prepare_dirs(hp,load_path)
     log = infolog.log
     log_path = os.path.join(load_path, 'train.log')
-    infolog.init(log_path, hp['model_name'])
+    
+    if 'slack_token' in hp.keys():
+        slack_token = hp['slack_token']
+        infolog.init(log_path, hp['model_name'],slack_token)
+    else:
+        infolog.init(log_path, hp['model_name'])
     
     return log, load_path,restore_path,checkpoint_path
