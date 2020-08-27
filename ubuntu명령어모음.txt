@@ -1,3 +1,7 @@
+> sudo 명령어
+> sudo su ---> super user로 전환
+
+
 jobs
 kill -9 %1
 
