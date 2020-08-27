@@ -80,6 +80,10 @@ screen
 3. screen -r  ===> screen이 1개 밖에 없으면 자동 연결
    scrren -r 이름 
 
+>hccho2@hccho100:~/electra-google-research$ screen -list
+There is a screen on:
+        8462.pts-1.hccho100     (08/27/2020 02:59:52 AM)        (Detached)
+1 Socket in /run/screen/S-hccho2.
 
-
+>screen -r 8    ---> 이름 중에서 첫 글자만 입력해도 된다.
 
