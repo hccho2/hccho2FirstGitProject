@@ -66,3 +66,20 @@ ssh로 다른 서버 접속하기
 > wget URL
 > wget -O save_filename URL
 > wget -c URL    <------------- 이어 받기
+
+
+###########
+screen 
+> screen -L screenlog.large20200827 python3 run_pretraining.py --data-dir gs://data-for-electra/v1-512  --model-name large-20200827
+> screen -L -Logfile screenlog.1115 python3 train.py --train_data /home/hccho2/datasets/data_lmdb_release/training 
+
+-Logfile이 있어야 되는 경우도 있고, 있으면 에러나는 경우도 있다.
+
+1. detach   ===> ctrl+a, d
+2. screen -list  ==> 목록확인
+3. screen -r  ===> screen이 1개 밖에 없으면 자동 연결
+   scrren -r 이름 
+
+
+
+
