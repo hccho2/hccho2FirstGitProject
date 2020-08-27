@@ -86,4 +86,8 @@ There is a screen on:
 1 Socket in /run/screen/S-hccho2.
 
 >screen -r 8    ---> 이름 중에서 첫 글자만 입력해도 된다.
-
+==============
+> screen    --> screen 실행 ----> 작업 수행.... --> ctrl + a, d로 detach
+> 바깥에서 screen -ls  --> 작업 종류확인
+> screen -r 로 attatch  또는 screen -R 작업명(screen -ls에서 확인 한 것)
+> 작업중인 screen을 종료하려면, 그 속에서 >exit
