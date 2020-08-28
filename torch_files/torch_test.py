@@ -11,6 +11,8 @@ device = torch.device('cuda:0')                                        # --> dev
 mynet.to(device) # 또는 mynet.cuda(), mynet.cpu()
 y = x.to(device)  # inplace방식 아님. x.to(device)하면, x가 바뀌지는 않는다. 
 ---------
+# data vs detatch  --->    https://pytorch.org/blog/pytorch-0_4_0-migration-guide/#what-about-data
+
 x.cpu().detach().numpy()
 x.cpu().data.numpy()
 ----
