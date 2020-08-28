@@ -13,6 +13,8 @@ y = x.to(device)  # inplace방식 아님. x.to(device)하면, x가 바뀌지는 
 ---------
 x.cpu().detach().numpy()
 x.cpu().data.numpy()
+----
+x.permute(1,2,0)   # (C,H,W) --> (H,W,C)
 ---
 print(x.requires_grad)
 y = x.detach()   # detach는 새로운 tensor를 만든다.
