@@ -1,5 +1,12 @@
-2020년 6월20일 설치  1.5.1설치
+torch.cuda.current_device()
+torch.cuda.device(0)
+torch.cuda.device_count()
+torch.cuda.get_device_name(0)
+torch.cuda.is_available()
 
+
+
+==============
 
 1. numpy를 pip로 설치하고 numpy를 conda로 설치
 
