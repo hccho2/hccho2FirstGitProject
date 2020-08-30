@@ -1,3 +1,5 @@
+tf.test.is_gpu_available()
+
 nvidia-smi에 나오는 cuda버전은 드라이버가 지원하는 최대 cuda버전입니다. 실제 설치된 cuda버전은 nvcc -V로 확인되는 버전이 실제 설치된 cuda버전 입니다ㆍ
 
 ==========================
