@@ -62,8 +62,8 @@ CPU 버전
 
 
 *******************
-ubuntu 2.2 설치
-https://www.tensorflow.org/install?hl=ko
+ubuntu에 tensorflwo 2.2 설치
+https://www.tensorflow.org/install?hl=ko   ---->  pip install --upgrade pip    ---> pip install tensorflow
 
 여기 설명되어 있는대로, pip를 먼저 upgrade하고 설치해야한다. pip upgrade하지 않으면, 1.4가 설치된다.
 x86_64 --> dev(local)
