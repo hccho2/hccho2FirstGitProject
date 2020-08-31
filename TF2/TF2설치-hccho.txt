@@ -98,6 +98,12 @@ sudo cp cuda/include/cudnn.h /usr/local/cuda-10.1/include/cudnn.h
 sudo cp cuda/lib64/libcudnn* /usr/local/cuda-10.1/lib64/
 sudo chmod a+r /usr/local/cuda-10.1/include/cudnn.h /usr/local/cuda-10.1/lib64/libcudnn*
 
+======
+2020년8월31일, tensorflow 2.3으로 업그레이드(pip설치) 후,  tf.test.is_gpu_available()  ---> False,   ---> 다시 tensorflow 2.2 설치해도 안됨.
+그래서, conda로 2.2 설치. https://anaconda.org/anaconda/tensorflow-gpu
+> conda install -c anaconda tensorflow-gpu
+
+
 =====================================
 2020년 6월26일 노트북 재설치
 - anaconda 전체 제거하고, anaconda 최신 버전 설치(python 3.7)
