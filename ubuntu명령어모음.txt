@@ -72,7 +72,7 @@ ssh로 다른 서버 접속하기
 > wget -c URL    <------------- 이어 받기
 
 
-###########
+##############################################################################
 screen 
 > screen -L screenlog.large20200827 python3 run_pretraining.py --data-dir gs://data-for-electra/v1-512  --model-name large-20200827
 > screen -L -Logfile screenlog.1115 python3 train.py --train_data /home/hccho2/datasets/data_lmdb_release/training 
@@ -95,3 +95,16 @@ There is a screen on:
 > 바깥에서 screen -ls  --> 작업 종류확인
 > screen -r 로 attatch  또는 screen -R 작업명(screen -ls에서 확인 한 것)
 > 작업중인 screen을 종료하려면, 그 속에서 >exit
+
+##############################################################################
+바로가기 만들기:
+> ln -s target-directory 바로가기 이름
+> ln -s /data xxx   ====> xxx라는 이름으로 /data에 대한 바로가기가 생성된다.
+
+또는 왼쪽alt + 왼쪽마우스를 눌러 드래그, 왼쪽alt  누른채로, 마우스를 놓으면, 바로가기 메뉴 보임.
+##############################################################################
+vscode 설치 또는 업데이트 위해, deb파일 다운로드
+code_1.48.2-1598353430_amd64.deb
+
+
+> sudo dpkg -i code*.deb
