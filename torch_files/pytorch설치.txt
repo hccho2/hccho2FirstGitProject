@@ -25,6 +25,12 @@ pip아니고, 다음과 같이 conda로 설치
 
 ##########################
 ##########################
+설치 후. Error loading "C:\Anaconda3\lib\site-packages\torch\lib\asmjit.dll" or one of its dependencies.
+
+https://aka.ms/vs/16/release/vc_redist.x64.exe       tensorflow에서와 동일한 문제.
+
+===========
+
 다시...
 conda install -c anaconda numpy                   https://anaconda.org/anaconda/numpy
 conda install pytorch torchvision cudatoolkit=10.1 -c pytorch         https://pytorch.org/
