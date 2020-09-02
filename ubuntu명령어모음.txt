@@ -30,7 +30,7 @@ eg.
 !mv wiki_corpus.txt ./data/
 ----
 
-watch -n 1 -d nvidia-smi
+watch -n 1 -d nvidia-smi   (-d: 차이나는 부분에 highlight)
 
 
 cd /media/hccho/hccho
