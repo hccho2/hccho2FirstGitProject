@@ -1,4 +1,9 @@
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'   # CPU Only Mode
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+
+$ CUDA_VISIBLE_DEVICES=0 python my_script.py # Uses GPU 0.
+
+
 ============
 import os
 # 0(debug), 1(info), 2(warning), 3(Error)
