@@ -181,3 +181,28 @@ call conda deactivate
 ===========================================
 기타 package설치
 cv2  --> pip install opencv-python
+
+
+
+#####################################################################################
+#####################################################################################
+#####################################################################################
+#####################################################################################
+2020년9월2일 nipa환경 설정.
+
+wget https://repo.anaconda.com/archive/Anaconda3-5.3.1-Linux-x86_64.sh
+
+>bash Anaconda3-5.3.1-Linux-x86_64.sh
+>conda activate base
+ 
+
+>conda create -n cho python=3.6
+===> pytorch를 python 3.6에 설치해야 된다. 3.7에 설치하면 conda가 깨진다.
+===> 그래서, python 3.6의 가상환경을 만들어서, pytorch설치.
+
+>conda install pytorch torchvision cudatoolkit=10.1 -c pytorch 
+
+tensorflow 2.2설치: 
+conda install -c anaconda tensorflow-gpu
+
+
