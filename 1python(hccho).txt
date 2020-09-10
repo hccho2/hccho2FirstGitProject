@@ -1,5 +1,9 @@
 python -m pip install --upgrade pip
 
+pip install scipy
+pip install Pillow   ----> PIL
+pip install opencv-python    --- cv2
+
 =======
 C:\Users\Administrator\AppData\Local\pip    ----> pip cache directory    > cd %USERPROFILE%\AppData\Local\pip
 ========
