@@ -21,7 +21,7 @@ conda info   ---> cache 디렉토리 확인
 conda clean --all
 
 ===========================================================================
-> conda create -n xxx python=3.6
+> conda create -n xxx python=3.6    ----> pythn 버전이 반드시 명시되어야 한다. 없으면, 디폴트로 만들지 않는다.
 > conda env list --> 설치된 env 확인
 > concda remove --name xxx --all   ---> 제거하기
 ===========================================================================
