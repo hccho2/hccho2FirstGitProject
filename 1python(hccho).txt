@@ -1815,9 +1815,32 @@ pprint(a,max_seq_length=5)
 
 
 =====================================================================================
+> python setup.py install   ----> 다음과 같이 error발생
+
+Traceback (most recent call last):
+  File "c:\users\marketpoint\downloads\manimlib-0.1.11\manimlib-0.1.11\.eggs\pbr-5.5.0-py3.6.egg\pbr\core.py", line 96, in pbr
+    attrs = util.cfg_to_args(path, dist.script_args)
+  File "c:\users\marketpoint\downloads\manimlib-0.1.11\manimlib-0.1.11\.eggs\pbr-5.5.0-py3.6.egg\pbr\util.py", line 272, in cfg_to_args
+    pbr.hooks.setup_hook(config)
+  File "c:\users\marketpoint\downloads\manimlib-0.1.11\manimlib-0.1.11\.eggs\pbr-5.5.0-py3.6.egg\pbr\hooks\__init__.py", line 25, in setup_hook
+    metadata_config.run()
+  File "c:\users\marketpoint\downloads\manimlib-0.1.11\manimlib-0.1.11\.eggs\pbr-5.5.0-py3.6.egg\pbr\hooks\base.py", line 27, in run
+    self.hook()
+  File "c:\users\marketpoint\downloads\manimlib-0.1.11\manimlib-0.1.11\.eggs\pbr-5.5.0-py3.6.egg\pbr\hooks\metadata.py", line 26, in hook
+    self.config['name'], self.config.get('version', None))
+  File "c:\users\marketpoint\downloads\manimlib-0.1.11\manimlib-0.1.11\.eggs\pbr-5.5.0-py3.6.egg\pbr\packaging.py", line 858, in get_version
+    version = _get_version_from_pkg_metadata(package_name)
+  File "c:\users\marketpoint\downloads\manimlib-0.1.11\manimlib-0.1.11\.eggs\pbr-5.5.0-py3.6.egg\pbr\packaging.py", line 826, in _get_version_from_pkg_metadata
+    pkg_metadata = email.message_from_file(pkg_metadata_file)
+  File "C:\Anaconda3\lib\email\__init__.py", line 54, in message_from_file
+    return Parser(*args, **kws).parse(fp)
+  File "C:\Anaconda3\lib\email\parser.py", line 54, in parse
+    data = fp.read(8192)
+UnicodeDecodeError: 'cp949' codec can't decode byte 0xe2 in position 2512: illegal multibyte sequence
+error in setup command: Error parsing C:\Users\MarketPoint\Downloads\manimlib-0.1.11\manimlib-0.1.11\setup.cfg: UnicodeDecodeError: 'cp949' codec can't decode byte 0xe2 in position 2512: illegal multibyte sequence
 
 
-
+packaging.py", line 826   ---> pkg_metadata_file = open(filename, 'r') ===> pkg_metadata_file = open(filename, 'r',encoding='UTF8')
 =====================================================================================
 
 
