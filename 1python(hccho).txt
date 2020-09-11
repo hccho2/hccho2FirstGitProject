@@ -5,8 +5,8 @@ pip install Pillow   ----> PIL
 pip install opencv-python    --- cv2
 pip install matplotlib
 
-> pip cache dir    ----> cache dir 확인
-
+> pip cache dir    ----> cache dir 확인  ----> pip cache purge
+> conda clean --all
 =======
 C:\Users\Administrator\AppData\Local\pip    ----> pip cache directory    > cd %USERPROFILE%\AppData\Local\pip
 ========
