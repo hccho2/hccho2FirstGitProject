@@ -8,7 +8,7 @@ pip install matplotlib
 > pip cache dir    ----> cache dir 확인  ----> pip cache purge
 > conda clean --all
 =======
-C:\Users\Administrator\AppData\Local\pip    ----> pip cache directory    > cd %USERPROFILE%\AppData\Local\pip
+C:\Users\Administrator\AppData\Local\pip    ----> pip cache directory    > cd %USERPROFILE%\AppData\Local\pip   ---> pip cache purge로 안지워지네~~
 ========
 python 3.6설치
 
