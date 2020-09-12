@@ -97,6 +97,7 @@ There is a screen on:
 > screen -r 로 attatch  또는 screen -R 작업명(screen -ls에서 확인 한 것)
 > 작업중인 screen을 종료하려면, 그 속에서 >exit
 
+> pkill screen   --- 강제 죵료
 ##############################################################################
 바로가기 만들기:
 > ln -s target-directory 바로가기 이름
