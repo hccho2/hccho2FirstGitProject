@@ -11,6 +11,17 @@ pip install matplotlib
 
 ### conda activate  
 > source ~/anaconda3/etc/profile.d/conda.sh
+
+
+conda --version
+
+
+conda config --describe
+conda config --set auto_activate_base true   conda 4.6 이상
+
+
+
+
 =======
 C:\Users\Administrator\AppData\Local\pip    ----> pip cache directory    > cd %USERPROFILE%\AppData\Local\pip   ---> pip cache purge로 안지워지네~~
 ========
