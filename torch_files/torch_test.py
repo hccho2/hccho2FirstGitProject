@@ -521,7 +521,7 @@ def MNIST2():
             
             #self.net = nn.Sequential(nn.Linear(64,32),nn.ReLU(),nn.Dropout(0.3),nn.Linear(32,16),nn.BatchNorm1d(16),nn.ReLU(),nn.Linear(16,10))
             self.net = nn.Sequential()
-            self.net.add_module("L1", nn.Linear(64,32))
+            self.net.add_module("L1", nn.Linear(64,32))   # model.net1.L1으로 접근 가능.
             self.net.add_module("L2", nn.ReLU())
             self.net.add_module("L3", nn.Dropout(0.3))
             self.net.add_module("L4", nn.Linear(32,16))
