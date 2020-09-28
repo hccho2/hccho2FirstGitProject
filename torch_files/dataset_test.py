@@ -18,18 +18,26 @@ DataLoader에서 num_workers > 0일 때는 code에  __main__이 있어야 한다
 
 import torch
 from torch.utils.data import Dataset, DataLoader, TensorDataset,ConcatDataset
+from torch.nn.utils.rnn import pad_sequence
 import numpy as np
 
 class MyDataset(Dataset): 
     """ Diabetes dataset.""" 
     # Initialize your data, download, etc. 
     def __init__(self,type=0): 
-        self.len = 9
+        self.len = 9  # 전체 data 갯수
         if type==0:
-            self.x_data = torch.from_numpy(np.random.randn(self.len,4)) 
+            
+            self.x_data = []
+            for _ in range(self.len):
+                random_length = np.random.randint(3,7)  # data의 길이가 random하다고 가정하는 역할.
+                self.x_data.append(torch.from_numpy(np.random.randn(random_length))) 
             self.y_data = torch.from_numpy(np.random.rand(self.len,1)) 
         else:
-            self.x_data = torch.from_numpy(np.ones([self.len,4])) 
+            self.x_data = []
+            for _ in range(self.len):
+                random_length = np.random.randint(3,7)
+                self.x_data.append(2*torch.from_numpy(np.ones(random_length))) 
             self.y_data = torch.from_numpy(np.zeros([self.len,1]))         
     
     def __getitem__(self, index): 
@@ -48,7 +56,7 @@ def Mycollate_fn(batch):
     x, y = zip(*batch)
     
     #return torch.cat([t.unsqueeze(0) for t in x], 0), torch.cat([t.unsqueeze(0) for t in y], 0)
-    return torch.stack(x), torch.stack(y)
+    return pad_sequence(x,batch_first=True), torch.stack(y)
     
 
 
@@ -56,7 +64,7 @@ def Mycollate_fn(batch):
 def test1():
     mydataset1 = MyDataset(0)
     mydataset2 = MyDataset(1)
-    mydataset = ConcatDataset([mydataset1,mydataset2])
+    mydataset = ConcatDataset([mydataset1,mydataset2])  # ConcatDataset은 data혼합(병렬 아님)
     
     train_loader = DataLoader(dataset=mydataset, batch_size=2, shuffle=True, num_workers=2,drop_last=True,collate_fn=Mycollate_fn)
 
@@ -83,11 +91,11 @@ def test2():
             print(a,b)        
         
         
-    
+
 if __name__ == '__main__':
 
-    #test1()
-    test2()
+    test1()
+    #test2()
     
     print('Done')
     
