@@ -86,7 +86,7 @@ def test2():
             print(a,b)
         except StopIteration:
             print('='*20)
-            loader_iter = iter(train_loader)
+            loader_iter = iter(train_loader)  # data가 다 소진되었으니, 다시 reset.
             a,b = loader_iter.next()  # data가 다 소진되면 error
             print(a,b)        
         
@@ -94,8 +94,8 @@ def test2():
 
 if __name__ == '__main__':
 
-    test1()
-    #test2()
+    #test1()
+    test2()
     
     print('Done')
     
