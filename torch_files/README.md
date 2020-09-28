@@ -138,3 +138,23 @@ with torch.no_grad():
     print("NLLLost: ", -torch.mean(logit[np.arange(2),target]))
 
 ```
+
+
+## pytorch tensor
+```
+x = torch.randn((2,1), requires_grad=True)
+
+
+y = x.cpu().detach()  # x는 영향 받지 않는다.
+z = x.cpu().data      # x는 영향 받지 않는다.
+
+print(x,y,z)
+
+w = np.random.randn(2,1)
+
+x.data = torch.from_numpy(w)  # tensor x의 data를 변경  ---> id(x)는 바뀌지 않음
+
+x = torch.from_numpy(w)  # tensor x 자체를 변경 id(x)가 변경 됨
+print(x,y,z)
+print('done')
+```
