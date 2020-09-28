@@ -56,7 +56,7 @@ def Mycollate_fn(batch):
     x, y = zip(*batch)
     
     #return torch.cat([t.unsqueeze(0) for t in x], 0), torch.cat([t.unsqueeze(0) for t in y], 0)
-    return pad_sequence(x,batch_first=True), torch.stack(y)
+    return pad_sequence(x,batch_first=True,padding_value=99), torch.stack(y)
     
 
 
