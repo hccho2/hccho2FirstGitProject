@@ -52,7 +52,7 @@ def Mycollate_fn(batch):
     
     # test 목적으로 batch로 묶는 작업.  ----> 지금 여기서하는 batch를 묶는 작업은 collate_fn에서 해주지 않아도 자동으로 해준다.
     # 여기서 batch_size로 묶는 작업이 필요하다.
-    # batch:  data 하나씩,  batch_size만큼의 list 
+    # batch:  data 하나씩,  batch_size만큼의 list ----> 여기서는 mydataset1,mydataset2에서 random하게 추출되어서 mydataset1,2가 섞여 있다.
     x, y = zip(*batch)
     
     #return torch.cat([t.unsqueeze(0) for t in x], 0), torch.cat([t.unsqueeze(0) for t in y], 0)
