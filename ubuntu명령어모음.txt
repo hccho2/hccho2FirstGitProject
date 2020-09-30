@@ -111,3 +111,7 @@ code_1.48.2-1598353430_amd64.deb
 
 > sudo dpkg -i code*.deb
 > sudo apt purge code & sudo apt autoremove  <------  vscode  제거하기(vscode의 이름이 code임)
+
+
+=======================================
+> find / -name xxx.txt
