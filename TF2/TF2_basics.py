@@ -233,7 +233,7 @@ def keras_standard_model():
 
 
 def model_load_test():
-    # tf.saved_model.save() 로 저장딘 것 복원.
+    # tf.saved_model.save() 로 저장된 것 복원.
     # https://www.tensorflow.org/api_docs/python/tf/saved_model/load
     '''
     .fit, .predict는 없다.
@@ -279,7 +279,7 @@ def model_load_checkpoint():
     print('target: ', Y.numpy())
     print('predict: ', model.predict(X))
     
-def keras_standard_model2():
+def keras_standard_model2():  # tf.keras.Input 사용
     batch_size = 2
     input_dim = 3
     
