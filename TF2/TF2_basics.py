@@ -139,7 +139,7 @@ def simple_model():
     plt.tight_layout()
     plt.xlabel('Epoch')
     plt.ylabel('Training Cost')
-    plt.tight_layout()
+    plt.tight_layout()  # 지동으로 layout 조정.
     plt.show()
     
     plt.scatter(X_train, y_train, marker='s', s=50,label='Training Data')
@@ -196,11 +196,12 @@ def keras_standard_model():
         model.fit(X,Y,batch_size=batch_size, epochs=5,verbose=1,validation_split=0.1)
     else:
         # dataset 자체에 batch_size가 정해져 있기 때문에, 몇 step을 1epoch으로 볼 것인가 지정(steps_per_epoch)
+        # data가 부족하면, 지정한 epoch을 다 채우지 못한채 끝낸다.
         # tf.data.Dataset오로 data를 주면, validation_split이 작동하지 않는다.
         #model.fit(dataset, epochs=5,verbose=1, steps_per_epoch = 10)
         
         
-        model.fit(dataset, epochs=5,verbose=1, steps_per_epoch = 10,validation_data=validation_dataset,validation_freq=2)
+        model.fit(dataset, epochs=5,verbose=1, steps_per_epoch = 10,validation_data=validation_dataset,validation_freq=2)  # validation_freq는 epoch단위
     
     
     
@@ -217,6 +218,7 @@ def keras_standard_model():
         model.save_weights(model_dir_preface)   # train하지 않은 모델을 restore하기 때문에  몇가지 WARNING이 나온다. WARNING:tensorflow:Unresolved object in checkpoint: (root).optimizer
     elif save_method==2:
         # tf.train.Checkpoint를 사용하여 저장
+        # tf.train.Checkpoint(model=model), tf.train.Checkpoint(net=model), tf.train.Checkpoint(mymodel=model) ... argument이름은 임의로 설정가능.
         checkpoint = tf.train.Checkpoint(model=model)   # tf.train.Checkpoint(optimizer=optimizer, model=model)
         checkpoint.save(model_dir_preface)   # model_ckpt-1로 저장된다.    
     else:
