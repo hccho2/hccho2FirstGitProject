@@ -7,7 +7,7 @@ pip install opencv-python    --- cv2
 pip install matplotlib
 
 > pip cache dir    ----> cache dir 확인  ----> pip cache purge
-> pip cache purge
+> pip cache purge  ---> to clear all files from pip's cache.   ----> C:\Users\BRAIN\AppData\Local\pip\cache는 안 지워지네...
 > conda clean --all
 
 
