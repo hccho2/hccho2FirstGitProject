@@ -561,7 +561,13 @@ plt.show()
 
 
 ##########################################################
+# 한글 title 사용
+font_name = fm.FontProperties(fname=r'C:\Users\BRAIN\AppData\Local\Microsoft\Windows\Fonts\NanumGothic-Regular.ttf').get_name()
+matplotlib.rc('font', family=font_name)
+#fm._rebuild()   # cache 때문에 rebuild가 한번 필요함.
 
+
+plt.rcParams["font.family"] = 'NanumGothic'   #'NanumBarunGothic', 'NanumGothic'
 
 
 ##########################################################
