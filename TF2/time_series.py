@@ -49,6 +49,7 @@ def univariate_data(dataset, start_index, end_index, history_size, target_size):
 
 
 def multivariate_data(dataset, target, start_index, end_index, history_size, target_size, step, single_step=False):
+    # step 간격으로 data를 이용한다.
     data = []
     labels = []
 
@@ -133,7 +134,7 @@ def baseline(history):
 
 
     
-def test1():
+def data_load_test():
     # feature로 온도 data 1개만 가지고, 온도를 예측한다.
     csv_path = 'jena_climate_2009_2016_simple.csv'    # 'jena_climate_2009_2016.csv' ,    'jena_climate_2009_2016_simple.csv'
     df = pd.read_csv(csv_path)
@@ -160,7 +161,7 @@ def test1():
     
     
     univariate_past_history = 20
-    univariate_future_target = 0
+    univariate_future_target = 0  #  i번째 data를 기준으로 보면, (i-20,i-19,...,i-1)개의 data를 이용해서, (i+univariate_future_target)번째 data를 예측하는 문제.
     x_train_uni, y_train_uni = univariate_data(uni_data, 0, TRAIN_SPLIT, univariate_past_history, univariate_future_target)
     x_val_uni, y_val_uni = univariate_data(uni_data, TRAIN_SPLIT, None, univariate_past_history, univariate_future_target)
     
@@ -176,7 +177,7 @@ def test1():
     plt.show()
     
     
-    show_plot([x_train_uni[0], y_train_uni[0], baseline(x_train_uni[0])], 0,'Baseline Prediction Example')
+    show_plot([x_train_uni[0], y_train_uni[0], baseline(x_train_uni[0])], 0,'Baseline Prediction Example')  # baseline은 평균으로 예측하는 모델.
     plt.show()
 
 def univariate_model():
@@ -221,7 +222,7 @@ def univariate_model():
 
 
     simple_lstm_model = tf.keras.models.Sequential([
-        tf.keras.layers.LSTM(8, input_shape=x_train_uni.shape[-2:]),
+        tf.keras.layers.LSTM(8, input_shape=x_train_uni.shape[-2:],return_sequences=False),
         tf.keras.layers.Dense(1)
     ])
     
@@ -230,7 +231,7 @@ def univariate_model():
     # val_univariate.take(10)   ----> 크기 10짜리 Dataset을 만든다.
 
     for x, y in val_univariate.take(3):
-        print(x.shape, simple_lstm_model.predict(x).shape)
+        print(x.shape, simple_lstm_model.predict(x).shape)   # (256, 20, 1) (256, 1)
 
 
     EVALUATION_INTERVAL = 200
@@ -240,6 +241,7 @@ def univariate_model():
                           validation_data=val_univariate, validation_steps=50)
 
 
+    # 예측해 보기.
     for x, y in val_univariate.take(3):
         plot = show_plot([x[0].numpy(), y[0].numpy(),
                         simple_lstm_model.predict(x)[0]], 0, 'Simple LSTM model')
@@ -302,7 +304,7 @@ def multivariate_single_step_model():
 
 
     for x, y in train_data_single.take(2):
-        print(x.shape, single_step_model.predict(x).shape)
+        print(x.shape, single_step_model.predict(x).shape)  # (256, 120, 3) (256, 1)
 
     EVALUATION_INTERVAL = 200
     EPOCHS = 10
@@ -375,9 +377,13 @@ def multivariate_multi_step_model():
 
 
 
-    for x, y in train_data_multi.take(1):
-        multi_step_plot(x[0], y[0], np.array([0]),STEP)
+    for x, y in train_data_multi.take(3):
+        multi_step_plot(x[0], y[0], np.array([0]),STEP)  # [256, 120, 3], [256, 72]
         plt.show()
+
+
+
+
 
     multi_step_model = tf.keras.models.Sequential()
     multi_step_model.add(tf.keras.layers.LSTM(32,
@@ -419,10 +425,9 @@ def multivariate_multi_step_model():
 
 
 if __name__ == '__main__':
-    #test1()
     #data_load_test()
     #univariate_model()
-    #multivariate_single_step_model()
-    multivariate_multi_step_model()
+    multivariate_single_step_model()
+    #multivariate_multi_step_model()
 
     print('Done')
