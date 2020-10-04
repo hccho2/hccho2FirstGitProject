@@ -2582,7 +2582,7 @@ sess.run(tf.global_variables_initializer())
 saver = tf.train.Saver(var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, 'a')
 saver.restore(sess, 'path')
 ###############################################	
-	
+from sklearn.model_selection import train_test_split
 ###############################################
 	
 ###############################################
