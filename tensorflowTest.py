@@ -1046,7 +1046,7 @@ def Make_Batch():
     dataset = dataset.shuffle(len(sequences3))
     
     dataset = dataset.map(mapping_fn)
-    dataset = dataset.batch(BATCH_SIZE)
+    dataset = dataset.batch(BATCH_SIZE)  # batch로 묶기기 전의 data가 dict형.  ===> dict의 key별로 묶인다.
     dataset = dataset.repeat(EPOCH)
     iterator = dataset.make_one_shot_iterator()
     next_data = iterator.get_next()
