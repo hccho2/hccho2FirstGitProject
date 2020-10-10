@@ -201,8 +201,11 @@ def keras_standard_model():
         #model.fit(dataset, epochs=5,verbose=1, steps_per_epoch = 10)
         
         
-        model.fit(dataset, epochs=5,verbose=1, steps_per_epoch = 10,validation_data=validation_dataset,validation_freq=2)  # validation_freq는 epoch단위
-    
+        history = model.fit(dataset, epochs=5,verbose=1, steps_per_epoch = 10,validation_data=validation_dataset,validation_freq=1)  # validation_freq는 epoch단위
+        plt.plot(history.history['loss'],label="train loss")
+        plt.plot(history.history['val_loss'],label="val loss")
+        plt.legend()  # plt.legend(loc="upper right")
+        plt.show()
     
     
     print(X,Y)
@@ -302,7 +305,7 @@ def keras_standard_model2():  # tf.keras.Input 사용
     optimizer = tf.keras.optimizers.Adam(lr=0.01)
     model.compile(optimizer,loss='mse')
     
-    model.fit(X,Y,epochs=100,verbose=1)
+    history = model.fit(X,Y,epochs=100,verbose=1)
     
     
     print(X,Y)
