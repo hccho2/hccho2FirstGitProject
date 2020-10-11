@@ -7,6 +7,9 @@ gradient CAM
 
 tensorflow tutorial -- DeepDream: https://www.tensorflow.org/tutorials/generative/deepdream
 
+
+C:\Users\BRAIN\.keras\models   <-------------- pretrained file 다운로드
+
 '''
 import tensorflow as tf
 from tensorflow.keras.preprocessing import image
