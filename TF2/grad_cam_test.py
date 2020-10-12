@@ -583,9 +583,13 @@ def InceptionV3_Resnet_test():
         # 사진을 열고 크기를 줄이고 인셉션 V3가 인식하는 텐서 포맷으로 변환하는 유틸리티 함수
         img = image.load_img(image_path).resize(image_size)   # PIL.JpegImagePlugin.JpegImageFile image
         
-        img = image.img_to_array(img)
+        img = image.img_to_array(img)   # type은 float32 이지만, 값은 0~255값.
         img = np.expand_dims(img, axis=0)
-        img = base_model.preprocess_input(img)  # 이미지  크기가 변하지 않는다.
+        
+        img = base_model.preprocess_input(img)  # 이미지  크기가 변하지 않는다.   ===> numpy array(tensor아님). 
+        
+        # return한 값의 범위는 모델에 따라 다르다.
+        # inception: -1~1 사이값              resnet: -118.68 ~ 141.061 사이값(0~1사이값 아님)
         return img    
 
     flag = 'inception'  # 'inception', 'resnet'
