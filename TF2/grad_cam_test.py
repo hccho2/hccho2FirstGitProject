@@ -578,6 +578,7 @@ def deep_dream():
 
 def InceptionV3_Resnet_test():
     # model에 따라, image size를 맞춰야, 정확도가 나온다.
+    # 입력 image의 크기는 model.input.shape 으로 알아 낼 수 있다.
     def preprocess_image(image_path,base_model,image_size):
         # 사진을 열고 크기를 줄이고 인셉션 V3가 인식하는 텐서 포맷으로 변환하는 유틸리티 함수
         img = image.load_img(image_path).resize(image_size)   # PIL.JpegImagePlugin.JpegImageFile image
