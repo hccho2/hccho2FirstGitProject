@@ -8,8 +8,8 @@ gradient CAM
 tensorflow tutorial -- DeepDream: https://www.tensorflow.org/tutorials/generative/deepdream
 
 
-C:\Users\BRAIN\.keras\models   <-------------- pretrained file 다운로드   os.environ['USERPROFILE']  =  'C:\\Users\\BRAIN'
-
+C:\\Users\BRAIN\\.keras\\models   <-------------- pretrained file 다운로드   os.environ['USERPROFILE']  =  'C:\\Users\\BRAIN'
+imagenet_class_index.json <----- 이것도 같이 다운받아진다.
 '''
 import tensorflow as tf
 from tensorflow.keras.preprocessing import image
@@ -587,15 +587,15 @@ def InceptionV3_Resnet_test():
         img = base_model.preprocess_input(img)  # 이미지  크기가 변하지 않는다.
         return img    
 
-    flag = 'resnet'  # 'inception', 'resnet'
+    flag = 'inception'  # 'inception', 'resnet'
     if flag == 'inception':
         model = inception_v3.InceptionV3(weights='imagenet',include_top=True)  # include_top = True/False에 따라, weight 파일이 다르다.
         base_model = inception_v3
-        image_size = (299,299)
+        image_size = (299,299)     # tuple(model.input.shape )[1:3]
     elif flag =='resnet':
         model = resnet.ResNet50(weights='imagenet',include_top=True)  # 100M 
         base_model = resnet
-        image_size = (224,224)
+        image_size = (224,224)    # tuple(model.input.shape )[1:3]
     
     
     print(model.summary())
