@@ -23,7 +23,7 @@ import time
 
 from tensorflow.keras.applications import inception_v3  # 입력이미지의 크기가 달라도 된다. 상태적인 크기로 변형된다.
 from tensorflow.keras.applications import resnet
-
+from tensorflow.keras.applications import vgg16
 
 def deprocess_image(x):
     mean = [103.939, 116.779, 123.68]
@@ -589,10 +589,10 @@ def InceptionV3_Resnet_test():
         img = base_model.preprocess_input(img)  # 이미지  크기가 변하지 않는다.   ===> numpy array(tensor아님). 
         
         # return한 값의 범위는 모델에 따라 다르다.
-        # inception: -1~1 사이값              resnet: -118.68 ~ 141.061 사이값(0~1사이값 아님)
+        # inception: -1~1 사이값              resnet: -118.68 ~ 141.061 사이값(0~1사이값 아님)             vgg16: -118.68 ~ 141.061 사이값(0~1사이값 아님) 
         return img    
 
-    flag = 'inception'  # 'inception', 'resnet'
+    flag = 'vgg16'  # 'inception', 'resnet', 'vgg16'
     if flag == 'inception':
         model = inception_v3.InceptionV3(weights='imagenet',include_top=True)  # include_top = True/False에 따라, weight 파일이 다르다.
         base_model = inception_v3
@@ -601,6 +601,10 @@ def InceptionV3_Resnet_test():
         model = resnet.ResNet50(weights='imagenet',include_top=True)  # 100M 
         base_model = resnet
         image_size = (224,224)    # tuple(model.input.shape )[1:3]
+    elif flag == 'vgg16':
+        model = vgg16.VGG16(weights='imagenet',include_top=True)  # 100M 
+        base_model = vgg16
+        image_size = (224,224)    # tuple(model.input.shape )[1:3]        
     
     
     print(model.summary())
