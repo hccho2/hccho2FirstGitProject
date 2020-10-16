@@ -571,7 +571,17 @@ plt.rcParams["font.family"] = 'NanumGothic'   #'NanumBarunGothic', 'NanumGothic'
 
 
 ##########################################################
-
+# 마진없이 저장.
+def save_as_image():
+    audio_filename = r"D:\SpeechRecognition\AudioSignalProcessingForML-musikalkemist\audio_resources\scale.wav"
+    y, sr = librosa.load(audio_filename,duration=10) 
+    print(y.shape,sr)     
+    
+    melspectrogram = librosa.feature.melspectrogram(y,n_mels=90)
+    print(melspectrogram.shape)   # (90, 342)
+    librosa.display.specshow(librosa.power_to_db(melspectrogram,ref=np.max),x_axis='time',y_axis='mel')
+    plt.axis('off')  # 이게 있으면 좀 더 큰 사이즈로 저장.
+    plt.savefig('mel_spec.png',bbox_inches='tight', pad_inches=0)  # (w,h) = (496 x 369) 크기로 저장
 
 
 ##########################################################
