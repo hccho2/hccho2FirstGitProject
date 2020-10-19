@@ -25,7 +25,7 @@ class MyDataset(Dataset):
     """ Diabetes dataset.""" 
     # Initialize your data, download, etc. 
     def __init__(self,type=0): 
-        self.len = 9  # 전체 data 갯수
+        self.len = 7  # 전체 data 갯수
         if type==0:
             
             self.x_data = []
@@ -37,14 +37,17 @@ class MyDataset(Dataset):
             self.x_data = []
             for _ in range(self.len):
                 random_length = np.random.randint(3,7)
-                self.x_data.append(2*torch.from_numpy(np.ones(random_length))) 
+                self.x_data.append(2*torch.from_numpy(np.ones(random_length)))  #[2,2,2,...]
             self.y_data = torch.from_numpy(np.zeros([self.len,1]))         
     
     def __getitem__(self, index): 
-        return self.x_data[index], self.y_data[index] 
+        if index < self.len:
+            return self.x_data[index], self.y_data[index]
+        else:
+            return torch.ones(4), torch.ones(1)
     
     def __len__(self):
-        return self.len
+        return self.len+1  # self.len 외에 1
 
 
 def Mycollate_fn(batch):
@@ -66,7 +69,7 @@ def test1():
     mydataset2 = MyDataset(1)
     mydataset = ConcatDataset([mydataset1,mydataset2])  # ConcatDataset은 data혼합(병렬 아님)
     
-    train_loader = DataLoader(dataset=mydataset, batch_size=2, shuffle=True, num_workers=2,drop_last=True,collate_fn=Mycollate_fn)
+    train_loader = DataLoader(dataset=mydataset, batch_size=4, shuffle=True, num_workers=2,drop_last=True,collate_fn=Mycollate_fn)
 
     for i, data in enumerate(train_loader):
         print(data[0].size(), data[1].size(), data, '\n')
@@ -94,8 +97,8 @@ def test2():
 
 if __name__ == '__main__':
 
-    #test1()
-    test2()
+    test1()
+    #test2()
     
     print('Done')
     
