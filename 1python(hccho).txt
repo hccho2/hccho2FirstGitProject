@@ -2,6 +2,7 @@ python -m pip install --upgrade pip
 
 pip install scipy
 pip install scikit-learn
+pip install scikit-image   -----> skimage
 pip install Pillow   ----> PIL
 pip install opencv-python    --- cv2
 pip install matplotlib
