@@ -12,6 +12,8 @@ from torch.utils.data import TensorDataset, Dataset DataLoader
 DataLoader에서 num_workers > 0일 때는 code에  __main__이 있어야 한다.   -----> drop_last의 default는 False이다.
 
 
+data생성에 randomness가 있으면, 첫번째 epoch에서 randomness가 반영된다. ---> 다음 epoch은 첫번째 epoch에서 정해진 random을 그래로 반복한다.
+
 '''
 
 
@@ -25,7 +27,7 @@ class MyDataset(Dataset):
     """ Diabetes dataset.""" 
     # Initialize your data, download, etc. 
     def __init__(self,type=0): 
-        self.len = 7  # 전체 data 갯수
+        self.len = 2  # 전체 data 갯수
         if type==0:
             
             self.x_data = []
@@ -69,10 +71,13 @@ def test1():
     mydataset2 = MyDataset(1)
     mydataset = ConcatDataset([mydataset1,mydataset2])  # ConcatDataset은 data혼합(병렬 아님)
     
-    train_loader = DataLoader(dataset=mydataset, batch_size=4, shuffle=True, num_workers=2,drop_last=True,collate_fn=Mycollate_fn)
+    train_loader = DataLoader(dataset=mydataset, batch_size=6, shuffle=True, num_workers=2,drop_last=True,collate_fn=Mycollate_fn)
 
-    for i, data in enumerate(train_loader):
-        print(data[0].size(), data[1].size(), data, '\n')
+    num_epoch=2
+    for e in range(num_epoch):
+
+        for i, data in enumerate(train_loader):
+            print(data[0].size(), data[1].size(), data, '\n')
     
     
     
