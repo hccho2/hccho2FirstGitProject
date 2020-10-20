@@ -110,7 +110,7 @@ class MyDataset2(Dataset):
     # Initialize your data, download, etc. 
     def __init__(self): 
         self.len = 10
-        self.x_data = range(self.len)
+        self.x_data = list(range(self.len))
     
     
     def __getitem__(self, index): 
