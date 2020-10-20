@@ -10,7 +10,7 @@ from torch.utils.data import TensorDataset, Dataset DataLoader
 
 
 DataLoader에서 num_workers > 0일 때는 code에  __main__이 있어야 한다.   -----> drop_last의 default는 False이다.
-
+   ---> SubsetRandomSampler,WeightedRandomSampler 같은 sampler를 넣어 줄 수도 있다. 
 
 data생성에 randomness가 있으면, 첫번째 epoch에서 randomness가 반영된다. ---> 다음 epoch은 첫번째 epoch에서 정해진 random을 그래로 반복한다.
 
@@ -22,6 +22,9 @@ import torch
 from torch.utils.data import Dataset, DataLoader, TensorDataset,ConcatDataset
 from torch.nn.utils.rnn import pad_sequence
 import numpy as np
+from torch.utils.data.sampler import RandomSampler,SubsetRandomSampler
+
+
 
 class MyDataset(Dataset): 
     """ Diabetes dataset.""" 
@@ -50,6 +53,8 @@ class MyDataset(Dataset):
     
     def __len__(self):
         return self.len+1  # self.len 외에 1
+
+
 
 
 def Mycollate_fn(batch):
@@ -98,12 +103,57 @@ def test2():
             a,b = loader_iter.next()  # data가 다 소진되면 error
             print(a,b)        
         
+
+
+class MyDataset2(Dataset): 
+    """ Diabetes dataset.""" 
+    # Initialize your data, download, etc. 
+    def __init__(self): 
+        self.len = 10
+        self.x_data = range(self.len)
+    
+    
+    def __getitem__(self, index): 
+            return self.x_data[index]
+    
+    def __len__(self):
+        return self.len
+
+
+
+def test3():
+    mydataset = MyDataset2()
+    
+    
+    mode = 2
+    
+    if mode==1:
+        sampler = RandomSampler(mydataset,replacement=False)   # DataLoader에서 shuffle=True와 같은 효과
+        train_loader = DataLoader(dataset=mydataset, batch_size=2, num_workers=2,drop_last=True,sampler = sampler)
+    elif mode == 2:
         
+        data_index=list(range(10))
+        #np.random.shuffle(data_index)
+        
+        sampler1 = SubsetRandomSampler(data_index[:5])   
+        sampler2 = SubsetRandomSampler(data_index[5:])
+        train_loader = DataLoader(dataset=mydataset, batch_size=2, num_workers=2,drop_last=True,sampler = sampler1)
+        test_loader = DataLoader(dataset=mydataset, batch_size=2, num_workers=2,drop_last=True,sampler = sampler2)        
+    
+    num_epoch=2
+    for e in range(num_epoch):  
+        for i, data in enumerate(train_loader):
+            print(i, data)
+
+        print('====')
+
+
 
 if __name__ == '__main__':
 
-    test1()
+    #test1()
     #test2()
+    test3()
     
     print('Done')
     
