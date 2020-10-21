@@ -1146,7 +1146,7 @@ with tqdm(total=200,ncols=70) as pbar:
     for i in range(10):
         sleep(0.1)
         if (i+1) % 2 == 0:
-            tqdm.write("Done task %i" % (i+1))   # print와 동일
+            tqdm.write("Done task %i" % (i+1))   # print와 동일  ----> 줄바꿈 생김.
         pbar.set_description("Processing {}-{}".format(i,i*10))  # progress bar 앞부분에 출력
         pbar.update(20)  # 위에서 설정한 total = 200을 20씩 업데이트 한다. 그러면 10번 실행. loop 회수와 일치시키면 됨
 =====================================================================================
