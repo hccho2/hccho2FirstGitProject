@@ -1887,8 +1887,12 @@ def create_directory(dir):
 
 
 dict형의 앞부분만 보고 싶을 때....
-
 {k: v for i, (k, v) in enumerate(my_dict.items()) if i < 5}
+
+# list값을 key로 dict 만들기
+dirs = 'yes no up down left right on off stop go'.split()
+num_of_shorter = dict.fromkeys(dirs, 0)
+
 
 =====================================================================================
 하위 디렉토리 목록
