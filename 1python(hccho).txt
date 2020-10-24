@@ -1891,8 +1891,9 @@ dict형의 앞부분만 보고 싶을 때....
 {k: v for i, (k, v) in enumerate(my_dict.items()) if i < 5}
 
 =====================================================================================
-
-
+하위 디렉토리 목록
+dirs = [f for f in os.listdir(train_audio_path) if os.path.isdir(os.path.join(train_audio_path, f))]
+dirs = glob.glob(os.path.join(train_audio_path,'*/'))  # 
 
 =====================================================================================
 
