@@ -585,3 +585,71 @@ def save_as_image():
 
 
 ##########################################################
+# scatter plot 3D
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+import pandas as pd
+import numpy as np
+
+num_class = 3
+df=pd.DataFrame(np.random.rand(30,3))
+grp=pd.DataFrame(np.random.randint(num_class,size=30))
+df['grp']=grp
+
+colors = ['salmon', 'orange', 'steelblue']
+fig = plt.figure(figsize=(5, 4))
+ax = Axes3D(fig)
+
+for grp_name, grp_idx in df.groupby('grp').groups.items():
+    y = df.iloc[grp_idx,1]
+    x = df.iloc[grp_idx,0]
+    z = df.iloc[grp_idx,2]
+    ax.scatter(x,y,z, label=grp_name)
+    #ax.scatter(x,y,z, label=grp_name,color=colors[grp_name])  # this way you can control color/marker/size of each group freely
+
+ax.legend()
+
+plt.show()
+
+##########################################################
+
+
+##########################################################
+
+
+##########################################################
+
+
+##########################################################
+
+
+##########################################################
+
+
+
+##########################################################
+
+
+
+##########################################################
+
+
+
+##########################################################
+
+
+
+##########################################################
+
+
+
+##########################################################
+
+
+
+##########################################################
+
+
+
+
+
