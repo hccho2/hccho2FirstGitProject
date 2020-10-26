@@ -8,6 +8,7 @@ from scipy.fftpack import fft
 import librosa
 from sklearn.decomposition import PCA
 import pandas as pd
+import seaborn as sns
 
 def PCA1():
     # 2차원 data의 main 축 찾기
@@ -76,32 +77,57 @@ def PCA2():
 
 
     #### PCA 3 COMPONENTS ####
-    pca = PCA(n_components=3)
-    principalComponents = pca.fit_transform(X)
-    principalDf = pd.DataFrame(data = principalComponents, columns = ['principal component 1', 'principal component 2','principal component 3'])
-
-
-    # concatenate with target label
-    finalDf = pd.concat([principalDf, y], axis = 1)
+    n_components = 2
     
-    print(pca.explained_variance_ratio_)
+    if n_components==2:
 
-    fig = plt.figure(figsize = (8, 4))
-    ax = Axes3D(fig)
-
-
-    for grp_name, grp_idx in finalDf.groupby('label').groups.items():
-        y = finalDf.iloc[grp_idx,1]
-        x = finalDf.iloc[grp_idx,0]
-        z = finalDf.iloc[grp_idx,2]
-        ax.scatter(x,y,z, label=labels[grp_name])  # this way you can control color/marker/size of each group freely
-    ax.legend()
-    plt.title('PCA on IRIS', fontsize = 10)
-    plt.xticks(fontsize = 7)
-    plt.yticks(fontsize = 5);
-    ax.set_xlabel("Principal Component 1", fontsize = 7)
-    ax.set_ylabel("Principal Component 2", fontsize = 7)
-    ax.set_zlabel("Principal Component 3", fontsize = 7)
+        pca = PCA(n_components=2)
+        principalComponents = pca.fit_transform(X)
+        principalDf = pd.DataFrame(data = principalComponents, columns = ['principal component 1', 'principal component 2'])
+    
+    
+        # concatenate with target label
+        finalDf = pd.concat([principalDf, y], axis = 1)
+        
+        print(pca.explained_variance_ratio_)
+    
+        fig = plt.figure(figsize = (8, 4))
+        sns.scatterplot(x = "principal component 1", y = "principal component 2", data = finalDf, hue = "label", alpha = 0.7, s = 100);
+        
+        plt.title('PCA on Genres', fontsize = 25)
+        plt.xticks(fontsize = 14)
+        plt.yticks(fontsize = 10);
+        plt.xlabel("Principal Component 1", fontsize = 15)
+        plt.ylabel("Principal Component 2", fontsize = 15)
+        
+        
+    else: 
+        pca = PCA(n_components=3)
+        principalComponents = pca.fit_transform(X)
+        principalDf = pd.DataFrame(data = principalComponents, columns = ['principal component 1', 'principal component 2','principal component 3'])
+    
+    
+        # concatenate with target label
+        finalDf = pd.concat([principalDf, y], axis = 1)
+        
+        print(pca.explained_variance_ratio_)
+    
+        fig = plt.figure(figsize = (8, 4))
+        ax = Axes3D(fig)
+    
+    
+        for grp_name, grp_idx in finalDf.groupby('label').groups.items():
+            y = finalDf.iloc[grp_idx,1]
+            x = finalDf.iloc[grp_idx,0]
+            z = finalDf.iloc[grp_idx,2]
+            ax.scatter(x,y,z, label=labels[grp_name])  # this way you can control color/marker/size of each group freely
+        ax.legend()
+        plt.title('PCA on IRIS', fontsize = 10)
+        plt.xticks(fontsize = 7)
+        plt.yticks(fontsize = 5);
+        ax.set_xlabel("Principal Component 1", fontsize = 7)
+        ax.set_ylabel("Principal Component 2", fontsize = 7)
+        ax.set_zlabel("Principal Component 3", fontsize = 7)
     plt.tight_layout()
     plt.show()
 if __name__ == '__main__':
