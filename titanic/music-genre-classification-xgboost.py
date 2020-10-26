@@ -33,14 +33,18 @@ general_path = r'D:\SpeechRecognition\DeepLearningForAudioWithPython-musikalkemi
 print(list(os.listdir(f'{general_path}/genres_original/')))
 
 def EDA():
-    data = pd.read_csv(f'{general_path}/features_30_sec.csv')
+    
+    #featrues_filename = 'features_3_sec.csv'       
+    featrues_filename = 'data_adv_3_sec_hccho.csv' 
+
+    data = pd.read_csv(f'{general_path}/{featrues_filename}')
     print(data.head())
     
     
     
     
     # Computing the Correlation Matrix
-    spike_cols = [col for col in data.columns if 'mean' in col]
+    spike_cols = [col for col in data.columns if 'mean' in col]   ################## 평균만....
     corr = data[spike_cols].corr()
     
     # Generate a mask for the upper triangle
@@ -66,9 +70,16 @@ def EDA():
 def PCA_analysis():
     from sklearn.decomposition import PCA
     from sklearn import preprocessing
+    from sklearn.manifold import TSNE
+    featrues_filename = 'features_3_sec.csv'       
+    #featrues_filename = 'data_adv_3_sec_no_var_hccho.csv' 
+    #featrues_filename = 'data_adv_3_sec_hccho.csv' 
 
-    data = pd.read_csv(f'{general_path}/features_30_sec.csv')
-    data = data.iloc[0:, 1:] 
+    data = pd.read_csv(f'{general_path}/{featrues_filename}')
+    print(data.head())
+    
+    
+    data = data.iloc[0:, 1:]  # filename, length 제외(?)
     print(data.head(5))
     
     y = data['label'] # genre variable.
@@ -93,18 +104,201 @@ def PCA_analysis():
     
     print(pca.explained_variance_ratio_)
 
-    plt.figure(figsize = (16, 9))
+    plt.figure(figsize = (16, 4))
+    plt.subplot(1,2,1)
     sns.scatterplot(x = "principal component 1", y = "principal component 2", data = finalDf, hue = "label", alpha = 0.7, s = 100);
     
+    plt.title('PCA on Genres', fontsize = 12)
+    plt.xticks(fontsize = 7)
+    plt.yticks(fontsize = 7);
+    plt.xlabel("Principal Component 1", fontsize = 7)
+    plt.ylabel("Principal Component 2", fontsize = 7)
+    
+    
+    #### t-SNE ####
+    # 시간이 좀 필요하다. perplexity,n_iter에 따라 결과가 달라진다.
+    
+    
+    tsne_embedding = TSNE(n_components=2,perplexity=20,verbose=1,n_iter=10000).fit_transform(X)  # return numpy array: (N, n_components)
+    tsneDf = pd.DataFrame(data = tsne_embedding, columns = ['tsne component 1', 'tsne component 2'])
+
+
+    # concatenate with target label
+    finalDf = pd.concat([tsneDf, y], axis = 1)    
+    
+    plt.subplot(1,2,2)
+    sns.scatterplot(x = "tsne component 1", y = "tsne component 2", data = finalDf, hue = "label", alpha = 0.7, s = 100);
+    
+    plt.title('t-SNE on Genres', fontsize = 12)
+    plt.xticks(fontsize = 7)
+    plt.yticks(fontsize = 7);
+    plt.xlabel("tsne Component 1", fontsize = 7)
+    plt.ylabel("tsne Component 2", fontsize = 7)    
+    
+    
+    
+    plt.savefig("PCA-tsne Scattert.jpg")
+    plt.show()
+
+
+def PCA_analysis2():
+    # PCA & 3D scatter
+    from sklearn.decomposition import PCA
+    from sklearn import preprocessing
+    from mpl_toolkits.mplot3d import Axes3D
+
+
+
+    def get_cmap(n, name='hsv'):
+        '''Returns a function that maps each index in 0, 1, ..., n-1 to a distinct 
+        RGB color; the keyword argument name must be a standard mpl colormap name.'''
+        return plt.cm.get_cmap(name, n)
+
+
+    featrues_filename = 'features_3_sec.csv'       
+    #featrues_filename = 'data_adv_3_sec_no_var_hccho.csv' 
+    #featrues_filename = 'data_adv_3_sec_hccho.csv' 
+
+    data = pd.read_csv(f'{general_path}/{featrues_filename}')
+    print(data.head())
+    
+    
+    data = data.iloc[0:, 1:] 
+    print(data.head(5))
+    
+    y = data['label'] # genre variable.
+    X = data.loc[:, data.columns != 'label'] #select all columns but not the labels
+
+
+    #### NORMALIZE X ####
+    cols = X.columns
+    min_max_scaler = preprocessing.MinMaxScaler()
+    np_scaled = min_max_scaler.fit_transform(X)
+    X = pd.DataFrame(np_scaled, columns = cols)
+
+
+    #### PCA 3 COMPONENTS ####
+    pca = PCA(n_components=3)
+    principalComponents = pca.fit_transform(X)
+    principalDf = pd.DataFrame(data = principalComponents, columns = ['principal component 1', 'principal component 2','principal component 3'])
+
+
+    # concatenate with target label
+    finalDf = pd.concat([principalDf, y], axis = 1)
+    
+    print(pca.explained_variance_ratio_)
+
+    fig = plt.figure(figsize = (16, 9))
+    ax = Axes3D(fig)
+
+
+    for grp_name, grp_idx in finalDf.groupby('label').groups.items():
+        y = finalDf.iloc[grp_idx,1]
+        x = finalDf.iloc[grp_idx,0]
+        z = finalDf.iloc[grp_idx,2]
+        ax.scatter(x,y,z, label=grp_name)  # this way you can control color/marker/size of each group freely
+    ax.legend()
     plt.title('PCA on Genres', fontsize = 25)
     plt.xticks(fontsize = 14)
     plt.yticks(fontsize = 10);
-    plt.xlabel("Principal Component 1", fontsize = 15)
-    plt.ylabel("Principal Component 2", fontsize = 15)
-    plt.savefig("PCA Scattert.jpg")
+    ax.set_xlabel("Principal Component 1", fontsize = 15)
+    ax.set_ylabel("Principal Component 2", fontsize = 15)
+    ax.set_zlabel("Principal Component 3", fontsize = 15)
+
     plt.show()
+
+
+def tsne_analysis():
+    # t-Stochastic Nearest Neighbor 설명: https://lovit.github.io/nlp/representation/2018/09/28/tsne/
+    from sklearn import preprocessing
+    from sklearn.manifold import TSNE
+    
+    featrues_filename = 'features_3_sec.csv'       
+    #featrues_filename = 'data_adv_3_sec_no_var_hccho.csv' 
+    #featrues_filename = 'data_adv_3_sec_hccho.csv' 
+
+    data = pd.read_csv(f'{general_path}/{featrues_filename}')
+    print(data.head())
     
     
+    data = data.iloc[0:, 1:] 
+    print(data.head(5))
+    
+    y = data['label'] # genre variable.
+    X = data.loc[:, data.columns != 'label'] #select all columns but not the labels
+
+
+    #### NORMALIZE X ####
+    cols = X.columns
+    min_max_scaler = preprocessing.MinMaxScaler()
+    np_scaled = min_max_scaler.fit_transform(X)
+    X = pd.DataFrame(np_scaled, columns = cols)
+    print(X.shape, X.iloc[:,:2])
+    
+    tsne_embedding = TSNE(n_components=2,perplexity=15,verbose=1,n_iter=10000).fit_transform(X)  # return numpy array: (N, n_components)
+    
+    print('Done')
+
+
+def umap_analysis():
+    from sklearn import preprocessing
+    import umap.umap_ as umap   # pip install umap-learn, pip install ipywidgets
+    
+    
+    featrues_filename = 'features_30_sec.csv'       
+    #featrues_filename = 'data_adv_3_sec_no_var_hccho.csv' 
+    #featrues_filename = 'data_adv_3_sec_hccho.csv' 
+
+    data = pd.read_csv(f'{general_path}/{featrues_filename}')
+    #data = data[data.filename.apply(lambda x: x.split(".")[-2]=='0')].copy().reset_index(drop=True)  # 파일당 10개 중 1개만....
+    
+    print(data.shape, data.head())
+    
+    
+    data = data.iloc[0:, 1:] 
+    print(data.head(5))
+    
+    y = data['label'] # genre variable.
+    X = data.loc[:, data.columns != 'label'] #select all columns but not the labels
+
+
+    #### NORMALIZE X ####
+    cols = X.columns
+    standard_scaler = preprocessing.StandardScaler()
+    np_scaled = standard_scaler.fit_transform(X)
+    X = pd.DataFrame(np_scaled, columns = cols)
+    print(X.shape, X.iloc[:,:2])    
+
+
+    umap_embedding = umap.UMAP(n_neighbors=15, min_dist=0.02, n_epochs=5000, metric='correlation',n_components=2, verbose=True).fit_transform(X)  # return numpy array (N,n_components)
+
+
+    umapDf = pd.DataFrame(data = umap_embedding, columns = ['umap component 1', 'umap component 2'])
+
+
+    # concatenate with target label
+    finalDf = pd.concat([umapDf, y], axis = 1)    
+    
+    sns.scatterplot(x = "umap component 1", y = "umap component 2", data = finalDf, hue = "label", alpha = 0.7, s = 100);
+    
+    plt.title('umap on Genres', fontsize = 12)
+    plt.xticks(fontsize = 7)
+    plt.yticks(fontsize = 7);
+    plt.xlabel("umap Component 1", fontsize = 7)
+    plt.ylabel("umap Component 2", fontsize = 7)    
+    
+    
+    plt.show()
+    print('Done')
+
+
+
+
+
+
+
+
+
 
 def model_assess(model, title = "Default"):
     model.fit(X_train, y_train)
@@ -130,13 +324,13 @@ def xgboost_train():
     from sklearn.model_selection import train_test_split
     from sklearn.feature_selection import RFE
 
+    #featrues_filename = 'features_3_sec.csv'       # Test Accuracy: 0.90224
+    #featrues_filename = 'data_adv_3_sec_no_var_hccho.csv'  # 실수로 mfcc_var를 빼먹고 만들었다. Test Accuracy: 0.96663  
+    featrues_filename = 'data_adv_3_sec_hccho.csv' # Test Accuracy : 0.95762
 
-
-
-
-    data = pd.read_csv(f'{general_path}/features_3_sec.csv')
+    data = pd.read_csv(f'{general_path}/{featrues_filename}')
     data = data.iloc[0:, 1:] 
-    print(data.head(5))
+    print(data.shape, data.head(5))
     
     y = data['label'] # genre variable.
     X = data.loc[:, data.columns != 'label'] #select all columns but not the labels
@@ -161,7 +355,7 @@ def xgboost_train():
     
     preds = xgb.predict(X_test)   # array(['hiphop', 'jazz', 'blues', ....],dtype=object)
     
-    print('Accuracy', ':', round(accuracy_score(y_test, preds), 5), '\n')
+    print('Test Accuracy', ':', round(accuracy_score(y_test, preds), 5), '\n')
     
     # Confusion Matrix
     confusion_matr = confusion_matrix(y_test, preds) #normalize = 'true'  ---> confusion_matr: numpy array
@@ -197,9 +391,13 @@ def load_and_feature_analysis():
     import eli5  # pip install eli5
     from eli5.sklearn import PermutationImportance
     
-    data = pd.read_csv(f'{general_path}/features_3_sec.csv')
-    data = data.iloc[0:, 1:] 
-    print(data.head(5))
+    #featrues_filename = 'features_3_sec.csv'       # Test Accuracy: 0.90224
+    #featrues_filename = 'data_adv_3_sec_no_var_hccho.csv'  # 실수로 mfcc_var를 빼먹고 만들었다. Test Accuracy: 0.96663  
+    featrues_filename = 'data_adv_3_sec_hccho.csv' # Test Accuracy : 0.95762   
+    
+    data = pd.read_csv(f'{general_path}/{featrues_filename}')
+    data = data.iloc[0:, 1:] # 첫번째 column은 파일 이름이므로, 버린다.
+    print(data.shape, data.head(5))
     
     y = data['label'] # genre variable.
     X = data.loc[:, data.columns != 'label'] #select all columns but not the labels
@@ -235,7 +433,7 @@ def load_and_feature_analysis():
     
     # return  되는 값은 정확도의 변화이다. 한번만 simulation하는 것이 아니므로, +/-가 있다.
     weights = eli5.show_weights(estimator=perm, feature_names = X_test.columns.tolist())    #### weights.data가 string인데, 내용은 html형식.
-    with open('weights.htm','wb') as f:
+    with open('Permutation_Importance.htm','wb') as f:
         f.write(weights.data.encode("UTF-8"))
 
 
@@ -248,9 +446,13 @@ def lightgbm_test():
     from sklearn.metrics import confusion_matrix, accuracy_score, roc_auc_score, roc_curve
     
     
-    data = pd.read_csv(f'{general_path}/features_3_sec.csv')
+    #featrues_filename = 'features_3_sec.csv'       # Test Accuracy: 0.92192
+    featrues_filename = 'data_adv_3_sec_no_var_hccho.csv'  # 실수로 mfcc_var를 빼먹고 만들었다. Test Accuracy: 0.97931  
+    #featrues_filename = 'data_adv_3_sec_hccho.csv' # Test Accuracy : 0.97064
+
+    data = pd.read_csv(f'{general_path}/{featrues_filename}')
     data = data.iloc[0:, 1:] 
-    print(data.head(5))
+    print(data.shape, data.head(5))
     
     y = data['label'] # genre variable.
     X = data.loc[:, data.columns != 'label'] #select all columns but not the labels
@@ -286,12 +488,22 @@ def lightgbm_test():
 
 
 
+
+
+
+
+
 if __name__ == '__main__':
     #EDA()
     #PCA_analysis()
+    #PCA_analysis2()
+    #tsne_analysis()
+    umap_analysis()
+    
     #xgboost_train()
     #load_and_feature_analysis()
-    lightgbm_test()
+    #lightgbm_test()
+    
     
     print('Done')
 
