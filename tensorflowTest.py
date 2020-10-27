@@ -1058,6 +1058,39 @@ def Make_Batch():
             except tf.errors.OutOfRangeError:
                 break
 #############################################################
+#X = np.random.randn(4,2)
+X = np.ones((4,2)).astype(np.float32)
+Y = np.random.randint(4,size=(4))
+
+train_dataset = tf.data.Dataset.from_tensor_slices((X, Y))
+train_dataset = train_dataset.shuffle(buffer_size=10)
+train_dataset = train_dataset.batch(batch_size=2,drop_remainder=True)
+train_dataset = train_dataset.repeat(2)
+
+def mapping_fn(X,Y):
+    #print(X.shape)
+	# X, Y는 tensor
+    X = tf.random.normal(X.shape) + X
+    return X,Y
+
+
+
+train_dataset = train_dataset.map(mapping_fn) # epoch마다 다른 random이 적용된다. pytorch로 다르다.
+
+
+
+iterator = iter(train_dataset)
+
+for i in range(4):
+    x,y = iterator.get_next()
+    
+    print(x, y)
+
+
+
+
+
+##############################################################
 def mapping_fn(a,b):
     # a,b는 tensor이다.
     print('----',a,b)
