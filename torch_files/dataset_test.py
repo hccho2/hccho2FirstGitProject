@@ -12,7 +12,9 @@ from torch.utils.data import TensorDataset, Dataset DataLoader
 DataLoader에서 num_workers > 0일 때는 code에  __main__이 있어야 한다.   -----> drop_last의 default는 False이다.
    ---> SubsetRandomSampler,WeightedRandomSampler 같은 sampler를 넣어 줄 수도 있다. 
 
-data생성에 randomness가 있으면, 첫번째 epoch에서 randomness가 반영된다. ---> 다음 epoch은 첫번째 epoch에서 정해진 random을 그래로 반복한다.
+data생성(__init))에 randomness가 있으면, 첫번째 epoch에서 randomness가 반영된다. ---> 다음 epoch은 첫번째 epoch에서 정해진 random을 그래로 반복한다.
+
+collate_fn에서 randomness를 주면, 매 epoch마다 다른 data가 생성된다.
 
 '''
 
@@ -66,6 +68,8 @@ def Mycollate_fn(batch):
     x, y = zip(*batch)
     
     #return torch.cat([t.unsqueeze(0) for t in x], 0), torch.cat([t.unsqueeze(0) for t in y], 0)
+    for t in x:
+        t += torch.rand(t.shape)
     return pad_sequence(x,batch_first=True,padding_value=99), torch.stack(y)
     
 
@@ -151,9 +155,9 @@ def test3():
 
 if __name__ == '__main__':
 
-    #test1()
+    test1()
     #test2()
-    test3()
+    #test3()
     
     print('Done')
     
