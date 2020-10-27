@@ -612,8 +612,26 @@ ax.legend()
 plt.show()
 
 ##########################################################
+# word2vec tsne로 그릴때....
+import numpy as np
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(5, 5))  # in inches
+
+low_dim_embs = np.random.randn(5,2)
+labels = ['a','h','Z','dd','pq']
+for i, label in enumerate(labels):
+    x, y = low_dim_embs[i, :]
+    plt.scatter(x, y)
+    plt.annotate(label,xy=(x, y),
+        xytext=(5, 2),  # 점에서 text가 위치할 상대적 위치
+        textcoords='offset points',fontsize=10)
 
 
+
+plt.annotate('Median', xy=(low_dim_embs[0,0],low_dim_embs[0,1]), xytext=(0,-100),textcoords='offset points',
+            fontsize=10, ha='center',
+            arrowprops=dict(facecolor='black', width=1, shrink=0.1, headwidth=10))
 ##########################################################
 
 
