@@ -1900,7 +1900,8 @@ dirs = [f for f in os.listdir(train_audio_path) if os.path.isdir(os.path.join(tr
 dirs = glob.glob(os.path.join(train_audio_path,'*/'))  # 
 
 =====================================================================================
-
+x = np.array([3,5,1,4])
+x[[False,True,False,True]]  # ===> [5,4] 
 
 
 =====================================================================================
