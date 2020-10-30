@@ -648,7 +648,19 @@ for i, (spectrogram, label_id) in enumerate(spectrogram_ds.take(n)):
 plt.show()
 
 ##########################################################
+data = np.array([[-10,-2,3,4],[-2,6,7,-10]])
 
+plt.subplot(2,1,1)
+plt.imshow(data)
+plt.colorbar()
+
+plt.subplot(2,1,2)
+
+
+x=[2,3,4]
+y=[10,15,17,30,50]
+plt.pcolormesh(y,x,data)  # y: 가로축(axis=1), x: 세로축(axis=0)
+plt.colorbar()
 
 ##########################################################
 
