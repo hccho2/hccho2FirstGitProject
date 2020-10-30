@@ -633,7 +633,19 @@ plt.annotate('Median', xy=(low_dim_embs[0,0],low_dim_embs[0,1]), xytext=(0,-100)
             fontsize=10, ha='center',
             arrowprops=dict(facecolor='black', width=1, shrink=0.1, headwidth=10))
 ##########################################################
+rows = 3
+cols = 3
+n = rows*cols
+fig, axes = plt.subplots(rows, cols, figsize=(7, 7))  # subplt 각각의 fig, axes
+for i, (spectrogram, label_id) in enumerate(spectrogram_ds.take(n)):
+    r = i // cols
+    c = i % cols
+    ax = axes[r][c]
+    plot_spectrogram(np.squeeze(spectrogram.numpy()), ax)
+    ax.set_title(commands[label_id.numpy()])   # label_id = 6 ---> commands[6] ---> 'up'
+    ax.axis('off')
 
+plt.show()
 
 ##########################################################
 
