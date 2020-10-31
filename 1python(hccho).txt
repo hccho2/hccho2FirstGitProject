@@ -1871,8 +1871,11 @@ data_files = glob(os.path.join(data_dir,'eval','*.txt'))
 
 =====================================================================================
 os.environ['USERPROFILE']     ====> 'C:\\Users\\BRAIN'
-os.path.join(os.environ['USERPROFILE'], r'AppData\Local\Microsoft\Windows\Fonts\NanumGothic-Regular.ttf')
 
+os.path.expanduser("~")    ===> 'C:\\Users\\BRAIN'
+
+
+os.path.join(os.environ['USERPROFILE'], r'AppData\Local\Microsoft\Windows\Fonts\NanumGothic-Regular.ttf')
 
 cmd 창에서는 
 > echo %USERPROFILE%
