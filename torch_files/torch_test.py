@@ -46,6 +46,7 @@ nn.Parameter(torch.empty(3, 2))  # trainable Tensor
 
 
 ------
+optimizer = optim.Adam(net.parameters(),lr=lr) 
 with torch.no_grad():
     traget = ...
 
