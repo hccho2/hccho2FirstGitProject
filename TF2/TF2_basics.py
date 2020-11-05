@@ -420,10 +420,12 @@ def mode_test():
 
 
 def load_data():
+    # tf.keras.mnist, cifar10, cifar100, imdb, reuters, boston_housing
     (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()  # C:\Users\MarketPoint\.keras\datasets\mnist.npz  (11M)
     
-    print(x_train.shape,y_train.shape, x_test.shape, y_test.shape)   # (60000, 28, 28) (60000,) (10000, 28, 28) (10000,)
-    
+    print(x_train.shape,y_train.shape, x_test.shape, y_test.shape)   # numpy array - uint8, (60000, 28, 28) (60000,) (10000, 28, 28) (10000,)
+    x_train = x_train.reshape(60000, 784).astype("float32") / 255
+    x_test = x_test.reshape(10000, 784).astype("float32") / 255    
 
 if __name__ == "__main__":    
     #embeddidng_test()
