@@ -283,6 +283,7 @@ def model_load_checkpoint():
     print('predict: ', model.predict(X))
     
 def keras_standard_model2():  # tf.keras.Input 사용
+    # functional API라 부른다. <----> sequential API(tf.keras.Sequential or tf.keras.models.Sequential)
     batch_size = 2
     input_dim = 3
     
@@ -417,10 +418,17 @@ def mode_test():
     print('train mode: ', model2(x)) # training=None이 들어간다.  ---> K.learning_phase() = 0이다  ----> dropout=off
     print('eval mode: ',model2.evaluate(x,y))  # training=False가 적용되어 있기 때문에 위에서 계산한 loss값과 일치한다.
 
+
+def load_data():
+    (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()  # C:\Users\MarketPoint\.keras\datasets\mnist.npz  (11M)
+    
+    print(x_train.shape,y_train.shape, x_test.shape, y_test.shape)   # (60000, 28, 28) (60000,) (10000, 28, 28) (10000,)
+    
+
 if __name__ == "__main__":    
     #embeddidng_test()
     #simple_model()
-    keras_standard_model()   # ---> model_load_test
+    #keras_standard_model()   # ---> model_load_test
     
     #model_load_test()
     #model_load_checkpoint()
@@ -428,3 +436,4 @@ if __name__ == "__main__":
     #keras_standard_model3()
     #mode_test()
 
+    load_data()
