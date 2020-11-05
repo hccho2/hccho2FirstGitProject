@@ -170,6 +170,8 @@ def test0():
     y2 = torch.Tensor(w)  # torch.float32
     
     z = torch.Tensor(2,3)  # torch.empyt(2,3)과 동일. Returns a tensor filled with uninitialized data
+    x = torch.tensor(57.4249)
+    x.cpu().item() ----> 57.4249
 def test1():
     print(torch.__version__)
     
