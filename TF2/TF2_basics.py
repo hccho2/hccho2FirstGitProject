@@ -54,10 +54,35 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tensorflow.keras.initializers import Constant
 import tensorflow.keras.backend as K
+import time
 print(tf.__version__)
 print('gpu available?', tf.test.is_gpu_available())
 
+def plot_history(history):
+    """Plots accuracy/loss for training/validation set as a function of the epochs
 
+        :param history: Training history of model
+        :return:
+    """
+
+    fig, axs = plt.subplots(2)
+
+    # create accuracy sublpot
+    axs[0].plot(history.history["accuracy"], label="train accuracy")
+    axs[0].plot(history.history["val_accuracy"], label="test accuracy")
+    axs[0].set_ylabel("Accuracy")
+    axs[0].legend(loc="lower right")
+    axs[0].set_title("Accuracy eval")
+
+    # create error sublpot
+    axs[1].plot(history.history["loss"], label="train error")
+    axs[1].plot(history.history["val_loss"], label="test error")
+    axs[1].set_ylabel("Error")
+    axs[1].set_xlabel("Epoch")
+    axs[1].legend(loc="upper right")
+    axs[1].set_title("Error eval")
+
+    plt.show()
 
 def embeddidng_test():
     embedding_dim =5
@@ -153,6 +178,8 @@ def simple_model():
 
 
 def keras_standard_model():
+    import tensorflow_addons as tfa
+    tqdm_callback = tfa.callbacks.TQDMProgressBar()
     batch_size = 2
     input_dim = 3
     model = tf.keras.models.Sequential()
@@ -193,7 +220,9 @@ def keras_standard_model():
         # data를 X,Y를 batch_size로 나누어서 epochs만큼 train
         #model.fit(X,Y,batch_size=batch_size, epochs=5,verbose=1) # Verbosity mode. 0 = silent, 1 = progress bar, 2 = one line per epoch
         
-        model.fit(X,Y,batch_size=batch_size, epochs=5,verbose=1,validation_split=0.1)
+        #model.fit(X,Y,batch_size=batch_size, epochs=5,verbose=1,validation_split=0.1)
+        
+        model.fit(X,Y,batch_size=batch_size, epochs=5,verbose=0,validation_split=0.1,callbacks=[tqdm_callback])
     else:
         # dataset 자체에 batch_size가 정해져 있기 때문에, 몇 step을 1epoch으로 볼 것인가 지정(steps_per_epoch)
         # data가 부족하면, 지정한 epoch을 다 채우지 못한채 끝낸다.
@@ -201,11 +230,12 @@ def keras_standard_model():
         #model.fit(dataset, epochs=5,verbose=1, steps_per_epoch = 10)
         
         
-        history = model.fit(dataset, epochs=5,verbose=1, steps_per_epoch = 10,validation_data=validation_dataset,validation_freq=1)  # validation_freq는 epoch단위
+        history = model.fit(dataset, epochs=5,verbose=1, steps_per_epoch = 25,validation_data=validation_dataset,validation_freq=1)  # validation_freq는 epoch단위
         plt.plot(history.history['loss'],label="train loss")
         plt.plot(history.history['val_loss'],label="val loss")
         plt.legend()  # plt.legend(loc="upper right")
         plt.show()
+
     
     
     print(X,Y)
@@ -354,10 +384,82 @@ def keras_standard_model3():
     print(X1,X2,Y)
     print(model.predict([X1,X2]))
 
+def keras_standard_model4():
+    batch_size = 10
+    input_dim = 3
+    
+    inputs = tf.keras.Input(shape=(input_dim,))  # 구제적인 입력 data없이 ---> placeholder같은 ...
+    
+    L1 = tf.keras.layers.Dense(units=100,input_dim=3,activation='relu')
+    L2 = tf.keras.layers.Dense(units=1,activation=None)
+    
+    outputs = L2(L1(inputs))
+    
+    model = tf.keras.Model(inputs = inputs,outputs = outputs)
+    print(model.summary())
 
+
+    loss_fn_mode=2
+    if loss_fn_mode==1:
+        def loss_fn(y_true,y_pred):
+            return  K.mean(K.square(y_pred-y_true))
+    else:
+        loss_fn = tf.keras.losses.MeanSquaredError()  # output dim에 대하여 평균을 취한후, 다시 batch에 대하여 평균을 취한다.
+    
+    optimizer = tf.keras.optimizers.Adam(lr=0.01)
+    
+    # train용 data
+    X = tf.random.normal(shape=(100, input_dim))
+    Y = tf.random.normal(shape=(100, 1))
+    
+    dataset = tf.data.Dataset.from_tensor_slices((X, Y))  # 여기의 argument가 mapping_fn의 argument가 된다.
+    dataset = dataset.shuffle(buffer_size=batch_size*10)
+    dataset = dataset.batch(batch_size,drop_remainder=False)
+
+
+
+
+
+    n_epoch= 500
+    
+    
+    s_time = time.time()
+    mode = 1
+    if mode ==1:
+        for e in range(n_epoch):
+            for i,(x,y) in enumerate(dataset):
+                with tf.GradientTape() as tape:
+                    pred = model(x)
+                    loss = loss_fn(y,pred)
+                gradients = tape.gradient(loss, model.trainable_variables)    
+                optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+                print('loss: {}'.format(loss))
+                
+            print('====', e)
+    else:
+        # train 속도가 빠르다.
+        train_step_signature = [tf.TensorSpec(shape=(batch_size, input_dim), dtype=tf.float32),tf.TensorSpec(shape=(batch_size, 1), dtype=tf.float32)]
+        @tf.function(input_signature=train_step_signature)
+        def train_step(inp, tar):
+            with tf.GradientTape() as tape:
+                pred = model(inp)
+                loss = loss_fn(tar,pred)
+            gradients = tape.gradient(loss, model.trainable_variables)    
+            optimizer.apply_gradients(zip(gradients, model.trainable_variables))         
+            return loss
+            
+            
+        for e in range(n_epoch):
+            for i,(x,y) in enumerate(dataset):
+                loss = train_step(x,y)
+                print('loss: {}'.format(loss))
+                
+            print('====', e)        
+        
+    print('elapsed: {:.3f}'.format(time.time()-s_time))
 
 def mode_test():
-    # 
+    # train mode, eval mode 
     mode = 2
     if mode == 1:
         class MyModel(tf.keras.Model):
@@ -418,7 +520,6 @@ def mode_test():
     print('train mode: ', model2(x)) # training=None이 들어간다.  ---> K.learning_phase() = 0이다  ----> dropout=off
     print('eval mode: ',model2.evaluate(x,y))  # training=False가 적용되어 있기 때문에 위에서 계산한 loss값과 일치한다.
 
-
 def load_data():
     # tf.keras.mnist, cifar10, cifar100, imdb, reuters, boston_housing
     (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()  # C:\Users\MarketPoint\.keras\datasets\mnist.npz  (11M)
@@ -436,6 +537,8 @@ if __name__ == "__main__":
     #model_load_checkpoint()
     #keras_standard_model2()
     #keras_standard_model3()
+    keras_standard_model4()
     #mode_test()
 
-    load_data()
+    #load_data()
+
