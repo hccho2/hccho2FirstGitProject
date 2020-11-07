@@ -385,7 +385,7 @@ def keras_standard_model3():
     print(model.predict([X1,X2]))
 
 def keras_standard_model4():
-    batch_size = 10
+    batch_size = 50
     input_dim = 3
     
     inputs = tf.keras.Input(shape=(input_dim,))  # 구제적인 입력 data없이 ---> placeholder같은 ...
@@ -413,7 +413,7 @@ def keras_standard_model4():
     Y = tf.random.normal(shape=(100, 1))
     
     dataset = tf.data.Dataset.from_tensor_slices((X, Y))  # 여기의 argument가 mapping_fn의 argument가 된다.
-    dataset = dataset.shuffle(buffer_size=batch_size*10)
+    dataset = dataset.shuffle(buffer_size=batch_size*10).repeat(2)   # repeat(2)하면 2epoch을 1epoch취급. repeat() --> 무한 반복
     dataset = dataset.batch(batch_size,drop_remainder=False)
 
 
