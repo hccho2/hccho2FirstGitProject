@@ -2617,7 +2617,23 @@ saver.restore(sess, 'path')
 ###############################################	
 from sklearn.model_selection import train_test_split
 ###############################################
-	
+y_pred = np.random.randn(3,4)
+
+reduction = tf.keras.losses.Reduction.NONE
+#reduction = tf.keras.losses.Reduction.SUM
+#reduction = None
+if reduction:
+    mse = tf.keras.losses.MeanSquaredError(reduction=reduction)
+else:
+     mse = tf.keras.losses.MeanSquaredError()
+
+print(mse(y_true, y_pred))
+
+print(np.sum(np.mean(np.square(y_true-y_pred),axis=-1))) # reduction=tf.keras.losses.Reduction.SUM
+print(np.mean(np.mean(np.square(y_true-y_pred),axis=-1))) # default
+
+# tf.keras.losses.Reduction.NONE --> output dim에 대해서만 제곱하여 평균한다. batch는 그래도 남겨둔다.
+print(np.mean(np.square(y_true-y_pred),axis=-1))  
 ###############################################
 
 		       
