@@ -388,14 +388,32 @@ def keras_standard_model4():
     batch_size = 50
     input_dim = 3
     
-    inputs = tf.keras.Input(shape=(input_dim,))  # 구제적인 입력 data없이 ---> placeholder같은 ...
     
-    L1 = tf.keras.layers.Dense(units=100,input_dim=3,activation='relu')
-    L2 = tf.keras.layers.Dense(units=1,activation=None)
+    model_mode=2
     
-    outputs = L2(L1(inputs))
+    if model_mode ==1:
+        inputs = tf.keras.Input(shape=(input_dim,))  # 구제적인 입력 data없이 ---> placeholder같은 ...
+        L1 = tf.keras.layers.Dense(units=100,input_dim=3,activation='relu')
+        L2 = tf.keras.layers.Dense(units=1,activation=None)
+        
+        outputs = L2(L1(inputs))
+        model = tf.keras.Model(inputs = inputs,outputs = outputs)
     
-    model = tf.keras.Model(inputs = inputs,outputs = outputs)
+    else:
+        class MyModel(tf.keras.Model):
+            def __init__(self):
+                super(MyModel, self).__init__()
+                
+                self.L1 = tf.keras.layers.Dense(units=100,input_dim=3,activation='relu')
+                self.L2 = tf.keras.layers.Dense(units=1,activation=None)
+            def call(self,x,training=True):
+                output = self.L1(x)
+                output = self.L2(output)
+                return output
+    
+        model = MyModel()
+        model.build(input_shape=(None,input_dim))
+    
     print(model.summary())
 
 
@@ -424,12 +442,12 @@ def keras_standard_model4():
 
 
 
-    n_epoch= 500
+    n_epoch= 100
     
     
     s_time = time.time()
-    mode = 1
-    if mode ==1:
+    train_mode = 1
+    if train_mode ==1:
         for e in range(n_epoch):
             for i,(x,y) in enumerate(dataset):
                 with tf.GradientTape() as tape:
