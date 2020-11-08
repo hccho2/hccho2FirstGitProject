@@ -55,6 +55,7 @@ import matplotlib.pyplot as plt
 from tensorflow.keras.initializers import Constant
 import tensorflow.keras.backend as K
 import time
+from tqdm import tqdm
 print(tf.__version__)
 print('gpu available?', tf.test.is_gpu_available())
 
@@ -435,20 +436,20 @@ def keras_standard_model4():
     Y = tf.random.normal(shape=(100, 1))
     
     dataset = tf.data.Dataset.from_tensor_slices((X, Y))  # 여기의 argument가 mapping_fn의 argument가 된다.
-    dataset = dataset.shuffle(buffer_size=batch_size*10).repeat(2)   # repeat(2)하면 2epoch을 1epoch취급. repeat() --> 무한 반복
+    dataset = dataset.shuffle(buffer_size=batch_size*10).repeat(20)   # repeat(2)하면 2epoch을 1epoch취급. repeat() --> 무한 반복
     dataset = dataset.batch(batch_size,drop_remainder=False)
 
 
 
 
 
-    n_epoch= 100
+    n_epoch= 10
     
     
     s_time = time.time()
     train_mode = 1
-    if train_mode ==1:
-        for e in range(n_epoch):
+    if train_mode ==0:
+        for e in tqdm(range(n_epoch)):
             for i,(x,y) in enumerate(dataset):
                 with tf.GradientTape() as tape:
                     pred = model(x)
@@ -457,6 +458,25 @@ def keras_standard_model4():
                 optimizer.apply_gradients(zip(gradients, model.trainable_variables))
                 train_loss(loss)
                 print('loss: {}, loss mean metric: {}'.format(loss, train_loss.result()))
+            
+            train_loss.reset_states()
+            print('====', e)
+    elif train_mode ==1:
+        for e in range(n_epoch):
+            n_step = len(dataset)
+            with tqdm(total=n_step,ncols=150) as pbar: 
+                for i,(x,y) in enumerate(dataset):
+                    time.sleep(1)
+                    with tf.GradientTape() as tape:
+                        pred = model(x)
+                        loss = loss_fn(y,pred)
+                    gradients = tape.gradient(loss, model.trainable_variables)    
+                    optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+                    train_loss(loss)
+                    
+                    if i%2==0:
+                        pbar.set_description('loss: {}, loss mean metric: {}'.format(loss, train_loss.result()))
+                        pbar.update(2)
             
             train_loss.reset_states()
             print('====', e)
@@ -565,4 +585,8 @@ if __name__ == "__main__":
     #mode_test()
 
     #load_data()
+
+
+
+
 
