@@ -408,6 +408,10 @@ def keras_standard_model4():
     
     optimizer = tf.keras.optimizers.Adam(lr=0.01)
     
+    # metric을 추가할 수 있다.
+    train_loss = tf.keras.metrics.Mean(name='train_loss')  # train_loss.reset_states()
+    
+    
     # train용 data
     X = tf.random.normal(shape=(100, input_dim))
     Y = tf.random.normal(shape=(100, 1))
@@ -433,8 +437,10 @@ def keras_standard_model4():
                     loss = loss_fn(y,pred)
                 gradients = tape.gradient(loss, model.trainable_variables)    
                 optimizer.apply_gradients(zip(gradients, model.trainable_variables))
-                print('loss: {}'.format(loss))
-                
+                train_loss(loss)
+                print('loss: {}, loss mean metric: {}'.format(loss, train_loss.result()))
+            
+            train_loss.reset_states()
             print('====', e)
     else:
         # train 속도가 빠르다.
