@@ -415,7 +415,7 @@ def keras_standard_model4():
         model = MyModel()
         model.build(input_shape=(None,input_dim))
     
-    print(model.summary())
+    model.summary()  # print(model.summay()) ---> 불필요한 None이 덧붙어서 출력된다.
 
 
     loss_fn_mode=2
@@ -447,7 +447,7 @@ def keras_standard_model4():
     
     
     s_time = time.time()
-    train_mode = 1
+    train_mode = 3
     if train_mode ==0:
         for e in tqdm(range(n_epoch)):
             for i,(x,y) in enumerate(dataset):
@@ -462,8 +462,8 @@ def keras_standard_model4():
             train_loss.reset_states()
             print('====', e)
     elif train_mode ==1:
+        n_step = len(dataset)
         for e in range(n_epoch):
-            n_step = len(dataset)
             with tqdm(total=n_step,ncols=150) as pbar: 
                 for i,(x,y) in enumerate(dataset):
                     time.sleep(1)
@@ -480,7 +480,7 @@ def keras_standard_model4():
             
             train_loss.reset_states()
             print('====', e)
-    else:
+    elif train_mode==2:
         # train 속도가 빠르다.
         train_step_signature = [tf.TensorSpec(shape=(batch_size, input_dim), dtype=tf.float32),tf.TensorSpec(shape=(batch_size, 1), dtype=tf.float32)]
         @tf.function(input_signature=train_step_signature)
@@ -499,7 +499,30 @@ def keras_standard_model4():
                 print('loss: {}'.format(loss))
                 
             print('====', e)        
-        
+    else:
+        # train 속도가 빠르다.
+        train_step_signature = [tf.TensorSpec(shape=(batch_size, input_dim), dtype=tf.float32),tf.TensorSpec(shape=(batch_size, 1), dtype=tf.float32)]
+        @tf.function(input_signature=train_step_signature)
+        def train_step(inp, tar):
+            with tf.GradientTape() as tape:
+                pred = model(inp)
+                loss = loss_fn(tar,pred)
+            gradients = tape.gradient(loss, model.trainable_variables)    
+            optimizer.apply_gradients(zip(gradients, model.trainable_variables))         
+            return loss
+            
+        n_step = len(dataset) 
+        for e in range(n_epoch):
+            with tqdm(total=n_step,ncols=150) as pbar: 
+                for i,(x,y) in enumerate(dataset):
+                    time.sleep(1)
+                    loss = train_step(x,y)
+                    train_loss(loss)
+                    if i%2==0:
+                        pbar.set_description('loss: {:.4f}, loss mean metric: {:.4f}'.format(loss, train_loss.result()))
+                        pbar.update(2)
+            train_loss.reset_states()
+            print('====', e)            
     print('elapsed: {:.3f}'.format(time.time()-s_time))
 
 def mode_test():
