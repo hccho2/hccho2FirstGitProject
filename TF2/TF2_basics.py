@@ -475,7 +475,7 @@ def keras_standard_model4():
                     train_loss(loss)
                     
                     if i%2==0:
-                        pbar.set_description('loss: {}, loss mean metric: {}'.format(loss, train_loss.result()))
+                        pbar.set_description('loss: {:.4f}, loss mean metric: {:.4f}'.format(loss, train_loss.result()))
                         pbar.update(2)
             
             train_loss.reset_states()
