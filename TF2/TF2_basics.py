@@ -535,7 +535,8 @@ def mode_test():
                 
                 self.dropout = tf.keras.layers.Dropout(0.5)
                 self.dense = tf.keras.layers.Dense(1,name='hccho')
-            def call(self,x,training=True):
+            def call(self,x,training=None):
+                # training의 default값으로 None이 되어야 한다.
                 # tf.keras.Model을 통해서 간접적으로 call 될 때는, training=None이 들어온다. ===> training= K.learning_phase()가 내부적으로 적용된다.
                 return self.dense(self.dropout(x, training = training))
 
@@ -586,7 +587,8 @@ def mode_test():
     print('='*40)
     print('='*40)
     
-    print('train mode: ', model2(x)) # training=None이 들어간다.  ---> K.learning_phase() = 0이다  ----> dropout=off
+    print('train mode-explicit(on): ', model2(x,True))
+    print('train mode-implicit(=off): ', model2(x)) # training=None이 들어간다.  ---> K.learning_phase() = 0이다  ----> dropout=off
     print('eval mode: ',model2.evaluate(x,y))  # training=False가 적용되어 있기 때문에 위에서 계산한 loss값과 일치한다.
 
 def load_data():
