@@ -555,6 +555,7 @@ def mode_test():
     
     y1 = model(x,True)
     y2 = model(x,False)
+    print('K.learning_phase(): ',K.learning_phase())
     
     print("dropout on: ", y1,'\ndropout off: ', y2)
     print('manual cal: ', np.matmul(x,model.get_weights()[0]) + model.get_weights()[1])
@@ -563,7 +564,7 @@ def mode_test():
     
     print('='*20)
     X = tf.keras.Input(shape=(input_dim,),dtype=tf.float32)
-    Y1 = model(X,True)  # train mode용
+    Y1 = model(X,True)  # train mode용---> 항상 training=True이므로, evaluation에서도 dropout이 적용된다. ---> 이렇게 하면 안된다.
     Y2 = model(X) # eval mode용 ----> call의 training에는 default값이 들어간다.  ----> 아래에 있는 Model을 통한 구조에서는 None이 들어간다.
     
     
@@ -578,10 +579,11 @@ def mode_test():
 
     
     
-    
+    # model1은 무조건 training=True로 되게 정의했기 때문에, evaluate에서도 training=True가 적용된다.   ===> 모델을 이런식으로 구성하면 안됨.
     print('train mode: ', model1(x))  
     print('eval mode: ',model1.evaluate(x,y))  # training=True로 설정되어 있기 때문에, evaluate에서도 training=True가 적용된다. dropout이 random하기 때문에 위에서 계산한 loss와 다르다.
     
+    print('='*40)
     print('='*40)
     
     print('train mode: ', model2(x)) # training=None이 들어간다.  ---> K.learning_phase() = 0이다  ----> dropout=off
@@ -604,11 +606,10 @@ if __name__ == "__main__":
     #model_load_checkpoint()
     #keras_standard_model2()
     #keras_standard_model3()
-    keras_standard_model4()
-    #mode_test()
+    #keras_standard_model4()
+    mode_test()
 
     #load_data()
-
 
 
 
