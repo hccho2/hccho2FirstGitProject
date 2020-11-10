@@ -1911,7 +1911,16 @@ x[[False,True,False,True]]  # ===> [5,4]
 
 
 =====================================================================================
-
+dataset_path = r'D:\SpeechRecognition\speech_commands\speech_dataset'
+count = 0
+for i, (dirpath, dirnames, filenames) in enumerate(os.walk(dataset_path)):
+    if dirpath is not dataset_path:
+        for f in filenames:
+            if f.endswith('.wav'):
+                label = dirpath.split('\\')[-1]
+                fullpath = os.path.join(dirpath,f)
+                print(i,count,label, fullpath)
+                count += 1
 
 
 =====================================================================================
