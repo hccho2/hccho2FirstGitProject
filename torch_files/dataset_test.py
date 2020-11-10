@@ -79,7 +79,14 @@ def test1():
     mydataset1 = MyDataset(0)
     mydataset2 = MyDataset(1)
     mydataset = ConcatDataset([mydataset1,mydataset2])  # ConcatDataset은 data혼합(병렬 아님)
-    
+
+
+    ####### dataset은 index로 iteration 할 수 있다.
+    for i in range(len(mydataset)):
+        print(i, mydataset[i])
+
+
+
     train_loader = DataLoader(dataset=mydataset, batch_size=6, shuffle=True, num_workers=2,drop_last=True,collate_fn=Mycollate_fn)
 
     num_epoch=2
