@@ -158,3 +158,9 @@ x = torch.from_numpy(w)  # tensor x 자체를 변경 id(x)가 변경 됨
 print(x,y,z)
 print('done')
 ```
+
+## torch.nn.utils.rnn.pad_sequence
+```
+batch = [torch.randn((3,2)),torch.randn((6,2)),torch.randn((4,2))]  # (T,D) <---T가 각기 다르다.
+batch = torch.nn.utils.rnn.pad_sequence(batch, batch_first=True, padding_value=0.)  # ---> shape: (3,6,2) = (N,T,D)
+```
