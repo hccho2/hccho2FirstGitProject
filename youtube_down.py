@@ -25,11 +25,17 @@ def download_video_and_subtitle(output_dir, youtube_video_list):
         except Exception as e:
             print('error', e)
 
-
-if __name__ == '__main__':
-
-    youtube_url_list = [  # 유투브에서 다운로드 하려는 영상의 주소 리스트(아래는 Sample Video 리스트)
-        'https://www.youtube.com/watch?v=0bcDSniiusU'
-    ]
+def download():
+    youtube_url_list = [ 'https://www.youtube.com/watch?v=0bcDSniiusU' ]
     download_video_and_subtitle(VIDEO_DOWNLOAD_PATH, youtube_url_list)
+
+def convert():
+    import moviepy.editor as mp
+
+    clip = mp.VideoFileClip("그대 먼 곳에-마음과마음.mp4")
+    clip.audio.write_audiofile("그대 먼 곳에-마음과마음.mp3")
+if __name__ == '__main__':
+    #download()
+    convert()
+
     print('Complete download!')
