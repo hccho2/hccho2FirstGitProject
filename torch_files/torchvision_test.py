@@ -6,12 +6,16 @@ https://pytorch.org/docs/stable/torchvision/models.html
 C:\Anaconda3\Lib\site-packages\torchvision\models   ---> 이곳에서 모델 구조를 봐야 한다.  ---> forward()를 살펴볼 것!!!
 
 
+- pretrained=True로 모델을 생성하면, trainable variable들의 값이 down받은 값으로 초기화 되어 있다.
+- model의 일부를 단순히 교체하든지, 
+
 '''
 import torch
 import numpy as np
 import torchvision.models as models
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
+import torch.nn.functional as F
 from torch import nn
 import os
 from PIL import Image
@@ -39,29 +43,43 @@ class MyVGG(nn.Module):
     def __init__(self,original_model):
         super(MyVGG, self).__init__()
         # vgg16에는 features, avgpool, classifier로 나누어져 있다.
-        self.features = nn.Sequential(*list(original_model.features.children())[:-3])
+        self.features = nn.Sequential(*list(original_model.features.children())[:-2])
         #self.features = nn.Sequential(*list(original_model.children())[:-9])
+        
+        self.classifier = nn.Sequential(nn.Linear(self.features[-1].out_channels,100),nn.ReLU(),nn.Linear(100,5))
+        
     def forward(self, x):
         x = self.features(x)
+        x = F.avg_pool2d(x, (x.shape[2:]))  #(N,512,14,14) --> (N,512,1,1)
+        x = x.view(x.shape[:2])             # --> (N,512)
+        x = self.classifier(x)
+        
         return x  
 def test2():
     # 책 "파이토치 첫걸음" pp 75
     os.environ['TORCH_HOME'] = './pretrained'
     vgg16 = models.vgg16(pretrained=True, progress=True)  # 540M
  
-    transform=transforms.Compose([ transforms.ToTensor(),transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])])
+    #transform=transforms.Compose([ transforms.ToTensor(),transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])])
+    transform = transforms.Compose([transforms.RandomResizedCrop(224),
+                                    transforms.RandomHorizontalFlip(),
+                                    transforms.ToTensor(),
+                                    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+                                ])
     img = Image.open('dog.jpg')  # (576, 768, 3)
     img = transform(img)  # torch.Size([3, 576, 768])
     
     imgs = torch.unsqueeze(img,0)
-    
     feature1 = vgg16(imgs)  # ---> (N,1000)
     
     
     
     extractor = MyVGG(vgg16)
+    print("Vgg16:",vgg16)
+    print("Extractor:",extractor)
     
-    featres2 = extractor(imgs)
+    feature2 = extractor(imgs)
+    print(feature1.shape, feature2.shape)
     
     print('Done')
 def test3():
@@ -79,8 +97,8 @@ def test3():
 
     os.environ['TORCH_HOME'] = './pretrained'   # default: C:\Users\BRAIN/.cache\torch
     
-    #model = models.resnet50(pretrained=True, progress=True)  # 106M
-    model = models.inception_v3(pretrained=True, progress=True)  # 100M
+    model = models.resnet50(pretrained=True, progress=True)  # 106M
+    #model = models.inception_v3(pretrained=True, progress=True)  # 100M
  
     #transform=transforms.Compose([ transforms.ToTensor(),transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])])
     transform = transforms.Compose([
@@ -150,11 +168,11 @@ def test4():
     for i, d in enumerate(dataloader2):
         print(d[0].shape, d[1])
         if i>10: break    
-    
+
 if __name__ == '__main__':
     #test1()
-    #test2()
-    test3()
+    test2()
+    #test3()
     #test4()
     
     
