@@ -16,6 +16,8 @@ from torch import nn
 import os
 from PIL import Image
 def test1():
+    # https://pytorch.org/docs/stable/torchvision/models.html
+    # default: pretrained=False, progress=True(If True, displays a progress bar of the download to stderr)
     resnet18 = models.resnet18()
     alexnet = models.alexnet()
     vgg16 = models.vgg16()
@@ -28,7 +30,11 @@ def test1():
     resnext50_32x4d = models.resnext50_32x4d()
     wide_resnet50_2 = models.wide_resnet50_2()
     mnasnet = models.mnasnet1_0()
-    
+
+    print(vgg16)
+
+
+
 class MyVGG(nn.Module):
     def __init__(self,original_model):
         super(MyVGG, self).__init__()
@@ -59,22 +65,60 @@ def test2():
     
     print('Done')
 def test3():
-    os.environ['TORCH_HOME'] = './pretrained'
-    resnet50 = models.resnet50(pretrained=True, progress=True)  # 100M
+    # https://github.com/pytorch/vision/issues/484   ---> imagenet_classes.txt, imagenet_synsets.txt
+
+    with open('imagenet_synsets.txt', 'r') as f:
+        synsets = f.readlines()
+    synsets = [x.strip() for x in synsets]
+    splits = [line.split(' ') for line in synsets]
+    key_to_classname = {spl[0]:' '.join(spl[1:]) for spl in splits}
+    with open('imagenet_classes.txt', 'r') as f:
+        class_id_to_key = f.readlines()
+
+    class_id_to_key = [x.strip() for x in class_id_to_key]  # ['n01440764', 'n01443537', 'n01484850', ...]
+
+    os.environ['TORCH_HOME'] = './pretrained'   # default: C:\Users\BRAIN/.cache\torch
+    
+    #model = models.resnet50(pretrained=True, progress=True)  # 106M
+    model = models.inception_v3(pretrained=True, progress=True)  # 100M
  
-    transform=transforms.Compose([ transforms.ToTensor(),transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])])
-    img = Image.open('dog.jpg')  # (576, 768, 3)
-    img = transform(img)  # torch.Size([3, 576, 768])
+    #transform=transforms.Compose([ transforms.ToTensor(),transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])])
+    transform = transforms.Compose([
+                transforms.Resize(256),
+                transforms.CenterCrop(224),
+                transforms.ToTensor(),  #(H,W,C) --> (C,H,W)
+                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+            ])
+    
+    img = Image.open(r'D:\hccho\TF2\creative_commons_elephant.jpg')  # dog(576, 768, 3) elephant(600, 899, 3) ---> np.array(img)해 보면, uint8
+    img = transform(img)  # torch.Size([3, 224, 224])   ---> eg. -1.91 ~ 2.36 사이 값
     
     imgs = torch.unsqueeze(img,0)
     
-    feature1 = resnet50(imgs)  # ---> (N,1000)
+    model.eval()
+    pred = model(imgs)  # ---> (N,1000)  ---> softmax 취하기 전.
+    pred = pred[0]
+    _,class_id = pred.max(-1)
+
+    
+    class_key = class_id_to_key[class_id]
+    classname = key_to_classname[class_key]
+
+    print("{}".format(classname))
+    
+    
+    _, indices = torch.sort(pred, descending=True)
+    percentage = torch.nn.functional.softmax(pred) * 100
+
+    
+    result =[(key_to_classname[class_id_to_key[idx]], percentage[idx].item()) for idx in indices[:5]]
+    print(result)
+    
     
     
     print('Done')
 def test4():
     # 책 "파이토치 첫걸음" pp 74
-    # TensorDataset: numpy array로 부터 dataset 생성
     # Dataset: 상속하여 class로 작성. __len__(), __getitem__() 필수 
     
     from torch.utils.data.sampler import SubsetRandomSampler
@@ -110,9 +154,8 @@ def test4():
 if __name__ == '__main__':
     #test1()
     #test2()
-    #test3()
-    test4()
+    test3()
+    #test4()
     
     
     print('Done')
-
