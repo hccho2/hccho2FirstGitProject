@@ -10,6 +10,33 @@ tensorflow tutorial -- DeepDream: https://www.tensorflow.org/tutorials/generativ
 
 C:\\Users\BRAIN\\.keras\\models   <-------------- pretrained file 다운로드   os.environ['USERPROFILE']  =  'C:\\Users\\BRAIN'
 imagenet_class_index.json <----- 이것도 같이 다운받아진다.
+
+
+
+
+- include_top=True ---> Output Shape의 형태가 결정되어 있다.
+Layer (type)                    Output Shape         Param #     Connected to                     
+==================================================================================================
+input_1 (InputLayer)            [(None, 224, 224, 3) 0                                            
+__________________________________________________________________________________________________
+conv1_pad (ZeroPadding2D)       (None, 230, 230, 3)  0           input_1[0][0]                    
+
+....
+
+
+
+- include_top=False
+Layer (type)                    Output Shape         Param #     Connected to                     
+==================================================================================================
+input_2 (InputLayer)            [(None, 224, 224, 3) 0                                            
+__________________________________________________________________________________________________
+conv1_pad (ZeroPadding2D)       (None, 230, 230, 3)  0           input_2[0][0]                    
+...
+
+
+
+
+
 '''
 import tensorflow as tf
 from tensorflow.keras.preprocessing import image
@@ -592,13 +619,15 @@ def InceptionV3_Resnet_test():
         # inception: -1~1 사이값              resnet: -118.68 ~ 141.061 사이값(0~1사이값 아님)             vgg16: -118.68 ~ 141.061 사이값(0~1사이값 아님) 
         return img    
 
-    flag = 'vgg16'  # 'inception', 'resnet', 'vgg16'
-    if flag == 'inception':
+    flag = 'resnet50'  # 'inception', 'resnet', 'vgg16'
+    if flag == 'inception_v3':
         model = inception_v3.InceptionV3(weights='imagenet',include_top=True)  # include_top = True/False에 따라, weight 파일이 다르다.
         base_model = inception_v3
         image_size = (299,299)     # tuple(model.input.shape )[1:3]
-    elif flag =='resnet':
-        model = resnet.ResNet50(weights='imagenet',include_top=True)  # 100M 
+    elif flag =='resnet50':
+        # weights: None(random initialization), 'imagenet'(pre-training on ImageNet), or the path to the weights file
+        # include_top: whether to include the fully-connected layer at the top of the network.
+        model = resnet.ResNet50(weights='imagenet',include_top=True)  # 100M, Trainable params: 25,583,592
         base_model = resnet
         image_size = (224,224)    # tuple(model.input.shape )[1:3]
     elif flag == 'vgg16':
@@ -613,13 +642,14 @@ def InceptionV3_Resnet_test():
     
     print('preprocessed: ', img.shape)
     
-    out = model(img)  # tensor
-    preds = model.predict(img)  # np.array
+    out = model(img)  # tensor  ---> softmax가 취해진 값
+    preds = model.predict(img)  # np.array  ---> 값은 위의 out과 동일
+    print('model: ',flag)
     print(out.shape, np.argmax(out,axis=1))
-    print(base_model.decode_predictions(preds, top=3))
+    print(base_model.decode_predictions(preds, top=3))  # preds로 부터 top 3를 추출해 준다.
     
     
-    if flag == 'inception':
+    if flag == 'inception_v3':
         layer_dict = dict([(layer.name, layer) for layer in model.layers])
         
         target_layers = [layer_dict['mixed10'].output,layer_dict['avg_pool'].output]
@@ -628,14 +658,14 @@ def InceptionV3_Resnet_test():
         
         zzz = model2(img)
         print(zzz[0].shape, zzz[1].shape )
-    elif flag == 'resnet':
+    elif flag == 'resnet50':
         layer_dict = dict([(layer.name, layer) for layer in model.layers])
         
         target_layers = [layer_dict['conv5_block3_out'].output,layer_dict['avg_pool'].output]   
         model2 = K.function([model.input], target_layers)
         
         zzz = model2(img)
-        print(zzz[0].shape, zzz[1].shape )    
+        print(zzz[0].shape, zzz[1].shape )    # (1, 7, 7, 2048) (1, 2048)
     
 if __name__ == "__main__":    
     #grad_cam()
