@@ -67,7 +67,7 @@ def test2():
                                     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
                                 ])
     img = Image.open('dog.jpg')  # (576, 768, 3)
-    img = transform(img)  # torch.Size([3, 576, 768])
+    img = transform(img)  # torch.Size([3, 224, 224])
     
     imgs = torch.unsqueeze(img,0)
     feature1 = vgg16(imgs)  # ---> (N,1000)
