@@ -45,13 +45,17 @@ class MyVGG(nn.Module):
         # vgg16에는 features, avgpool, classifier로 나누어져 있다.
         self.features = nn.Sequential(*list(original_model.features.children())[:-2])
         #self.features = nn.Sequential(*list(original_model.children())[:-9])
-        
+        self.avgpooling = nn.AvgPool2d((14,14))  # 여기서 처리하려면, size를 알아야 한다.  ---> forward()에서는 입력되는 tensor의 shape을 알 수 있다.
+        self.flatten = nn.Flatten()
         self.classifier = nn.Sequential(nn.Linear(self.features[-1].out_channels,100),nn.ReLU(),nn.Linear(100,5))
         
     def forward(self, x):
         x = self.features(x)
-        x = F.avg_pool2d(x, (x.shape[2:]))  #(N,512,14,14) --> (N,512,1,1)
-        x = x.view(x.shape[:2])             # --> (N,512)
+        
+        x = self.avgpooling(x)
+        #x = F.avg_pool2d(x, (x.shape[2:]))  #(N,512,14,14) --> (N,512,1,1)
+        
+        x= self.flatten(x)  #x = x.view(x.shape[:2])             # --> (N,512)
         x = self.classifier(x)
         
         return x  
