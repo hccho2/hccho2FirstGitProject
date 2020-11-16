@@ -183,11 +183,15 @@ def keras_standard_model():
     tqdm_callback = tfa.callbacks.TQDMProgressBar()
     batch_size = 2
     input_dim = 3
-    model = tf.keras.models.Sequential()
     
-    
-    model.add(tf.keras.layers.Dense(units=10,input_dim=3,activation='relu'))
-    model.add(tf.keras.layers.Dense(units=1,activation=None))
+    mode = 2
+    if mode==1:
+        model = tf.keras.models.Sequential()
+        model.add(tf.keras.layers.Dense(units=10,input_dim=3,activation='relu'))
+        model.add(tf.keras.layers.Dense(units=1,activation=None))
+    else:
+        model = tf.keras.models.Sequential([tf.keras.layers.Dense(units=10,input_dim=3,activation='relu'),
+                                            tf.keras.layers.Dense(units=1,activation=None)])
     
     print(model.summary())
     
@@ -602,17 +606,16 @@ def load_data():
 if __name__ == "__main__":    
     #embeddidng_test()
     #simple_model()
-    #keras_standard_model()   # ---> model_load_test
+    keras_standard_model()   # ---> model_load_test
     
     #model_load_test()
     #model_load_checkpoint()
     #keras_standard_model2()
     #keras_standard_model3()
     #keras_standard_model4()
-    mode_test()
+    #mode_test()
 
     #load_data()
-
 
 
 
