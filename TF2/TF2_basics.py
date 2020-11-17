@@ -417,7 +417,7 @@ def keras_standard_model4():
                 
                 self.L1 = tf.keras.layers.Dense(units=100,input_dim=3,activation='relu')
                 self.L2 = tf.keras.layers.Dense(units=1,activation=None)
-            def call(self,x,training=True):
+            def call(self,x,training=None):  # training의 default 값으로 None이 좋다(Ture/False보다)
                 output = self.L1(x)
                 output = self.L2(output)
                 return output
@@ -622,5 +622,4 @@ if __name__ == "__main__":
     #mode_test()
 
     #load_data()
-
 

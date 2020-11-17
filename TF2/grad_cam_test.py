@@ -607,7 +607,7 @@ def InceptionV3_Resnet_test():
     # model에 따라, image size를 맞춰야, 정확도가 나온다.
     # 입력 image의 크기는 model.input.shape 으로 알아 낼 수 있다.
     def preprocess_image(image_path,base_model,image_size):
-        # 사진을 열고 크기를 줄이고 인셉션 V3가 인식하는 텐서 포맷으로 변환하는 유틸리티 함수
+        # 이미지를 로드하고, 모델이 정한 크기의 numpy array 로 변환
         img = image.load_img(image_path).resize(image_size)   # PIL.JpegImagePlugin.JpegImageFile image
         
         img = image.img_to_array(img)   # type은 float32 이지만, 값은 0~255값.
@@ -638,7 +638,7 @@ def InceptionV3_Resnet_test():
     
     print(model.summary())
     base_image_path = './creative_commons_elephant.jpg'   # './original_photo_deep_dream.jpg'    './creative_commons_elephant.jpg'
-    img = preprocess_image(base_image_path, base_model,image_size)
+    img = preprocess_image(base_image_path, base_model,image_size)  # numpy array로 변환
     
     print('preprocessed: ', img.shape)
     
@@ -659,9 +659,10 @@ def InceptionV3_Resnet_test():
         zzz = model2(img)
         print(zzz[0].shape, zzz[1].shape )
     elif flag == 'resnet50':
+        # layer dict를 만들어서 추룰할 수도 있고, model.get_layer를 사용할 수도 있다.
         layer_dict = dict([(layer.name, layer) for layer in model.layers])
-        
         target_layers = [layer_dict['conv5_block3_out'].output,layer_dict['avg_pool'].output]   
+        # layer_dict['conv5_block3_out'] 또는 model.get_layer('conv5_block3_out')
         model2 = K.function([model.input], target_layers)
         
         zzz = model2(img)
