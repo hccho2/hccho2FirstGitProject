@@ -43,6 +43,10 @@ def train_step(images, labels):
     train_loss(loss)
     train_accuracy(labels, predictions)
 
+=====================
+tf.keras.models.Sequential()
+tf.keras.Model(input,output)
+tf.keras.Model ---> 상속받은 class
 
 
 '''
@@ -184,15 +188,17 @@ def keras_standard_model():
     batch_size = 2
     input_dim = 3
     
-    mode = 2
+    mode = 1
     if mode==1:
         model = tf.keras.models.Sequential()
-        model.add(tf.keras.layers.Dense(units=10,input_dim=3,activation='relu'))
-        model.add(tf.keras.layers.Dense(units=1,activation=None))
+        model.add(tf.keras.layers.Dense(units=10,input_dim=3,activation='relu',name='L1'))
+        model.add(tf.keras.layers.Dense(units=1,activation=None,name='L2'))
     else:
-        model = tf.keras.models.Sequential([tf.keras.layers.Dense(units=10,input_dim=3,activation='relu'),
-                                            tf.keras.layers.Dense(units=1,activation=None)])
+        model = tf.keras.models.Sequential([tf.keras.layers.Dense(units=10,input_dim=3,activation='relu',name='L1'),
+                                            tf.keras.layers.Dense(units=1,activation=None,name='L2')])
     
+    print('input-output: ', model.input, model.output)
+    print(model.get_layer('L1'),model.get_layer('L1').output)  # model.get_layer(index=1)
     print(model.summary())
     
     
@@ -329,7 +335,7 @@ def keras_standard_model2():  # tf.keras.Input 사용
     
     outputs = L2(L1(inputs))
     
-    model = tf.keras.Model(inputs = inputs,outputs = outputs)
+    model = tf.keras.Model(inputs = inputs,outputs = outputs)  # model.input, model.output 
     print(model.summary())
     
     
@@ -371,7 +377,7 @@ def keras_standard_model3():
     
     outputs = L2(L1(inputs))
     
-    model = tf.keras.Model([inputs1,inputs2],outputs)
+    model = tf.keras.Model([inputs1,inputs2],outputs)  # model.input, model.output
     optimizer = tf.keras.optimizers.Adam(lr=0.01)
     model.compile(optimizer = optimizer,loss=loss_fn)
     
@@ -606,16 +612,15 @@ def load_data():
 if __name__ == "__main__":    
     #embeddidng_test()
     #simple_model()
-    keras_standard_model()   # ---> model_load_test
+    #keras_standard_model()   # ---> model_load_test
     
     #model_load_test()
     #model_load_checkpoint()
     #keras_standard_model2()
     #keras_standard_model3()
-    #keras_standard_model4()
+    keras_standard_model4()
     #mode_test()
 
     #load_data()
-
 
 
