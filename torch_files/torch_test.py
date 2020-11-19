@@ -419,7 +419,7 @@ def MNIST():
     Y = torch.tensor(Y, dtype=torch.int64)
     
     
-    net = nn.Sequential(nn.Linear(64,32),nn.ReLU(),nn.Linear(32,16),nn.ReLU(),nn.Linear(16,10))
+    net = nn.Sequential(nn.Linear(64,32),nn.ReLU(),nn.Linear(32,16),nn.ReLU(),nn.Linear(16,10))  # net.children() --> 구성 layer들을 알 수 있다.
     
     loss_fn = nn.CrossEntropyLoss()  # 넘길 때, (N,C), (N,)  <--- one_hot으로 변환하지 않는 target을 넘긴다.
     optimizer = optim.Adam(net.parameters())
