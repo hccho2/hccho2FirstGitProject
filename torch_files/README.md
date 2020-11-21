@@ -164,3 +164,56 @@ print('done')
 batch = [torch.randn((3,2)),torch.randn((6,2)),torch.randn((4,2))]  # (T,D) <---T가 각기 다르다.
 batch = torch.nn.utils.rnn.pad_sequence(batch, batch_first=True, padding_value=0.)  # ---> shape: (3,6,2) = (N,T,D)
 ```
+
+## image classification from pretrained models
+```
+# resnet50, inceptin_v3의 pretrained weight로 분류해보기.
+# https://github.com/pytorch/vision/issues/484   ---> imagenet_classes.txt, imagenet_synsets.txt
+
+with open('imagenet_synsets.txt', 'r') as f:
+    synsets = f.readlines()
+synsets = [x.strip() for x in synsets]
+splits = [line.split(' ') for line in synsets]
+key_to_classname = {spl[0]:' '.join(spl[1:]) for spl in splits}
+with open('imagenet_classes.txt', 'r') as f:
+    class_id_to_key = f.readlines()
+
+class_id_to_key = [x.strip() for x in class_id_to_key]  # ['n01440764', 'n01443537', 'n01484850', ...]
+
+os.environ['TORCH_HOME'] = './pretrained'   # default: C:\Users\BRAIN/.cache\torch
+
+model = models.resnet50(pretrained=True, progress=True)  # 106M
+#model = models.inception_v3(pretrained=True, progress=True)  # 100M
+
+transform = transforms.Compose([
+            transforms.Resize(256),
+            transforms.CenterCrop(224),
+            transforms.ToTensor(),  #(H,W,C) --> (C,H,W)
+            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        ])
+
+img = Image.open('creative_commons_elephant.jpg')  # dog(576, 768, 3) elephant(600, 899, 3) ---> np.array(img)해 보면, uint8
+img = transform(img)  # torch.Size([3, 224, 224])   ---> eg. -1.91 ~ 2.36 사이 값
+
+imgs = torch.unsqueeze(img,0)
+
+model.eval()
+pred = model(imgs)  # ---> (N,1000)  ---> softmax 취하기 전.
+pred = pred[0]
+_,class_id = pred.max(-1)
+
+
+class_key = class_id_to_key[class_id]
+classname = key_to_classname[class_key]
+
+print("{}".format(classname))
+
+
+_, indices = torch.sort(pred, descending=True)
+percentage = torch.nn.functional.softmax(pred) * 100
+
+
+result =[(key_to_classname[class_id_to_key[idx]], percentage[idx].item()) for idx in indices[:5]]
+print(result)
+
+```
