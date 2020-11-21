@@ -66,11 +66,11 @@ elif flag == 'resnet50':
 
 
 ```
-## Learning Rate Decay with Callback
+## Learning Rate Decay with Callback & tf.keras.optimizers.schedules
 ```
 mode = 2
 if mode==1:
-    # callback을 이용하여 learning rate 조절
+    # callback(tf.keras.callbacks.LearningRateScheduler)을 이용하여 learning rate 조절
     # This function keeps the initial learning rate for the first ten epochs
     # and decreases it exponentially after that.
 
