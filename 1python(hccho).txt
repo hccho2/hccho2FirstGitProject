@@ -815,6 +815,27 @@ n  = 14
 skimage.io.imshow(inputs[n].reshape(28,28))
 print(labels[n])
 =====================================================================================
+# sklean에서 제공하는 MNIST(자체 포맷) ---> sklearn으로 다운받으면 30초, 이미 다운 받은 cache로 하면, 17~20초
+import time
+import matplotlib.pyplot as plt
+from sklearn.datasets import fetch_openml
+
+s_time = time.time()
+
+mnist = fetch_openml('mnist_784',version=1,data_home=r'D:\hccho\CommonDataset\mnist\scikit_learn_data')  # 14M. data_home=None ---> C:\Users\BRAIN\scikit_learn_data 아래에...
+
+print(mnist.keys())
+
+print(mnist['data'].shape, mnist['target'].shape)   # 'data', 'target'모두 정수 numpy array
+print(mnist['data'][0], mnist['target'][0])
+
+
+plt.imshow(mnist['data'][0].reshape(28,28),cmap='binary')  # cmap = 'binary'(흑백으로 보인다)
+plt.show()
+
+print(time.time()-s_time)
+
+=====================================================================================
 # image file 읽어와 보여주기
 x = ['a.jpg','b.jpg','c.jpg','d.jpg']
 
