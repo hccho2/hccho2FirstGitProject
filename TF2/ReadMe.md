@@ -77,11 +77,11 @@ def scheduler(epoch, lr):
         return lr * tf.math.exp(-0.1)
 
 model = tf.keras.models.Sequential([tf.keras.layers.Dense(10)])
-model.compile(tf.keras.optimizers.SGD(lr=0.1), loss='mse')   # initial lr
+model.compile(tf.keras.optimizers.SGD(lr=0.01), loss='mse')
 print(round(model.optimizer.lr.numpy(), 5))
 
 callback = tf.keras.callbacks.LearningRateScheduler(scheduler)
-history = model.fit(np.arange(100).reshape(5, 20), np.zeros(5),epochs=15, callbacks=[callback], verbose=0)
+history = model.fit(0.001*np.arange(100).reshape(5, 20), np.zeros(5),epochs=15, callbacks=[callback], verbose=1)
 print(round(model.optimizer.lr.numpy(), 5))
 
 ```
