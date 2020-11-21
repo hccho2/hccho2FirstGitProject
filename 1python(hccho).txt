@@ -807,7 +807,7 @@ VideoFileClip('D:/hccho/RL/ReinforcementZeroToAll-master/movie/openaigym.video.0
 
 =====================================================================================
 import skimage.io
-from tensorflow.examples.tutorials.mnist import input_data
+from tensorflow.examples.tutorials.mnist import input_data   # ---> TF 2.x에서는 없음.
 mnist = input_data.read_data_sets('D:\hccho\CommonDataset\mnist', one_hot=True)
 inputs = mnist.train.images
 labels = mnist.train.labels
