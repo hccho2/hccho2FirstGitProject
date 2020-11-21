@@ -70,7 +70,7 @@ elif flag == 'resnet50':
 ```
 mode = 2
 if mode==1:
-
+    # callback을 이용하여 learning rate 조절
     # This function keeps the initial learning rate for the first ten epochs
     # and decreases it exponentially after that.
 
@@ -89,7 +89,7 @@ if mode==1:
     print(round(model.optimizer.lr.numpy(), 5))
 
 else:
-
+    # tf.keras.optimizers.schedules를 이용하여 lr 조절
     # initial_learning_rate * decay_rate ^ (step / decay_steps)
     initial_learning_rate = 0.1
     lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
