@@ -68,20 +68,20 @@ elif flag == 'resnet50':
 ```
 ## Learning Rate Decay with Callback
 ```
-    # This function keeps the initial learning rate for the first ten epochs
-    # and decreases it exponentially after that.
-    def scheduler(epoch, lr):
-        if epoch < 10:
-            return lr
-        else:
-            return lr * tf.math.exp(-0.1)
-    
-    model = tf.keras.models.Sequential([tf.keras.layers.Dense(10)])
-    model.compile(tf.keras.optimizers.SGD(), loss='mse')
-    print(round(model.optimizer.lr.numpy(), 5))
+# This function keeps the initial learning rate for the first ten epochs
+# and decreases it exponentially after that.
+def scheduler(epoch, lr):
+    if epoch < 10:
+        return lr
+    else:
+        return lr * tf.math.exp(-0.1)
 
-    callback = tf.keras.callbacks.LearningRateScheduler(scheduler)
-    history = model.fit(np.arange(100).reshape(5, 20), np.zeros(5),epochs=15, callbacks=[callback], verbose=0)
-    print(round(model.optimizer.lr.numpy(), 5))
+model = tf.keras.models.Sequential([tf.keras.layers.Dense(10)])
+model.compile(tf.keras.optimizers.SGD(), loss='mse')
+print(round(model.optimizer.lr.numpy(), 5))
+
+callback = tf.keras.callbacks.LearningRateScheduler(scheduler)
+history = model.fit(np.arange(100).reshape(5, 20), np.zeros(5),epochs=15, callbacks=[callback], verbose=0)
+print(round(model.optimizer.lr.numpy(), 5))
 
 ```
