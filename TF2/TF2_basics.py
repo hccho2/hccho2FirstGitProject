@@ -609,6 +609,62 @@ def load_data():
     x_train = x_train.reshape(60000, 784).astype("float32") / 255
     x_test = x_test.reshape(10000, 784).astype("float32") / 255    
 
+
+def learning_rate_scheduler():
+#     optimizer = tf.keras.optimizers.Adam(lr=0.01)
+#     
+#     print(optimizer.lr)
+#     
+#     optimizer.lr = 0.001
+#     print(optimizer.lr)
+# 
+# 
+#     tf.keras.backend.set_value(optimizer.lr, 0.0001)
+#     print(optimizer.lr)
+#     print('='*20)
+    
+    
+    mode = 2
+    if mode==1:
+        # callback을 이용하여 learning rate 조절
+        # This function keeps the initial learning rate for the first ten epochs
+        # and decreases it exponentially after that.
+    
+        def scheduler(epoch, lr):
+            if epoch < 10:
+                return lr
+            else:
+                return lr * tf.math.exp(-0.1)
+        
+        model = tf.keras.models.Sequential([tf.keras.layers.Dense(10)])
+        model.compile(tf.keras.optimizers.SGD(lr=0.01), loss='mse')
+        print(round(model.optimizer.lr.numpy(), 5))
+    
+        callback = tf.keras.callbacks.LearningRateScheduler(scheduler)
+        history = model.fit(0.001*np.arange(100).reshape(5, 20), np.zeros(5),epochs=15, callbacks=[callback], verbose=1)
+        print(round(model.optimizer.lr.numpy(), 5))
+
+    else:
+        # tf.keras.optimizers.schedules를 이용하여 lr 조절
+        # initial_learning_rate * decay_rate ^ (step / decay_steps)
+        initial_learning_rate = 0.1
+        lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
+            initial_learning_rate,
+            decay_steps=100000,
+            decay_rate=0.96,
+            staircase=False)  # staircase=True이면 decay_steps의 정수배 일때마다 lr이 떨어진다.
+      
+        model = tf.keras.models.Sequential([tf.keras.layers.Dense(10)])
+        model.compile(optimizer=tf.keras.optimizers.SGD(learning_rate=lr_schedule),loss='mse')
+    
+          
+        model.fit(0.001*np.arange(100).reshape(5, 20), np.zeros(5), epochs=5)
+
+        # argument로 step수를 넣으면, 해당하는 learning rate을 return한다.
+        print('step={}, lr = {}'.format(50000,round(model.optimizer.lr(50000).numpy(), 5)))  
+        print('step={}, lr = {}'.format(100000,round(model.optimizer.lr(100000).numpy(), 5)))  
+        print('step={}, lr = {}'.format(200000,round(model.optimizer.lr(200000).numpy(), 5)))  
+
 if __name__ == "__main__":    
     #embeddidng_test()
     #simple_model()
@@ -618,8 +674,9 @@ if __name__ == "__main__":
     #model_load_checkpoint()
     #keras_standard_model2()
     #keras_standard_model3()
-    keras_standard_model4()
+    #keras_standard_model4()
     #mode_test()
 
     #load_data()
 
+    learning_rate_scheduler()
