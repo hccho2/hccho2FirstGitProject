@@ -307,7 +307,10 @@ def user_defined_cell_decoder_test():
 
 
 
-
+############# evalution에서도 dropout이 적용되는 layer############################
+class MCDropout(tf.keras.layers.Dropout):
+    def call(self,inputs):
+        super().call(inputs,training=True)
 
 
 if __name__ == '__main__':

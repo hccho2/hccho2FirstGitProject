@@ -49,6 +49,9 @@ tf.keras.Model(input,output)
 tf.keras.Model ---> 상속받은 class
 
 
+# Loss Function: 'mse', 'binary_crossentropy' ... https://www.tensorflow.org/api_docs/python/tf/keras/losses 이곳의 function 이름을 넘기면 된다.
+
+
 '''
 
 
@@ -457,7 +460,7 @@ def keras_standard_model4():
     
     
     s_time = time.time()
-    train_mode = 3
+    train_mode = 0
     if train_mode ==0:
         for e in tqdm(range(n_epoch)):
             for i,(x,y) in enumerate(dataset):
@@ -537,7 +540,7 @@ def keras_standard_model4():
 
 def mode_test():
     # train mode, eval mode 
-    mode = 2
+    mode = 1
     if mode == 1:
         class MyModel(tf.keras.Model):
             def __init__(self):
@@ -548,6 +551,7 @@ def mode_test():
             def call(self,x,training=None):
                 # training의 default값으로 None이 되어야 한다.
                 # tf.keras.Model을 통해서 간접적으로 call 될 때는, training=None이 들어온다. ===> training= K.learning_phase()가 내부적으로 적용된다.
+                #tf.print("**",training,tf.keras.backend.learning_phase())
                 return self.dense(self.dropout(x, training = training))
 
 
@@ -564,11 +568,17 @@ def mode_test():
     x = tf.random.normal(shape=(batch_size,input_dim))
     y = tf.random.normal(shape=(batch_size,1))
     
-    y1 = model(x,True)
-    y2 = model(x,False)
+
     print('K.learning_phase(): ',K.learning_phase())
     
-    print("dropout on: ", y1,'\ndropout off: ', y2)
+    #tf.keras.backend.set_learning_phase(1)
+    print('K.learning_phase(): ',K.learning_phase())
+    y1 = model(x,True)
+    y2 = model(x,False)
+    y3 = model(x)
+
+    
+    print("dropout on: ", y1,'\ndropout off: ', y2, '\n default: ', y3)
     print('manual cal: ', np.matmul(x,model.get_weights()[0]) + model.get_weights()[1])
     print('loss: ', np.square(np.subtract(y, y1)).mean(), np.square(np.subtract(y, y2)).mean())
     
@@ -600,6 +610,11 @@ def mode_test():
     print('train mode-explicit(on): ', model2(x,True))
     print('train mode-implicit(=off): ', model2(x)) # training=None이 들어간다.  ---> K.learning_phase() = 0이다  ----> dropout=off
     print('eval mode: ',model2.evaluate(x,y))  # training=False가 적용되어 있기 때문에 위에서 계산한 loss값과 일치한다.
+    
+    print('='*60)
+    print('='*60)  
+    model2.fit(x,y,epochs=5,verbose=2)
+    
 
 def load_data():
     # tf.keras.mnist, cifar10, cifar100, imdb, reuters, boston_housing
@@ -675,8 +690,12 @@ if __name__ == "__main__":
     #keras_standard_model2()
     #keras_standard_model3()
     #keras_standard_model4()
-    #mode_test()
+    mode_test()
 
     #load_data()
 
-    learning_rate_scheduler()
+    #learning_rate_scheduler()
+
+
+
+
