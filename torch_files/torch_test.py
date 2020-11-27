@@ -187,46 +187,42 @@ def test2():
     print(x,x.shape)
 
 def model1():
-    # 참의 계수
-    w_true = torch.Tensor([1, 2, 3])
+    w_true = torch.Tensor([1, 2, 3]) # 참의 계수
     
-
-    X = torch.cat([torch.ones(100, 1), torch.randn(100, 2)], 1)
-    Y = torch.mv(X, w_true) + torch.randn(100) * 0.5
+    X = torch.cat([torch.ones(100, 1), torch.randn(100, 2)], 1) # 입력 Data
+    Y = torch.mv(X, w_true) + torch.randn(100) * 0.5 # target
     w = torch.randn(3, requires_grad=True)
     
-    # 학습률
-    lr = 0.1    
-
-    # 손실 함수의 로그
-    losses = []
+    lr = 0.1    # 학습률
+    losses = [] # 손실 함수의 로그
     
-    # 100회 반복
-    for epoc in range(100):
-        # 전회의 backward 메서드로 계산된 경사 값을 초기화
-        w.grad = None
+    for epoch in range(100): # 100회 반복
+        w.grad = None # 전회의 backward 메서드로 계산된 경사 값을 초기화
         
-        # 선형 모델으로 y 예측 값을 계산
-        y_pred = torch.mv(X, w)
+        y_pred = torch.mv(X, w) # 선형 모델으로 y 예측 값을 계산
         
         # MSE loss와 w에 의한 미분을 계산
         loss = torch.mean((Y - y_pred)**2)
         loss.backward()
         
-        # 경사를 갱신한다
-        # w를 그대로 대입해서 갱신하면 다른 Tensor가 돼서
-        # 계산 그래프가 망가진다. 따라서 data만 갱신한다
-        w.data = w.data - lr * w.grad.data
+        w.data = w.data - lr * w.grad.data # w = w – lr*w.grad로 하면 안된다.
+        losses.append(loss.item()) # 수렴 확인을 위한 loss를 기록해둔다
         
-        # 수렴 확인을 위한 loss를 기록해둔다
-        losses.append(loss.item())
-        
-        if epoc%10==0:
-            print('step: {}, loss = {:.4f}'.format(epoc,loss.item()))
-
-
+        if epoch%10==0:
+            print('step: {}, loss = {:.4f}'.format(epoch,loss.item()))
+    
+    
     plt.plot(losses)
     plt.show()
+    plt.plot(Y.numpy(),label='true')
+    plt.plot(y_pred.detach().numpy(),label='prediction',linestyle='--')
+    plt.legend()
+    plt.show()
+    
+    print('w_true: ', w_true)
+    print('w', w.detach().numpy())
+
+
 
 def MultivariateRegression():
     # Regression 직접 구현
@@ -1383,10 +1379,10 @@ def UserDenfedLayer_test():
 ###############################################################
     
 if __name__ == '__main__':
-    test0()
+    #test0()
     #test1()
     #test2() # tensor 생성과 초기화
-    #model1()
+    model1()
     #MultivariateRegression()
     #MultivariateRegression2()
     #MultivariateRegression3()
