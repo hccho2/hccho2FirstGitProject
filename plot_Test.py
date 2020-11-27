@@ -77,6 +77,7 @@ plt.close()
 # 2개 같이 그리기
 plt.plot([0,1,2,3,4], [2,3,1,4,5], label='A',marker='o')
 plt.plot([1,2,3], [4,4,1], label='B', linestyle='--',marker='P')
+plt.legend()
 plt.show()
 plt.close()
 ########
