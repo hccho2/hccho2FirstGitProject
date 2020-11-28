@@ -787,14 +787,14 @@ from PIL import Image
 import os, glob
 
 #image_files = glob.glob("./*.png")
-image_files = glob.glob("../DCGAN-tensorflow-master/samples/test*.png")
+image_files = glob.glob("*.png")
 
-
+print(image_files)
 images = [Image.open(f) for f in image_files]
-
+images = images*10  # 반복
 gif = images[0]
-gif.save(fp="./output.gif", format='gif', save_all=True, append_images=images[1:])
-print(Image.open("./output.gif").n_frames)
+gif.save(fp="result.gif", format='gif', save_all=True, append_images=images[1:],duration=800)  # duration 지정
+print(Image.open("result.gif").n_frames)
 
 
 ###  동영상 gif로 변환
