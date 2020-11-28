@@ -664,6 +664,22 @@ plt.pcolormesh(y,x,data)  # y: 가로축(axis=1), x: 세로축(axis=0)
 plt.colorbar()
 
 ##########################################################
+N = 21
+x = np.linspace(0, 10, 11)
+y = [3.9, 4.4, 10.8, 10.3, 11.2, 13.1, 14.1,  9.9, 13.9, 15.1, 12.5]
+
+# fit a linear curve an estimate its y-values and their error.
+a, b = np.polyfit(x, y, deg=1)
+y_est = a * x + b
+#y_err = x.std() * np.sqrt(1/len(x) +(x - x.mean())**2 / np.sum((x - x.mean())**2))
+y_err = (y_est -y).std()
+
+fig, ax = plt.subplots()
+ax.plot(x, y_est, '-')
+ax.fill_between(x, y_est - y_err, y_est + y_err, alpha=0.1)
+ax.plot(x, y, 'o', color='tab:brown')
+
+plt.show()
 
 
 ##########################################################
