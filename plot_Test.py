@@ -275,6 +275,11 @@ plt.show()
 plt.hist(a, bins=15, range=[-10,10], color='g', label='aa') # range 범위를 15개 구간으로
 plt.show()
 
+##########################################################
+x = np.random.normal(size=500)
+n, bins, patches = plt.hist(x.numpy(),50, density=False, facecolor='g', alpha=0.75)  # density(y축을 빈도 또는 비율), patches는 각각의 사각형 o
+plt.setp(patches[20], 'facecolor', 'r')
+
 
 ##########################################################
 
