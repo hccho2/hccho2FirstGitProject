@@ -744,7 +744,7 @@ scipy.misc.imread   ---> 정수 uint8   ---> from imageio import imread 사용�
 scipy.misc.resize   ---> 정수 uint8 ---> from PIL import Image릉 이용해서, array를 Image로 만든 후, resize하고 np.array로 comverting한다.  ---> uint8
 
 from PIL import Image
-np.array(Image.fromarray(img).resize((10,10)))  # 여기서 img: numpy array
+np.array(Image.fromarray(img).resize((10,10)))  # 여기서 img: uint8 numpy array
 
 
 =====================================================================================
