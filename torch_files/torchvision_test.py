@@ -68,8 +68,8 @@ def test2():
     os.environ['TORCH_HOME'] = './pretrained'
     vgg16 = models.vgg16(pretrained=True, progress=True)  # 540M
  
-    # transforms.RandomResizedCrop, RandomHorizontalFlip <------- PIL.Image.Image를 넣으면, PIL.Image.Image가 return된다.
-    # transforms.ToTensor()  # 1. Image를 tensor로 변환. 2. HWC 또는 HW를 CHW로 만든다. 3. 정수값을 0~1 사이값으로 변환한다.
+    # transforms.RandomResizedCrop, RandomHorizontalFlip <------- PIL.Image.Image를 넣으면(ndarray는 안됨), PIL.Image.Image가 return된다.
+    # transforms.ToTensor()  # 1. Image 또는 ndarray를 tensor로 변환.. 2. HWC 또는 HW를 CHW로 만든다. 3. 정수값을 0~1 사이값으로 변환한다.
     # transforms.Normalize(m,s) ---> (x-m)/s를 단순히 적용한다.
  
     #transform=transforms.Compose([ transforms.ToTensor(),transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])])
