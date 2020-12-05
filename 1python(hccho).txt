@@ -964,10 +964,15 @@ class HC:
     @x.setter 
     def x(self,xx):
         self._a = xx
+    def __call__(self, a):  # 함수처럼 사용
+        return a*a
+    
         
 A = HC(4)
 A.x = 3
 print(A.x)
+
+print(A(2.5))
 =====================================================================================
 class Info(object):
     pass        
