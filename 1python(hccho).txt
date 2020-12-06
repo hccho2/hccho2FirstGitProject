@@ -2003,6 +2003,19 @@ b = a
 
 a[...] = np.array([[10.,20.],[30,4]])  # a, b모두 변한다.
 =====================================================================================
+# text를 이미지로 
+from PIL import ImageDraw, ImageFont
+import os
+
+font_path = os.path.join(os.environ['USERPROFILE'], r'AppData\Local\Microsoft\Windows\Fonts\NanumGothic-Regular.ttf')
+font = ImageFont.truetype(font_path, 50)
+
+blank_image = Image.new('RGB', (500, 100), 'white')
+img_draw = ImageDraw.Draw(blank_image)
+
+img_draw.text((0, 0), 'Hello World', fill='red',font=font)
+plt.imshow(blank_image)
+plt.axis('off')
 
 
 =====================================================================================
