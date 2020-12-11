@@ -249,6 +249,7 @@ def model1():
     lr = 0.1    # 학습률
     losses = [] # 손실 함수의 로그
     
+    gradient_update_method = 2
     for epoch in range(100): # 100회 반복
         if w.grad is not None: 
             w.grad.zero_()    # 전회의 backward 메서드로 계산된 경사 값을 초기화
@@ -259,7 +260,14 @@ def model1():
         loss = torch.mean((Y - y_pred)**2)
         loss.backward()
         
-        w.data = w.data - lr * w.grad.data # w = w - lr*w.grad로 하면 안된다.  --> w가 계산 graph에서 이탈한다.
+        if gradient_update_method==1:
+            w.data = w.data - lr * w.grad.data  # 또는 w.data = w - lr*w.grad, 
+            
+        else:
+            with torch.no_grad():
+                #w -= lr*w.grad.data  # w = w - lr*w.grad --> requires_grad=False이 새로운 tensor가 만들어진다.
+                w.sub_(lr*w.grad)
+        
         
         losses.append(loss.item()) # 수렴 확인을 위한 loss를 기록해둔다
         
@@ -279,24 +287,28 @@ def model1():
 
 def model2():
     # 위의 model1을 pytorch 기본 구조로 변환
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print('device: ',device)
     w_true = torch.Tensor([1, 2, 3]) # 참의 계수
     
     X = torch.cat([torch.ones(100, 1), torch.randn(100, 2)], 1) # 입력 Data
     Y = torch.mv(X, w_true) + torch.randn(100) * 0.5 # target
     Y = Y.view(-1,1)
     
-    
+    loss_fn = nn.MSELoss()
     net = torch.nn.Linear(in_features=3,out_features=1,bias=False)
     optimizer = torch.optim.SGD(net.parameters(), lr=0.1)
     
     losses = [] # 손실 함수의 로그
-    
+    net.to(device)
+    X=X.to(device)
+    Y=Y.to(device)
     for epoch in range(100): # 100회 반복
         optimizer.zero_grad()
         y_pred = net(X) # 선형 모델으로 y 예측 값을 계산
         
         # MSE loss와 w에 의한 미분을 계산
-        loss = torch.mean((Y - y_pred)**2)
+        loss = loss_fn(y_pred, Y)   # torch.mean((Y - y_pred)**2)
         loss.backward()
         
         optimizer.step()
@@ -308,13 +320,13 @@ def model2():
     
     plt.plot(losses)
     plt.show()
-    plt.plot(Y.numpy().reshape(-1),label='true')
-    plt.plot(y_pred.detach().numpy().reshape(-1),label='prediction',linestyle='--')
+    plt.plot(Y.cpu().numpy().reshape(-1),label='true')
+    plt.plot(y_pred.cpu().detach().numpy().reshape(-1),label='prediction',linestyle='--')
     plt.legend()
     plt.show()
     
     print('w_true: ', w_true)
-    print('w', net.weight[0].detach().numpy())
+    print('w', net.weight[0].cpu().detach().numpy())
 
 def MultivariateRegression():
     # Regression 직접 구현
@@ -621,7 +633,7 @@ def MNIST2():
         if epoch % 50 ==0:
             print('epoch: {}, loss = {:4f}'.format(epoch,loss))    
     
-    net.eval()  # eeval mode <---- 내부적으로는 net.train(False)를 call한다.
+    net.eval()  # eval mode <---- 내부적으로는 net.train(False)를 call한다.
 
     
     
