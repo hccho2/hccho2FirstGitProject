@@ -10,9 +10,26 @@ device = torch.device('cuda:0')                                        # --> dev
 
 mynet.to(device) # 또는 mynet.cuda(), mynet.cpu()
 y = x.to(device)  # inplace방식 아님. x.to(device)하면, x가 바뀌지는 않는다. 
-------
+---------
 x.cpu().detach().numpy()
 x.cpu().data.numpy()
+---
+print(x.requires_grad)
+y = x.detach()   # detach는 새로운 tensor를 만든다.
+print(y.requires_grad)
+print(x.eq(y).all())
+------------
+x = torch.randn(3, requires_grad=True)
+print(x.requires_grad)
+print((x ** 2).requires_grad)
+
+with torch.no_grad():
+    y = x**2  # y.requires_grad = False가 된다. x의 requires_grad가 바뀌는 것은 아니다. 
+
+
+
+
+
 ------------
 변수 직접 선언
 w = torch.randn(3,1, requires_grad=True,device=device)
@@ -24,9 +41,28 @@ w = Variable(torch.randn(3, 1).type(dtype), requires_grad=True)  ----> 이것보
 nn.Parameter(torch.empty(3, 2))  # trainable Tensor
 
 
+# nn.Parameter() 활용
+class Mnist_Logistic(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.weights = nn.Parameter(torch.randn(784, 10) / math.sqrt(784))   # nn.Parameter에 넣으면, requires_grad=True가 되고, model.parameters()로 조회가 된다.
+        self.bias = nn.Parameter(torch.zeros(10))
+
+    def forward(self, xb):
+        return xb @ self.weights + self.bias
+
+net = Mnist_Logistic()
+net.parameters()로 trainable weight 접근.
+
+
+
+
+
 ------
 with torch.no_grad():
     traget = ...
+
+optimizer.zero_grad()
 y = forward(x)
 loss = loss_fn(y, target)
 optimizer.zero_grad()
@@ -51,9 +87,15 @@ y = forward(x)
 loss = loss_fn(y, target.detatch())
 loss.backward()
 optimizer.step()
+# learning_rate decay
+# accuracy 계산
 
 -----
-# save
+model_dir = 'xxxx/bbb/' 
+if not os.path.exists(model_dir):
+    os.makedirs(model_dir)
+
+# save  ---> 디렉토리가 미리 만들어져 있어야 한다. ---> 없으면 error!!!
 torch.save(model.state_dict(), os.path.join(model_dir, 'epoch-{}.pth'.format(epoch)))  # weights만 저장
 또는 
 torch.save(model, os.path.join(model_dir, 'epoch-{}.pth'.format(epoch)))   # 모델의 구조까지 저장
@@ -98,7 +140,18 @@ for i in range(100):
 -----
 Attention Mask
 http://juditacs.github.io/2018/12/27/masked-attention.html
+
+-----
+DataLoader에서 num_workers> 0 ----> __main__ 이 있어야 한다. 
+jupyter notebook에서는 num_workers=0으로 해야 한다.
+
+
+
 '''
+
+
+
+
 
 
 
@@ -168,7 +221,7 @@ def test1():
 
 
 def test2():
-    x = torch.Tensor(2,3)  # garbage로 초기화된 주어진 크기의 tensor를 만든다.  shape(2,3)
+    x = torch.Tensor(2,3)  # garbage로 초기화된 주어진 크기의 FloatTensor를 만든다.  shape(2,3)
     print(x,x.shape)
 
     
@@ -568,7 +621,7 @@ def MNIST2():
         if epoch % 50 ==0:
             print('epoch: {}, loss = {:4f}'.format(epoch,loss))    
     
-    net.eval()  # eval mode <---- 내부적으로는 net.train(False)를 call한다.
+    net.eval()  # eeval mode <---- 내부적으로는 net.train(False)를 call한다.
 
     
     
@@ -609,7 +662,7 @@ def MNIST3():
             
             #self.net = nn.Sequential(nn.Linear(64,32),nn.ReLU(),nn.Dropout(0.3),nn.Linear(32,16),nn.BatchNorm1d(16),nn.ReLU(),nn.Linear(16,10))
             self.net1 = nn.Sequential()
-            self.net1.add_module("L1", nn.Linear(64,32))   # model.net1.L1으로 접근 가능.
+            self.net1.add_module("L1", nn.Linear(64,32))
             self.net1.add_module("L2", nn.ReLU())
             self.net1.add_module("L3", nn.Dropout(0.3))
             
@@ -891,7 +944,7 @@ def BCE_test():
     a = -(target*torch.log(p) + (1-target)*torch.log(1-p))*weight
     print(a)
     print(torch.mean(a))
-
+    
     
     
     
@@ -1450,4 +1503,3 @@ if __name__ == '__main__':
     #Attention_Mask()
     #dropout_test()
     print('Done')
-
