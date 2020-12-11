@@ -225,7 +225,7 @@ class Exp(torch.autograd.Function):
     @staticmethod
     def forward(ctx, i):
         result = i.exp()
-        ctx.save_for_backward(result)
+        ctx.save_for_backward(result)  # ctx.save_for_backward(x1,x2,...)  ---> ctx.saved_tensors에 저장된다.
         return result
 
     @staticmethod
