@@ -217,3 +217,28 @@ result =[(key_to_classname[class_id_to_key[idx]], percentage[idx].item()) for id
 print(result)
 
 ```
+## torch.autograd.Function
+- trainable weight가 없는 함수를 정의할 때 좋다.
+- trainable weight가 있는 것은 함수라기 보다는 layer이므로, nn.Module을 상속받아 구현하면 된다.
+```
+class Exp(torch.autograd.Function):
+    @staticmethod
+    def forward(ctx, i):
+        result = i.exp()
+        ctx.save_for_backward(result)
+        return result
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        result, = ctx.saved_tensors
+        return grad_output * result
+
+#Use it by calling the apply method:
+
+input = torch.zeros(2,3)
+output = Exp.apply(input)
+
+print(output)
+```
+
+
