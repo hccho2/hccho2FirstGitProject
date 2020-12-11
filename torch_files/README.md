@@ -135,7 +135,7 @@ with torch.no_grad():
 
     print("Cross Entropy Loss by NLLLosss: ", loss1(log_softmax_val,target))
 
-    print("NLLLost: ", -torch.mean(logit[np.arange(2),target]))
+    print("NLLLost: ", -torch.mean(logit[np.arange(2),target]))  # logit[np.arange(batch_size), target]
 
 ```
 
