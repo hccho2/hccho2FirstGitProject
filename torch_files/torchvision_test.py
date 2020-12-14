@@ -9,6 +9,8 @@ C:\Anaconda3\Lib\site-packages\torchvision\models   ---> 이곳에서 모델 구
 - pretrained=True로 모델을 생성하면, trainable variable들의 값이 down받은 값으로 초기화 되어 있다.
 - model의 일부를 단순히 교체하든지, 
 
+default download directory: C:\\Users\\BRAIN\\.cache\\torch
+
 '''
 import torch
 import numpy as np
@@ -25,21 +27,28 @@ from PIL import Image
 def test1():
     # https://pytorch.org/docs/stable/torchvision/models.html
     # default: pretrained=False, progress=True(If True, displays a progress bar of the download to stderr)
-    resnet18 = models.resnet18()
-    alexnet = models.alexnet()
+#     resnet18 = models.resnet18()
+#     alexnet = models.alexnet()
     vgg16 = models.vgg16()
-    squeezenet = models.squeezenet1_0()
-    densenet = models.densenet161()
-    inception = models.inception_v3()
-    googlenet = models.googlenet()
-    shufflenet = models.shufflenet_v2_x1_0()
-    mobilenet = models.mobilenet_v2()
-    resnext50_32x4d = models.resnext50_32x4d()
-    wide_resnet50_2 = models.wide_resnet50_2()
-    mnasnet = models.mnasnet1_0()
+#     squeezenet = models.squeezenet1_0()
+#     densenet = models.densenet161()
+#     inception = models.inception_v3()
+#     googlenet = models.googlenet()
+#     shufflenet = models.shufflenet_v2_x1_0()
+#     mobilenet = models.mobilenet_v2()
+#     resnext50_32x4d = models.resnext50_32x4d()
+#     wide_resnet50_2 = models.wide_resnet50_2()
+#     mnasnet = models.mnasnet1_0()
 
     print(vgg16)
-
+    print("children: ")
+    for module in vgg16.children(): # children은 큰 group으로 나누어진 것.
+        print(module)
+        
+        
+    print("named_children: ")
+    for name,module in vgg16.named_children():  # named_children도 children과 동일. 단지 name만 추가된 것.
+        print(name,"----", module)
 
 
 class MyVGG(nn.Module):
@@ -249,15 +258,14 @@ def transform_test():
 
 
 if __name__ == '__main__':
-    #test1()
-    test2()
+    test1()
+    #test2()
     #test3()
     #test4()
     #torchvision_datast_test()
     #transform_test()
     
     print('Done')
-
 
 
 
