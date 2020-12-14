@@ -88,7 +88,7 @@ colab link 삽입
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1X6WerwDVRWZ6xGltEvOPL8lT4ddlQc2M)
 
-nbviewer link 사입
+nbviewer link 삽입
 https://nbviewer.jupyter.org    +  https://github.com/hccho2/hccho2FirstGitProject/blob/master/torch_files/MNIST_loading.ipynb
 
 ==> https://nbviewer.jupyter.org/github/hccho2/hccho2FirstGitProject/blob/master/torch_files/MNIST_loading.ipynb
