@@ -95,3 +95,9 @@ https://nbviewer.jupyter.org    +  https://github.com/hccho2/hccho2FirstGitProje
 
 
 [![Open In nbviewer](https://jupyter.org/assets/main-logo.svg)](https://nbviewer.jupyter.org/github/hccho2/hccho2FirstGitProject/blob/master/torch_files/MNIST_loading.ipynb)
+
+
+###########################################
+jupyter notebook에서 debuging하기
+
+from IPython.core.debugger import set_trace     # 코드 중간에 set_trace()를 삽입하면 breakpoint 역할을 한다. 'c'continue 'q': quit
