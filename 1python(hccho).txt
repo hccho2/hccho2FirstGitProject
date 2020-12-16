@@ -801,6 +801,15 @@ gif = images[0]
 gif.save(fp="result.gif", format='gif', save_all=True, append_images=images[1:],duration=800)  # duration 지정
 print(Image.open("result.gif").n_frames)
 
+#######################################
+from PIL import Image
+import matplotlib.pyplot as plt
+import cv2
+
+filename = 'black-white.jpg'  # load해 보면, (H,W,C)
+img = Image.open(filename).convert('L')
+img2 = cv2.applyColorMap(np.array(img),cv2.COLORMAP_JET)
+##########################################
 
 ###  동영상 gif로 변환
 from moviepy.editor import *
