@@ -571,16 +571,16 @@ def mode_test():
 
     print('K.learning_phase(): ',K.learning_phase())
     
-    #tf.keras.backend.set_learning_phase(1)
+    tf.keras.backend.set_learning_phase(1)
     print('K.learning_phase(): ',K.learning_phase())
     y1 = model(x,True)
     y2 = model(x,False)
-    y3 = model(x)
+    y3 = model(x) # tf.keras.backend.set_learning_phase(1) 설정에 따라 값이 달라진다.
 
     
     print("dropout on: ", y1,'\ndropout off: ', y2, '\n default: ', y3)
     print('manual cal: ', np.matmul(x,model.get_weights()[0]) + model.get_weights()[1])
-    print('loss: ', np.square(np.subtract(y, y1)).mean(), np.square(np.subtract(y, y2)).mean())
+    print('loss(training=True): ', np.square(np.subtract(y, y1)).mean(), ',\t\t loss(training=False): ', np.square(np.subtract(y, y2)).mean())
     
     
     print('='*20)
@@ -601,16 +601,23 @@ def mode_test():
     
     
     # model1은 무조건 training=True로 되게 정의했기 때문에, evaluate에서도 training=True가 적용된다.   ===> 모델을 이런식으로 구성하면 안됨.
-    print('train mode: ', model1(x))  
+    print('model1은 train/eval 모두에서 traing=True가 적용된다.')
+    print('train mode: ', model1(x))
+    # training=True로 explicit하게 넘어가기 때문에, evaluate()에서도 training=True가 적용된다.
     print('eval mode: ',model1.evaluate(x,y))  # training=True로 설정되어 있기 때문에, evaluate에서도 training=True가 적용된다. dropout이 random하기 때문에 위에서 계산한 loss와 다르다.
     
     print('='*40)
     print('='*40)
     
     print('train mode-explicit(on): ', model2(x,True))
-    print('train mode-implicit(=off): ', model2(x)) # training=None이 들어간다.  ---> K.learning_phase() = 0이다  ----> dropout=off
-    print('eval mode: ',model2.evaluate(x,y))  # training=False가 적용되어 있기 때문에 위에서 계산한 loss값과 일치한다.
     
+    print('K.learning_phase(): ',K.learning_phase())
+    # 아래 경우는 tf.keras.backend.set_learning_phase( 0 또는 1)에 영향을 받는다.
+    print('train mode-implicit(=off): ', model2(x)) # training=None이 들어간다.  ---> K.learning_phase() = 0이다  ----> dropout=off
+    
+    # evaluate()에서는 set_learning_phase()의 설정에 상관없이 training=False가 적용된다.
+    print('eval mode: ',model2.evaluate(x,y))  # training=False가 적용되어 있기 때문에 위에서 계산한 loss값과 일치한다.
+    print('K.learning_phase(): ',K.learning_phase())
     print('='*60)
     print('='*60)  
     model2.fit(x,y,epochs=5,verbose=2)
