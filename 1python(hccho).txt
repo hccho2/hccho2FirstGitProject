@@ -2049,6 +2049,9 @@ args = {'l2_reg': 7}
 f(**args)
 
 =====================================================================================
+# imagenet class name
+class_idx = json.load(open(r"C:\Users\BRAIN\.keras\models\imagenet_class_index.json"))  # dict
+idx2label = [class_idx[str(k)][1] for k in range(len(class_idx))]  # ['tench', 'goldfish', 'great_white_shark', 'tiger_shark', 'hammerhead', ...]
 
 
 =====================================================================================
