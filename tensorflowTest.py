@@ -2635,8 +2635,8 @@ print(np.mean(np.mean(np.square(y_true-y_pred),axis=-1))) # default
 # tf.keras.losses.Reduction.NONE --> output dim에 대해서만 제곱하여 평균한다. batch는 그래도 남겨둔다.
 print(np.mean(np.square(y_true-y_pred),axis=-1))  
 ###############################################
-
-		       
+file_contents = tf.io.read_file('YellowLabradorLooking_new.jpg')
+tf.image.decode_image(file_contents)	       
 	
 ###############################################
 
