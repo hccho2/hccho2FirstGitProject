@@ -795,11 +795,21 @@ import os, glob
 image_files = glob.glob("*.png")
 
 print(image_files)
-images = [Image.open(f) for f in image_files]
+images = [Image.open(f) for f in image_files]   ----> from natsort import natsorted   ---> natsorted 필요.
 images = images*10  # 반복
 gif = images[0]
 gif.save(fp="result.gif", format='gif', save_all=True, append_images=images[1:],duration=800)  # duration 지정
 print(Image.open("result.gif").n_frames)
+
+#########################################
+
+# jupyter notebook에서 gif 보여주기
+from IPython.display import Image as Image2   # PIL Image와 이름이 같아서...
+with open('result.gif','rb') as f:
+    display(Image2(data=f.read(), format='png'))
+
+
+
 
 #######################################
 from PIL import Image
