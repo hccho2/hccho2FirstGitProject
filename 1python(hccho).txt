@@ -2058,7 +2058,10 @@ idx2label = [class_idx[str(k)][1] for k in range(len(class_idx))]  # ['tench', '
 # 파일명에 날짜 시간 포함시키기
 plt.savefig(f'final{time.strftime("%Y%m%d-%H%M%S")}.jpg' ,bbox_inches = 'tight', pad_inches = 0)  # 여백없이 그림만 저장
 =====================================================================================
-
+# jupyter notebook에서 gif 보여주기
+from IPython.display import Image as Image2   # PIL Image와 이름이 같아서...
+with open('result.gif','rb') as f:
+    display(Image2(data=f.read(), format='png'))
 
 =====================================================================================
 
