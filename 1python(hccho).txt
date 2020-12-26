@@ -1917,8 +1917,8 @@ packaging.py", line 826   ---> pkg_metadata_file = open(filename, 'r') ===> pkg_
 # 디렉토리를 생성날짜 별로 정렬해서, 가장 최근 디렉토리 찾기.
 
 data_dir = '/home/hccho2/projects/KoELECTRA/finetune/ckpt'
-all_dirs = os.listdir(data_dir)
-all_dirs = [[d, os.stat(os.path.join(data_dir,d)).st_mtime] for d in all_dirs]
+all_dirs = os.listdir(data_dir)   # 디렉토리 + 파일
+all_dirs = [[d, os.stat(os.path.join(data_dir,d)).st_mtime] for d in all_dirs]  # os.stat ===> 생성 날짜 등의 정보를 준다.
 all_dirs = sorted(all_dirs,key= lambda x: x[1],reverse=True)
 data_dir = os.path.join(data_dir,all_dirs[0][0])
 data_files = glob(os.path.join(data_dir,'eval','*.txt'))
