@@ -4,7 +4,7 @@
 
 https://www.tensorflow.org/tutorials/text/text_generation  ---> RNN 기초
 
-https://github.com/tensorflow/addons/issues/1856   ---> 아직 bug가 있다. AttentionWraper의 state를 list로 할 것인가? tuple로 할 것인가? 정리가 되어 있지 않다.
+https://github.com/tensorflow/addons/issues/1898   ---> 아직 bug가 있다. AttentionWraper의 state를 list로 할 것인가? tuple로 할 것인가? 정리가 되어 있지 않다.
 
 
 tensorflow nmt + attenstion manual
@@ -12,6 +12,21 @@ https://www.tensorflow.org/tutorials/text/nmt_with_attention
 
 
 get_initial_state()함수가 class type에 따라, 일관성이 없다....
+
+
+
+tensorflow-addons
+
+- attention_test(): tfa.seq2seq.BahdanauAttention()에 memory(encoder output), memory_sequence_length를 넝어 준다.
+이 방식은 나중에 memory에 tensor가 들어가면 문제가 방생한다.
+
+- attention_test2(): tfa.seq2seq.BahdanauAttention(units=11, memory=None, memory_sequence_length=None)  ---> memory, memory_sequence_length를 None으로 처리한 후,
+attention_mechanism.setup_memory()를 통해 train step마다 data를 넣어준다.
+이 방식인 tensorflow-addons의 정석적인 방법이다.
+
+- attention_test3(): https://github.com/tensorflow/addons/blob/master/docs/tutorials/networks_seq2seq_nmt.ipynb 에서 추출한 코드.
+
+
 '''
 
 
@@ -20,6 +35,7 @@ import tensorflow as tf
 import tensorflow_addons as tfa
 import matplotlib.pyplot as plt
 from tensorflow.keras.initializers import Constant
+import math
 
 class MyProjection(tf.keras.layers.Layer):  # tf.keras.layers.Layer    tf.keras.Model
     def __init__(self,output_dim):
@@ -77,9 +93,9 @@ def cell_loop():
     
     output_all = tf.stack(output_all,axis=1)
     print(output_all)
-
+    print('='*20)
     # tf.keras.layers.RNN으로  batch 처리
-    rnn = tf.keras.layers.RNN(cells,return_sequences=True)
+    rnn = tf.keras.layers.RNN(cells,return_sequences=True,return_state=False)  # return_state=True
     output_all2 = rnn(inputs,initial_state)   # output_all과 같은 결과
     print(output_all2)
 
@@ -114,6 +130,116 @@ def simple_rnn():
     print('output shape: {}, hidden_state_shape: {}, cell_state_shape: {}, '.format(whole_seq_output.shape,final_memory_state.shape,final_carry_state.shape  ))
 
 
+def curve_fitting():
+    # sincurve fitting
+    
+    N = 1000
+    
+    x = np.linspace(0, 2 * np.pi, N)
+    y = np.sin(x) + np.random.uniform(-0.05, 0.05, size=x.shape)
+
+    hidden_dim = 10
+    model = tf.keras.models.Sequential([ 
+                                tf.keras.layers.RNN(tf.keras.layers.SimpleRNNCell(hidden_dim),return_sequences=True,return_state=False),
+                                tf.keras.layers.Dense(1)])
+
+
+    data_x = np.array(y[:-1])
+    data_y = np.array(y[1:])
+
+    num_iter = 500
+    T= 5
+    optimizer = tf.keras.optimizers.Adam(lr=0.01)
+    loss_fn = tf.keras.losses.MeanSquaredError()
+    train_loss = []
+    for i in range(num_iter):
+        random_pos = np.random.randint(0,len(data_x)-T)
+        input_x = data_x[random_pos:random_pos+T].reshape(1,T,1)
+        target = data_y[random_pos:random_pos+T].reshape(1,T,1)
+
+        with tf.GradientTape() as tape:
+            pred = model(input_x)
+            loss = loss_fn(pred,target)
+        
+        gradients = tape.gradient(loss, model.trainable_variables)    
+        optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+        train_loss.append(loss.numpy())
+
+        if i% 20 ==0:
+            print(f'{i}: loss: {loss}')
+        
+    plt.plot(train_loss)
+    plt.show()
+    
+    pred = model(data_x.reshape(1,-1,1))  # 
+    
+    plt.plot(data_y,label='target',linewidth=5)
+    plt.plot(pred.numpy().reshape(-1),label='pred')
+    
+    plt.legend()
+    plt.show()
+    
+def curve_fitting2():
+    # sincurve fitting
+    
+
+    class MyDataset(tf.keras.utils.Sequence):
+    
+        def __init__(self, N,T,batch_size=5):
+            self.batch_size=batch_size
+            self.T = T
+            x = np.linspace(0, 2 * np.pi, N)
+            self.raw_data = np.sin(x) + np.random.uniform(-0.05, 0.05, size=x.shape)
+    
+        def __len__(self):
+            return math.ceil(len(self.raw_data) / self.batch_size)
+    
+        def __getitem__(self, idx):
+            random_pos = np.random.randint(0,len(self.raw_data)-self.T-1,size=self.batch_size)
+            batch_x =[ self.raw_data[p:p+self.T] for p in random_pos ]
+            target = [ self.raw_data[p+1:p+1+self.T] for p in random_pos ]
+    
+            return np.expand_dims(np.stack(batch_x),-1), np.expand_dims(np.stack(target),-1)
+
+
+    N = 1000
+    T = 10
+    batch_size = 64
+    
+    
+    ds = MyDataset(N,T,batch_size)
+
+    ######### model 정의
+    hidden_dim = 10
+    model = tf.keras.models.Sequential([ 
+                                tf.keras.layers.RNN(tf.keras.layers.SimpleRNNCell(hidden_dim),return_sequences=True,return_state=False),
+                                tf.keras.layers.Dense(1)])
+
+
+    optimizer = tf.keras.optimizers.Adam(lr=0.001)
+    model.compile(optimizer,loss='mse')
+
+
+    history = model.fit(ds, epochs=50,verbose=1)
+    
+    plt.plot(history.history['loss'],label="train loss")
+    plt.show()
+    
+    
+    # validation dataset
+    x = np.linspace(0, 2 * np.pi, N)
+    y = np.sin(x)                         #+ np.random.uniform(-0.05, 0.05, size=x.shape)
+    data_x = np.array(y[:-1])
+    data_y = np.array(y[1:])    
+    
+    
+    pred = model(data_x.reshape(1,-1,1))  # 
+     
+    plt.plot(data_y,label='target',linewidth=5)
+    plt.plot(pred.numpy().reshape(-1),label='pred')
+     
+    plt.legend()
+    plt.show()
 def simple_rnn2():
     # RNN + BN + FC
     batch_size = 3
@@ -243,8 +369,8 @@ def simple_seq2seq2():
     
     
     #projection_layer = tf.keras.layers.Dense(decoder_output_dim)
-    #projection_layer = MyProjection(decoder_output_dim)
-    projection_layer = MyProjection2(decoder_output_dim)
+    projection_layer = MyProjection(decoder_output_dim)
+    #projection_layer = MyProjection2(decoder_output_dim)
     
     sampler = tfa.seq2seq.sampler.TrainingSampler()
     decoder = tfa.seq2seq.BasicDecoder(decoder_cell, sampler, output_layer=projection_layer)
@@ -673,7 +799,7 @@ def decoder_train_save_restore_test():
                     print(''.join( index_to_char[a] for a in result[i,:,j] if a != EOS_token))
 
 def attention_test():
-    
+    # 이 방법은 bug로 문제가 있다.
     vocab_size = 6
     SOS_token = 0
     EOS_token = 5
@@ -743,6 +869,141 @@ def attention_test():
     
     plt.imshow(alignment_stack[:,0,:], cmap='hot',interpolation='nearest')
     plt.show()
+
+def attention_test2():
+    # 잘 작동하는 표준적인 방법  ---> attention_mechanism.setup_memory
+    vocab_size = 6
+    SOS_token = 0
+    EOS_token = 5
+    
+    x_data = np.array([[SOS_token, 3, 1, 4, 3, 2],[SOS_token, 3, 4, 2, 3, 1],[SOS_token, 1, 3, 2, 2, 1]], dtype=np.int32)
+    y_data = np.array([[3, 1, 4, 3, 2,EOS_token],[3, 4, 2, 3, 1,EOS_token],[1, 3, 2, 2, 1,EOS_token]],dtype=np.int32)
+    print("data shape: ", x_data.shape)
+    
+    
+    output_dim = vocab_size
+    batch_size = len(x_data)
+    hidden_dim =7
+
+    seq_length = x_data.shape[1]
+    embedding_dim = 8
+
+    init = np.arange(vocab_size*embedding_dim).reshape(vocab_size,-1)
+    
+    embedding = tf.keras.layers.Embedding(vocab_size, embedding_dim,embeddings_initializer=Constant(init),trainable=True) 
+    ##### embedding.weights, embedding.trainable_variables, embedding.trainable_weights --> 모두 같은 결과 
+    
+    decoder_input = embedding(x_data)
+
+
+    
+    
+
+    # units = Na = 11 <---- score 계산하기 전에, 몇차 vector를 만들 것인지 결정.
+    attention_mechanism = tfa.seq2seq.BahdanauAttention(units=11, memory=None, memory_sequence_length=None)  # attention_mechanism.setup_memory()에서 처리
+    #attention_mechanism = tfa.seq2seq.LuongAttention(units=hidden_dim, memory=encoder_outputs, memory_sequence_length=encoder_sequence_length)
+    
+    decoder_cell = tf.keras.layers.LSTMCell(hidden_dim)
+    decoder_cell = tfa.seq2seq.AttentionWrapper(decoder_cell, attention_mechanism,attention_layer_size=13,output_attention=True,alignment_history=True)
+    projection_layer = tf.keras.layers.Dense(output_dim)
+
+
+
+    # decoder init state:
+    init_state = [tf.ones((batch_size,hidden_dim)), tf.zeros((batch_size,hidden_dim))]   # tuple(h,c) --> [h,c] ---> error남. --> tensorflow-addons version 0.11에서 수정. list로 해야 된다.
+    
+    
+    # Sampler
+    sampler = tfa.seq2seq.sampler.TrainingSampler()
+    
+    # Decoder
+    
+    
+    # tfa.seq2seq.AttentionWrapper의 initial_cell_state로 tuple을 넣어야 되는데... 이건 버그임. 
+    # initial_cell_state 로 넘어가는 것은 계산에 사용되는 것은 아니고, get_initial_state()이 불려지면 넘겨 주려고....
+    
+
+    
+    decoder = tfa.seq2seq.BasicDecoder(decoder_cell, sampler, output_layer=projection_layer)
+    
+    
+    for i in range(3):
+        # train step
+        encoder_outputs = tf.random.normal(shape=(batch_size, 20, 30))  # encoder length=20, encoder_dim= 30
+        encoder_sequence_length = [10,20,15]  # batch에 대한, encoder의 길이. padding이 있을 수 있기 때문. [20]*batch_size
+        
+        
+        attention_mechanism.setup_memory(memory=encoder_outputs, memory_sequence_length=encoder_sequence_length, memory_mask=None)
+        attention_init_state = decoder_cell.get_initial_state(inputs = None, batch_size = batch_size, dtype=tf.float32)  # inputs의 역할은 없느데.. .source보면.
+        
+        attention_init_state = attention_init_state.clone(cell_state=init_state )
+        
+        outputs, last_state, last_sequence_lengths = decoder(decoder_input,initial_state=attention_init_state, sequence_length=[seq_length]*batch_size,training=True)
+        logits = outputs.rnn_output
+        print(i, logits)
+    
+    print(logits.shape)
+    
+
+    alignment_stack = last_state.alignment_history.stack().numpy()
+    print("alignment_history: ", alignment_stack.shape)  # (seq_length, batch_size, encoder_length)
+    
+    plt.imshow(alignment_stack[:,0,:], cmap='hot',interpolation='nearest')
+    plt.show()
+
+
+
+def attention_test3():
+
+    #ENCODER
+    class EncoderNetwork(tf.keras.Model):
+        def __init__(self,input_vocab_size,embedding_dims, rnn_units ):
+            super().__init__()
+            self.encoder_embedding = tf.keras.layers.Embedding(input_dim=input_vocab_size,
+                                                               output_dim=embedding_dims)
+            self.encoder_rnnlayer = tf.keras.layers.LSTM(rnn_units,return_sequences=True, 
+                                                         return_state=True )
+        
+    #DECODER
+    class DecoderNetwork(tf.keras.Model):
+        def __init__(self,output_vocab_size, embedding_dims, rnn_units):
+            super().__init__()
+            self.decoder_embedding = tf.keras.layers.Embedding(input_dim=output_vocab_size,
+                                                               output_dim=embedding_dims) 
+            self.dense_layer = tf.keras.layers.Dense(output_vocab_size)
+            self.decoder_rnncell = tf.keras.layers.LSTMCell(rnn_units)
+            # Sampler
+            self.sampler = tfa.seq2seq.sampler.TrainingSampler()
+            # Create attention mechanism with memory = None
+            self.attention_mechanism = self.build_attention_mechanism(dense_units,None,BATCH_SIZE*[Tx])
+            self.rnn_cell =  self.build_rnn_cell(BATCH_SIZE)
+            self.decoder = tfa.seq2seq.BasicDecoder(self.rnn_cell, sampler= self.sampler,
+                                                    output_layer=self.dense_layer)
+    
+        def build_attention_mechanism(self, units,memory, memory_sequence_length):
+            #return tfa.seq2seq.LuongAttention(units, memory = memory, memory_sequence_length=memory_sequence_length)
+            return tfa.seq2seq.BahdanauAttention(units, memory = memory, memory_sequence_length=memory_sequence_length)
+    
+        # wrap decodernn cell  
+        def build_rnn_cell(self, batch_size ):
+            rnn_cell = tfa.seq2seq.AttentionWrapper(self.decoder_rnncell, self.attention_mechanism,attention_layer_size=dense_units)
+            return rnn_cell
+        
+        def build_decoder_initial_state(self, batch_size, encoder_state,Dtype):
+            decoder_initial_state = self.rnn_cell.get_initial_state(batch_size = batch_size, 
+                                                                    dtype = Dtype)
+            decoder_initial_state = decoder_initial_state.clone(cell_state=encoder_state) 
+            return decoder_initial_state
+    input_vocab_size =100
+    embedding_dims = 30
+    rnn_units = 10
+    output_vocab_size = 100
+    dense_units = 20
+    BATCH_SIZE = 16
+    Tx = 20
+    encoderNetwork = EncoderNetwork(input_vocab_size,embedding_dims, rnn_units)
+    decoderNetwork = DecoderNetwork(output_vocab_size,embedding_dims, rnn_units)
+    optimizer = tf.keras.optimizers.Adam()
 
 
 def InferenceSampler_test():
@@ -852,6 +1113,10 @@ def InferenceSampler_test():
 if __name__ == '__main__':
     #cell_loop()
     #simple_rnn()
+    
+    #curve_fitting()
+    curve_fitting2()  # Sequence로 dataset 공급
+    
     #simple_rnn2()
     #bidirectional_rnn_test()
     #simple_seq2seq()
@@ -860,6 +1125,8 @@ if __name__ == '__main__':
     #decoder_test()
     #decoder_train_test()
     #decoder_train_save_restore_test()
-    attention_test()
+    #attention_test()
+    #attention_test2()
+    #attention_test3()
     #InferenceSampler_test()
     print('Done')
