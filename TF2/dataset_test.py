@@ -88,9 +88,13 @@ def mnist_dataset_test():
     
     
     
+def squence_test():
+    # 대용량 Dataset 다루기
+    # tf.keras.utils.Sequence  ---> pytorch의 Dataset + DataLoader 과 유사
     
-    
-    
+    pass  # TF2_RNN.py에 example 있음.
+
+
 if __name__ == '__main__':
     #data_performance_test()
     
