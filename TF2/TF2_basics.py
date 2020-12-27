@@ -136,6 +136,7 @@ def simple_model():
             ## 가중치와 절편을 정의합니다
             self.w = tf.Variable(tf.zeros(shape=(1)))
             self.b = tf.Variable(tf.zeros(shape=(1)))
+
             ## 경사 하강법 옵티마이저를 설정합니다.
             self.optimizer = tf.keras.optimizers.SGD(lr=learning_rate)
             
@@ -341,6 +342,8 @@ def keras_standard_model2():  # tf.keras.Input 사용
     model = tf.keras.Model(inputs = inputs,outputs = outputs)  # model.input, model.output 
     print(model.summary())
     
+
+    
     
     X = tf.random.normal(shape=(batch_size, input_dim))
     
@@ -355,6 +358,7 @@ def keras_standard_model2():  # tf.keras.Input 사용
     
     print(X,Y)
     print(model.predict(X))
+
 
 def keras_standard_model3():
     # https://towardsdatascience.com/advanced-keras-constructing-complex-custom-losses-and-metrics-c07ca130a618
@@ -689,7 +693,7 @@ def learning_rate_scheduler():
 
 if __name__ == "__main__":    
     #embeddidng_test()
-    #simple_model()
+    simple_model()
     #keras_standard_model()   # ---> model_load_test
     
     #model_load_test()
@@ -697,7 +701,7 @@ if __name__ == "__main__":
     #keras_standard_model2()
     #keras_standard_model3()
     #keras_standard_model4()
-    mode_test()
+    #mode_test()
 
     #load_data()
 
