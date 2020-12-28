@@ -1149,7 +1149,7 @@ def PackedSeq_test():
     
     
     # input_seq2idx[i, :].data.nonzero()  ---> 0이 아닌 값들의 index를 뽑아준다. ----> max 취하고 1 더하면, padding 되지 않은 길이
-    input_lengths = torch.LongTensor([torch.max(input_seq2idx[i, :].data.nonzero())+1 for i in range(input_seq2idx.size(0))])
+    input_lengths = torch.LongTensor([torch.max(input_seq2idx[i, :].data.nonzero())+1 for i in range(input_seq2idx.size(0))])  # .nonzero()가 0이 아닌 위치의 index return
     input_lengths, sorted_idx = input_lengths.sort(0, descending=True)  # 정렬된 길이, 인텍스
     input_seq2idx = input_seq2idx[sorted_idx] # ---> 길이순으로 정렬
     
@@ -1179,7 +1179,8 @@ def PackedSeq_test():
     print(out2)  # padded부분도 계산이되어, garbage가 들어 있다.
 
 
-
+    print('*'*20)
+    # mask를 씌워서 garbage를 없앨 수 있다.
     def sequence_mask(lengths, maxlen=None, dtype=torch.bool):   # tf.sequence_mask.
         if maxlen is None:
             maxlen = lengths.max()
@@ -1486,7 +1487,7 @@ if __name__ == '__main__':
     #test0()
     #test1()
     #test2() # tensor 생성과 초기화
-    model1()
+    #model1()
     #model2()
     #MultivariateRegression()
     #MultivariateRegression2()
@@ -1504,7 +1505,7 @@ if __name__ == '__main__':
     #RNN_test00()
     #RNN_test11()
     #RNN_test()
-    #PackedSeq_test()
+    PackedSeq_test()
     
     #bidirectional_test()
 
