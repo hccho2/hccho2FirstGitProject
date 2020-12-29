@@ -8,6 +8,14 @@ wget -c 'https://www.dropbox.com/s/ncfa5t950gvtaeb/test.enc?dl=0' -O test.enc
 wget -c 'https://www.dropbox.com/s/48ro4759jaikque/test.dec?dl=0' -O test.dec
 wget -c 'https://www.dropbox.com/s/gu54ngk3xpwite4/train.enc?dl=0' -O train.enc
 wget -c 'https://www.dropbox.com/s/g3z2msjziqocndl/train.dec?dl=0' -O train.dec
+
+
+코드 분석: 
+_buckets = [(5, 10), (10, 15), (20, 25), (40, 50)] = [(source_size, target_size), (source_size, target_size), ... ]
+
+- data를 길이에 따라, bucket으로 분할
+- 하나의 mini-batch는 하나의 bucket에 있는 data로만 구성. ==> padding을 최소화하기 위한 전략.
+
 '''
 import numpy as np
 import random,os,re,sys
@@ -41,9 +49,9 @@ class SeqDataFeeder():
         self.data = data
         self.bucket = bucket
         
-        train_bucket_sizes = [len(self.data[b]) for b in range(len(self.bucket))]
-        train_total_size = float(sum(train_bucket_sizes))
-        self.train_buckets_scale = [sum(train_bucket_sizes[:i + 1]) / train_total_size  for i in range(len(train_bucket_sizes))]    
+        train_bucket_sizes = [len(self.data[b]) for b in range(len(self.bucket))]  # [8157, 26477, 36451, 27715]
+        train_total_size = float(sum(train_bucket_sizes))  # 98800
+        self.train_buckets_scale = [sum(train_bucket_sizes[:i + 1]) / train_total_size  for i in range(len(train_bucket_sizes))] # [0.08256072874493928, 0.35054655870445345, 0.7194838056680162, 1.0]
 
 
     def get_batch(self,data,batch_size):
