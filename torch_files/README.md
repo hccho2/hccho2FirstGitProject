@@ -218,6 +218,7 @@ print(result)
 
 ```
 ## torch.autograd.Function
+- https://pytorch.org/tutorials/beginner/pytorch_with_examples.html#pytorch-defining-new-autograd-functions
 - trainable weight가 없는 함수를 정의할 때 좋다.
 - trainable weight가 있는 것은 함수라기 보다는 layer이므로, nn.Module을 상속받아 구현하면 된다.
 ```
