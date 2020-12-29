@@ -135,7 +135,7 @@ def initialize_vocabulary(vocabulary_path):
             rev_vocab.extend(f.readlines())
         rev_vocab = [line.strip() for line in rev_vocab]
         vocab = dict([(x, y) for (y, x) in enumerate(rev_vocab)])
-        return vocab, rev_vocab
+        return vocab, rev_vocab  # vocab: dict, rev_vocab: list
     else:
         raise ValueError("Vocabulary file %s not found.", vocabulary_path)
 
@@ -174,8 +174,8 @@ def data_to_token_ids(data_path, target_path, vocabulary_path,
 def prepare_custom_data(working_directory, train_enc, train_dec, test_enc, test_dec, enc_vocabulary_size, dec_vocabulary_size, tokenizer=None):
 
         # Create vocabularies of the appropriate sizes.
-    enc_vocab_path = os.path.join(working_directory, "vocab%d.enc" % enc_vocabulary_size)
-    dec_vocab_path = os.path.join(working_directory, "vocab%d.dec" % dec_vocabulary_size)
+    enc_vocab_path = os.path.join(working_directory, "vocab%d.enc" % enc_vocabulary_size)  # --> './data\\vocab20000.enc'
+    dec_vocab_path = os.path.join(working_directory, "vocab%d.dec" % dec_vocabulary_size)  # --> './data\\vocab20000.dec'
     create_vocabulary(enc_vocab_path, train_enc, enc_vocabulary_size, tokenizer)
     create_vocabulary(dec_vocab_path, train_dec, dec_vocabulary_size, tokenizer)
 
@@ -191,7 +191,7 @@ def prepare_custom_data(working_directory, train_enc, train_dec, test_enc, test_
     data_to_token_ids(test_enc, enc_dev_ids_path, enc_vocab_path, tokenizer)
     data_to_token_ids(test_dec, dec_dev_ids_path, dec_vocab_path, tokenizer)
 
-    return (enc_train_ids_path, dec_train_ids_path, enc_dev_ids_path, dec_dev_ids_path, enc_vocab_path, dec_vocab_path)
+    return (enc_train_ids_path, dec_train_ids_path, enc_dev_ids_path, dec_dev_ids_path, enc_vocab_path, dec_vocab_path)   # 6개의 파일 path return
 def read_data(source_path, target_path, max_size=None):
     """Read data from source and target files and put into buckets.
 
@@ -209,7 +209,7 @@ def read_data(source_path, target_path, max_size=None):
         into the n-th bucket, i.e., such that len(source) < _buckets[n][0] and
         len(target) < _buckets[n][1]; source and target are lists of token-ids.
     """
-    _buckets = [(5, 10), (10, 15), (20, 25), (40, 50)]
+    _buckets = [(5, 10), (10, 15), (20, 25), (40, 50)]  # [(source_size, target_size), (source_size, target_size), ... ]
     data_set = [[] for _ in _buckets]
     with tf.io.gfile.GFile(source_path, mode="r") as source_file:  # tf.gfile.GFile(source_path, mode="r")
         with tf.io.gfile.GFile(target_path, mode="r") as target_file:
@@ -226,7 +226,7 @@ def read_data(source_path, target_path, max_size=None):
                 for bucket_id, (source_size, target_size) in enumerate(_buckets):
                     if len(source_ids) < source_size and len(target_ids) < target_size:
                         data_set[bucket_id].append([source_ids, target_ids])
-                        break
+                        break  # bucket 1곳에만
                 source, target = source_file.readline(), target_file.readline()
     return data_set
 
