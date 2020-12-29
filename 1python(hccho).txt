@@ -2075,7 +2075,55 @@ with open('result.gif','rb') as f:
     display(Image2(data=f.read(), format='png'))
 
 =====================================================================================
+#decorate
+def deco(func):
+    print('****')
+    def inner(x):
+        print('running inner()')
+        out = func(x)
+        return out
+    return inner
+  
+@deco
+def target(x):
+    print('running target()', x)
+    return x*10
+      
+print('====')
+  
+print(target(4.5))
 
+==================
+==================
+import time
+
+def clock(func):
+    print(func)
+    def clocked(*args):
+        t0 = time.time()
+        result = func(*args)
+        elapsed = time.time() - t0
+        name = func.__name__
+        arg_str = ', '.join(repr(arg) for arg in args)
+        print('[%0.8fs] %s(%s) -> %r' % (elapsed, name, arg_str, result))
+        return result
+    return clocked
+
+
+
+@clock
+def snooze(seconds):
+    time.sleep(seconds)
+
+@clock
+def factorial(n):
+    return 1 if n < 2 else n*factorial(n-1)
+
+if __name__=='__main__':
+    print('*' * 40, 'Calling snooze(.123)')
+    snooze(.123)
+    print('*' * 40, 'Calling factorial(6)')
+    print('6! =', factorial(6))
 
 =====================================================================================
 
