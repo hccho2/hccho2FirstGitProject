@@ -231,8 +231,9 @@ class Exp(torch.autograd.Function):
 
     @staticmethod
     def backward(ctx, grad_output):
+        # grad_output: 넘어온 gradient값
         result, = ctx.saved_tensors
-        return grad_output * result
+        return grad_output * result  # 넘어온 gradient x 미분 ---> exponential 함수의 미분은 exp'(x) = exp(x) = result
 
 #Use it by calling the apply method:
 
