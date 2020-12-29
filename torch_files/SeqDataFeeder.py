@@ -4,7 +4,10 @@ easy_seq2seq-master에 있는 코드를 수정한 것
 
 train.dec.ids20000  파일은 없으면 자동으로 만든다.
 
-
+wget -c 'https://www.dropbox.com/s/ncfa5t950gvtaeb/test.enc?dl=0' -O test.enc
+wget -c 'https://www.dropbox.com/s/48ro4759jaikque/test.dec?dl=0' -O test.dec
+wget -c 'https://www.dropbox.com/s/gu54ngk3xpwite4/train.enc?dl=0' -O train.enc
+wget -c 'https://www.dropbox.com/s/g3z2msjziqocndl/train.dec?dl=0' -O train.dec
 '''
 import numpy as np
 import random,os,re,sys
@@ -208,8 +211,8 @@ def read_data(source_path, target_path, max_size=None):
     """
     _buckets = [(5, 10), (10, 15), (20, 25), (40, 50)]
     data_set = [[] for _ in _buckets]
-    with tf.gfile.GFile(source_path, mode="r") as source_file:
-        with tf.gfile.GFile(target_path, mode="r") as target_file:
+    with tf.io.gfile.GFile(source_path, mode="r") as source_file:  # tf.gfile.GFile(source_path, mode="r")
+        with tf.io.gfile.GFile(target_path, mode="r") as target_file:
             source, target = source_file.readline(), target_file.readline()
             counter = 0
             while source and target and (not max_size or counter < max_size):
@@ -244,7 +247,6 @@ if __name__ =='__main__':
     
     
     encoder_inputs, decoder_inputs = data.get_batch(train_set, 2)
-    
     
     
     
