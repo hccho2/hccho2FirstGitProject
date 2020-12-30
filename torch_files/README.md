@@ -222,7 +222,7 @@ print(result)
 - trainable weight가 없는 함수를 정의할 때 좋다.
 - trainable weight가 있는 것은 함수라기 보다는 layer이므로, nn.Module을 상속받아 구현하면 된다.
 - ctx가 cache 역할을 한다.
-- Tensorflow에서 자동 미분이 되는 user defined activation function을 만드려면, `tf.custom_gradient'를 사용하면 된다.
+- Tensorflow에서 자동 미분이 되는 user defined activation function을 만드려면, `@tf.custom_gradient'를 사용하면 된다.
 ```
 class Exp(torch.autograd.Function):
     @staticmethod
