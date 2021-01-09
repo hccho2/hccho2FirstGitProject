@@ -74,6 +74,11 @@ def checkpoint():
     
     
 def fine_tuning():
+    # fine tuning 모델 초기화
+    # L1/kernel, L1/bias, L2/kernel, L2/bias는 checkpoint값으로 load하여 초기화 되고,
+    # L3/kernel, L3/bias는 단순 초기화 된다.
+    
+    
     checkpoint_filename = 'saved-model/pre-trained-model'
     y = build_model()
     
