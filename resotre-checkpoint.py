@@ -66,8 +66,9 @@ def checkpoint():
     
     print('='*40)
     # 변수를 골라서 출력.
-    for v in init_vars:
-        print_tensors_in_checkpoint_file(checkpoint_filename, all_tensors=True, tensor_name=v[0])
+    for i, v in enumerate(init_vars):
+        print(i,v)
+        print_tensors_in_checkpoint_file(checkpoint_filename, all_tensors=False, tensor_name=v[0])  # all_tensors=True로 하면, tensor_name은 무시되고, 모든 tensor를 다 출력해버린다.
     
     
     
