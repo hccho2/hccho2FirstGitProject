@@ -84,11 +84,13 @@ def fine_tuning():
     
     pretrained_vars = tf.trainable_variables()
     
-    (assignment_map, initialized_variable_names) = get_assignment_map_from_checkpoint(pretrained_vars, checkpoint_filename)
-    # assignment_map: OrderedDict([('L1/bias', 'L1/bias'), ('L1/kernel', 'L1/kernel'), ('L2/bias', 'L2/bias'), ('L2/kernel', 'L2/kernel')])
-    # initialized_variable_names: {'L1/bias': 1, 'L1/bias:0': 1, 'L1/kernel': 1, 'L1/kernel:0': 1, 'L2/bias': 1, 'L2/bias:0': 1, 'L2/kernel': 1, 'L2/kernel:0': 1}
-    
-    
+    method=1  # method=1,2 모두 가능.
+    if method==1:
+        (assignment_map, initialized_variable_names) = get_assignment_map_from_checkpoint(pretrained_vars, checkpoint_filename)
+        # assignment_map: OrderedDict([('L1/bias', 'L1/bias'), ('L1/kernel', 'L1/kernel'), ('L2/bias', 'L2/bias'), ('L2/kernel', 'L2/kernel')])
+        # initialized_variable_names: {'L1/bias': 1, 'L1/bias:0': 1, 'L1/kernel': 1, 'L1/kernel:0': 1, 'L2/bias': 1, 'L2/bias:0': 1, 'L2/kernel': 1, 'L2/kernel:0': 1}
+    else:
+        assignment_map = {v.name.split(':')[0]: v for v in tf.trainable_variables()}
     # tf.train.init_from_checkpoint를 통해, tf.global_variables_initializer()가 실행될 때, random 초기화가 되지 않는다.
     tf.train.init_from_checkpoint(checkpoint_filename, assignment_map)  # 여기서 실행되는 것은 아니다. 변수 초기화가 될 때, 실행된다.
     
