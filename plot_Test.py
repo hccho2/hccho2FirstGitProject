@@ -574,7 +574,7 @@ matplotlib.rc('font', family=font_name)
 
 
 plt.rcParams["font.family"] = 'NanumGothic'   #'NanumBarunGothic', 'NanumGothic'
-
+matplotlib.rcParams['axes.unicode_minus'] = False  # 한글 설정후, '-' 마이너스 부호 깨짐 해결.  http://taewan.kim/post/matplotlib_hangul/
 
 ##########################################################
 # 마진없이 저장.
