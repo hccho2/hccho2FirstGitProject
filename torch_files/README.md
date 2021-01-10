@@ -139,6 +139,22 @@ with torch.no_grad():
 
 ```
 
+## Binary Cross Entropy Loss
+```
+f = nn.Sigmoid()
+logits = torch.tensor([-2.1,0.,3.1])
+p = f(logits)
+labels = torch.Tensor([0,1,1])
+
+loss_fn = torch.nn.BCELoss()
+loss1 = loss_fn(f(logits),labels)
+loss2 = -(labels*p.log() + (1-labels)*(1-p).log()).mean()
+
+loss3 = (torch.clamp(logits,0) - logits*labels + (1+logits.abs().neg().exp()).log()).mean()  # numerically stable
+
+print(loss1, loss2, loss3)
+```
+
 
 ## pytorch tensor
 ```
