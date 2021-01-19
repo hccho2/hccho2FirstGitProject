@@ -52,6 +52,28 @@ tf.keras.Model ---> 상속받은 class
 # Loss Function: 'mse', 'binary_crossentropy' ... https://www.tensorflow.org/api_docs/python/tf/keras/losses 이곳의 function 이름을 넘기면 된다.
 
 
+=====================
+model = tf.keras.models.Sequential()
+model.add(tf.keras.Input(shape=(2,)))
+model.add(tf.keras.layers.Dense(3, activation='relu',name='xxx'))
+model.add(tf.keras.layers.Dense(4, activation='relu',name='yyy'))
+model.add(tf.keras.layers.Dense(5, activation='relu'))
+
+model.layers  # list
+
+model.get_layer('xxx')
+model.get_layer('xxx').trainable_weights
+model.get_layer('xxx').kernel
+model.get_layer('yyy').bias
+
+model.input
+model.output
+
+
+
+
+
+
 '''
 
 
@@ -355,11 +377,13 @@ def keras_standard_model2():  # tf.keras.Input 사용
     
     history = model.fit(X,Y,epochs=100,verbose=1)
     
+    plt.plot(history.history['loss'],label="train loss")
+    plt.show()
     
     print(X,Y)
     print(model.predict(X))
 
-
+    
 def keras_standard_model3():
     # https://towardsdatascience.com/advanced-keras-constructing-complex-custom-losses-and-metrics-c07ca130a618
     # Loss Function customization  ----> Loss function을 만들어 넘기는 과정이 좀 거지 같다....
@@ -691,9 +715,91 @@ def learning_rate_scheduler():
         print('step={}, lr = {}'.format(100000,round(model.optimizer.lr(100000).numpy(), 5)))  
         print('step={}, lr = {}'.format(200000,round(model.optimizer.lr(200000).numpy(), 5)))  
 
+
+
+
+
+def custom_activation_test():  
+    # @tf.custom_gradient를 이용해서 activation function 정의
+    # MyRelu(), MyRelu2()는 구현 방식의 차이일 뿐이다.
+    
+    
+    @tf.custom_gradient()
+    def MyRelu(x):
+        zeros = tf.zeros(tf.shape(x), dtype=x.dtype.base_dtype)
+    
+        def grad(dy):
+            return tf.keras.backend.switch(x > 0, dy, zeros)
+        return tf.keras.backend.switch(x > 0, x, zeros), grad
+    
+    @tf.custom_gradient()
+    def MyRelu2(x):
+        mask = x<0
+        zeros = tf.zeros(tf.shape(x), dtype=x.dtype.base_dtype)
+    
+        def grad(dy):
+            return tf.where(mask,zeros,dy)
+        return tf.where(mask,zeros,x), grad    
+
+
+
+
+    def MyRelu3(x):
+        # tensorflow 함수를 이용해도 각 함수의 auto gradient가 있기 때문에, 돌아가는 데는 문제가 없다.
+        # @tf.custom_gradient를 이용하면, analytic 미분을 통해, 효율적인 계산이 가능해 진다.
+        mask = x<0
+        zeros = tf.zeros(tf.shape(x), dtype=x.dtype.base_dtype)
+        return tf.where(mask,zeros,x)
+
+    
+    
+    x = tf.random.normal((2,3))
+    y = MyRelu2(x)
+    print(x,y)
+    
+    print("="*20)
+    
+    
+    batch_size = 2
+    input_dim = 3
+    
+    inputs = tf.keras.Input(shape=(input_dim,))  # 구제적인 입력 data없이 ---> placeholder같은 ...
+    
+    L1 = tf.keras.layers.Dense(units=10,input_dim=3,activation=MyRelu)
+    L2 = tf.keras.layers.Dense(units=1,activation=None)
+    
+    outputs = L2(L1(inputs))
+    
+    model = tf.keras.Model(inputs = inputs,outputs = outputs)  # model.input, model.output 
+    print(model.summary())
+    
+
+    
+    
+    X = tf.random.normal(shape=(batch_size, input_dim))
+    
+    Y = tf.random.normal(shape=(batch_size, 1))
+    
+    
+    optimizer = tf.keras.optimizers.Adam(lr=0.01)
+    model.compile(optimizer,loss='mse')
+    
+    history = model.fit(X,Y,epochs=100,verbose=1)
+    
+    plt.plot(history.history['loss'],label="train loss")
+    plt.show()
+    
+    print(X,Y)
+    print(model.predict(X))
+
+
+
+
+
+
 if __name__ == "__main__":    
     #embeddidng_test()
-    simple_model()
+    #simple_model()
     #keras_standard_model()   # ---> model_load_test
     
     #model_load_test()
@@ -706,6 +812,7 @@ if __name__ == "__main__":
     #load_data()
 
     #learning_rate_scheduler()
+    custom_activation_test()
 
 
 
