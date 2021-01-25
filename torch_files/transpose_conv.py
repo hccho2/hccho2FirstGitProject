@@ -228,15 +228,28 @@ def test():
     
     print( "행렬곱 미분으로 계산: \n", torch.matmul(delta.reshape(1,-1),w_unfold.T).reshape(4,4) )    
 
+
+def conv_commutative():
+    
+    x = torch.randn(1 ,1, 4, 4)
+    w = torch.randn(1, 1, 3, 3)
+    
+    
+    out1 = F.conv2d(x,w, padding=1)
+    out2 = F.conv2d(w.flip([2,3]), x.flip([2,3]), padding=2)
+    
+    print(out1)
+    print(out2)
+
+
 if __name__ == '__main__':
     #transepose_conv1()
     #transepose_conv2()
     #backward_test()
     
     #unfold_kernel_test()
-    test()
-
-
+    #test()
+    conv_commutative()
 
 
 
