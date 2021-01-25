@@ -156,7 +156,7 @@ def unfold_kernel(kernel, input_size):
     h_blocks, w_blocks = o_h, i_h
     h_block, w_block = toeplitz_list[0].shape
 
-    W_conv = np.zeros((h_blocks, h_block, w_blocks, w_block))
+    W_conv = np.zeros((h_blocks, h_block, w_blocks, w_block))  # OH,OW,H,W
 
     for i, B in enumerate(toeplitz_list):
         for j in range(o_h):
@@ -165,13 +165,83 @@ def unfold_kernel(kernel, input_size):
     W_conv.shape = (h_blocks*h_block, w_blocks*w_block)
 
     return W_conv.T
+
+
+
+def unfold_kernel_stride(kernel, input_size, stride=1):
+    # kernel을 (HxW) x (OH x OW) 크기로 변형해 준다.
+    # shapes
+    k_h, k_w = kernel.shape
+    i_h, i_w = input_size
+    o_h, o_w = (i_h-k_h)//stride + 1, (i_w-k_w)//stride + 1  # stride=1인 경우
+
+    # construct 1d conv toeplitz matrices for each row of the kernel
+    toeplitz_list  = []
+    for r in range(k_h):
+        toe = toeplitz(c=(kernel[r,0], *np.zeros(i_w-k_w)), r=(*kernel[r], *np.zeros(i_w-k_w)))
+        toeplitz_list.append( toe[::stride] ) 
+
+    # construct toeplitz matrix of toeplitz matrices (just for padding=0)
+    h_blocks, w_blocks = o_h, i_h
+    h_block, w_block = toeplitz_list[0].shape
+
+    W_conv = np.zeros((h_blocks, h_block, w_blocks, w_block))
+
+    for i, B in enumerate(toeplitz_list):
+        for j in range(o_h):
+            W_conv[j, :, i+j*stride, :] = B
+
+    W_conv.shape = (h_blocks*h_block, w_blocks*w_block)
+
+    return W_conv.T
+
+
+
 def unfold_kernel_test():
 
-    w = np.random.randn(2,2)
+    H=6;W=4
+    kernel_size = 2
+    
+    w = np.random.randn(kernel_size,kernel_size)
+    #w = np.arange(1,5).reshape(2,2)*10
+    
+    
     with np.printoptions(precision=3, suppress=True):
         print(f'kernel: \n{w}')
-        print(f'unfold kernel: \n{unfold_kernel(w,(4,4))}')
+        w_unfold = unfold_kernel(w,(H,W))
+        print(f'unfold kernel: {w_unfold.shape}\n{w_unfold}')
     
+    
+    OH = H-kernel_size + 1
+    OW = W-kernel_size + 1
+    image = np.random.rand(1,1,H,W)
+    
+    with np.printoptions(precision=3, suppress=True):
+        out = F.conv2d(torch.Tensor(image),torch.Tensor(w)[None,None])
+        print(f'pytoch conv: \n{out.numpy()}')
+        out2 = np.matmul(image.reshape(1,-1),w_unfold).reshape(OH,OW)
+        print(f'matmul conv: \n{out2}') 
+    
+
+
+    stride = 2
+    OH = (H-kernel_size)//stride + 1
+    OW = (W-kernel_size)//stride + 1    
+    w_unfold = unfold_kernel_stride(w,(H,W),stride)
+
+    with np.printoptions(precision=3, suppress=True):
+        out = F.conv2d(torch.Tensor(image),torch.Tensor(w)[None,None],stride=stride)
+        print(f'pytoch conv: \n{out.numpy()}')
+        out2 = np.matmul(image.reshape(1,-1),w_unfold).reshape(OH,OW)
+        print(f'matmul conv: \n{out2}') 
+
+
+
+
+
+
+
+
     
 def test():
     # https://nbviewer.jupyter.org/github/metamath1/ml-simple-works/blob/master/CNN/transconv_fullconv.ipynb
@@ -228,28 +298,15 @@ def test():
     
     print( "행렬곱 미분으로 계산: \n", torch.matmul(delta.reshape(1,-1),w_unfold.T).reshape(4,4) )    
 
-
-def conv_commutative():
-    
-    x = torch.randn(1 ,1, 4, 4)
-    w = torch.randn(1, 1, 3, 3)
-    
-    
-    out1 = F.conv2d(x,w, padding=1)
-    out2 = F.conv2d(w.flip([2,3]), x.flip([2,3]), padding=2)
-    
-    print(out1)
-    print(out2)
-
-
 if __name__ == '__main__':
     #transepose_conv1()
     #transepose_conv2()
     #backward_test()
     
-    #unfold_kernel_test()
+    unfold_kernel_test()
     #test()
-    conv_commutative()
+
+
 
 
 
