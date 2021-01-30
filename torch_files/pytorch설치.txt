@@ -35,7 +35,12 @@ https://aka.ms/vs/16/release/vc_redist.x64.exe       tensorflow에서와 동일�
 conda install -c anaconda numpy                   https://anaconda.org/anaconda/numpy
 conda install pytorch torchvision cudatoolkit=10.1 -c pytorch         https://pytorch.org/
 
+2021년 1월30일: pytorch 1.7.1 설치:  env tf2에 conda로 설치. conda install pytorch torchvision torchaudio cudatoolkit=10.1 -c pytorch
 
+
+
+
+=======================
 Google 검색: conda install 패키지이름 ----> Anaconda Cloud설치 명령 참고.
 
 conda install -c pytorch torchtext
