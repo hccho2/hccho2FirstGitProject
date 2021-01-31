@@ -4,7 +4,7 @@ torch.cuda.device_count()
 torch.cuda.get_device_name(0)
 torch.cuda.is_available()
 
-
+소스 코드 C++: https://github.com/pytorch/pytorch/tree/690eaf9c43f3f71051d90e9f47f25b014ce84681/aten/src/ATen/native/cpu
 
 ==============
 
