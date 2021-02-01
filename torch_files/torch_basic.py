@@ -126,7 +126,7 @@ nn.CrossEntropyLoss: 2D 또는 3D logit이 넘어잘 수 있다. (N,C) 또는 (N
 
 -----
 optimizer = torch.optim.SGD(model.parameters(), lr=0.05)
-#scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.1)  # scheduler.step()이 30분 call하면 0.1을 곱한다.
+#scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.1)  # scheduler.step()이 30번 호출될때 마다 0.1을 곱한다.
 # StepLR은 ExponentialLR을 좀 더 정교하게 .... 본질적으로 동일.
 scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.99, last_epoch=-1)  # 매 step마다 gamma를 곱한다.StepLR과 다를게 뭔가????
 # lr = 0.05     if epoch < 30
@@ -145,6 +145,10 @@ http://juditacs.github.io/2018/12/27/masked-attention.html
 DataLoader에서 num_workers> 0 ----> __main__ 이 있어야 한다. 
 jupyter notebook에서는 num_workers=0으로 해야 한다.
 
+----  model summary
+from torchsummary import summary
+net = MyVGG()
+summary(net, input_size=(3, 32, 32),device='cpu')
 
 
 '''
@@ -881,6 +885,7 @@ def init_test():
     hidden_size=5
     
     #batch_first=False(default) ---> (T,N,D)   True---> (N,T,D)
+    # dropout은 마지막 num_layers개의 layer에서 마지막을 제외하고 적용한다.
     rnn = nn.RNN(input_size=embedding_dim, hidden_size=hidden_size,num_layers=1,bias=True,nonlinearity='tanh', batch_first=True, dropout=0, bidirectional=False)
     
     y,h = rnn(z)  # stateful
