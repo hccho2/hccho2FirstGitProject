@@ -807,12 +807,12 @@ if __name__ == "__main__":
     #keras_standard_model2()
     #keras_standard_model3()
     #keras_standard_model4()
-    #mode_test()
+    mode_test()
 
     #load_data()
 
     #learning_rate_scheduler()
-    custom_activation_test()
+    #custom_activation_test()
 
 
 
