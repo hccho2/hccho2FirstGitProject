@@ -305,20 +305,85 @@ def user_defined_cell_decoder_test():
     
     print(logits.shape)
 
-
-
 ############# evalution에서도 dropout이 적용되는 layer############################
 class MCDropout(tf.keras.layers.Dropout):
     def call(self,inputs):
         super().call(inputs,training=True)
 
 
+
+class MyModel(tf.keras.Model):
+    def __init__(self,input_shape):
+        super(MyModel, self).__init__()
+
+        weight_decay = 1e-4
+
+        self.model = tf.keras.models.Sequential()
+        self.model.add(tf.keras.layers.Conv2D(32, (3,3), padding='same', kernel_regularizer=tf.keras.regularizers.l2(weight_decay), input_shape=input_shape))
+        self.model.add(tf.keras.layers.BatchNormalization())
+        self.model.add(tf.keras.layers.ELU())
+        
+        self.model.add(tf.keras.layers.Conv2D(32, (3,3), padding='same', kernel_regularizer=tf.keras.regularizers.l2(weight_decay)))
+        self.model.add(tf.keras.layers.BatchNormalization())
+        self.model.add(tf.keras.layers.ELU())        
+        
+        self.model.add(tf.keras.layers.MaxPooling2D(pool_size=(2,2)))
+        self.model.add(tf.keras.layers.Dropout(0.2))      
+
+
+        self.model.add(tf.keras.layers.Conv2D(64, (3,3), padding='same', kernel_regularizer=tf.keras.regularizers.l2(weight_decay)))
+        self.model.add(tf.keras.layers.BatchNormalization())
+        self.model.add(tf.keras.layers.ELU())
+        
+        self.model.add(tf.keras.layers.Conv2D(64, (3,3), padding='same', kernel_regularizer=tf.keras.regularizers.l2(weight_decay)))
+        self.model.add(tf.keras.layers.BatchNormalization())
+        self.model.add(tf.keras.layers.ELU())        
+        
+        self.model.add(tf.keras.layers.MaxPooling2D(pool_size=(2,2)))
+        self.model.add(tf.keras.layers.Dropout(0.3))    
+
+
+        self.model.add(tf.keras.layers.Conv2D(128, (3,3), padding='same', kernel_regularizer=tf.keras.regularizers.l2(weight_decay)))
+        self.model.add(tf.keras.layers.BatchNormalization())
+        self.model.add(tf.keras.layers.ELU())
+        
+        self.model.add(tf.keras.layers.Conv2D(128, (3,3), padding='same', kernel_regularizer=tf.keras.regularizers.l2(weight_decay)))
+        self.model.add(tf.keras.layers.BatchNormalization())
+        self.model.add(tf.keras.layers.ELU())        
+        
+        self.model.add(tf.keras.layers.MaxPooling2D(pool_size=(2,2)))
+        self.model.add(tf.keras.layers.Dropout(0.4))   
+
+        self.model.add(tf.keras.layers.Flatten())
+
+
+        self.built = True  # summary가 제대로 작동한다.
+
+    def call(self,x,training=None):  # training의 default 값으로 None이 좋다(Ture/False보다)
+        output = self.model(x)
+        return output
+    
+
+def model_test():
+    
+    input_shape = (32,32,3)
+    
+    model = MyModel(input_shape)
+    model.summary()
+    
+    
+    x = np.random.randn(2,32,32,3)
+    
+    out = model(x)
+    print(out.shape)
+
 if __name__ == '__main__':
     #simple_layer()
     #simple_layer2()
     #simple_rnn()
-    user_defined_cell_test()  # User Defined cell인 MyCell test
+    #user_defined_cell_test()  # User Defined cell인 MyCell test
     #user_defined_cell_decoder_test()  # User Defined cell인 MyCell + decoder test
 
+    model_test()
     print('Done')
 
