@@ -10,7 +10,7 @@ import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 import math
-
+import time
 # https://www.tensorflow.org/guide/keras/train_and_evaluate#custom_metrics   ---> 사용자 정의 metric 만들기.
 def mymetric(y_true, y_pred):  # y_true, y_pred
     return tf.reduce_mean(tf.square(y_true-y_pred))
@@ -70,39 +70,73 @@ class MyCallback(tf.keras.callbacks.Callback):
         #self.fig.tight_layout()
         self.fig.subplots_adjust(right=0.75, bottom=0.25)
         self.fig.canvas.draw()
+        plt.pause(1e-17)
 
 
 
-
-
-batch_size = 16
-input_dim = 300
-
-inputs = tf.keras.Input(shape=(input_dim,))  # 구제적인 입력 data없이 ---> placeholder같은 ...
-
-L1 = tf.keras.layers.Dense(units=500,input_dim=3,activation='relu')
-L2 = tf.keras.layers.Dense(units=1,activation=None)
-
-outputs = L2(L1(inputs))
-
-model = tf.keras.Model(inputs = inputs,outputs = outputs)  # model.input, model.output 
-print(model.summary())
-
-
-X = tf.random.normal(shape=(1000, input_dim))
-Y = tf.random.normal(shape=(1000, 1))
-
-
-optimizer = tf.keras.optimizers.Adam(lr=0.01)
-model.compile(optimizer,loss='mse',metrics=[mymetric])
-
-history = model.fit(X,Y,epochs=50,verbose=1,batch_size=batch_size,
-                    validation_data=(X,Y),
-                    callbacks=[MyCallback()])
+def plot_callback():
+    batch_size = 16
+    input_dim = 300
+    
+    inputs = tf.keras.Input(shape=(input_dim,))  # 구제적인 입력 data없이 ---> placeholder같은 ...
+    
+    L1 = tf.keras.layers.Dense(units=500,input_dim=3,activation='relu')
+    L2 = tf.keras.layers.Dense(units=1,activation=None)
+    
+    outputs = L2(L1(inputs))
+    
+    model = tf.keras.Model(inputs = inputs,outputs = outputs)  # model.input, model.output 
+    print(model.summary())
+    
+    
+    X = tf.random.normal(shape=(1000, input_dim))
+    Y = tf.random.normal(shape=(1000, 1))
+    
+    
+    optimizer = tf.keras.optimizers.Adam(lr=0.01)
+    model.compile(optimizer,loss='mse',metrics=[mymetric])
+    
+    history = model.fit(X,Y,epochs=50,verbose=1,batch_size=batch_size, validation_data=(X,Y), callbacks=[MyCallback()])
 
 
 
+class TimeHistory(tf.keras.callbacks.Callback):
+    def on_train_begin(self, logs={}):
+        self.times = []
+        self.s_time = time.time()
 
+    def on_epoch_begin(self, epoch, logs={}):
+        self.epoch_time_start = time.time()
+
+    def on_epoch_end(self, epoch, logs={}):
+        self.times.append(time.time() - self.epoch_time_start)
+        print(f"\t*****elapsed: {time.time()-self.s_time:.2f}")
+def time_callback():
+    batch_size = 16
+    input_dim = 300
+    
+    inputs = tf.keras.Input(shape=(input_dim,))  # 구제적인 입력 data없이 ---> placeholder같은 ...
+    
+    L1 = tf.keras.layers.Dense(units=500,input_dim=3,activation='relu')
+    L2 = tf.keras.layers.Dense(units=1,activation=None)
+    
+    outputs = L2(L1(inputs))
+    
+    model = tf.keras.Model(inputs = inputs,outputs = outputs)  # model.input, model.output 
+    
+    X = tf.random.normal(shape=(1000, input_dim))
+    Y = tf.random.normal(shape=(1000, 1))
+    
+    
+    optimizer = tf.keras.optimizers.Adam(lr=0.01)
+    model.compile(optimizer,loss='mse',metrics=[mymetric])
+    time_callback = TimeHistory()
+    history = model.fit(X,Y,epochs=20,verbose=1,batch_size=batch_size, validation_data=(X[:20],Y[:20]), callbacks=[time_callback])
+    print(time_callback.times)
+
+
+if __name__ == "__main__":
+    time_callback()
 
 
 
