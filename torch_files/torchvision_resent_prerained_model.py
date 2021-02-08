@@ -90,7 +90,7 @@ class MyDataset(Dataset):
     def __len__(self):
         return len(self.dataset)
 
-def get_dataloader():
+def get_dataloader(batch_size=32):
     data_dir = r'D:\hccho\CommonDataset\Pet-Dataset-Oxford\images'   # 테스트를 위해, data몇개만 모아, 작은 dataset을 만듬.
      
     train_transforms = transforms.Compose([
@@ -121,14 +121,14 @@ def get_dataloader():
     valid_dataset = MyDataset(valid_dataset0,valid_transforms)
         
     
-    train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=5,shuffle=True)
-    valid_dataloader = torch.utils.data.DataLoader(valid_dataset, batch_size=5,shuffle=False)    
+    train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size,shuffle=True)
+    valid_dataloader = torch.utils.data.DataLoader(valid_dataset, batch_size=batch_size,shuffle=False)    
     
     return train_dataloader, valid_dataloader,class_names
 
 
 def test():
-    train_dataloader, valid_dataloader,class_names = get_dataloader()
+    train_dataloader, valid_dataloader,class_names = get_dataloader(batch_size=16)
 
 
 
@@ -148,7 +148,7 @@ def train():
     
     model.to(device)   
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(model.parameters(), lr=0.1,momentum=0.9, weight_decay=5e-4)
+    optimizer = optim.SGD(model.parameters(), lr=0.01,momentum=0.9, weight_decay=5e-4)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer,  mode = 'max',threshold_mode='abs',threshold=0.001, factor=0.6,patience=10, min_lr=0.0001,verbose=True)
     
     s_time = time.time()
@@ -184,7 +184,7 @@ def train():
         
                 # print statistics
                 running_loss.append(loss.item())
-                pbar.set_description("epoch: {}, train acc:{:.4f}".format(epoch+1,acc/total))
+                pbar.set_description("epoch: {}, loss: {:.4f}, train acc:{:.4f}".format(epoch+1,loss.item(), acc/total))
                 pbar.update(1)
         print('[epoch: %d] loss: %.3f, train acc: %.3f elapsed: %.2f' % (epoch + 1, np.mean(running_loss), acc/total , time.time()-s_time),end="\t" )
         #scheduler.step()
@@ -195,7 +195,7 @@ def train():
             for i, data in enumerate(valid_dataloader):
                 inputs, labels = data
                 inputs = inputs.to(device)
-                outputs = net(inputs)
+                outputs = model(inputs)
                 
                 _, pred = outputs.max(axis=-1)
                 acc  += (pred.cpu()==labels).float().sum().item()
