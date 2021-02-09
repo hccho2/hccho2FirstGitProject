@@ -2036,7 +2036,75 @@ img_draw = ImageDraw.Draw(blank_image)
 img_draw.text((0, 0), 'Hello World', fill='red',font=font)
 plt.imshow(blank_image)
 plt.axis('off')
+=======================================================================================
+from PIL import Image,ImageDraw, ImageFont
+tf.reset_default_graph()
 
+def drawCaption(img, caption):
+    img_txt = Image.fromarray(img)
+    # get a font
+    #fnt = ImageFont.truetype('Pillow/Tests/fonts/FreeMono.ttf', 50)
+    #fnt = ImageFont.truetype('FreeMono.ttf', 25)  # font size
+    
+    font_path = os.path.join(os.environ['USERPROFILE'], r'AppData\Local\Microsoft\Windows\Fonts\NanumGothic-Regular.ttf')
+    fnt = ImageFont.truetype(font_path, 50)
+    
+    
+    
+    # get a drawing context
+    d = ImageDraw.Draw(img_txt)
+
+    # draw text, half opacity
+    #d.text(위치, .text, font, )
+    d.text((10, 10), 'Stage-I', font=fnt, fill=(0, 0, 255, 0))
+    d.text((10, 512), 'Stage-II', font=fnt, fill=(255, 255, 255, 255))
+    if img.shape[0] > 832:
+        d.text((10, 832), 'Stage-I', font=fnt, fill=(255, 255, 255, 255))
+        d.text((10, 1088), 'Stage-II', font=fnt, fill=(255, 255, 255, 255))
+
+    idx = caption.find(' ', 60)
+    if idx == -1:
+        d.text((256, 10), caption, font=fnt, fill=(255, 255, 255, 255))
+    else:
+        # caption일 길면 2줄로...
+        cap1 = caption[:idx]
+        cap2 = caption[idx+1:]
+        d.text((256, 10), cap1, font=fnt, fill=(255, 255, 255, 255))
+        d.text((256, 60), cap2, font=fnt, fill=(255, 255, 255, 255))
+
+    return img_txt
+
+
+
+cat_img = io.imread('cat.jpeg')  # integer numpy array, (194, 260, 3)
+
+
+cat_string = cat_img.tostring()  # b'\xff\xff\xff\xff\xff\xff\xff\xff\xff\ ....'
+
+reconstructed_cat_1d = np.fromstring(cat_string, dtype=np.uint8)  # array([255, 255, 255, ..., 255, 255, 255], dtype=uint8)
+reconstructed_cat_img = reconstructed_cat_1d.reshape(cat_img.shape)
+print(np.allclose(cat_img, reconstructed_cat_img))
+
+
+
+with tf.gfile.FastGFile('cat.jpeg', 'rb') as f:
+    cat_img2 = f.read()  # b'\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\
+    cat_img2 = tf.image.decode_jpeg(cat_img2, channels=3)
+    cat_img2 = tf.image.resize_images(cat_img2, size=cat_img.shape[:-1])
+    
+sess = tf.Session()
+cat_img2 = sess.run(cat_img2).astype(np.uint8) 
+
+# numerical 문제로 같은 값은 아니다.
+print(np.mean([cat_img, cat_img2],axis=(1,2,3)))
+
+io.imshow(np.concatenate([cat_img,cat_img2],axis=1))
+
+plt.show()
+
+
+A = drawCaption(cat_img, 'happY')
+A.show()
 
 =====================================================================================
 
