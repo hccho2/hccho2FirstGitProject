@@ -1144,6 +1144,7 @@ os.path.sep ===> '\\'  or '/'   ----> os.sep도 있는데, 이것보다는 os.pa
 os.path.dirname(filename)  # 'E:\\dir1\\dir2'
 os.path.abspath(filename)  # 'E:\\dir1\\dir2\\aa.txt'
 os.path.basename(filename)  # 'aa.txt'
+os.path.split(filename)  # directory와 파일명 분리: ('E:\\dir1\\dir2', 'aa.txt')
 os.path.splitext(filename)  ==> ('E:\\dir1\\dir2\\aa','txt')  이걸 이용해서 확장자 변경가능
 os.path.splitext(os.path.basename(filename))[0]  # ('aa', '.txt')     이렇게도 가능 filename.split(".")[0]
 os.path.join(os.path.dirname(filename), 'aaaa.dat')  # 'E:\\dir1\\dir2\\aaaa.dat'
