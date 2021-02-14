@@ -19,9 +19,11 @@ https://www.tensorflow.org/guide/data_performance  ----> 대용량을 다루기 
 '''
 
 
-
+import numpy as np
 import tensorflow as tf
 import time
+
+
 def data_performance_test():
     class ArtificialDataset(tf.data.Dataset):
         def _generator(num_samples):
@@ -95,11 +97,88 @@ def squence_test():
     pass  # TF2_RNN.py에 example 있음.
 
 
+
+
+def map_fn_test():
+    # 결론: mapping function을 randomness는 epoch마다 달라진다.
+    X = np.random.randn(4,2)
+    Y = np.arange(4)
+    
+    def map_fn(X,Y):
+        return (X + tf.random.normal(X.shape,dtype=X.dtype)*0.01,Y)
+    
+    
+    dataset = tf.data.Dataset.from_tensor_slices((X,Y))
+    
+    dataset = dataset.map(map_fn).repeat(2)
+    dataset = dataset.batch(2)
+    
+    
+    for d in dataset:
+        print(d)
+    
+
+    print('=='*10)
+    print(X)
+
+
+
+def image_model_test():
+    from tensorflow.keras.applications import resnet
+    X = np.random.randint(0,255,size=(4,224,224,3))
+    Y = np.arange(4)
+    dataset = tf.data.Dataset.from_tensor_slices((X,Y))
+    
+    
+    
+    model = resnet.ResNet50(weights=None,include_top=False,input_shape=(224,224,3))
+    
+    out = resnet.preprocess_input(X)
+    
+    
+    #print(X)
+    #print(out)
+    
+    dataset = dataset.map(lambda a,b: (resnet.preprocess_input(a), b))
+    dataset = dataset.batch(2)
+    
+    
+    for x,y in dataset.take(2):
+        print(x.shape,y.shape)
+    
+def padded_batch_test():
+
+    # Components of nested elements can be padded independently.
+    elements = [([1, 2, 3, 6], [10]),
+                ([4, 5], [11, 12])]
+    dataset = tf.data.Dataset.from_generator(lambda: iter(elements), (tf.int32, tf.int32))
+    # Pad the first component of the tuple to length 4, and the second
+    # component to the smallest size that fits.
+    dataset = dataset.padded_batch(2,padded_shapes=([4], [None]),padding_values=(-1, 100))
+    
+    A = list(dataset.as_numpy_iterator())
+    
+    print(A)
+
+
+
+
+
+
+
+
+
+    
+
 if __name__ == '__main__':
     #data_performance_test()
     
-    mnist_dataset_test()
+    #mnist_dataset_test()
 
+    #map_fn_test()
+    #image_model_test()
+    
+    padded_batch_test()
 
 
 
