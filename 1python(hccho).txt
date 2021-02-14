@@ -716,8 +716,9 @@ flags.DEFINE_string("sample_dir", "samples", "Directory name to save the image s
 flags.DEFINE_boolean("is_crop", False, "True for training, False for testing [False]")
 FLAGS = flags.FLAGS
 
-if not os.path.exists(FLAGS.checkpoint_dir):
+if not os.path.exists(FLAGS.checkpoint_dir):  # 또는: os.makedirs(FLAGS.checkpoint_dir,exist_ok=True)
     os.makedirs(FLAGS.checkpoint_dir)
+
 
 flags에 tf.app.flags 를 통해 객체를 저장하고 DEFINE_integer나 DEFINE_string 을 통해 아래 argparse와 같은 역할을 할 수 있습니다
 
