@@ -2,7 +2,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '-1'   # CPU Only Mode
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 $ CUDA_VISIBLE_DEVICES=0 python my_script.py # Uses GPU 0.
-
+$ CUDA_VISIBLE_DEVICES=2,3 python my_script.py # Uses GPU 2,3
 
 ============
 import os
