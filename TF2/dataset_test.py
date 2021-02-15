@@ -22,8 +22,9 @@ https://www.tensorflow.org/guide/data_performance  ----> 대용량을 다루기 
 import numpy as np
 import tensorflow as tf
 import time
-
-
+import glob
+import librosa
+import random
 def data_performance_test():
     class ArtificialDataset(tf.data.Dataset):
         def _generator(num_samples):
@@ -163,12 +164,105 @@ def padded_batch_test():
 
 
 
+def generator_test():
+    
+    wav_files = glob.glob(r'D:\hccho\CommonDataset\kss_small\kss\1\*.wav')
+
+    print(wav_files)
+    
+    wav_files = ['aa.wav', 'xxx.wav']
+    #wav_files = [3.5,2.4]
+
+    def gen(files):
+        for i, f in enumerate(files):
+            yield f
+
+    def gen2(files):
+        for i, f in enumerate(files):
+            yield {"a": i, "b": f}  # output_types에서 지정한 dict key와 일치해야 한다.
+
+    def gen3(files):
+        for i, f in enumerate(files):
+            yield [i]*(i+3),f  
+
+            
+    # output_types: generator가 return하는 type
+    datasets = tf.data.Dataset.from_generator(gen,output_types=tf.string, args=([wav_files])) # args는 []로 감싼 후, 넘겨야 한다.
+    datasets2 = tf.data.Dataset.from_generator(gen2,output_types={"a": tf.int32, "b": tf.string}, args=([wav_files]))
+    datasets3 = tf.data.Dataset.from_generator(gen3,output_types=(tf.int32, tf.string), args=([wav_files]))
+    
+    def map_fn(wav_files):
+        
+        return wav_files
+    
+    for x in datasets.take(2):
+        print(x)
+
+    print('='*20)
+    for x in datasets2.take(2):
+        print(x)
+
+    print('='*20)
+    for x in datasets3.take(2):
+        print(x)
 
 
+def generator_test2():
+    wav_files = glob.glob(r'D:\hccho\CommonDataset\kss_small\kss\1\*.wav')
 
+    def gen(files):
+        # python 함수 사용 가능
+        for i, f in enumerate(files):
+            yield f
+  
+    def map_fn(wav_file):
+        # python 함수를 사용하기 위해서는 tf.numpy_function을 사용해야 된다.
+        # 이 경우는 test 목적으로 만든 것. 효율적인 방식은 아님. 매번 반복해서, wav 파일을 librosa가 load하여, mel_spectrogram으로 변환할 필요가 없다.
+        # 한번 load해서 npy로 저장해 놓응 것을, 여기서는 불러와서 return하는 방식을 사용해야 한다.
+        scale, sr = tf.numpy_function(librosa.load,[wav_file],(tf.float32,tf.int32))
+        mel_spectrogram = tf.numpy_function(lambda x,y: librosa.feature.melspectrogram(x, sr=y, n_fft=2048, hop_length=512, n_mels=10), [scale,sr],tf.float32)  # n_mels,n_frames
+        return tf.transpose(mel_spectrogram)
+            
+    # output_types: generator가 return하는 type
+    datasets = tf.data.Dataset.from_generator(gen,output_types=tf.string, args=([wav_files])) # args는 []로 감싼 후, 넘겨야 한다.
 
+    datasets = datasets.map(map_fn)
 
     
+    for x in datasets.take(2):
+        print(x.shape)
+
+
+def generator_test3():
+    data_files = glob.glob(r'D:\hccho\CommonDataset\kss_small\dump_kss\train\ids\*.npy')
+
+    def gen(data_files):
+        random.shuffle(data_files)
+        n_block = 4
+        batch_size=2
+        
+        n_iter = len(data_files) //(n_block*batch_size)
+        for i in range(n_iter):
+            examples =  [np.load(x) for x in data_files[i*(n_block*batch_size):(i+1)*(n_block*batch_size)] ]
+            examples.sort(key=lambda x: len(x))
+        
+            for e in examples:
+                yield e
+  
+
+            
+    # output_types: generator가 return하는 type
+    datasets = tf.data.Dataset.from_generator(gen,output_types=tf.int32, args=([data_files])) # args는 []로 감싼 후, 넘겨야 한다.
+
+    datasets = datasets.padded_batch(2,padded_shapes=[None],padding_values=0)
+
+    
+    for x in datasets.take(10):
+        print(x.shape, x)
+        print('-'*5)
+
+
+
 
 if __name__ == '__main__':
     #data_performance_test()
@@ -178,7 +272,9 @@ if __name__ == '__main__':
     #map_fn_test()
     #image_model_test()
     
-    padded_batch_test()
-
+    #padded_batch_test()
+    #generator_test()
+    #generator_test2()
+    generator_test3()
 
 
