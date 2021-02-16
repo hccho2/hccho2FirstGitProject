@@ -18,6 +18,9 @@ https://www.tensorflow.org/guide/data_performance?hl=ko#%EA%B0%80%EC%9E%A5_%EC%A
 
 
 
+** 한번에 memory에 올릴 수 없는 data의 반복적인 loading은 generator보다는 map에서 처리하는 것이 효율적인다. generator에서 file이름을 생성하고,map에서 loading한다. 
+
+
 '''
 
 
@@ -226,5 +229,4 @@ if __name__ == '__main__':
     #generator_test()
     #generator_test2()
     #generator_test3()
-
 
