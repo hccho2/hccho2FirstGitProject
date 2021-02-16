@@ -37,6 +37,7 @@ import matplotlib.pyplot as plt
 from tensorflow.keras.initializers import Constant
 import math
 
+
 class MyProjection(tf.keras.layers.Layer):  # tf.keras.layers.Layer    tf.keras.Model
     def __init__(self,output_dim):
         super(MyProjection, self).__init__()   # 이게 있어야 한다.
@@ -79,10 +80,15 @@ def cell_loop():
     
     cells = tf.keras.layers.StackedRNNCells([tf.keras.layers.SimpleRNNCell(hidden_dim),tf.keras.layers.LSTMCell(hidden_dim*2)]) # 또는  cells = tf.keras.layers.StackedRNNCells(cells)
     
-    initial_state =  cells.get_initial_state(inputs=None, batch_size=batch_size,dtype=tf.float32)
+    
+    zero_initial_flag=False
+    if zero_initial_flag:
+        initial_state =  cells.get_initial_state(inputs=None, batch_size=batch_size,dtype=tf.float32)
+    else:
+        initial_state = (tf.random.normal(shape=(batch_size,hidden_dim)),[ tf.random.normal(shape=(batch_size,hidden_dim*2)),tf.random.normal(shape=(batch_size,hidden_dim*2))  ] )
     
     
-    print(initial_state)
+    print("initial_state: ", initial_state)
     inputs = tf.random.normal([batch_size, seq_length, input_dim])
     
     state = initial_state
@@ -91,13 +97,15 @@ def cell_loop():
         output, state = cells(inputs[:,i,:],state)
         output_all.append(output)
     
-    output_all = tf.stack(output_all,axis=1)
-    print(output_all)
+    output_all = tf.stack(output_all,axis=1)  # [[3, 8],[3, 8],...,[3, 8]] ==> (3,5,8)
+    print("output: ", output_all)
     print('='*20)
     # tf.keras.layers.RNN으로  batch 처리
     rnn = tf.keras.layers.RNN(cells,return_sequences=True,return_state=False)  # return_state=True
     output_all2 = rnn(inputs,initial_state)   # output_all과 같은 결과
-    print(output_all2)
+    print("output: ", output_all2)
+    
+    print("All Close", np.allclose(output_all,output_all2))
 
 
 
@@ -1111,11 +1119,11 @@ def InferenceSampler_test():
 
 
 if __name__ == '__main__':
-    #cell_loop()
+    cell_loop()
     #simple_rnn()
     
     #curve_fitting()
-    curve_fitting2()  # Sequence로 dataset 공급
+    #curve_fitting2()  # Sequence로 dataset 공급
     
     #simple_rnn2()
     #bidirectional_rnn_test()
