@@ -6,8 +6,12 @@ tensorflow.tf.keras.applications  ---> resnet50부터 있고, resnet18이 없다
 1. ResNetTypeI, ResNetTypeII 로 resent18,.. resnet152   ---> https://github.com/calmisential/TensorFlow2.0_ResNet(bisa가 좀 잘몯 되어 있다. 수정해서 반영함)
 
 2. 두번째 방식은 ResNetType1만 가능하다.  ---> 핸드온 머신러닝 14장 코드
+MyResnet
+
 
 3. 수정 Resnet(ResNetX): cifar10 data에 구조를 변경한 모델.   <----    https://github.com/kuangliu/pytorch-cifar
+BasicBlockX, BottleneckX, ResNetX
+
 
 1,2는 resnet18로 2개 비교해 보면 동일하다.
 
@@ -279,7 +283,8 @@ class MyResnet(tf.keras.Model):
         def call(self,x, training=None):
             return self.model(x,training)
 
-
+###########################################################
+###########################################################
 class BasicBlockX(tf.keras.Model): # 논문의 resnet구조로 다르다.
     expansion = 1
 
@@ -302,6 +307,7 @@ class BasicBlockX(tf.keras.Model): # 논문의 resnet구조로 다르다.
         out += self.shortcut(x,training)
         out = tf.nn.relu(out)
         return out
+
 
 class BottleneckX(tf.keras.Model):
     expansion = 4
@@ -356,6 +362,8 @@ class ResNetX(tf.keras.Model):
             layers.append(block(self.in_planes, planes, stride))
             self.in_planes = planes * block.expansion
         return tf.keras.models.Sequential(layers)
+    
+    # 단순히 super를 build를 call하는 것이면, 만들지 않아도 된다.
     def build(self,input_shape):
         #super(ResNetX, self).build(input_shape)
         super().build(input_shape)
@@ -374,11 +382,11 @@ class ResNetX(tf.keras.Model):
 
 def ResNetX18():
     return ResNetX(BasicBlockX, [2, 2, 2, 2])
-def ResNet34():
+def ResNetX34():
     return ResNetX(BasicBlockX, [3, 4, 6, 3])
-def ResNet50():
+def ResNetX50():
     return ResNetX(BottleneckX, [3, 4, 6, 3])
-def ResNet101():
+def ResNetX101():
     return ResNetX(BottleneckX, [3, 4, 23, 3])
 
 input_shape=[32, 32, 3]
@@ -401,7 +409,7 @@ model3.summary()
 
 # #######
 print('==========ResNet50==========')
-model4 = ResNet50()
+model4 = ResNetX50()
 model4.build(input_shape=(None,32,32,3))
 model4.summary()
 
