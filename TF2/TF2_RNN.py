@@ -18,11 +18,11 @@ get_initial_state()함수가 class type에 따라, 일관성이 없다....
 tensorflow-addons
 
 - attention_test(): tfa.seq2seq.BahdanauAttention()에 memory(encoder output), memory_sequence_length를 넝어 준다.
-이 방식은 나중에 memory에 tensor가 들어가면 문제가 방생한다.
+이 방식은 나중에 memory에 tensor가 들어가면 문제가 발생한다.
 
 - attention_test2(): tfa.seq2seq.BahdanauAttention(units=11, memory=None, memory_sequence_length=None)  ---> memory, memory_sequence_length를 None으로 처리한 후,
 attention_mechanism.setup_memory()를 통해 train step마다 data를 넣어준다.
-이 방식인 tensorflow-addons의 정석적인 방법이다.
+이 방식이 tensorflow-addons의 정석적인 방법이다.
 
 - attention_test3(): https://github.com/tensorflow/addons/blob/master/docs/tutorials/networks_seq2seq_nmt.ipynb 에서 추출한 코드.
 
@@ -934,7 +934,7 @@ def attention_test2():
         
         
         attention_mechanism.setup_memory(memory=encoder_outputs, memory_sequence_length=encoder_sequence_length, memory_mask=None)
-        attention_init_state = decoder_cell.get_initial_state(inputs = None, batch_size = batch_size, dtype=tf.float32)  # inputs의 역할은 없느데.. .source보면.
+        attention_init_state = decoder_cell.get_initial_state(inputs = None, batch_size = batch_size, dtype=tf.float32)  # inputs의 역할은 없는데.. .source보면.
         
         attention_init_state = attention_init_state.clone(cell_state=init_state )
         
