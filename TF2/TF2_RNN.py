@@ -80,8 +80,7 @@ def cell_loop():
     
     cells = tf.keras.layers.StackedRNNCells([tf.keras.layers.SimpleRNNCell(hidden_dim),tf.keras.layers.LSTMCell(hidden_dim*2)]) # 또는  cells = tf.keras.layers.StackedRNNCells(cells)
     
-    
-    zero_initial_flag=False
+    zero_initial_flag=True
     if zero_initial_flag:
         initial_state =  cells.get_initial_state(inputs=None, batch_size=batch_size,dtype=tf.float32)
     else:
@@ -101,7 +100,7 @@ def cell_loop():
     print("output: ", output_all)
     print('='*20)
     # tf.keras.layers.RNN으로  batch 처리
-    rnn = tf.keras.layers.RNN(cells,return_sequences=True,return_state=False)  # return_state=True
+    rnn = tf.keras.layers.RNN(cells,return_sequences=True,return_state=False)  # return_state=True ==> return되는 output의 list의 길이는 cells의 갯수 + 1
     output_all2 = rnn(inputs,initial_state)   # output_all과 같은 결과
     print("output: ", output_all2)
     
@@ -1119,8 +1118,8 @@ def InferenceSampler_test():
 
 
 if __name__ == '__main__':
-    cell_loop()
-    #simple_rnn()
+    #cell_loop()
+    simple_rnn()
     
     #curve_fitting()
     #curve_fitting2()  # Sequence로 dataset 공급
