@@ -7,6 +7,8 @@ torch.cuda.is_available()
 소스 코드 C++: https://github.com/pytorch/pytorch/tree/690eaf9c43f3f71051d90e9f47f25b014ce84681/aten/src/ATen/native/cpu
 
 ==============
+conda vs pip ---> 무엇으로 설치되어 있나 확인하는 방법: conda list했을 때, conda(pytorch로 보임), pip(torch로 보임)
+==============
 
 1. numpy를 pip로 설치하고 numpy를 conda로 설치
 
