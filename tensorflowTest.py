@@ -2643,7 +2643,29 @@ print(img.shape)
 plt.imshow(img)
 plt.show()
 ###############################################
+# grouped convolution, group convolution
+# cpu에서는 계산 안됨.		   
+L = tf.keras.layers.Conv2D(filters=12,kernel_size=3)
 
+x = np.random.randn(2,10,10,4)
+
+y = L(x)
+
+print(x.shape, y.shape)
+for l in L.trainable_variables:
+    print(l.name, l.shape)
+    
+
+
+L2 = tf.keras.layers.Conv2D(filters=12,kernel_size=3,groups=2)
+
+x = np.random.randn(2,10,10,4)
+
+y2 = L2(x)
+
+print(x.shape, y2.shape)
+for l in L2.trainable_variables:
+    print(l.name, l.shape)
 		       
 	
 ###############################################
