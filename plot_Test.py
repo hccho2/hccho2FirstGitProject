@@ -282,7 +282,7 @@ plt.setp(patches[20], 'facecolor', 'r')
 
 
 ##########################################################
-
+plt.figure(figsize=(16,5))
 # 1 by 4로 이미지 배치
 plt.subplot(1,4,1)
 img1 = xxxdfdfd
