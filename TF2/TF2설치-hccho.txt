@@ -108,6 +108,8 @@ sudo chmod a+r /usr/local/cuda-10.1/include/cudnn.h /usr/local/cuda-10.1/lib64/l
 그래서, conda로 2.2 설치. https://anaconda.org/anaconda/tensorflow-gpu
 > conda install -c anaconda tensorflow-gpu
 
+==>2021년2월27일: pip
+
 
 =====================================
 2020년 6월26일 노트북 재설치
