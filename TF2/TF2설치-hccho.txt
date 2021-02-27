@@ -66,6 +66,11 @@ ubuntu에 tensorflwo 2.2 설치
 https://www.tensorflow.org/install?hl=ko   ---->  pip install --upgrade pip    ---> pip install tensorflow
 
 여기 설명되어 있는대로, pip를 먼저 upgrade하고 설치해야한다. pip upgrade하지 않으면, 1.4가 설치된다.
+
+2.2 설치된 상태에서는 pip install tensorflow --upgrade해야 최신버전이 설치된다.
+
+
+
 x86_64 --> dev(local)
 cuda 10.1 https://developer.nvidia.com/cuda-10.1-download-archive-update2?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu&target_version=1804&target_type=deblocal
 
