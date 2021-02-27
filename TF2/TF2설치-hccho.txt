@@ -109,8 +109,26 @@ sudo chmod a+r /usr/local/cuda-10.1/include/cudnn.h /usr/local/cuda-10.1/lib64/l
 > conda install -c anaconda tensorflow-gpu
 2021년2월27일에도 같은 현상. 
 ---------
-2021년2월27일: 가상 환경 새로 만들어서 시도.
+4gpu pc에서....
 
+2021년2월27일: 가상 환경 새로 만들어서 시도. 
+2021년2월28일 새로운  env 생성 --> conda create -n tf python=3.6
+-->pip install tensorflow --> 2.4.1설치. cuda 11.0과 호환.
+--> tf.test.is_gpu_availbale() ---> False
+--> cudnnn 설치: https://cafepurple.tistory.com/39
+> tar -xzvf cudnn-11.0-linux-x64-v8.0.5.39.tgz    --->cuda 디렉토리 생성.
+
+> sudo cp ./cuda/include/* /usr/local/cuda-11.0/include
+> sudo cp -P ./cuda/lib64/* /usr/local/cuda-11.0/lib64
+> sudo sudo chmod a+r /usr/local/cuda-11.0/include/cudnn.h /usr/local/cuda-11.0/lib64/libcudnn*
+
+~/.profile 아래에 path 추가:
+
+export PATH=/usr/local/cuda-11.0/bin:$PATH
+export LD_LIBRARY_PATH=/usr/local/cuda-11.0/lib64:$LD_LIBRARY_PATH
+
+source ~/.profile 다시 load
+--> 잘 작동함.
 
 
 
