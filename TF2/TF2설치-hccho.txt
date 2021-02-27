@@ -67,7 +67,7 @@ https://www.tensorflow.org/install?hl=ko   ---->  pip install --upgrade pip    -
 
 여기 설명되어 있는대로, pip를 먼저 upgrade하고 설치해야한다. pip upgrade하지 않으면, 1.4가 설치된다.
 
-2.2 설치된 상태에서는 pip install tensorflow --upgrade해야 최신버전이 설치된다.
+2.2 설치된 상태에서는 pip install tensorflow --upgrade해야 최신버전이 설치된다.  --->설치는 되지만, 에러 --->
 
 
 
