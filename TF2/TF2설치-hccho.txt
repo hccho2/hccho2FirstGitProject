@@ -107,8 +107,12 @@ sudo chmod a+r /usr/local/cuda-10.1/include/cudnn.h /usr/local/cuda-10.1/lib64/l
 2020년8월31일, tensorflow 2.3으로 업그레이드(pip설치) 후,  tf.test.is_gpu_available()  ---> False,   ---> 다시 tensorflow 2.2 설치해도 안됨.
 그래서, conda로 2.2 설치. https://anaconda.org/anaconda/tensorflow-gpu
 > conda install -c anaconda tensorflow-gpu
+2021년2월27일에도 같은 현상. 
+---------
+2021년2월27일: 가상 환경 새로 만들어서 시도.
 
-==>2021년2월27일: pip
+
+
 
 
 =====================================
