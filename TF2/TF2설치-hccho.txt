@@ -26,11 +26,12 @@ https://github.com/tensorflow/tensorflow/issues/35618#issuecomment-596631286   <
  latest microsoft visual c++ redistributable 설치하면, 해결된다. 
  https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads            x64: vc_redist.x64.exe
 
+ 2021년 3월8일: tensorflow 2.4설치 ---> cuda 11.0 요구.
  
  
 
  
-*******************
+***********cudnn********
 cudnn 설치 안해도, tf.test.is_gpu_available() ---> 에러 안남. 실제 돌릴 때, error.
 cudnn설치: cudnn은 쉽다.   cudnn-10.1-windows10-x64-v7.6.4.38.zip
 
