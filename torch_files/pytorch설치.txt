@@ -4,7 +4,7 @@ torch.cuda.device_count()
 torch.cuda.get_device_name(0)
 torch.cuda.is_available()
 
-python run.py --data-path binarized_mnist.npz -q 500
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 소스 코드 C++: https://github.com/pytorch/pytorch/tree/690eaf9c43f3f71051d90e9f47f25b014ce84681/aten/src/ATen/native/cpu
@@ -62,7 +62,7 @@ PATH:   C:\Anaconda3\envs\torch15;C:\Anaconda3\envs\torch15\Library\bin;
 
 
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 ##########################
 ##########################
 
