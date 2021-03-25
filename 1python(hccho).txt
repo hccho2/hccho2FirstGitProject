@@ -90,7 +90,10 @@ Eclipse에 이미 만들어져 있는 project 추가: New -> Project -> General 
 
 import sys
 sys.path.append("../")   <--- 코드내에 추가
-sys.path.append("D:\\hccho\\im2txt\\im2txt")
+sys.path.append("D:\\hccho\\im2txt\\im2txt")   # append는 제일 끝에 추가
+sys.path.insert(0, 'py파일이 있는 경로')        # 0 --> 0번째 추가.
+
+
 
 sys.path.insert(0,'D:\\hccho\\ML\\PythonCode\\StackGAN-master')  <--- 코드내에 추가
 또는 eclipse project properties에서 Resource-Linked Resources에서 path를 등록하면 
