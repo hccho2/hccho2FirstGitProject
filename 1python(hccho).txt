@@ -2214,8 +2214,20 @@ if __name__=='__main__':
     print('6! =', factorial(6))
 
 =====================================================================================
+test_data = '''
+;;; # CMUdict  --  Major Version: 0.07
+)PAREN  P ER EH N
+'TIS  T IH Z
+ADVERSE  AE0 D V ER1 S
+ADVERSE(1)  AE1 D V ER2 S
+ADVERSE(2)  AE2 D V ER1 S
+ADVERSELY  AE0 D V ER1 S L IY0
+ADVERSITY  AE0 D V ER1 S IH0 T IY2
+BARBERSHOP  B AA1 R B ER0 SH AA2 P
+YOU'LL  Y UW1 L
+'''
 
-
+io.StringIO(test_data)  # 파일로 부터 읽어오는 효과를 만들 수 있다.  --> 파일이름을 넘기는 곳에 이렇게 해서 넘기면 된다.
 =====================================================================================
 
 
