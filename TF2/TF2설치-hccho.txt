@@ -131,7 +131,9 @@ export LD_LIBRARY_PATH=/usr/local/cuda-11.0/lib64:$LD_LIBRARY_PATH
 source ~/.profile 다시 load
 --> 잘 작동함.
 
-
+***** path확인
+> echo $PATH      <========== 대문자 PATH
+> echo $LD_LIBRARY_PATH
 
 
 =====================================
