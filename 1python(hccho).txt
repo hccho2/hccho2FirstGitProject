@@ -755,6 +755,9 @@ np.array(Image.fromarray(img).resize((10,10)))  # 여기서 img: uint8 numpy arr
 import os, glob
 a = os.path.join("../tensorflow-style-transfer-master","images", "*.jpg") #string을  \로 이어  path를 만든다.
 b = glob.glob(a) # wild card를 풀어  filename list를 만든다.
+
+files = glob.glob(os.path.join(base_path,'*','*.wav'))  #   여러개의 하위디렉토리 모두의 파일.
+
 =====================================================================================
 input_dir = "D:\\hccho\\CycleGAN-TensorFlow-master\\data\\apple2orange\\testA"
 x = os.scandir(input_dir)
