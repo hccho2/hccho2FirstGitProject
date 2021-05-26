@@ -571,7 +571,7 @@ plt.show()
 import matplotlib.font_manager as fm
 font_name = fm.FontProperties(fname=r'C:\Users\MarketPoint\AppData\Local\Microsoft\Windows\Fonts\NanumGothic-Regular.ttf').get_name()
 plt.rc('font', family=font_name)
-#fm._rebuild()   # cache 때문에 rebuild가 한번 필요함.
+#fm._rebuild()   # cache 때문에 rebuild가 한번 필요함.   ----> C:\Users\UserName\.matplotlib\fontList.json 이파일을 삭제해도 된다.
 
 
 plt.rcParams["font.family"] = 'NanumGothic'   #'NanumBarunGothic', 'NanumGothic'
