@@ -470,6 +470,23 @@ lines = ','.join(lines)
 lines = lines.replace('\n','')
 data = np.fromstring(lines,sep=',',dtype=np.float).reshape(dimX,dimY)
 print(data)
+
+
+=====================================================================================
+
+
+def line_finder():
+    
+    filename = r"C:\Users\MarketPoint\Downloads\screenlog.ko_en"
+    
+    with open(filename,'rt') as f:
+        Lines = f.readlines()
+    for i, l in enumerate(Lines):
+        matches = re.findall("val acc epoch:", l)
+        if matches:
+            print((Lines[i-6].strip() + l).strip()) #### 6줄 위의 line도 같이 출력
+
+
 =====================================================================================
 #\n 없이 읽기
 words = open(filename, encoding='utf-8').read().splitlines()  # list ['가게', '가격', '가구', '가구',...]
