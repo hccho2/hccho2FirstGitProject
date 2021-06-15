@@ -22,14 +22,15 @@ def line_remover():
     
     
     '''
-    input_file = r"D:\MathWordProblemSolving\SVAMP-arkilpatel\data\ko_en5\math23k_en_ko_raw.csv"
-    output_file = r"D:\MathWordProblemSolving\SVAMP-arkilpatel\data\ko_en5\math23k_en_ko.csv"
+#     input_file = r"D:\MathWordProblemSolving\SVAMP-arkilpatel\data\ko_en5\math23k_en_ko_raw.csv"
+#     output_file = r"D:\MathWordProblemSolving\SVAMP-arkilpatel\data\ko_en5\math23k_en_ko.csv"
 
 
 #     input_file = r"D:\MathWordProblemSolving\SVAMP-arkilpatel\data\ko_en5\ape210k_train_en_ko_raw.csv"
 #     output_file = r"D:\MathWordProblemSolving\SVAMP-arkilpatel\data\ko_en5\ape210k_train_en_ko.csv"
 
-
+    input_file = r"D:\MathWordProblemSolving\SVAMP-arkilpatel\data\ko_en4_new\train.csv"
+    output_file = r"D:\MathWordProblemSolving\SVAMP-arkilpatel\data\ko_en4_new\train_.csv"
 
     with open(input_file,'rt',encoding='utf8') as f:
         Lines = f.readlines()
@@ -43,9 +44,11 @@ def line_remover():
         if line.find(r'((())/(()))') >=0:
             bad_counter = bad_counter+1
 
-        elif line.find('\\') >=0:
+        elif line.find('\\') >=0:   # back slash가 있는 latex 코드.
             bad_counter = bad_counter+1
         
+        elif line.find('계산:') >=0:
+            bad_counter = bad_counter+1        
         else:
             result_all.append(line)
             good_counter = good_counter +1
@@ -70,9 +73,9 @@ def find_patten():
     
     matches = re.findall(r"number\d{1}[^ ]",s)
     
-    print(matches)
+    print('sample: ', matches)
     
-    input_file = r"D:\MathWordProblemSolving\SVAMP-arkilpatel\data\ko_en5\train.csv"
+    input_file = r"D:\MathWordProblemSolving\SVAMP-arkilpatel\data\ko_en4_new\train.csv"
     
     Lines = pd.read_csv(input_file)
         
@@ -85,5 +88,6 @@ def find_patten():
             print(line)
             exit()
 if __name__ == '__main__':
-    line_finder()
+    #line_finder()
     #line_remover()
+    find_patten()
