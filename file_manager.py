@@ -1,6 +1,7 @@
 import numpy as np
 import re
 import pandas as pd
+import json
 def line_finder():
     '''
     파일에서 필요한 부분만 추출
@@ -87,7 +88,25 @@ def find_patten():
         if matches:
             print(line)
             exit()
+
+def json_loader():
+    json_filename = r"C:\Users\BRAIN\Downloads\ape210k_train_en_ko.json"
+    json_output = r"C:\Users\BRAIN\Downloads\xxx.json"
+    
+    
+    data = json.load(open(json_filename,'r',encoding='UTF8'))
+    print(type(data))
+    with open(json_output, "wt",encoding='UTF8') as json_file:
+    
+        json.dump(data, json_file,ensure_ascii=False, indent=4)
+
+
+
+
+
 if __name__ == '__main__':
     #line_finder()
     #line_remover()
-    find_patten()
+    #find_patten()
+    json_loader()
+    
