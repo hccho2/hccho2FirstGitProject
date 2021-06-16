@@ -101,12 +101,28 @@ def json_loader():
         json.dump(data, json_file,ensure_ascii=False, indent=4)
 
 
+def file_line_shuffle():
+    filename = r"D:\MathWordProblemSolving\SVAMP-arkilpatel\data\ko_en6_new\arithmetic_data_ver2.csv"
+    output_file = r"D:\MathWordProblemSolving\SVAMP-arkilpatel\data\ko_en6_new\arithmetic_data_ver2_shuffle.csv"
+    
+    
+    
+    with open(filename,'rt',encoding='utf8') as f:
+        Lines = f.readlines()    # list
 
+    head = Lines[0]
+    Lines = Lines[1:]
+    
+    random.shuffle(Lines)
+    print(type(Lines))
 
-
+    with open(output_file,'wt',encoding='utf8') as f:
+        f.write(head)
+        for line in Lines:
+            f.write(line)   # result 끝에 줄바꿈 포함.
 if __name__ == '__main__':
-    #line_finder()
+    line_finder()
     #line_remover()
     #find_patten()
-    json_loader()
-    
+    #json_loader()
+    #file_line_shuffle()
