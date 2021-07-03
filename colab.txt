@@ -71,7 +71,12 @@ files.download('./checkpoint/model.ckpt-21000.meta')
 
 
 ###########################################
-#Google Drive File ID로 다운받기: FILEID(2곳)를 실제 id(예: 1FeGIbSz2E1A63JZP_XIxnGaSRt7AhXFf)로 대체하면 된다.
+#Google Drive File ID로 다운받기: 
+
+* 100M 이하 파일: wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=파일ID' -O 파일명
+
+
+* 큰 파일: FILEID(2곳)를 실제 id(예: 1FeGIbSz2E1A63JZP_XIxnGaSRt7AhXFf)로 대체하면 된다.
 !wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=FILEID' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=FILEID" -O FILENAME && rm -rf /tmp/cookies.txt
 
 
