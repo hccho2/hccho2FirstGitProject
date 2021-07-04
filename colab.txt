@@ -122,3 +122,27 @@ colab matplotlib에서 한글 깨짐  ---> 아래 3개 라인을 cell에 넣고 
 runtime 다시 시작. -----> 이게 반드시 필요함.
 
 plt.rc('font', family='NanumBarunGothic')   # ---> '/usr/share/fonts/truetype/nanum/NanumBarunGothic.ttf' 와 같이 /usr/share/fonts/truetype/nanum에 10개 파일이 있다.
+
+
+----
+# 한글 test code:
+import numpy as np
+data = np.random.randint(-200, 100, 50).cumsum()
+
+# 한글을 넣어놓고 그러보면 깨진다
+plt.figure(figsize=(10,8))
+plt.plot(range(50), data, 'r')
+plt.title('시간별 가격추이')
+plt.ylabel('주식가격')
+plt.xlabel('시간(분)')
+----
+
+###########################################
+
+
+
+###########################################
+
+
+
+###########################################
