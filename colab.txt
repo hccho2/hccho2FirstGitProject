@@ -110,3 +110,11 @@ https://nbviewer.jupyter.org    +  https://github.com/hccho2/hccho2FirstGitProje
 jupyter notebook에서 debuging하기
 
 from IPython.core.debugger import set_trace     # 코드 중간에 set_trace()를 삽입하면 breakpoint 역할을 한다. 'c'continue 'q': quit
+
+
+###########################################
+colab matplotlib에서 한글 깨짐  ---> 아래 3개 라인을 cell에 넣고 실행하면 된다.
+
+!sudo apt-get install -y fonts-nanum
+!sudo fc-cache -fv
+!rm ~/.cache/matplotlib -rf
