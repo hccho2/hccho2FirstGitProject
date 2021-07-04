@@ -71,7 +71,7 @@ files.download('./checkpoint/model.ckpt-21000.meta')
 
 
 ###########################################
-#Google Drive File ID로 다운받기: 
+#Google Drive File ID로 다운받기:          https://medium.com/@acpanjan/download-google-drive-files-using-wget-3c2c025a8b99
 
 * 100M 이하 파일: wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=파일ID' -O 파일명
 
