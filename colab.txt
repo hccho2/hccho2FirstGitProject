@@ -121,4 +121,4 @@ colab matplotlib에서 한글 깨짐  ---> 아래 3개 라인을 cell에 넣고 
 
 runtime 다시 시작. -----> 이게 반드시 필요함.
 
-plt.rc('font', family='NanumBarunGothic') 
+plt.rc('font', family='NanumBarunGothic')   # ---> '/usr/share/fonts/truetype/nanum/NanumBarunGothic.ttf' 와 같이 /usr/share/fonts/truetype/nanum에 10개 파일이 있다.
