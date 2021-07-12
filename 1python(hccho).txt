@@ -338,7 +338,7 @@ var1 = xxx
 var2 = xxx
 var3 = xx
 
-with open('test.txt','wb') as f:
+with open('test.pickle','wb') as f:
 	pickle.dump(var1,f)
 	pickle.dump(var2,f)
 	pickle.dump(var3,f)
@@ -347,7 +347,7 @@ with open('test.txt','wb') as f:
 
 덤프(dump)한 순서대로 로드(load)된다.
  
-with open('test.txt','rb') as f:
+with open('test.pickle','rb') as f:
 	data1=pickle.load(f)
 	data2=pickle.load(f)
 	data3=pickle.load(f)
