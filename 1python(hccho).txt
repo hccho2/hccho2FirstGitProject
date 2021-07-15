@@ -1966,7 +1966,7 @@ data_dir = os.path.join(data_dir,all_dirs[0][0])
 data_files = glob(os.path.join(data_dir,'eval','*.txt'))
 
 =====================================================================================
-os.environ['USERPROFILE']     ====> 'C:\\Users\\BRAIN'
+os.environ['USERPROFILE'](windows), os.environ['HOME'](ubuntu)     ====> 'C:\\Users\\BRAIN'
 
 os.path.expanduser("~")    ===> 'C:\\Users\\BRAIN'
 
