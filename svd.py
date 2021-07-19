@@ -115,7 +115,7 @@ def test1():
 
     from sklearn.decomposition import TruncatedSVD
     svd = TruncatedSVD(n_components=3)
-    vecs = svd.fit_transform(a)
+    vecs = svd.fit_transform(a) # svd.transform(a)와 같은 결과
     print("sklearn TruncatedSVD: ", vecs)  # col reduction 결과와 동일
 
 

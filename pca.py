@@ -81,7 +81,7 @@ def PCA1():
     #pca = PCA(0.8)  # 80%까지의 component를 추출
     
     # fit을 통홰, normalization(평균 차감)
-    principalComponents = pca.fit_transform(X)  # 저장된 Scaler로 scale이 조정된다.
+    principalComponents = pca.fit_transform(X)  # 저장된 Scaler로 scale이 조정된다. pac.mean_
     
     # pca.explained_variance_ ---> p와 동일
     # pca.components_  ---> 행벡터가 eigenvector
@@ -165,8 +165,7 @@ def PCA2():
     plt.tight_layout()
     plt.show()
 if __name__ == '__main__':
-    covariance_test()
-    #PCA1()
+    #covariance_test()
+    PCA1()
     #PCA2()
-
 
