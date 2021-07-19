@@ -9,6 +9,38 @@ import librosa
 from sklearn.decomposition import PCA
 import pandas as pd
 import seaborn as sns
+import sys
+
+def covariance_test():
+    N=20; M=4
+    X = np.concatenate([np.random.randn(N,M-1), np.random.rand(N,1)],axis=-1) + np.random.randn(1,M)*5.0
+
+    m = np.mean(X,axis=0)
+    std = np.std(X,axis=0)
+    print("mean, std: ", m, std)
+    X0 = X-m
+    X00 = (X-m)/std
+    
+    C = (1/N)*np.matmul(X.T,X)
+    C0 = (1/N)*np.matmul(X0.T,X0)  # np.cov(X.T,bias=True)와 동일
+    C00 = (1/N)*np.matmul(X00.T,X00)
+    
+    
+    print('C: ', C)
+    print('C0: ', C0)
+    print('np.cov: ', np.cov(X.T,bias=True))
+    print('C00: ', C00)
+    
+    print(np.linalg.eig(C))
+    p,v = np.linalg.eig(C0) # pca.fit_transform(X) 결과와 일치
+    print(p,v)   
+    print(np.linalg.eig(C00))
+    
+    pca = PCA(n_components=2)
+    principalComponents = pca.fit_transform(X)
+    print("eigenvectors(행벡터): ",pca.components_)
+    
+    print('Done')
 
 def PCA1():
     # 2차원 data의 main 축 찾기
@@ -19,22 +51,25 @@ def PCA1():
     X = np.array([np.random.normal(0,4,N),np.random.normal(0,1,N)])   # (2, N)
     X = np.matmul([[np.cos(theta),-np.sin(theta)],[np.sin(theta),np.cos(theta)]],X).T   # X를 회전...
     
-    
-    np.mean(X,axis=0)
+    m = np.mean(X,axis=0)
+    std = np.std(X,axis=0)
+    X0 = X-m
+    print("mean: ", m)
     plt.scatter(X[:,0],X[:,1],s=1)
     plt.axis([-10, 10, -10, 10])
     #plt.show()
     
 
-    C = (1/N)*np.matmul(X.T,X)
+    C = (1/N)*np.matmul(X.T,X)  # normalize가 되지 않았기 때문에, 정확한 covariance matrix가 아니다.
+    C0 = (1/N)*np.matmul(X0.T,X0)  # np.cov(X.T,bias=True)와 동일  --> 이것이 covariance matrix!!!
     
-    p,v = np.linalg.eig(C)  # column vector가 eigenvector
+    p,v = np.linalg.eig(C0)  # v의 column vector가 eigenvector
     
     q=np.argsort(-p)
     w = v[:,q]
     
     
-    Y=np.matmul(w.T,X.T).T
+    Y=np.matmul(X0,w)  # 각 column별로 부호 차이가 날 수 있다. 감안하면 principalComponents와 일치.
     
     plt.scatter(Y[:,0],Y[:,1],s=1)
     plt.axis([-10, 10, -10, 10])
@@ -45,8 +80,7 @@ def PCA1():
     pca = PCA(n_components=2)  # 뽑아낼 component 갯수 지정
     #pca = PCA(0.8)  # 80%까지의 component를 추출
     
-    # 먼저 fit을 하게 되면, normalization을 수행한다.
-    pca.fit(X)  # StandardScaler의 내부적으로 저장해 둔다.
+    # fit을 통홰, normalization(평균 차감)
     principalComponents = pca.fit_transform(X)  # 저장된 Scaler로 scale이 조정된다.
     
     # pca.explained_variance_ ---> p와 동일
@@ -131,7 +165,8 @@ def PCA2():
     plt.tight_layout()
     plt.show()
 if __name__ == '__main__':
+    covariance_test()
     #PCA1()
-    PCA2()
+    #PCA2()
 
 
