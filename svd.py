@@ -117,7 +117,8 @@ def test1():
     svd = TruncatedSVD(n_components=3)
     vecs = svd.fit_transform(a) # svd.transform(a)와 같은 결과
     print("sklearn TruncatedSVD: ", vecs)  # col reduction 결과와 동일
-
+    # explained_variance_, explained_variance_ratio_  --> 이것에 대한 설명은 TruncatedSVD 소스 코드를 보면 된다.
+    print("explained_variance/explained_variance_ratio: ", svd.explained_variance_ , "/", svd.explained_variance_ratio_)
 
 
 

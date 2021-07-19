@@ -86,6 +86,7 @@ def PCA1():
     # pca.explained_variance_ ---> p와 동일
     # pca.components_  ---> 행벡터가 eigenvector
     print(pca.explained_variance_ratio_)  # p/np.sum(p)와 동일
+    print(pca.explained_variance_)  # p*N/(N-1)
     
     
     print('Done')
