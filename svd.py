@@ -63,6 +63,10 @@ def test1():
     print(UU.shape,ss.shape,VV.shape)  # (9, 7) (7,) (7, 7)
     
     
+    covariance_matrix = np.cov(a.T,bias=True)
+    www,zzz = np.linalg.eig(covariance_matrix)
+    
+    
     
     with printoptions(precision=3, suppress=True):
         

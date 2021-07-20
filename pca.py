@@ -28,7 +28,7 @@ def covariance_test():
     
     print('C: ', C)
     print('C0: ', C0)
-    print('np.cov: ', np.cov(X.T,bias=True))
+    print('np.cov: ', np.cov(X.T,bias=True))  # C0와 일치, bias=Tuue(1/N), bias=False(1/(N-1))
     print('C00: ', C00)
     
     print(np.linalg.eig(C))
@@ -80,7 +80,7 @@ def PCA1():
     pca = PCA(n_components=2)  # 뽑아낼 component 갯수 지정
     #pca = PCA(0.8)  # 80%까지의 component를 추출
     
-    # fit을 통홰, normalization(평균 차감)
+    # fit을 통홰, normalization(평균 차감)  ---> X가 아닌, X-m에 PCA를 적용하는 것임.
     principalComponents = pca.fit_transform(X)  # 저장된 Scaler로 scale이 조정된다. pac.mean_
     
     # pca.explained_variance_ ---> p와 동일
