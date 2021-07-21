@@ -86,7 +86,8 @@ def PCA1():
     # pca.explained_variance_ ---> p와 동일
     # pca.components_  ---> 행벡터가 eigenvector
     print(pca.explained_variance_ratio_)  # p/np.sum(p)와 동일
-    print(pca.explained_variance_)  # p*N/(N-1)
+    print("eignevalue: ", pca.explained_variance_)  # p*N/(N-1)
+    print("eigenvector(row vector): ", pca.components_)  # w는 행벡터
     
     
     print('Done')
@@ -166,6 +167,11 @@ def PCA2():
     plt.tight_layout()
     plt.show()
 if __name__ == '__main__':
-    covariance_test()
-    #PCA1()
+    #covariance_test()
+    PCA1()
     #PCA2()
+
+
+arrowprops=dict(arrowstyle='->',linewidth=2,shrinkA=0, shrinkB=0)  # shrinkA(출발점에서의 간격), shrinkB(도착점에서의 간격)
+plt.annotate("hccho",xy=(0.2,0.5),xytext=(1,1),arrowprops=arrowprops)  # xy가 목적된 좌표지만, xytext 위치에 표시하겠다.
+
