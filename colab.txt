@@ -140,7 +140,7 @@ plt.xlabel('시간(분)')
 ###########################################
 400M파일을 업로드하면 시간이 많이 걸림, 100M 4개로 분할 압축하면 동시에 업로드되면서 빠르게 올라감.
 windows에서 반디집 zip으로 분할 압축된 파일은 colab에서 unzip하면 error발생
-> 7z -x 파일명.zip   ===>  OK           https://groups.google.com/g/bandizip-win/c/G2bQP9TBQOg?pli=1
+> 7z x 파일명.zip   ===>  OK           https://groups.google.com/g/bandizip-win/c/G2bQP9TBQOg?pli=1
 
 
 
