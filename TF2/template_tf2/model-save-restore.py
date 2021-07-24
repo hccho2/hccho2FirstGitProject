@@ -1,5 +1,7 @@
 
 '''
+hp['slack_send_msg'] = True/False로 slack으로 message보낼지 결정.
+
 > python model-save-restore.py --test
 > python model-save-restore.py --train --load_path hccho-ckpt\hccho-mm-2020-08-24_10-50-03
 > python model-save-restore.py --load_path hccho-ckpt\hccho-mm-2020-08-24_10-50-03
@@ -23,7 +25,7 @@ import os
 def train():
     load_path = args.load_path
     log, load_path,restore_path,checkpoint_path = prepare(hp,load_path)
-    print = log
+    print = log  # slack으로 message가 간다.
     print(load_path+'\t'+restore_path+'\t'+checkpoint_path)
     
     
@@ -63,13 +65,14 @@ def train():
     Y = tf.random.normal(shape=(10, 1))
     
     for epoch in range(start_epoch, start_epoch+hp['num_epoch']):
-        print('epoch: {}/{}'.format(epoch,start_epoch+hp['num_epoch']-1))
-        model.fit(X,Y,batch_size=hp['batch_size'], epochs=1,verbose=1,validation_split=0.1)
+        
+        history  = model.fit(X,Y,batch_size=hp['batch_size'], epochs=1,verbose=1,validation_split=0.1)
+        print('epoch: {}/{}, loss: {}, val_loss: {}'.format(epoch,start_epoch+hp['num_epoch']-1,history.history['loss'],history.history['val_loss']),slack=hp['slack_send_msg'])
         step_count += 1
     
         if (epoch)%5==0:
             ckpt_save_path = ckpt_manager.save(checkpoint_number = epoch)   # epoch으로 할지? step_count로 할지...
-            print ('Saving checkpoint for epoch {} at {}'.format(epoch,ckpt_save_path))
+            print ('Saving checkpoint for epoch {} at {}'.format(epoch,ckpt_save_path),slack=hp['slack_send_msg'])
 
 
 def test():
@@ -81,8 +84,8 @@ if __name__ == '__main__':
     parser.add_argument('--test', dest='train_flag', action='store_false')
     parser.set_defaults(train_flag=True)
 
-    parser.add_argument('--load_path', default=None)
-    #parser.add_argument('--load_path', default='hccho-ckpt\\hccho-mm-2020-08-24_10-50-03')
+    #parser.add_argument('--load_path', default=None)
+    parser.add_argument('--load_path', default='hccho-ckpt\\hccho-mm-2020-08-24_10-50-03')
 
     args = parser.parse_args()
     print(args)
