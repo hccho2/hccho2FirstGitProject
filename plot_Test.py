@@ -562,6 +562,7 @@ plt.show()
 # heat map
 data = np.random.randn(10,10)
 
+# data의 값이 강도를 나타낸다. data가 10x10이므로, 그림도 10x10이 된다.
 plt.imshow(data, cmap='hot', interpolation='none')  # interpolation='nearest'
 plt.show()
 
