@@ -113,6 +113,10 @@ from IPython.core.debugger import set_trace     # 코드 중간에 set_trace()�
 
 
 ###########################################
+matplotlib 한글: 
+http://corazzon.github.io/matplotlib_font_setting
+
+######
 colab matplotlib에서 한글 깨짐  ---> 아래 3개 라인을 cell에 넣고 실행하면 된다.
 
 !sudo apt-get install -y fonts-nanum
