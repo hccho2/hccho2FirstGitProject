@@ -134,7 +134,8 @@ source ~/.profile 다시 load
 ***** path확인
 > echo $PATH      <========== 대문자 PATH
 > echo $LD_LIBRARY_PATH
-
+======   
+failed call to cuInit: CUDA_ERROR_UNKNOWN: unknown error   ---> https://developia.tistory.com/16
 
 =====================================
 2020년 6월26일 노트북 재설치
