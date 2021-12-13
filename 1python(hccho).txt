@@ -1,5 +1,5 @@
 python -m pip install --upgrade pip
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'  # cpu only
 os.environ["CUDA_VISIBLE_DEVICES"]= "2,3"
 
 
