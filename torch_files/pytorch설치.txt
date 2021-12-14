@@ -42,6 +42,7 @@ conda install pytorch torchvision cudatoolkit=10.1 -c pytorch         https://py
 
 2021년 1월30일: pytorch 1.7.1 설치:  env tf2에 conda로 설치. conda install pytorch torchvision torchaudio cudatoolkit=10.1 -c pytorch
 2021년 5월09일: pytorch 1.8.1 설치:  env tf2에 conda로 설치. conda install pytorch torchvision torchaudio cudatoolkit=10.2 -c pytorch
+2021년 12월14일: pytorch 1.10 설치:  env tf2에 conda로 설치. conda install pytorch torchvision torchaudio cudatoolkit=10.2 -c pytorch
 
 
 
