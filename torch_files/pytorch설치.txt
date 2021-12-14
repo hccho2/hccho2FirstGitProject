@@ -92,6 +92,10 @@ torchvision 0.2.2가 설치되어 있어, 0.8로 upgraae 하려는데, conda ins
 conda install torchvision -c pytorch
 
 
+=========================
+pytorch 1.8.1, LAS모델 돌릴때, batch_size=1인 상황에서 에러 발생
+cuda error: cublas_status_alloc_failed when calling `cublascreate(handle)`
+--> pytorch 1.10 설치 후에는 에러 안남.
 
 
 
