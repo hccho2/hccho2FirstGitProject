@@ -338,11 +338,13 @@ def hard_attention():
         previous_attention = attention
     
 def parallel_attention():
-    previous_attention = tf.one_hot(tf.zeros((3,),tf.int32),4)
+    batch_size=3
+    encoder_length = 6
+    previous_attention = tf.one_hot(tf.zeros((batch_size,),tf.int32),encoder_length)
     sess = tf.Session()
     history = []
-    for i in range(10):
-        p_choose_i = tf.convert_to_tensor(sigmoid(np.random.normal(0,1,[3,4]).astype(np.float32))) 
+    for i in range(5):
+        p_choose_i = tf.convert_to_tensor(sigmoid(np.random.normal(0,1,[batch_size,encoder_length]).astype(np.float32))) 
         cumprod_1mp_choose_i = tf.contrib.seq2seq.safe_cumprod(1 - p_choose_i, axis=1, exclusive=True)
         attention = p_choose_i*cumprod_1mp_choose_i*tf.cumsum(previous_attention / tf.clip_by_value(cumprod_1mp_choose_i, 1e-10, 1.), axis=1)
         attention_ = sess.run(attention)
