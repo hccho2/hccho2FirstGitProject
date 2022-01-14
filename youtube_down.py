@@ -1,6 +1,5 @@
 cmd에서도 가능
-> youtube-dl -x --audio-format mp3 https://www.youtube.com/watch?v=4J5cKU5IUAI&t=4678s
-> youtube-dl -f bestaudio https://www.youtube.com/watch?v=4J5cKU5IUAI&t=4678s --output "out.%(ext)s"
+> youtube-dl --prefer-ffmpeg --extract-audio --audio-format mp3 --audio-quality 0 --embed-thumbnail https://www.youtube.com/watch?v=MheC7IUtiIA
 
 import os
 import youtube_dl
