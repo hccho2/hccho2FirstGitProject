@@ -1,5 +1,6 @@
 cmd에서도 가능
-> youtube-dl --prefer-ffmpeg --extract-audio --audio-format mp3 --audio-quality 0 --embed-thumbnail https://www.youtube.com/watch?v=MheC7IUtiIA
+> youtube-dl --prefer-ffmpeg --extract-audio --audio-format mp3 --audio-quality 0 --embed-thumbnail https://www.youtube.com/watch?v=MheC7IUtiIA   썸네일도 다운.
+> youtube-dl --prefer-ffmpeg --extract-audio --audio-format mp3 --audio-quality 0 https://www.youtube.com/watch?v=MheC7IUtiIA
 
 import os
 import youtube_dl
