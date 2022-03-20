@@ -1,4 +1,4 @@
-## pytorch cononical form
+## pytorch canonical form
 
 ```
 train_op = tf.train.AdamOptimizer(learning_rate=0.01).minimize(loss)   # tensorflow
