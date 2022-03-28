@@ -56,7 +56,7 @@ downloaded.GetContentFile('wiki_corpus.txt')
 ###########################################
 # 구글 드라이브 연결
 from google.colab import drive 
-drive.mount('/content/gdrive/')  # gdrive라는 디렉토리가 생성된다.
+drive.mount('/content/gdrive/')  # gdrive라는 디렉토리가 생성된다.  ---> 그 아래에 MyDrive가 있고, 그 아래에 구글 드라이브 파일/디렉토리가 보인다.
 
 
 ###########################################
