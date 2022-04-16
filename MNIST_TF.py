@@ -572,6 +572,7 @@ def MNIST_CNN():
         
 def MNIST_CNN2():
     # test acc를 98.85 정도에서 99.3정도로 올리기 위해 모두의 딥러닝 강좌와 동일하게 모델 작성
+    # https://github.com/hunkim/DeepLearningZeroToAll/blob/master/lab-11-2-mnist_deep_cnn.py
     mnist = input_data.read_data_sets("../CommonDataset/mnist", one_hot=True)
     nb_classses = 10
     data_feature = 784
