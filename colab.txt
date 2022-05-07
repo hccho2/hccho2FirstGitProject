@@ -10,6 +10,12 @@ VM 지속시간: 12시간
 /content   아래에서 작업
 /root  도 있다.  여기가: os.path.expanduser("~")
 
+(x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data() ===> ~/.keras에 다운받는다.
+
+!ls -lRS /root  --> 하위디렉토리 안 보인다.
+!ls -lRS /root/.keras  ---> 이렇게 하면, 다운받은 파일이 보인다.
+
+
 
 ==========================================================
 try:
