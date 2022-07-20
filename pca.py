@@ -28,7 +28,7 @@ def covariance_test():
     
     print('C: ', C)
     print('C0: ', C0)
-    print('np.cov: ', np.cov(X.T,bias=True))  # C0와 일치, bias=Tuue(1/N), bias=False(1/(N-1))
+    print('np.cov: ', np.cov(X.T,bias=True))  # C0와 일치, bias=True(1/N), bias=False(1/(N-1))
     print('C00: ', C00)
     
     print(np.linalg.eig(C))
