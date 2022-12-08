@@ -33,6 +33,7 @@ cp -r a /test/b/      또는 cp -r a /test/b
 
 eg.
 !mkdir ./data/
+!mkdir -p ./train/audio/   <----- multiple path
 !mv wiki_corpus.txt ./data/
 ----
 
