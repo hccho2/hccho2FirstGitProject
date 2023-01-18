@@ -133,6 +133,7 @@ code_1.48.2-1598353430_amd64.deb
 ====================================
 디렉토리 압축
 > zip xxx.zip -r 디렉토리_이름/*
+> !zip -s 100m -o pytorch_model.zip ./nsmc-finetuning/pytorch_model.bin    <---- 분할 압축
 
 ==========================================
 
