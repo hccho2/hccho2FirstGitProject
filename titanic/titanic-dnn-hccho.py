@@ -47,7 +47,7 @@ for dataset in train_test_data:
     dataset['Cabin'] = dataset['Cabin'].astype('category',categories=["A", "B", "C", "D", "E", "F", "G", "T"])
     
     
-    # Fare Missing을 Pclass 빈도가 가장 많은 data로
+    # Cabin Missing을 Pclass 빈도가 가장 많은 data로
     dataset['Cabin'] = dataset.groupby('Pclass').Cabin.transform(lambda x: x.fillna(x.mode()[0]))
     
     # 가족 data합치기
