@@ -1,9 +1,18 @@
+'''
 cmd에서도 가능
-> youtube-dl --prefer-ffmpeg --extract-audio --audio-format mp3 --audio-quality 0 --embed-thumbnail https://www.youtube.com/watch?v=MheC7IUtiIA   썸네일도 다운.
-> youtube-dl --prefer-ffmpeg --extract-audio --audio-format mp3 --audio-quality 0 https://www.youtube.com/watch?v=MheC7IUtiIA
+> youtube-dl -x --audio-format mp3 https://www.youtube.com/watch?v=4J5cKU5IUAI&t=4678s
+> youtube-dl -f bestaudio https://www.youtube.com/watch?v=4J5cKU5IUAI&t=4678s --output "out.%(ext)s"
+> youtube-dl -x --audio-format mp3 --audio-quality 0 https://www.youtube.com/watch?v=4J5cKU5IUAI&t=4678s
+
+
+
+'t' is not recognized as an internal or external command, operable program or batch file.   --> 관리자권한으로 실행해야 한다.
+
+'''
+
 
 import os
-import youtube_dl
+import youtube_dl # pip install youtube-dl
 
 VIDEO_DOWNLOAD_PATH = './'  # 다운로드 경로
 
@@ -30,16 +39,17 @@ def download_video_and_subtitle(output_dir, youtube_video_list):
             print('error', e)
 
 def download():
-    youtube_url_list = [ 'https://www.youtube.com/watch?v=0bcDSniiusU' ]
+    # short https://youtube.com/shorts/nca6easwPB4  ---> https://youtube.com/watch?v=nca6easwPB4
+    youtube_url_list = [ 'https://youtube.com/watch?v=nca6easwPB4' ]
     download_video_and_subtitle(VIDEO_DOWNLOAD_PATH, youtube_url_list)
 
 def convert():
     import moviepy.editor as mp
 
-    clip = mp.VideoFileClip("그대 먼 곳에-마음과마음.mp4")
-    clip.audio.write_audiofile("그대 먼 곳에-마음과마음.mp3")
+    clip = mp.VideoFileClip("이문세BEST.mp4")
+    clip.audio.write_audiofile("이문세BEST.mp3")
 if __name__ == '__main__':
-    #download()
-    convert()
+    download()
+    #convert()
 
     print('Complete download!')
