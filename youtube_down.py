@@ -40,16 +40,45 @@ def download_video_and_subtitle(output_dir, youtube_video_list):
 
 def download():
     # short https://youtube.com/shorts/nca6easwPB4  ---> https://youtube.com/watch?v=nca6easwPB4
-    youtube_url_list = [ 'https://youtube.com/watch?v=nca6easwPB4' ]
+    youtube_url_list = [ 'https://www.youtube.com/watch?v=Rm2_KRMDzDY' ]
     download_video_and_subtitle(VIDEO_DOWNLOAD_PATH, youtube_url_list)
 
 def convert():
     import moviepy.editor as mp
 
-    clip = mp.VideoFileClip("이문세BEST.mp4")
-    clip.audio.write_audiofile("이문세BEST.mp3")
+    clip = mp.VideoFileClip(r"D:\music\블루라이트 요코하마 NAVID 이시다 아유미.mp4")
+    clip.audio.write_audiofile("D:\music\블루라이트 요코하마 NAVID 이시다 아유미.mp3")
+
+def extract_frames():
+    import cv2
+    filename = r"C:\Users\MarketPoint\Downloads\탁구서브.mp4"
+    output_dir = r"D:\temp\frames"
+    
+    vidcap = cv2.VideoCapture(filename)
+    
+    count = 0
+    
+    while(vidcap.isOpened()):
+        retval, image = vidcap.read()
+        if not retval:
+            break
+        
+        # 이미지 사이즈 960x540으로 변경
+        image = cv2.resize(image, (960, 540))
+         
+        # 30프레임당 하나씩 이미지 추출
+        if(int(vidcap.get(1)) % 1 == 0):
+            print('Saved frame number : ' + str(int(vidcap.get(1))))
+            # 추출된 이미지가 저장되는 경로
+            cv2.imwrite(os.path.join(output_dir,f"frame{count:0>4}.png"), image)
+            #print('Saved frame%d.jpg' % count)
+            count += 1
+            
+    vidcap.release()
+
 if __name__ == '__main__':
-    download()
+    #download()
     #convert()
+    extract_frames()
 
     print('Complete download!')
