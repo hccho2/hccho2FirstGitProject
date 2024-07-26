@@ -12,7 +12,9 @@ cmd에서도 가능
 
 
 import os
-import youtube_dl # pip install youtube-dl
+#import youtube_dl # pip install youtube-dl   ---> 버전 바뀜 pip install yt-dlp
+from yt_dlp import YoutubeDL
+
 
 VIDEO_DOWNLOAD_PATH = './'  # 다운로드 경로
 
@@ -40,14 +42,29 @@ def download_video_and_subtitle(output_dir, youtube_video_list):
 
 def download():
     # short https://youtube.com/shorts/nca6easwPB4  ---> https://youtube.com/watch?v=nca6easwPB4
-    youtube_url_list = [ 'https://www.youtube.com/watch?v=Rm2_KRMDzDY' ]
+    youtube_url_list = [ 'https://www.youtube.com/watch?v=tvsxt9Wjpp4&list=WL&index=2' ]
     download_video_and_subtitle(VIDEO_DOWNLOAD_PATH, youtube_url_list)
+
+
+def download2():
+    # short https://youtube.com/shorts/nca6easwPB4  ---> https://youtube.com/watch?v=nca6easwPB4
+    youtube_url_list = [ 'https://www.youtube.com/watch?v=tvsxt9Wjpp4&list=WL&index=2' ]
+    
+    ydl_opts = {
+        'quiet': True,
+        'verbose': False,
+        'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
+        'outtmpl': f'{VIDEO_DOWNLOAD_PATH}%(title)s.%(ext)s',
+    }
+    with YoutubeDL(ydl_opts) as ydl:
+        ydl.download(youtube_url_list)
+
 
 def convert():
     import moviepy.editor as mp
 
-    clip = mp.VideoFileClip(r"D:\music\블루라이트 요코하마 NAVID 이시다 아유미.mp4")
-    clip.audio.write_audiofile("D:\music\블루라이트 요코하마 NAVID 이시다 아유미.mp3")
+    clip = mp.VideoFileClip(r"D:\videos\Always Remember Us This Way.mp4")
+    clip.audio.write_audiofile(r"D:\videos\Always Remember Us This Way.mp3")
 
 def extract_frames():
     import cv2
@@ -64,7 +81,8 @@ def extract_frames():
             break
         
         # 이미지 사이즈 960x540으로 변경
-        image = cv2.resize(image, (960, 540))
+        #image = cv2.resize(image, (960, 540))
+        image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
          
         # 30프레임당 하나씩 이미지 추출
         if(int(vidcap.get(1)) % 1 == 0):
@@ -77,8 +95,8 @@ def extract_frames():
     vidcap.release()
 
 if __name__ == '__main__':
-    #download()
+    download2()
     #convert()
-    extract_frames()
+    #extract_frames()
 
     print('Complete download!')
